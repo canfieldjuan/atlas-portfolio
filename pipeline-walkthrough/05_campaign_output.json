@@ -1,0 +1,53 @@
+{
+  "_comment": "Generated campaign targeting Meridian Technologies -- personalized from enrichment data",
+  "id": "c9d8e7f6-5432-1abc-def0-fedcba987654",
+  "company_name": "Meridian Technologies",
+  "vendor_name": "Salesforce",
+  "product_category": "CRM",
+
+  "opportunity_score": 84,
+  "urgency_score": 8.2,
+  "pain_categories": [
+    { "category": "pricing", "severity": "primary" },
+    { "category": "ux", "severity": "primary" }
+  ],
+  "competitors_considering": [
+    { "name": "HubSpot", "displacement_confidence": "high" },
+    { "name": "Pipedrive", "displacement_confidence": "medium" }
+  ],
+  "seat_count": null,
+  "contract_end": "Q3 2026",
+  "decision_timeline": "within_quarter",
+  "buying_stage": "active_purchase",
+  "role_type": "economic_buyer",
+
+  "key_quotes": [
+    {
+      "quote": "not worth the $180K/year anymore",
+      "pain_category": "pricing"
+    },
+    {
+      "quote": "reps spend more time fighting the system than selling",
+      "pain_category": "ux"
+    }
+  ],
+
+  "channel": "email_cold",
+  "subject": "Meridian's CRM evaluation -- data from 847 Salesforce reviews",
+  "body": "Hi Michael,\n\nI noticed Meridian Technologies is evaluating CRM alternatives ahead of your Q3 renewal. You're not alone -- 89 Salesforce customers in our dataset have flagged active churn intent this quarter, with pricing as the #1 driver.\n\nThree data points that might be useful for your evaluation:\n\n1. Companies in the 500-1000 employee range switching from Salesforce report an average 40% cost reduction in year one\n2. HubSpot (which you're evaluating) has the strongest displacement signal -- 67 confirmed switches from Salesforce in the last 90 days\n3. The most common post-switch regret is around integration re-platforming, not the CRM itself\n\nWe've built an intelligence brief on the Salesforce-to-HubSpot migration path that covers what 67 companies experienced. Would it be helpful if I sent it over?\n\nBest,\n[Name]",
+  "cta": "Request the Salesforce-to-HubSpot migration intelligence brief",
+
+  "status": "draft",
+  "batch_id": "batch_20260330_2200",
+  "llm_model": "claude-sonnet-4-5-20250514",
+
+  "_generation_audit": {
+    "specificity": {
+      "blocking_issues": [],
+      "warnings": []
+    },
+    "quality_status": "sales_ready"
+  },
+
+  "created_at": "2026-03-30T22:00:00Z"
+}

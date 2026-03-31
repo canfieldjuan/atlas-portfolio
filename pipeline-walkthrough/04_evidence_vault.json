@@ -1,0 +1,94 @@
+{
+  "_comment": "Evidence vault for Salesforce -- canonical weakness/strength evidence consumed by all downstream artifacts",
+  "vendor_name": "Salesforce",
+  "as_of_date": "2026-03-30",
+  "analysis_window_days": 90,
+  "schema_version": "v2",
+
+  "vault": {
+    "weaknesses": [
+      {
+        "category": "pricing",
+        "summary": "Aggressive renewal price increases (15-25%) without proportional feature value. Enterprise contracts ($100K-$500K) most affected. Multiple accounts citing 'pricing shock' at renewal.",
+        "strength": "strong",
+        "affected_segments": ["enterprise", "mid_market", "VP_Sales", "CFO"],
+        "supporting_reviews": ["a1b2c3d4-...", "e5f6g7h8-...", "i9j0k1l2-..."],
+        "quotable_phrases": [
+          "not worth the $180K/year anymore",
+          "annual contract just went up 18% with no new features",
+          "saving about $120K per year on licensing alone"
+        ],
+        "trend": "accelerating",
+        "confidence_score": 0.94
+      },
+      {
+        "category": "ux",
+        "summary": "Non-technical users unable to self-serve. Admin dependency creates single-point-of-failure risk. Multiple churns triggered by admin departure.",
+        "strength": "strong",
+        "affected_segments": ["smb", "mid_market", "end_user", "sales_rep"],
+        "supporting_reviews": ["m3n4o5p6-...", "q7r8s9t0-..."],
+        "quotable_phrases": [
+          "reps spend more time fighting the system than selling",
+          "no one else could manage the system without expensive consultants"
+        ],
+        "trend": "stable",
+        "confidence_score": 0.89
+      },
+      {
+        "category": "support",
+        "summary": "Long response times and scripted first-line agents. Enterprise accounts expect dedicated support but receiving generic responses.",
+        "strength": "moderate",
+        "affected_segments": ["mid_market", "manager"],
+        "supporting_reviews": ["u1v2w3x4-..."],
+        "quotable_phrases": [
+          "long wait times and first-line agents who just read from scripts"
+        ],
+        "trend": "stable",
+        "confidence_score": 0.72
+      }
+    ],
+
+    "strengths": [
+      {
+        "category": "ecosystem",
+        "summary": "Large integration marketplace and brand recognition create meaningful switching costs.",
+        "supporting_reviews": ["a1b2c3d4-...", "y5z6a7b8-..."],
+        "quotable_phrases": [
+          "the only thing keeping us is the integrations we've built"
+        ]
+      }
+    ],
+
+    "company_signals": [
+      {
+        "company_name": "Meridian Technologies",
+        "urgency_score": 8.2,
+        "pain_category": "pricing",
+        "buyer_role": "economic_buyer",
+        "decision_maker": true,
+        "seat_count": null,
+        "contract_end": "Q3 2026",
+        "buying_stage": "active_purchase",
+        "review_ids": ["a1b2c3d4-..."]
+      },
+      {
+        "company_name": "Velocity Growth Partners",
+        "urgency_score": 9.1,
+        "pain_category": "ux",
+        "buyer_role": "champion",
+        "decision_maker": true,
+        "seat_count": null,
+        "contract_end": null,
+        "buying_stage": "active_purchase",
+        "review_ids": ["e5f6g7h8-..."]
+      }
+    ],
+
+    "metric_snapshot": {
+      "total_reviews": 847,
+      "churn_intent_reviews": 89,
+      "avg_urgency": 6.4,
+      "recommend_rate": 0.41
+    }
+  }
+}

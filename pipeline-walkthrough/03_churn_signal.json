@@ -1,0 +1,60 @@
+{
+  "_comment": "Aggregated churn signal for Salesforce CRM -- computed weekly from all enriched reviews",
+  "vendor_name": "Salesforce",
+  "product_category": "CRM",
+  "total_reviews": 847,
+  "negative_reviews": 312,
+  "churn_intent_count": 89,
+  "avg_urgency_score": 6.4,
+  "avg_rating_normalized": 0.58,
+  "nps_proxy": -12.3,
+  "price_complaint_rate": 0.42,
+  "decision_maker_churn_rate": 0.31,
+
+  "top_pain_categories": [
+    { "category": "pricing", "count": 387, "severity": "primary" },
+    { "category": "ux", "count": 245, "severity": "primary" },
+    { "category": "support", "count": 198, "severity": "secondary" },
+    { "category": "features", "count": 156, "severity": "secondary" }
+  ],
+
+  "top_competitors": [
+    { "name": "HubSpot", "mention_count": 203, "displacement_count": 67 },
+    { "name": "Pipedrive", "mention_count": 89, "displacement_count": 23 },
+    { "name": "Freshsales", "mention_count": 54, "displacement_count": 12 },
+    { "name": "Close", "mention_count": 41, "displacement_count": 8 }
+  ],
+
+  "top_feature_gaps": [
+    { "gap": "Intuitive UI for non-technical users", "mention_count": 178 },
+    { "gap": "Simpler reporting/analytics", "mention_count": 134 },
+    { "gap": "Transparent pricing", "mention_count": 112 },
+    { "gap": "Self-service admin (no consultants)", "mention_count": 89 }
+  ],
+
+  "company_churn_list": [
+    { "company_name": "Meridian Technologies", "urgency": 8.2, "source": "g2" },
+    { "company_name": "Velocity Growth Partners", "urgency": 9.1, "source": "g2" },
+    { "company_name": "CloudStack Solutions", "urgency": 5.8, "source": "g2" },
+    { "company_name": "Nexus Dynamics", "urgency": 7.4, "source": "capterra" }
+  ],
+
+  "quotable_evidence": [
+    {
+      "quote": "not worth the $180K/year anymore",
+      "pain_category": "pricing",
+      "source_review_id": "g2_test_001"
+    },
+    {
+      "quote": "no one else on the team could manage the system without expensive consultants",
+      "pain_category": "ux",
+      "source_review_id": "g2_test_002"
+    }
+  ],
+
+  "archetype": "pricing_shock",
+  "archetype_confidence": 0.87,
+  "reasoning_risk_level": "accelerating",
+
+  "last_computed_at": "2026-03-30T21:00:00Z"
+}

@@ -1,0 +1,154 @@
+{
+  "_comment": "Same review after LLM enrichment -- 47 structured fields extracted from unstructured text",
+  "review_id": "a1b2c3d4-5678-9abc-def0-123456789abc",
+  "source": "g2",
+  "vendor_name": "Salesforce",
+  "product_name": "Sales Cloud",
+  "product_category": "CRM",
+  "enrichment_status": "enriched",
+
+  "enrichment": {
+    "churn_signals": {
+      "actively_evaluating": true,
+      "migration_in_progress": false,
+      "renewal_timing": "q3_2026",
+      "contract_renewal_mentioned": true,
+      "price_complaint": true,
+      "feature_request": false
+    },
+
+    "specific_complaints": [
+      "Annual contract increased 18% with no meaningful new features",
+      "UI is clunky and unintuitive for sales reps",
+      "Reporting takes too long to configure",
+      "Reps spend more time fighting the system than selling"
+    ],
+
+    "quotable_phrases": [
+      "the value proposition has gotten worse every renewal",
+      "our reps spend more time fighting the system than selling",
+      "frankly I think we're gone by October",
+      "not worth the $180K/year anymore"
+    ],
+
+    "pricing_phrases": [
+      "annual contract just went up 18%",
+      "$180K/year",
+      "no new features that matter to us"
+    ],
+
+    "feature_gaps": [
+      "Intuitive UI for non-technical users",
+      "Fast report builder",
+      "Better value at current price tier"
+    ],
+
+    "competitors_mentioned": [
+      {
+        "name": "HubSpot",
+        "features": ["CRM", "Sales Hub"],
+        "reason_detail": "Actively evaluating as Salesforce replacement",
+        "evidence_type": "active_evaluation",
+        "displacement_confidence": "high",
+        "reason_category": "pricing"
+      },
+      {
+        "name": "Pipedrive",
+        "features": ["CRM"],
+        "reason_detail": "Also being evaluated alongside HubSpot",
+        "evidence_type": "active_evaluation",
+        "displacement_confidence": "medium",
+        "reason_category": "pricing"
+      }
+    ],
+
+    "recommendation_language": [
+      "frankly I think we're gone by October"
+    ],
+
+    "event_mentions": [
+      {
+        "event_type": "contract_renewal",
+        "timeframe": "Q3 2026",
+        "company_impact": "Likely to churn at renewal"
+      },
+      {
+        "event_type": "price_increase",
+        "timeframe": "recent",
+        "company_impact": "18% increase triggered evaluation"
+      }
+    ],
+
+    "budget_signals": {
+      "annual_spend_estimate": "$180000",
+      "seat_count": null,
+      "department_spend": "sales"
+    },
+
+    "pain_categories": [
+      { "category": "pricing", "severity": "primary" },
+      { "category": "ux", "severity": "primary" },
+      { "category": "features", "severity": "secondary" },
+      { "category": "support", "severity": "secondary" }
+    ],
+
+    "sentiment_trajectory": {
+      "direction": "negative",
+      "trend": "declining",
+      "reasoning": "Value perception worsening with each renewal cycle, actively seeking alternatives"
+    },
+
+    "buyer_authority": {
+      "role_type": "economic_buyer",
+      "buying_stage": "active_purchase",
+      "executive_sponsor_mentioned": true,
+      "decision_maker": true
+    },
+
+    "timeline": {
+      "decision_timeline": "within_quarter",
+      "contract_end": "Q3 2026",
+      "evaluation_deadline": "October 2026"
+    },
+
+    "contract_context": {
+      "contract_value_signal": "enterprise_mid"
+    },
+
+    "insider_signals": {
+      "insider_role": false,
+      "privileged_access": false,
+      "confidentiality_concern": false
+    },
+
+    "positive_aspects": [
+      "Large ecosystem",
+      "Extensive integrations",
+      "Well-known brand"
+    ],
+
+    "urgency_indicators": {
+      "explicit_timeline": true,
+      "budget_approved": false,
+      "executive_pressure": true
+    },
+
+    "content_classification": "review",
+    "low_fidelity_flag": false,
+
+    "reviewer_context": {
+      "role_level": "executive",
+      "company_size_segment": "mid_market",
+      "industry": "Technology",
+      "decision_maker": true
+    },
+
+    "churn_signal_count": 4,
+    "complaint_count": 4,
+    "quotable_phrase_count": 4,
+    "urgency_score": 8.2,
+    "would_recommend": false,
+    "operating_model_shift": false,
+    "richness_class": "rich"
+  }
+}
