@@ -160,44 +160,53 @@ sleep 2
 # ── 5. before/after ───────────────────────────────────────
 section "BEFORE → AFTER: RAW REVIEW vs ENRICHED"
 
-label "Raw review (input)"
+label "Raw review (input) — just unstructured text"
 RAW=$(db "
   SELECT jsonb_build_object(
+    'source', source,
     'vendor', vendor_name,
     'rating', rating,
     'summary', summary,
-    'reviewer', reviewer_title || ' at ' || reviewer_company,
-    'text', left(review_text, 200) || '...'
+    'reviewer', coalesce(reviewer_title, 'unknown') || ' at ' || coalesce(reviewer_company, 'unknown'),
+    'review_text', left(review_text, 280) || '...'
   )::text
   FROM b2b_reviews
   WHERE enrichment_status = 'enriched'
-  ORDER BY enriched_at DESC
+    AND (enrichment->>'urgency_score')::numeric >= 6
+    AND source IN ('g2','capterra','trustradius','peerspot','gartner')
+    AND jsonb_array_length(coalesce(enrichment->'competitors_mentioned','[]'::jsonb)) > 0
+    AND length(review_text) > 200
+  ORDER BY (enrichment->>'urgency_score')::numeric DESC
   LIMIT 1;
-" 2>/dev/null)
+")
 echo "$RAW" | python3 -m json.tool 2>/dev/null | while IFS= read -r line; do
   echo -e "    ${D}$line${R}"
 done
 blank
 
-label "After LLM enrichment (output)"
+label "After LLM enrichment (output) — 47 structured fields extracted"
 ENRICHED_DETAIL=$(db "
   SELECT jsonb_build_object(
     'urgency_score', enrichment->'urgency_score',
     'pain_categories', enrichment->'pain_categories',
     'churn_signals', enrichment->'churn_signals',
-    'competitors', (
-      SELECT jsonb_agg(c->>'name')
-      FROM jsonb_array_elements(enrichment->'competitors_mentioned') c
-    ),
+    'competitors_mentioned', enrichment->'competitors_mentioned',
     'buyer_authority', enrichment->'buyer_authority',
-    'richness_class', enrichment->'richness_class',
+    'timeline', enrichment->'timeline',
+    'budget_signals', enrichment->'budget_signals',
+    'sentiment_trajectory', enrichment->'sentiment_trajectory',
+    'quotable_phrases', enrichment->'quotable_phrases',
     'would_recommend', enrichment->'would_recommend'
   )::text
   FROM b2b_reviews
   WHERE enrichment_status = 'enriched'
-  ORDER BY enriched_at DESC
+    AND (enrichment->>'urgency_score')::numeric >= 6
+    AND source IN ('g2','capterra','trustradius','peerspot','gartner')
+    AND jsonb_array_length(coalesce(enrichment->'competitors_mentioned','[]'::jsonb)) > 0
+    AND length(review_text) > 200
+  ORDER BY (enrichment->>'urgency_score')::numeric DESC
   LIMIT 1;
-" 2>/dev/null)
+")
 echo "$ENRICHED_DETAIL" | python3 -m json.tool 2>/dev/null | while IFS= read -r line; do
   echo -e "    ${G}$line${R}"
 done
