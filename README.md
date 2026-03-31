@@ -8,6 +8,8 @@ If you only look at three things, start here:
 - **Raw review to targeted campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 
+[![Curated Terminal Demo](recordings/gifs/portfolio-terminal.gif)](recordings/portfolio-demo.cast)
+
 ---
 
 ## Flagship Demos
@@ -44,6 +46,7 @@ If you only look at three things, start here:
 
 **Open**
 - Curated cast: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
+- GIF preview: [`recordings/gifs/portfolio-terminal.gif`](recordings/gifs/portfolio-terminal.gif)
 - Local replay: `asciinema play recordings/portfolio-demo.cast`
 - Curated script: [`recordings/portfolio-demo.sh`](recordings/portfolio-demo.sh)
 - Live ops version: [`recordings/pipeline-demo.cast`](recordings/pipeline-demo.cast)
@@ -174,6 +177,7 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 - **Pipeline walkthrough**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Recording assets**: [`recordings/`](recordings/)
 - **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
+- **Terminal GIF preview**: [`recordings/gifs/portfolio-terminal.gif`](recordings/gifs/portfolio-terminal.gif)
 - **Blog review clip**: [`recordings/ui/blog-review-preview-demo.webm`](recordings/ui/blog-review-preview-demo.webm)
 - **Pipeline review clip**: [`recordings/ui/pipeline-review-demo.webm`](recordings/ui/pipeline-review-demo.webm)
 - **Campaign review clip**: [`recordings/ui/campaign-review-demo.webm`](recordings/ui/campaign-review-demo.webm)
