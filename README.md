@@ -115,6 +115,14 @@ See [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 
 ---
 
+## Pipeline Demo (Live Recording)
+
+[![Pipeline Demo](https://asciinema.org/a/PjhDP7w45UoEkvqH.svg)](https://asciinema.org/a/PjhDP7w45UoEkvqH)
+
+Watch the full pipeline in action: system status, scrape execution (24 targets, 950 reviews found), LLM enrichment before/after, and downstream output counts. Or replay locally: `asciinema play recordings/pipeline-demo.cast`
+
+---
+
 ## Pipeline Walkthrough
 
 See [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md) for a narrated example showing how a single raw G2 review gets transformed through every stage of the pipeline into a personalized sales campaign and competitive battle card.
@@ -125,3 +133,4 @@ See [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 - **Pipeline walkthrough**: [pipeline-walkthrough/WALKTHROUGH.md](pipeline-walkthrough/WALKTHROUGH.md)
+- **Pipeline demo**: [asciinema.org/a/PjhDP7w45UoEkvqH](https://asciinema.org/a/PjhDP7w45UoEkvqH)
