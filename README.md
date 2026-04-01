@@ -4,6 +4,7 @@ Atlas / Churn Signals is a solo-built AI platform for B2B sales intelligence, ma
 
 If you only look at three things, start here:
 
+- **Live product**: [churnsignal.co](https://churnsignal.co)
 - **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
 - **Raw review to targeted campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
@@ -168,6 +169,7 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 
 ## Additional Links
 
+- **Live product**: [churnsignal.co](https://churnsignal.co)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 - **Churn-to-campaign demo**: [`demos/churn-to-campaign.md`](demos/churn-to-campaign.md)
 - **Blog review demo**: [`demos/blog-review-preview.md`](demos/blog-review-preview.md)
