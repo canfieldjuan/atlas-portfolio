@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Curated Atlas portfolio terminal demo
+# Curated ATLAS terminal demo
 
 set -uo pipefail
 
@@ -24,7 +24,7 @@ blank()   { echo ""; }
 
 sleep_brief() { sleep 1; }
 
-section "ATLAS PORTFOLIO DEMO"
+section "ATLAS TERMINAL DEMO"
 value "One platform turning review data into sales, content, and intelligence workflows"
 dim "Curated view: scrape activity -> enriched signal -> campaign -> blog artifact"
 
@@ -243,7 +243,7 @@ sleep_brief
 section "WHY THIS MATTERS"
 dim "One evidence pipeline feeds multiple outputs:"
 value "research -> churn intelligence -> campaign generation -> blog content -> reports"
-dim "This is the part I want the portfolio to show clearly: AI as an operator inside a system, not just AI as a prompt."
+dim "This shows the core point clearly: AI as an operator inside a system, not just AI as a prompt."
 
 blank
 section "DEMO COMPLETE"

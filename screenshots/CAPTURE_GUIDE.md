@@ -80,6 +80,6 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 ## Tips
 
 - Use full browser width for dashboard screenshots (1920px+ ideal)
-- Dark theme screenshots look better in a portfolio README
+- Dark theme screenshots tend to read more clearly in documentation
 - If data is sparse on any page, mention it -- "system processes 38K+ reviews" covers it
 - Redact any real customer emails or phone numbers if they appear in prospect views
