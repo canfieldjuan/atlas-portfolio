@@ -85,20 +85,20 @@ If you want a quick tour, start here:
 
 ## The Numbers
 
+Verified against the current local ATLAS repo and dataset snapshot:
+
 | Metric | Value |
 |--------|-------|
-| Reviews enriched | 38,881 |
-| Intelligence reports generated | 2,113 |
-| Cross-vendor competitive analyses | 1,732 |
-| Reasoning synthesis contracts | 481 |
-| Displacement edges tracked | 500+ |
-| Review sources | 16 |
-| Autonomous scheduled tasks | 57 |
-| MCP tools | 130+ |
-| LangGraph workflows | 12 |
-| Database migrations | 248 |
+| Raw reviews stored | 48,270 |
+| Reviews enriched | 25,071 |
+| Vendors with churn signals | 56 |
+| Intelligence reports | 79 |
+| Cross-vendor reasoning records | 170 |
+| v2 reasoning syntheses | 323 |
+| Review sources | 19 |
+| Autonomous scheduled tasks | 81 |
+| Database migrations | 222 |
 | Skill documents | 68 |
-| API endpoints | 55+ |
 
 ---
 
@@ -106,7 +106,7 @@ If you want a quick tour, start here:
 
 ### Sales Enablement
 
-- Scrapes reviews from 16 sources including G2, Capterra, TrustRadius, Reddit, Gartner, HackerNews, and Twitter/X.
+- Scrapes reviews from 19 sources including G2, Capterra, TrustRadius, Reddit, Gartner, HackerNews, Twitter/X, GitHub, YouTube, and Stack Overflow.
 - Extracts 47 structured fields per review including churn intent, urgency, pain categories, buying stage, budget signals, and competitor mentions.
 - Generates battle cards with discovery questions, landmine questions, objection handlers, talk tracks, and recommended plays.
 - Tracks vendor-to-vendor displacement dynamics with evidence-backed competitive flows.
@@ -120,9 +120,9 @@ If you want a quick tour, start here:
 
 ### Internal Operations
 
-- Runs 57 autonomous scheduled tasks for enrichment, campaign generation, churn intelligence, blog generation, email triage, briefings, monitoring, and anomaly detection.
-- Uses 12 LangGraph workflows for stateful agent behavior across email, calls, scheduling, monitoring, and automation.
-- Exposes 8 MCP servers with 130+ tools across CRM, email, telephony, calendar, invoicing, intelligence, B2B churn, and memory.
+- Runs 81 autonomous scheduled tasks for enrichment, campaign generation, churn intelligence, blog generation, email triage, briefings, monitoring, and anomaly detection.
+- Uses LangGraph workflows for stateful agent behavior across email, calls, scheduling, monitoring, and automation.
+- Exposes MCP servers across CRM, email, telephony, calendar, invoicing, intelligence, B2B churn, and memory.
 - Routes work across multiple model providers depending on task type and cost profile.
 
 ### Research and Knowledge Systems
@@ -136,7 +136,7 @@ If you want a quick tour, start here:
 ## Pipeline Snapshot
 
 ```text
-Raw reviews (16 sources)
+Raw reviews (19 sources)
   -> LLM enrichment (47 structured fields per review)
   -> Churn signal aggregation
   -> Evidence pools and witness extraction
@@ -160,7 +160,7 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 **LLM**: Ollama, vLLM, Claude API, OpenRouter, Groq, Together  
 **Memory**: Neo4j, PostgreSQL  
 **Agent Framework**: LangGraph, MCP  
-**Scraping**: 16 review sources with proxy rotation, rate limiting, and dedup  
+**Scraping**: 19 review sources with proxy rotation, rate limiting, and dedup  
 **CRM and GTM**: Apollo API, HubSpot, Salesforce, Pipedrive event ingestion  
 **Telephony**: Twilio, SignalWire  
 **Frontends**: React, Next.js  
