@@ -6,7 +6,7 @@ The current product focus is B2B churn intelligence and GTM automation, but the 
 
 If you want a quick tour, start here:
 
-- **Live product**: [churnsignal.co](https://churnsignal.co)
+- **Public product domain**: [churnsignal.co](https://churnsignal.co)
 - **Curated terminal demo**: [`recordings/atlas-terminal-demo.cast`](recordings/atlas-terminal-demo.cast)
 - **Raw review to evidence-backed campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
@@ -171,7 +171,7 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 
 ## Additional Links
 
-- **Live product**: [churnsignal.co](https://churnsignal.co)
+- **Public product domain**: [churnsignal.co](https://churnsignal.co)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 - **Churn-to-campaign demo**: [`demos/churn-to-campaign.md`](demos/churn-to-campaign.md)
 - **Blog review demo**: [`demos/blog-review-preview.md`](demos/blog-review-preview.md)
