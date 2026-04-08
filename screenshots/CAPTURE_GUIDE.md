@@ -4,6 +4,51 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 
 ---
 
+## Refresh Priority
+
+If you only refresh a small number of assets, do these first:
+
+1. `watchlists.png`
+2. `evidence-explorer.png`
+3. `report-detail.png`
+4. `opportunities.png`
+5. `pipeline-review.png`
+
+These are the screens where the product has moved forward the most relative to the current portfolio assets.
+
+---
+
+## Fast Refresh Sequence
+
+Use this order so one session produces the highest-value update set with the least context switching:
+
+1. Open `/watchlists`
+   - Capture `watchlists.png`
+   - Goal: one saved view or competitive-set control, vendor feed, and one expanded account-movement drawer
+2. Open `/evidence`
+   - Capture `evidence-explorer.png`
+   - Goal: active vendor search, witness filters, and either vault or trace visible
+3. Open `/reports`
+   - Capture `reports-gallery.png`
+   - Goal: report grid with multiple report types visible
+4. Open one strong battle-card or reasoning-heavy report at `/reports/:id`
+   - Capture `report-detail.png`
+   - Goal: executive summary, citations, and at least one structured or specialized section
+5. Open `/opportunities`
+   - Capture `opportunities.png`
+   - Goal: urgency, buying stage, reasoning summary, and one action surface
+6. Open `/pipeline-review`
+   - Capture `pipeline-review.png`
+   - Goal: newer delivery or B2B efficiency surfaces, not just generic queues
+7. Open `/campaign-review`
+   - Capture `campaign-review.png` if the current one feels stale
+8. Open `/blog-review`
+   - Capture `blog-review.png` if the current one feels stale
+
+If you have time for only one motion asset refresh, re-record Pipeline Review or Watchlists before older campaign/blog clips.
+
+---
+
 ## Primary Product Screens
 
 ### 1. `dashboard-overview.png`
@@ -100,3 +145,13 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 - If data is sparse on any page, mention it -- "system processes 48K+ reviews" covers it
 - Redact any real customer emails or phone numbers if they appear in prospect views
 - Prioritize Watchlists, Evidence Explorer, Opportunities, Report Detail, and Pipeline Review if you only refresh a few screenshots
+
+## Minimum Fresh Set
+
+If you want the smallest possible update that materially improves the portfolio, refresh exactly these five:
+
+- `watchlists.png`
+- `evidence-explorer.png`
+- `report-detail.png`
+- `opportunities.png`
+- `pipeline-review.png`
