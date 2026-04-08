@@ -81,6 +81,8 @@ If you want a quick tour, start here:
 
 [![Pipeline Review](recordings/gifs/pipeline-review.gif)](recordings/ui/pipeline-review-demo.webm)
 
+The current ATLAS UI has moved forward most in Watchlists, Evidence Explorer, Opportunities, Report Detail, and Pipeline Review. The portfolio recordings still show real product flows, but they do not yet capture every newer review and evidence surface.
+
 ---
 
 ## The Numbers
@@ -184,4 +186,5 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 - **Blog review clip**: [`recordings/ui/blog-review-preview-demo.webm`](recordings/ui/blog-review-preview-demo.webm)
 - **Pipeline review clip**: [`recordings/ui/pipeline-review-demo.webm`](recordings/ui/pipeline-review-demo.webm)
 - **Campaign review clip**: [`recordings/ui/campaign-review-demo.webm`](recordings/ui/campaign-review-demo.webm)
+- **Reports gallery clip**: [`recordings/ui/reports-gallery-demo.webm`](recordings/ui/reports-gallery-demo.webm)
 - **Screenshot guide**: [`screenshots/CAPTURE_GUIDE.md`](screenshots/CAPTURE_GUIDE.md)
