@@ -7,11 +7,11 @@ The current product focus is B2B churn intelligence and GTM automation, but the 
 If you want a quick tour, start here:
 
 - **Live product**: [churnsignal.co](https://churnsignal.co)
-- **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
+- **Curated terminal demo**: [`recordings/atlas-terminal-demo.cast`](recordings/atlas-terminal-demo.cast)
 - **Raw review to evidence-backed campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 
-[![Curated Terminal Demo](recordings/gifs/portfolio-terminal.gif)](recordings/portfolio-demo.cast)
+[![Curated Terminal Demo](recordings/gifs/atlas-terminal-demo.gif)](recordings/atlas-terminal-demo.cast)
 
 ---
 
@@ -48,10 +48,10 @@ If you want a quick tour, start here:
 - It still uses live data, but the flow is curated to show the strongest platform behaviors clearly.
 
 **Open**
-- Curated cast: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
-- GIF preview: [`recordings/gifs/portfolio-terminal.gif`](recordings/gifs/portfolio-terminal.gif)
-- Local replay: `asciinema play recordings/portfolio-demo.cast`
-- Curated script: [`recordings/portfolio-demo.sh`](recordings/portfolio-demo.sh)
+- Curated cast: [`recordings/atlas-terminal-demo.cast`](recordings/atlas-terminal-demo.cast)
+- GIF preview: [`recordings/gifs/atlas-terminal-demo.gif`](recordings/gifs/atlas-terminal-demo.gif)
+- Local replay: `asciinema play recordings/atlas-terminal-demo.cast`
+- Curated script: [`recordings/atlas-terminal-demo.sh`](recordings/atlas-terminal-demo.sh)
 - Live ops version: [`recordings/pipeline-demo.cast`](recordings/pipeline-demo.cast)
 - Live ops script: [`recordings/demo.sh`](recordings/demo.sh)
 
@@ -179,8 +179,8 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 - **Architecture overview**: [`architecture/system-overview.md`](architecture/system-overview.md)
 - **Pipeline walkthrough**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Recording assets**: [`recordings/`](recordings/)
-- **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
-- **Terminal GIF preview**: [`recordings/gifs/portfolio-terminal.gif`](recordings/gifs/portfolio-terminal.gif)
+- **Curated terminal demo**: [`recordings/atlas-terminal-demo.cast`](recordings/atlas-terminal-demo.cast)
+- **Terminal GIF preview**: [`recordings/gifs/atlas-terminal-demo.gif`](recordings/gifs/atlas-terminal-demo.gif)
 - **Blog review clip**: [`recordings/ui/blog-review-preview-demo.webm`](recordings/ui/blog-review-preview-demo.webm)
 - **Pipeline review clip**: [`recordings/ui/pipeline-review-demo.webm`](recordings/ui/pipeline-review-demo.webm)
 - **Campaign review clip**: [`recordings/ui/campaign-review-demo.webm`](recordings/ui/campaign-review-demo.webm)
