@@ -1,6 +1,6 @@
-# Pipeline Walkthrough: From Raw Review to Sales Campaign
+# Pipeline Walkthrough: From Raw Review to Evidence-Backed Campaign
 
-This walkthrough follows a single G2 review through every stage of the Atlas intelligence pipeline. Each step shows the actual data structure produced by the system.
+This walkthrough follows a single G2 review through every stage of the ATLAS intelligence pipeline. Each step shows the actual data structure produced by the system.
 
 ---
 
@@ -100,7 +100,7 @@ The campaign generator takes the enriched data and produces a personalized outre
 - **Subject**: "Meridian's CRM evaluation -- data from 847 Salesforce reviews"
 - **Body**: References their specific situation (Q3 renewal, HubSpot evaluation), includes 3 data-backed talking points, offers a relevant intelligence brief
 
-The email doesn't feel generic because it's grounded in their actual review data -- their urgency score, the competitors they mentioned, and the market context (67 confirmed Salesforce-to-HubSpot switches).
+The email does not feel generic because it is grounded in their actual review data -- their urgency score, the competitors they mentioned, and the market context (67 confirmed Salesforce-to-HubSpot switches).
 
 Quality audit confirms: no placeholder text, no spam triggers, specificity checks pass.
 
@@ -110,7 +110,7 @@ Quality audit confirms: no placeholder text, no spam triggers, specificity check
 
 **File**: [`06_battle_card.json`](06_battle_card.json)
 
-Battle cards are competitive positioning documents for sales teams. Generated from evidence pools + reasoning synthesis:
+Battle cards are competitive positioning artifacts generated from evidence pools plus reasoning synthesis:
 
 - **Discovery questions**: "When is your next Salesforce renewal?" / "How many people can actually administer Salesforce?"
 - **Landmine questions**: "Have you calculated total cost of ownership including admin salaries?"
@@ -150,4 +150,4 @@ Evidence Vault (canonical intermediate representation)
     +---> Product Profile (vendor knowledge card)
 ```
 
-Every output is traceable to source reviews. Every claim has a confidence score. The evidence pools ensure consistency -- a battle card and a campaign email referencing the same vendor will always use the same underlying data.
+Every output is traceable to source reviews. Every claim has a confidence score. The evidence pools ensure consistency -- a battle card and a campaign email referencing the same vendor use the same underlying data.

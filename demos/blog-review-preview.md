@@ -1,12 +1,12 @@
 # Demo: Blog Review and Prepublish Preview
 
-This demo shows the operator side of Atlas content automation: not just generating copy, but reviewing the real publish artifact before it goes live.
+This demo shows the operator side of ATLAS content automation: not just generating copy, but reviewing the real publish artifact before it goes live.
 
 ## Why This Demo Matters
 
 - It shows AI content workflows with operator control instead of blind auto-publish.
-- It makes marketing automation tangible: content generation, QA, preview, CTA review, and monetization visibility.
-- It demonstrates that Atlas treats AI outputs like production artifacts, not disposable text blobs.
+- It makes artifact generation tangible: content generation, QA, preview, CTA review, and monetization visibility.
+- It demonstrates that ATLAS treats AI outputs like production artifacts, not disposable text blobs.
 
 ## Watch the Clip
 
@@ -15,7 +15,7 @@ This demo shows the operator side of Atlas content automation: not just generati
 
 ## The Flow
 
-1. Atlas generates blog drafts from vendor churn intelligence.
+1. ATLAS generates blog drafts from vendor churn intelligence.
 2. The review UI lets an operator inspect draft copy and the rendered prepublish version.
 3. The preview surfaces:
    - charts and graphics

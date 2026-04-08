@@ -1,6 +1,6 @@
 # Demo: AI Review, QA, and Visibility Console
 
-This demo shows how Atlas handles generated outputs after the model responds: validation, retries, issue surfacing, and operator review.
+This demo shows how ATLAS handles generated outputs after the model responds: validation, retries, issue surfacing, provenance, and operator review.
 
 ## Why This Demo Matters
 
@@ -15,14 +15,14 @@ This demo shows how Atlas handles generated outputs after the model responds: va
 
 ## The Flow
 
-1. Atlas generates a reasoning artifact or content artifact.
+1. ATLAS generates a reasoning artifact or content artifact.
 2. The system validates structure, citations, and quality constraints.
 3. Failed or thin outputs trigger retries and issue persistence.
 4. Operators can inspect quality signals, review the artifact, and understand what happened.
 
 ## What To Notice
 
-- Atlas tracks failures and recovered retries instead of hiding them.
+- ATLAS tracks failures and recovered retries instead of hiding them.
 - Generated artifacts carry provenance and reference data so operators can trust what they are approving.
 - The same visibility model supports reasoning synthesis, reports, and content publishing workflows.
 

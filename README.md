@@ -1,12 +1,14 @@
-# Atlas / Churn Signals
+# ATLAS
 
-Atlas / Churn Signals is a solo-built AI platform for B2B sales intelligence, marketing content generation, and internal workflow automation. It continuously scrapes review data, enriches it with LLMs, detects churn signals, generates GTM artifacts, and runs autonomous scheduled jobs across the stack.
+ATLAS is a solo-built applied AI platform focused on evidence-grounded workflows, autonomous operations, and business-facing software. The system combines data ingestion, LLM enrichment, retrieval, reasoning synthesis, operator review, and scheduled execution to turn raw external signals into usable product surfaces and downstream artifacts.
 
-If you only look at three things, start here:
+The current product focus is B2B churn intelligence and GTM automation, but the underlying work is broader than a single sales workflow. ATLAS is also a portfolio of production patterns for deterministic reasoning layers, retrieval-backed memory, evaluation loops, review tooling, and end-to-end AI system operations.
+
+If you want a quick tour, start here:
 
 - **Live product**: [churnsignal.co](https://churnsignal.co)
 - **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
-- **Raw review to targeted campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
+- **Raw review to evidence-backed campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 
 [![Curated Terminal Demo](recordings/gifs/portfolio-terminal.gif)](recordings/portfolio-demo.cast)
@@ -15,15 +17,15 @@ If you only look at three things, start here:
 
 ## Flagship Demos
 
-### 1. Churn Signal -> Targeted Campaign
+### 1. Churn Signal -> Evidence-Backed Campaign
 
 **What it shows**
-- A raw G2 review becomes structured churn intelligence, then turns into a personalized outbound campaign and a competitive battle card.
-- The same evidence pipeline feeds both sales and marketing outputs instead of producing isolated one-off artifacts.
+- A raw G2 review becomes structured intelligence, then turns into a personalized outbound campaign and a competitive battle card.
+- The same evidence pipeline feeds multiple downstream artifacts instead of producing isolated one-off outputs.
 
 **Why it matters**
-- Shows AI working as an operator across research, sales enablement, and content workflows.
-- Demonstrates a full business workflow instead of a prompt demo.
+- Shows how ATLAS turns noisy source material into reusable evidence, reasoning, and delivery layers.
+- Demonstrates a production workflow instead of a one-shot demo.
 
 **Open**
 - Demo page: [`demos/churn-to-campaign.md`](demos/churn-to-campaign.md)
@@ -38,12 +40,12 @@ If you only look at three things, start here:
 ### 2. Curated Terminal Demo
 
 **What it shows**
-- A recruiter-friendly terminal walkthrough of the core Atlas story.
+- A short terminal walkthrough of the core Atlas story.
 - Live scrape activity, structured enrichment, a generated campaign artifact, and a generated blog artifact in one short demo.
 
 **Why it matters**
 - It explains the business value quickly instead of requiring someone to infer it from raw logs.
-- It still uses live data, but the flow is curated to show the strongest parts of the system.
+- It still uses live data, but the flow is curated to show the strongest platform behaviors clearly.
 
 **Open**
 - Curated cast: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)
@@ -57,7 +59,7 @@ If you only look at three things, start here:
 
 **What it shows**
 - Atlas does not stop at generation. It validates outputs, tracks retries, surfaces quality issues, and provides review flows before publish or downstream use.
-- The same platform powers blog review, prepublish preview, GTM artifact validation, and reasoning provenance.
+- The same platform powers blog review, prepublish preview, artifact validation, and reasoning provenance.
 
 **Why it matters**
 - This is the difference between AI demos and production AI software.
@@ -140,7 +142,7 @@ Raw reviews (16 sources)
   -> Evidence pools and witness extraction
   -> Reasoning synthesis with validation and citations
   -> Output artifacts:
-       - Personalized sales campaigns
+       - Personalized campaigns
        - SEO blog posts
        - Competitive battle cards
        - Vendor briefings
@@ -175,7 +177,6 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 - **Blog review demo**: [`demos/blog-review-preview.md`](demos/blog-review-preview.md)
 - **AI review and QA demo**: [`demos/ai-review-console.md`](demos/ai-review-console.md)
 - **Architecture overview**: [`architecture/system-overview.md`](architecture/system-overview.md)
-- **Application answers**: [`application/answers.md`](application/answers.md)
 - **Pipeline walkthrough**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Recording assets**: [`recordings/`](recordings/)
 - **Curated terminal demo**: [`recordings/portfolio-demo.cast`](recordings/portfolio-demo.cast)

@@ -1,12 +1,12 @@
-# Demo: Churn Signal -> Targeted Campaign
+# Demo: Churn Signal -> Evidence-Backed Campaign
 
-This demo shows the core Atlas workflow: a raw review becomes structured churn intelligence, then turns into a personalized outbound campaign and a competitive battle card.
+This demo shows a core ATLAS workflow: a raw review becomes structured intelligence, then turns into a personalized outreach campaign and a competitive battle card.
 
 ## Why This Demo Matters
 
-- It shows AI working across research, sales enablement, and content instead of as a single prompt.
+- It shows AI working across research, reasoning, and delivery instead of as a single prompt.
 - It demonstrates evidence-grounded automation rather than generic generation.
-- It makes the business value obvious in one pass: detect pain, explain it, and turn it into GTM action.
+- It makes the system value obvious in one pass: detect pain, explain it, and turn it into a usable downstream artifact.
 
 ## Watch the Clip
 
@@ -35,7 +35,7 @@ This demo shows the core Atlas workflow: a raw review becomes structured churn i
 
 ## What To Notice
 
-- The campaign is tied to specific pain, timing, and competitive context instead of generic outbound copy.
+- The campaign is tied to specific pain, timing, and competitive context instead of generic copy.
 - The same evidence base feeds both the campaign and the battle card.
 - Every output is intended to be reviewable, traceable, and reusable across the system.
 
