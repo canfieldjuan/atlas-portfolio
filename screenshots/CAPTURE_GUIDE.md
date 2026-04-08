@@ -4,7 +4,7 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 
 ---
 
-## Churn Intelligence Dashboard (the main one)
+## Primary Product Dashboard
 
 ### 1. `dashboard-overview.png`
 - **URL**: Churn UI Dashboard page
@@ -59,7 +59,7 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 ## Atlas Voice Interface
 
 ### 10. `voice-ui.png`
-- **URL**: Atlas main UI
+- **URL**: Atlas voice or assistant UI
 - **What to capture**: The sci-fi interface with the central avatar orb, system stats panel (left), and system feed (right) if possible
 - **Tip**: Capture in "standing by" state with both side panels visible
 
@@ -81,5 +81,5 @@ Take these screenshots from the running Atlas system. Save each as a PNG in this
 
 - Use full browser width for dashboard screenshots (1920px+ ideal)
 - Dark theme screenshots tend to read more clearly in documentation
-- If data is sparse on any page, mention it -- "system processes 38K+ reviews" covers it
+- If data is sparse on any page, mention it -- "system processes 48K+ reviews" covers it
 - Redact any real customer emails or phone numbers if they appear in prospect views

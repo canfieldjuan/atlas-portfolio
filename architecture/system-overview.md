@@ -1,9 +1,11 @@
 # Atlas System Architecture
 
+This diagram is a high-level system view, not a strict inventory snapshot. Exact counts change as workflows, tasks, and product surfaces evolve.
+
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                          ATLAS BRAIN                                  │
-│                   (FastAPI + 55+ API routes)                         │
+│                    (FastAPI service layer)                           │
 │                                                                       │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────────┐   │
 │  │  LLM Pool  │  │    STT     │  │    TTS     │  │   Intent     │   │
@@ -14,21 +16,21 @@
 │  └────────────┘                                                       │
 │                                                                       │
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │                    12 LangGraph Workflows                     │    │
+│  │                     LangGraph Workflows                       │    │
 │  │  Voice · Email · Calendar · Booking · Reminder · Call         │    │
 │  │  Security · Presence · Receptionist · Home · Streaming        │    │
 │  └──────────────────────────────────────────────────────────────┘    │
 │                                                                       │
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │                  57 Autonomous Tasks (APScheduler)            │    │
+│  │                  Autonomous Tasks (APScheduler)               │    │
 │  │  Enrichment · Campaigns · Briefings · Intelligence · Alerts   │    │
 │  │  Memory Sync · Pattern Learning · Anomaly Detection           │    │
 │  └──────────────────────────────────────────────────────────────┘    │
 │                                                                       │
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │                  8 MCP Servers (130+ tools)                   │    │
+│  │                        MCP Servers                            │    │
 │  │  CRM · Email · Twilio · Calendar · Invoicing                 │    │
-│  │  Intelligence · B2B Churn (61 tools) · Memory                 │    │
+│  │  Intelligence · B2B Churn · Memory                            │    │
 │  └──────────────────────────────────────────────────────────────┘    │
 │                                                                       │
 │  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐       │
@@ -39,17 +41,17 @@
          │                    │                    │
          ▼                    ▼                    ▼
 ┌──────────────┐   ┌──────────────┐   ┌──────────────────────┐
-│  Edge Node   │   │  Telephony   │   │    4 Web Dashboards   │
+│  Edge Node   │   │  Telephony   │   │     Product UIs       │
 │  Orange Pi   │   │  Twilio      │   │  Main · Intel · Churn │
 │  RK3588      │   │  SignalWire  │   │  Admin Ops            │
 │  YOLO·Piper  │   │  Call/SMS    │   │  React + Next.js      │
 └──────────────┘   └──────────────┘   └──────────────────────┘
 ```
 
-## Data Flow: Review to Revenue
+## Data Flow: Review to Evidence-Backed Artifacts
 
 ```
-16 Review Sources ──► Scraping ──► Raw Reviews (PostgreSQL)
+19 Review Sources ──► Scraping ──► Raw Reviews (PostgreSQL)
                                         │
                                         ▼
                                   LLM Enrichment
@@ -66,12 +68,12 @@
                     ┌───────────────────┼───────────────────┐
                     ▼                   ▼                   ▼
               Reasoning           Battle Cards         Campaigns
-              Synthesis        (competitive intel)    (personalized
-           (Claude-powered)                           cold outreach)
+              Synthesis        (competitive intel)    (targeted
+                                                        outreach)
                     │                   │                   │
                     ▼                   ▼                   ▼
               Blog Posts          Intelligence         Vendor
-           (10 topic types)        Reports            Briefings
+          (multiple formats)        Reports            Briefings
                                   (PDF export)      (email delivery)
 ```
 
