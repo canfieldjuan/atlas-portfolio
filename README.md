@@ -6,7 +6,7 @@ The current product focus is B2B churn intelligence and GTM automation, but the 
 
 If you want a quick tour, start here:
 
-- **Public product domain**: [churnsignal.co](https://churnsignal.co)
+- **Public product domain**: [churnsignals.co](https://churnsignals.co)
 - **Curated terminal demo**: [`recordings/atlas-terminal-demo.cast`](recordings/atlas-terminal-demo.cast)
 - **Raw review to evidence-backed campaign**: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
@@ -81,7 +81,7 @@ If you want a quick tour, start here:
 
 [![Pipeline Review](recordings/gifs/pipeline-review.gif)](recordings/ui/pipeline-review-demo.webm)
 
-The current ATLAS UI has moved forward most in Watchlists, Evidence Explorer, Opportunities, Report Detail, and Pipeline Review. The portfolio recordings still show real product flows, but they do not yet capture every newer review and evidence surface.
+The live product at [churnsignals.co](https://churnsignals.co) includes Watchlists, Evidence Explorer, Opportunities Workbench, Prospects, Report Library with subscription management, Campaign Review, Pipeline Review, and more.
 
 ---
 
@@ -92,15 +92,22 @@ Verified against the current local ATLAS repo and dataset snapshot:
 | Metric | Value |
 |--------|-------|
 | Raw reviews stored | 48,270 |
-| Reviews enriched | 25,071 |
+| Reviews enriched | 25,061 |
 | Vendors with churn signals | 56 |
-| Intelligence reports | 79 |
+| Intelligence reports | 1,133 |
 | Cross-vendor reasoning records | 170 |
 | v2 reasoning syntheses | 323 |
-| Review sources | 19 |
+| Review sources | 15 |
 | Autonomous scheduled tasks | 81 |
-| Database migrations | 222 |
+| Database migrations | 227 |
 | Skill documents | 68 |
+| MCP servers | 8 |
+| MCP tools exposed | 130+ |
+| LangGraph workflows | 12 |
+| Product dashboards | 4 |
+| Prospects enriched | 1,335 |
+| Campaign sequences | 7 |
+| Evidence vault entries | 497 |
 
 ---
 
@@ -108,7 +115,7 @@ Verified against the current local ATLAS repo and dataset snapshot:
 
 ### Sales Enablement
 
-- Scrapes reviews from 19 sources including G2, Capterra, TrustRadius, Reddit, Gartner, HackerNews, Twitter/X, GitHub, YouTube, and Stack Overflow.
+- Scrapes reviews from 15 sources including G2, Capterra, TrustRadius, Reddit, Gartner, HackerNews, Twitter/X, GitHub, YouTube, and Stack Overflow.
 - Extracts 47 structured fields per review including churn intent, urgency, pain categories, buying stage, budget signals, and competitor mentions.
 - Generates battle cards with discovery questions, landmine questions, objection handlers, talk tracks, and recommended plays.
 - Tracks vendor-to-vendor displacement dynamics with evidence-backed competitive flows.
@@ -122,7 +129,7 @@ Verified against the current local ATLAS repo and dataset snapshot:
 
 ### Internal Operations
 
-- Runs 81 autonomous scheduled tasks for enrichment, campaign generation, churn intelligence, blog generation, email triage, briefings, monitoring, and anomaly detection.
+- Runs 81 autonomous scheduled tasks (and growing) for enrichment, campaign generation, churn intelligence, blog generation, email triage, briefings, monitoring, and anomaly detection.
 - Uses LangGraph workflows for stateful agent behavior across email, calls, scheduling, monitoring, and automation.
 - Exposes MCP servers across CRM, email, telephony, calendar, invoicing, intelligence, B2B churn, and memory.
 - Routes work across multiple model providers depending on task type and cost profile.
@@ -138,7 +145,7 @@ Verified against the current local ATLAS repo and dataset snapshot:
 ## Pipeline Snapshot
 
 ```text
-Raw reviews (19 sources)
+Raw reviews (15 sources)
   -> LLM enrichment (47 structured fields per review)
   -> Churn signal aggregation
   -> Evidence pools and witness extraction
@@ -156,24 +163,57 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 
 ---
 
+## Other Projects
+
+### FineTuneLab.ai | 2025–Present
+
+A self-hosted fine-tuning platform for training and deploying language models on local hardware.
+
+- GPU-accelerated training with Unsloth, web-based monitoring, and experiment management
+- Dataset management, template-based training setup, training history, logs, and artifacts
+- Deployment paths for vLLM, Ollama, Docker, and native Linux
+- Stack: TypeScript, Next.js, Python, FastAPI, Supabase, Neo4j
+
+### Coding Assistant SDK | 2024–Present
+
+A unified AI developer platform spanning CLI, API, web IDE, code generators, and backend services.
+
+- 17-model routing with generators for MCP, FastAPI, Express, agents, tools, and SDK workflows
+- Persistent memory, context injection, project analysis, and validation workflows
+- Go code-analysis backend + FastAPI LLM service
+- Stack: Python, Go, TypeScript, FastAPI, Next.js
+
+### ATLAS Edge Node | 2025–Present
+
+A multi-modal AI edge device running on Orange Pi 5 Plus with RK3588 NPU.
+
+- Real-time vision pipeline: YOLO World object detection (94ms NPU inference), face recognition (RetinaFace + MobileFaceNet), gait recognition (YOLOv8-pose)
+- Speech pipeline: SenseVoice STT (16x realtime), Matcha-TTS synthesis, Silero VAD, speaker identification
+- Person tracking with IoU-based matching and multi-modal identity fusion (face + gait + speaker)
+- Bidirectional WebSocket sync with ATLAS Brain server for voice-to-voice AI interaction
+- Stack: Python, RKNN, sherpa-onnx, OpenCV, asyncio
+
+---
+
 ## Tech Stack
 
 **Backend**: Python, FastAPI, asyncpg, PostgreSQL, APScheduler  
 **LLM**: Ollama, vLLM, Claude API, OpenRouter, Groq, Together  
 **Memory**: Neo4j, PostgreSQL  
 **Agent Framework**: LangGraph, MCP  
-**Scraping**: 19 review sources with proxy rotation, rate limiting, and dedup  
+**Scraping**: 15 review sources with proxy rotation, rate limiting, and dedup  
 **CRM and GTM**: Apollo API, HubSpot, Salesforce, Pipedrive event ingestion  
 **Telephony**: Twilio, SignalWire  
-**Frontends**: React, Next.js  
-**Infrastructure**: Docker Compose, Tailscale mesh, NVIDIA GPU  
+**Frontends**: React, Vite, TypeScript  
+**Edge AI**: RKNN NPU inference, sherpa-onnx, OpenCV, YOLO World, RetinaFace, MobileFaceNet  
+**Infrastructure**: Docker Compose, Tailscale mesh, Vercel, NVIDIA GPU, Orange Pi 5 Plus  
 **Tools Used to Build**: Claude Code, Cursor
 
 ---
 
 ## Additional Links
 
-- **Public product domain**: [churnsignal.co](https://churnsignal.co)
+- **Public product domain**: [churnsignals.co](https://churnsignals.co)
 - **Full source code**: [github.com/canfieldjuan/ATLAS](https://github.com/canfieldjuan/ATLAS)
 - **Churn-to-campaign demo**: [`demos/churn-to-campaign.md`](demos/churn-to-campaign.md)
 - **Blog review demo**: [`demos/blog-review-preview.md`](demos/blog-review-preview.md)
@@ -187,4 +227,3 @@ For the narrated version, open [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-
 - **Pipeline review clip**: [`recordings/ui/pipeline-review-demo.webm`](recordings/ui/pipeline-review-demo.webm)
 - **Campaign review clip**: [`recordings/ui/campaign-review-demo.webm`](recordings/ui/campaign-review-demo.webm)
 - **Reports gallery clip**: [`recordings/ui/reports-gallery-demo.webm`](recordings/ui/reports-gallery-demo.webm)
-- **Screenshot guide**: [`screenshots/CAPTURE_GUIDE.md`](screenshots/CAPTURE_GUIDE.md)
