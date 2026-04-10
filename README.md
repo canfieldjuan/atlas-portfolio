@@ -83,6 +83,23 @@ If you want a quick tour, start here:
 
 The live product at [churnsignals.co](https://churnsignals.co) includes Watchlists, Evidence Explorer, Opportunities Workbench, Prospects, Report Library with subscription management, Campaign Review, Pipeline Review, and more.
 
+### Product Screenshots
+
+| | |
+|---|---|
+| ![Dashboard](screenshots/screenshot-dashboard.png) | ![Watchlists](screenshots/screenshot-watchlists.png) |
+| Dashboard — Overview with churn signals, pipeline health, and slow-burn watchlist | Watchlists — Vendor tracking, accounts in motion, competitive sets |
+| ![Prospects](screenshots/screenshot-prospects.png) | ![Manual Queue](screenshots/screenshot-prospects-manual-queue.png) |
+| Prospects — Enriched prospect table with tabs | Manual Queue — Error category badges with resolve actions |
+| ![Evidence Witnesses](screenshots/screenshot-evidence-witnesses.png) | ![Evidence Vault](screenshots/screenshot-evidence-vault.png) |
+| Evidence Explorer — Witness excerpts with signal tags | Evidence Vault — Weakness/strength claims with metrics |
+| ![Reasoning Trace](screenshots/screenshot-evidence-reasoning-trace.png) | ![Reports](screenshots/screenshot-reports.png) |
+| Reasoning Trace — Evidence diff and synthesis provenance | Reports — Intelligence report library with trust panels |
+| ![Vendor Detail](screenshots/screenshot-vendor-detail.png) | ![Campaign Review](screenshots/screenshot-campaign-review.png) |
+| Vendor Detail — HubSpot churn signal profile | Campaign Review — Draft approval queue with quality trends |
+| ![Pipeline Review](screenshots/screenshot-pipeline-review.png) | ![Blog](screenshots/screenshot-blog.png) |
+| Pipeline Review — Operations dashboard with quality signals | Blog — AI-generated SEO content from churn intelligence |
+
 ---
 
 ## The Numbers
