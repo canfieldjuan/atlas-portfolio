@@ -19,48 +19,39 @@ If you want a quick tour, start here:
 
 ### 1. Watchlists & Vendor Intelligence
 
-Real-time vendor monitoring with churn pattern classification, competitive sets, and accounts in motion. The primary product surface.
+Real-time vendor monitoring with churn pattern classification, competitive sets, and accounts in motion.
 
-- Demo: [`demos/watchlists-intelligence.md`](demos/watchlists-intelligence.md)
-- Live: [churnsignals.co/watchlists](https://churnsignals.co/watchlists)
+[![Watchlists Demo](recordings/gifs/watchlists-demo.gif)](demos/watchlists-intelligence.md)
 
 ### 2. Evidence Explorer & Reasoning Transparency
 
-Three-level evidence chain: witness excerpts, aggregated vault claims, and full reasoning trace. Every claim has a source.
+Three-level evidence chain: witness excerpts, aggregated vault claims, and full reasoning trace.
 
-- Demo: [`demos/evidence-reasoning.md`](demos/evidence-reasoning.md)
-- Live: [churnsignals.co/evidence](https://churnsignals.co/evidence)
+[![Evidence Explorer Demo](recordings/gifs/evidence-explorer-demo.gif)](demos/evidence-reasoning.md)
 
 ### 3. Prospects & Campaign Workflow
 
-End-to-end GTM automation: prospect enrichment, manual review queue, campaign generation, inline editing, and approval.
+End-to-end GTM automation: prospect enrichment, manual review queue, campaign generation, and approval.
 
-- Demo: [`demos/prospects-campaigns.md`](demos/prospects-campaigns.md)
-- Live: [churnsignals.co/prospects](https://churnsignals.co/prospects)
+[![Prospects Demo](recordings/gifs/prospects-demo.gif)](demos/prospects-campaigns.md)
 
 ### 4. Autonomous Operations
 
-81 scheduled tasks running continuously — enrichment, blog generation, campaign generation, reasoning synthesis, delivery, and monitoring. Quality gates, cost tracking, and operator review at every stage.
+81 scheduled tasks for enrichment, content generation, reasoning synthesis, delivery, and monitoring.
 
-- Demo: [`demos/autonomous-operations.md`](demos/autonomous-operations.md)
-- Live: [churnsignals.co/pipeline-review](https://churnsignals.co/pipeline-review)
+[![Pipeline Review](recordings/gifs/pipeline-review.gif)](demos/autonomous-operations.md)
 
 ### 5. Pipeline Walkthrough (Technical Deep-Dive)
 
-A single G2 review traced through every pipeline stage with real JSON artifacts: raw review → 47-field enrichment → churn signal → evidence vault → campaign → battle card.
+A single G2 review traced through every pipeline stage with real JSON artifacts.
 
 - Walkthrough: [`pipeline-walkthrough/WALKTHROUGH.md`](pipeline-walkthrough/WALKTHROUGH.md)
-- Artifacts: [`pipeline-walkthrough/`](pipeline-walkthrough/)
 
-### Quick Visual Demos
+### More Visual Demos
 
 [![Terminal Demo](recordings/gifs/atlas-terminal-demo.gif)](recordings/atlas-terminal-demo.cast)
 
-[![Pipeline Review](recordings/gifs/pipeline-review.gif)](recordings/ui/pipeline-review-demo.webm)
-
-[![Campaign Review](recordings/gifs/campaign-review.gif)](recordings/ui/campaign-review-demo.webm)
-
-The live product is at [churnsignals.co](https://churnsignals.co).
+[![Campaign Review](recordings/gifs/campaign-review.gif)](demos/autonomous-operations.md)
 
 ### Product Screenshots
 

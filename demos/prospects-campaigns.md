@@ -44,9 +44,9 @@ This demo shows the end-to-end GTM automation pipeline: from prospect enrichment
 | ![Campaign Review](../screenshots/screenshot-campaign-review.png) | |
 | Campaign approval queue with quality trends | |
 
-## Video Demo
+## Demo
 
-**Watch**: [`../recordings/ui/prospects-demo.webm`](../recordings/ui/prospects-demo.webm)
+![Demo](../recordings/gifs/prospects-demo.gif)
 
 ## What To Notice
 

@@ -51,9 +51,9 @@ This demo shows how ATLAS runs itself: 81 scheduled tasks executing continuously
 | ![Campaign Review](../screenshots/screenshot-campaign-review.png) | ![Reports](../screenshots/screenshot-reports.png) |
 | Campaign approval queue with quality trends | Intelligence report library with trust panels |
 
-## Video Demo
+## Demo
 
-**Watch**: [`../recordings/ui/pipeline-review-demo.webm`](../recordings/ui/pipeline-review-demo.webm)
+![Demo](../recordings/gifs/pipeline-review.gif)
 
 ## What To Notice
 

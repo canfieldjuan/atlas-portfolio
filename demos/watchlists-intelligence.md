@@ -34,9 +34,9 @@ This demo shows the core monitoring product: tracking vendors in real time, dete
 
 ![Watchlists](../screenshots/screenshot-watchlists.png)
 
-## Video Demo
+## Demo
 
-**Watch**: [`../recordings/ui/watchlists-demo.webm`](../recordings/ui/watchlists-demo.webm)
+![Demo](../recordings/gifs/watchlists-demo.gif)
 
 ## What To Notice
 
