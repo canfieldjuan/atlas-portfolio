@@ -41,7 +41,13 @@ End-to-end GTM automation: prospect enrichment, manual review queue, campaign ge
 
 [![Pipeline Review](recordings/gifs/pipeline-review.gif)](demos/autonomous-operations.md)
 
-### 5. Pipeline Walkthrough (Technical Deep-Dive)
+### 5. ML Platform Engineering (Technical Work Sample)
+
+Systems-level breakdown of scoring, ranking, real-time inference, model routing, batch orchestration, and identity resolution.
+
+- Work sample: [`demos/ads-platform-relevance.md`](demos/ads-platform-relevance.md)
+
+### 6. Pipeline Walkthrough (Technical Deep-Dive)
 
 A single G2 review traced through every pipeline stage with real JSON artifacts.
 
