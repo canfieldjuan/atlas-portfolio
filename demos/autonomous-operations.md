@@ -51,12 +51,9 @@ This demo shows how ATLAS runs itself: 81 scheduled tasks executing continuously
 | ![Campaign Review](../screenshots/screenshot-campaign-review.png) | ![Reports](../screenshots/screenshot-reports.png) |
 | Campaign approval queue with quality trends | Intelligence report library with trust panels |
 
-## Live Product
+## Video Demo
 
-- Pipeline Review: [churnsignals.co/pipeline-review](https://churnsignals.co/pipeline-review)
-- Blog: [churnsignals.co/blog](https://churnsignals.co/blog)
-- Campaign Review: [churnsignals.co/campaign-review](https://churnsignals.co/campaign-review)
-- Reports: [churnsignals.co/reports](https://churnsignals.co/reports)
+**Watch**: [`../recordings/ui/pipeline-review-demo.webm`](../recordings/ui/pipeline-review-demo.webm)
 
 ## What To Notice
 

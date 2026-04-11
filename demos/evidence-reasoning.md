@@ -39,9 +39,9 @@ This demo shows how ATLAS makes AI reasoning transparent and auditable. Every cl
 | ![Trace](../screenshots/screenshot-evidence-reasoning-trace.png) | |
 | Reasoning trace with evidence diff | |
 
-## Live Product
+## Video Demo
 
-Explore the live version at [churnsignals.co/evidence](https://churnsignals.co/evidence)
+**Watch**: [`../recordings/ui/evidence-explorer-demo.webm`](../recordings/ui/evidence-explorer-demo.webm)
 
 ## What To Notice
 

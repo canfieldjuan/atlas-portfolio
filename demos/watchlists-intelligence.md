@@ -34,9 +34,9 @@ This demo shows the core monitoring product: tracking vendors in real time, dete
 
 ![Watchlists](../screenshots/screenshot-watchlists.png)
 
-## Live Product
+## Video Demo
 
-Explore the live version at [churnsignals.co/watchlists](https://churnsignals.co/watchlists)
+**Watch**: [`../recordings/ui/watchlists-demo.webm`](../recordings/ui/watchlists-demo.webm)
 
 ## What To Notice
 
