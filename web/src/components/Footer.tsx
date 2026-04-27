@@ -31,6 +31,7 @@ export function Footer() {
                 { href: '/services', label: 'Services & Pricing' },
                 { href: '/process', label: 'Process' },
                 { href: '/security', label: 'Security' },
+                { href: '/privacy', label: 'Privacy' },
                 { href: '/architecture', label: 'Architecture' },
                 { href: '/demo', label: 'Demo' },
               ].map((link) => (

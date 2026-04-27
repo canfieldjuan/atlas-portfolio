@@ -368,7 +368,7 @@ export default function AuditPage() {
         <div
           className="mb-8 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/70"
         >
-          I review completed audit requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced.
+          I review completed audit requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
         </div>
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
