@@ -25,6 +25,7 @@ export function Footer() {
             <h3 className="text-xs font-mono text-foreground/30 tracking-widest mb-4">NAVIGATE</h3>
             <div className="space-y-2">
               {[
+                { href: '/about', label: 'About' },
                 { href: '/capabilities', label: 'Capabilities' },
                 { href: '/proof', label: 'Proof' },
                 { href: '/services', label: 'Services & Pricing' },
