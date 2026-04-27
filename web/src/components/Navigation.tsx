@@ -35,7 +35,7 @@ export function Navigation() {
         <Link href="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
           <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
           <span className="font-mono text-sm tracking-wider uppercase text-foreground/80">
-            Juan Canfield <span className="text-white/30">|</span> Architect
+            Juan Canfield <span className="hidden sm:inline"><span className="text-white/30">|</span> Architect</span>
           </span>
         </Link>
 
@@ -73,10 +73,10 @@ export function Navigation() {
           <Link
             href="/audit"
             aria-current={isAuditPage ? 'page' : undefined}
-            className="text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors text-white"
+            className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors text-white"
             onClick={closeMobileMenu}
           >
-            Start Systems Audit
+            Audit
           </Link>
           <button
             onClick={toggleMobileMenu}

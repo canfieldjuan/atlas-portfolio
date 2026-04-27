@@ -189,7 +189,7 @@ export default function AboutPage() {
             <div className="max-w-2xl">
               <h2 className="text-lg font-semibold text-white mb-2">Want to see the work shape before contacting me?</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                The proof page shows representative build patterns. The process page explains how a Systems Audit becomes a roadmap and then a fixed-scope implementation.
+                The proof page shows representative build patterns. The process page explains how a Systems Audit becomes a roadmap and then a fixed-scope implementation. For data boundaries, review privacy and security before sharing sensitive context.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -205,6 +205,13 @@ export default function AboutPage() {
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
               >
                 Review Process
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/privacy"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              >
+                Review Privacy
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

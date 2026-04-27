@@ -238,12 +238,15 @@ export default function ProofPage() {
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Have a workflow that looks like one of these?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
-            Start with the Systems Audit. I will review whether the workflow has enough data, ownership, and business value to justify a Phase 1 Roadmap.
+            Start with the Systems Audit. I will review whether the workflow has enough data, ownership, and business value to justify a Phase 1 Roadmap. Review services if you want the pricing model before submitting.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/services" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+              Review Services
             </Link>
             <Link href="/demo" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Workflow Demo

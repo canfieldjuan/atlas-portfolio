@@ -171,11 +171,15 @@ export default function PrivacyPage() {
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Need security context too?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
-            Privacy covers intake and data-handling expectations. Security covers compliance posture, questionnaires, deployment options, and buyer qualification.
+            Privacy covers intake and data-handling expectations. Security covers compliance posture, questionnaires, deployment options, and buyer qualification. About explains the operating model behind the engagement.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/security" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Security
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link href="/about" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+              Review About
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
