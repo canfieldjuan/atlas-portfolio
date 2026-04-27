@@ -18,6 +18,7 @@ import Link from 'next/link';
 
 const workflowDemos = [
   {
+    id: 'revenue-ops',
     icon: <TrendingUp className="w-5 h-5" />,
     label: 'REVENUE OPS',
     title: 'Signal to sales motion',
@@ -26,6 +27,7 @@ const workflowDemos = [
     output: 'Prioritized account alert, battle-card angle, outreach draft, CRM update',
   },
   {
+    id: 'knowledge-systems',
     icon: <BrainCircuit className="w-5 h-5" />,
     label: 'KNOWLEDGE SYSTEMS',
     title: 'Documents to evidence-backed answers',
@@ -34,6 +36,7 @@ const workflowDemos = [
     output: 'Answer with source trail, confidence notes, unresolved questions, audit view',
   },
   {
+    id: 'agent-workflows',
     icon: <Bot className="w-5 h-5" />,
     label: 'AGENT WORKFLOWS',
     title: 'Inbox to controlled action queue',
@@ -42,6 +45,7 @@ const workflowDemos = [
     output: 'Queued action, prepared response, assigned owner, status trail',
   },
   {
+    id: 'data-pipelines',
     icon: <BarChart3 className="w-5 h-5" />,
     label: 'DATA PIPELINES',
     title: 'Raw data to operational visibility',
@@ -50,6 +54,7 @@ const workflowDemos = [
     output: 'Dashboard, threshold alerts, quality report, recurring intelligence feed',
   },
   {
+    id: 'specialized-ai',
     icon: <Cpu className="w-5 h-5" />,
     label: 'SPECIALIZED AI',
     title: 'Real-time or local AI system',
@@ -117,14 +122,40 @@ export default function DemoPage() {
           </div>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.16 }}
+          className="mb-10"
+        >
+          <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
+            CHOOSE A WORKFLOW
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {workflowDemos.map((demo) => (
+              <Link
+                key={demo.id}
+                href={`#${demo.id}`}
+                className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-left hover:border-primary/30 hover:bg-primary/5 transition-colors"
+              >
+                <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-2">
+                  {demo.label}
+                </div>
+                <div className="text-sm font-medium text-white leading-snug">{demo.title}</div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+
         <div className="space-y-6 mb-20">
           {workflowDemos.map((demo, index) => (
             <motion.div
               key={demo.title}
+              id={demo.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 + index * 0.06 }}
-              className="glass rounded-xl p-8 border border-white/10 hover:bg-white/[0.02] transition-colors"
+              className="glass rounded-xl p-8 border border-white/10 hover:bg-white/[0.02] transition-colors scroll-mt-24"
             >
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3 shrink-0">

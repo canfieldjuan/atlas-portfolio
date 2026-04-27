@@ -361,21 +361,21 @@ export default function AuditPage() {
             Request an AI Systems Audit
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-10">
-            I only take on a limited number of builds per quarter. Fill out this brief to qualify fit across operations, timeline, budget, and security requirements before we invest in scoping.
+            I only take on a limited number of builds per quarter. Fill out this brief to qualify fit across operations, timeline, budget, and security requirements before we invest in scoping. This is a fit-review request, not a paid checkout.
           </p>
         </motion.div>
 
         <div
           className="mb-8 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/70"
         >
-          I review completed audit requests within 48 hours. Submit this form and the request goes directly to the intake queue.
+          I review completed audit requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced.
         </div>
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
           {[
             'Fill out the audit brief.',
-            'Submit it directly to the intake queue.',
-            'Receive a review response within 48 hours.',
+            'Send it for fit review, not payment.',
+            'Receive a next-step response within 48 hours.',
           ].map((step, index) => (
             <div key={step} className="rounded-lg border border-white/10 bg-black/20 p-4 text-foreground/65">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">STEP 0{index + 1}</div>

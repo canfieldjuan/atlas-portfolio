@@ -242,13 +242,13 @@ export default function ServicesPage() {
         >
           <div className="max-w-2xl mb-8">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              COMMON BUYER LANGUAGE
+              WHAT TEAMS HIRE ME TO BUILD
             </div>
             <h2 className="text-xl font-semibold text-white mb-3">
-              Different searches, same underlying service
+              The search term changes; the work is a scoped system.
             </h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
-              Buyers describe this work in a few different ways: AI automation consultant, AI workflow automation consultant, custom AI development services, or AI systems consultant. The engagement model stays the same: roadmap first, then fixed-scope build.
+              Some teams call this AI automation consulting. Others need custom AI development, workflow automation, or an AI systems consultant. The useful distinction is whether there is a real process, real data, and a clear owner.
             </p>
           </div>
 

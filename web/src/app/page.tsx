@@ -81,6 +81,9 @@ export default function Home() {
             <p className="text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed mt-4">
               I work with teams that have a concrete workflow, data, or operational bottleneck to solve. Every engagement starts with a fixed-fee roadmap so scope, proof of concept, pricing, and delivery risk are defined up front.
             </p>
+            <p className="text-base text-foreground/50 max-w-2xl leading-relaxed">
+              Think of it as AI automation consulting plus custom AI development: first we scope the system, then we build the workflow your operators can actually run.
+            </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
               <Link href="/audit" className="group px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all flex items-center gap-2">
@@ -156,10 +159,10 @@ export default function Home() {
 
             <div className="mt-8">
               <Link
-                href="/demo"
+                href="/proof"
                 className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
               >
-                Review a representative workflow walkthrough
+                Review representative builds
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

@@ -26,6 +26,7 @@ export function Footer() {
             <div className="space-y-2">
               {[
                 { href: '/capabilities', label: 'Capabilities' },
+                { href: '/proof', label: 'Proof' },
                 { href: '/services', label: 'Services & Pricing' },
                 { href: '/process', label: 'Process' },
                 { href: '/security', label: 'Security' },
