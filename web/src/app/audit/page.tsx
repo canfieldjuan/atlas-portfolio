@@ -722,6 +722,27 @@ export default function AuditPage() {
             <Send className="w-4 h-4" />
             {isSubmitting ? 'Submitting audit request...' : 'Submit Audit Request'}
           </button>
+
+          <div className="rounded-lg border border-white/10 bg-black/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Manual backup: copy the filled summary if the form fails or you need to send the request through an existing email thread.
+            </p>
+            <button
+              type="button"
+              onClick={copySummary}
+              disabled={isCopying || isSubmitting}
+              className="inline-flex items-center justify-center gap-2 text-sm px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors disabled:opacity-70 disabled:cursor-not-allowed shrink-0"
+            >
+              <Copy className="w-4 h-4" />
+              {isCopying
+                ? 'Copying...'
+                : copyState === 'copied'
+                  ? 'Summary copied'
+                  : copyState === 'failed'
+                    ? 'Copy failed'
+                    : 'Copy summary'}
+            </button>
+          </div>
         </motion.form>
 
         {isSubmitted ? (
