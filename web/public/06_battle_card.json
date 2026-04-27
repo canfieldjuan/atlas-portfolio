@@ -1,0 +1,83 @@
+{
+  "_comment": "Battle card for selling against Salesforce -- generated from evidence pools + reasoning synthesis",
+  "report_type": "battle_card",
+  "vendor": "Salesforce",
+  "category": "CRM",
+  "report_date": "2026-03-30",
+
+  "churn_pressure_score": 7.8,
+  "risk_level": "accelerating",
+  "total_reviews": 847,
+  "confidence": 0.89,
+  "archetype": "pricing_shock",
+
+  "executive_summary": "Salesforce CRM is experiencing accelerating churn pressure driven primarily by aggressive renewal pricing (15-25% increases) and admin-dependency creating single-point-of-failure risk. Decision-makers at mid-market companies (200-1000 employees) are most actively evaluating alternatives, with HubSpot capturing the largest displacement flow (67 confirmed switches in 90 days). The pricing wedge is strongest -- 42% of reviews mention cost complaints, and companies report $100K-$160K annual savings post-switch.",
+
+  "discovery_questions": [
+    "When is your next Salesforce renewal, and have you seen the proposed pricing yet?",
+    "How many people on your team can actually administer Salesforce without outside help?",
+    "What percentage of the Salesforce features you're paying for does your team actually use?",
+    "If your Salesforce admin left tomorrow, how long would it take to replace them?"
+  ],
+
+  "landmine_questions": [
+    "Have you calculated the total cost of Salesforce ownership including admin salaries and consultant fees?",
+    "How much time do your reps spend on data entry versus actual selling each week?",
+    "When was the last time Salesforce shipped a feature that meaningfully changed how your team works?"
+  ],
+
+  "objection_handlers": [
+    {
+      "objection": "We've invested too much in Salesforce integrations to switch",
+      "acknowledge": "That's a real concern -- integration re-platforming is the #1 hesitation we hear.",
+      "pivot": "But consider this: companies who switched report the integration work took 4-6 weeks on average, while they were paying $180K+ per year to maintain a system their team fights against daily.",
+      "proof_point": "Velocity Growth Partners had 12 Salesforce integrations and completed their HubSpot migration in 5 weeks, saving $160K annually."
+    },
+    {
+      "objection": "Salesforce is the industry standard",
+      "acknowledge": "It's definitely the most recognized name in CRM.",
+      "pivot": "But 'industry standard' doesn't mean 'best fit.' 89 Salesforce customers in our dataset flagged active churn intent this quarter alone. The mid-market is moving.",
+      "proof_point": "HubSpot has captured 67 confirmed Salesforce switches in the last 90 days, primarily from companies with 200-1000 employees."
+    }
+  ],
+
+  "talk_track": {
+    "opening": "I've been analyzing CRM switching patterns across 847 Salesforce reviews from G2, Capterra, and TrustRadius. There's a clear trend: mid-market companies are hitting a pricing wall at renewal and finding that simpler alternatives deliver 80% of the value at 40% of the cost.",
+    "mid_call_pivot": "The interesting thing isn't that people are leaving -- it's why they stayed so long. The #1 anchor is integration switching costs. But when we look at actual migration timelines, they average 4-6 weeks. The perception of difficulty far exceeds the reality.",
+    "closing": "I can share the full intelligence brief on the Salesforce-to-HubSpot migration path -- it covers what 67 companies experienced, the common pitfalls, and the actual timeline. Would that be useful for your evaluation?"
+  },
+
+  "recommended_plays": [
+    {
+      "play": "Pricing reality check",
+      "target_segment": "Mid-market (200-1000 employees)",
+      "key_message": "Calculate your true Salesforce TCO including admin costs, consultant fees, and unused feature overhead",
+      "timing": "6-8 weeks before renewal"
+    },
+    {
+      "play": "Admin dependency risk",
+      "target_segment": "Companies with single Salesforce admin",
+      "key_message": "Your CRM shouldn't be a single-point-of-failure. What happens when your admin leaves?",
+      "timing": "Any time -- triggered by admin turnover signals"
+    }
+  ],
+
+  "why_they_stay": {
+    "summary": "Integration switching costs and brand familiarity are the primary retention anchors. Teams that have heavily customized Salesforce face real re-platforming work.",
+    "strengths": [
+      {
+        "area": "Integration ecosystem",
+        "evidence": "Largest marketplace of third-party integrations in the CRM category",
+        "how_to_neutralize": "Quantify the cost of maintaining those integrations versus the migration effort. Most companies use 5-10 integrations, not hundreds."
+      },
+      {
+        "area": "Brand trust",
+        "evidence": "Enterprise procurement teams default to Salesforce as a 'safe' choice",
+        "how_to_neutralize": "Show the churn data. 89 companies with active intent to leave this quarter alone. The 'safe' choice is getting expensive."
+      }
+    ]
+  },
+
+  "status": "published",
+  "created_at": "2026-03-30T22:30:00Z"
+}

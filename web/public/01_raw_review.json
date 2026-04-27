@@ -1,0 +1,19 @@
+{
+  "source": "g2",
+  "source_review_id": "g2_test_001",
+  "vendor_name": "Salesforce",
+  "product_name": "Sales Cloud",
+  "product_category": "CRM",
+  "rating": 2.0,
+  "rating_max": 5,
+  "summary": "Way too expensive for what you get",
+  "review_text": "We've been using Salesforce Sales Cloud for 3 years now and honestly the value proposition has gotten worse every renewal. Our annual contract just went up 18% with no new features that matter to us. The UI is still clunky, reporting takes forever to set up, and our reps spend more time fighting the system than selling. We're actively evaluating HubSpot and Pipedrive for our next renewal in Q3. Our VP of Sales is leading the evaluation and frankly I think we're gone by October. The only thing keeping us is the integrations we've built, but even that's not worth the $180K/year anymore.",
+  "pros": "Large ecosystem, lots of integrations, well-known brand",
+  "cons": "Extremely expensive, clunky UI, slow reporting, poor value for money",
+  "reviewer_name": "Michael T.",
+  "reviewer_title": "VP of Sales",
+  "reviewer_company": "Meridian Technologies",
+  "company_size_raw": "501-1000",
+  "reviewer_industry": "Technology",
+  "reviewed_at": "2026-02-10T00:00:00Z"
+}
