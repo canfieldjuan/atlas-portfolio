@@ -18,9 +18,25 @@ import type { Metadata } from "next";
 
 export const SITE_URL = "https://juancanfield.com";
 export const SITE_NAME = "Juan Canfield";
-export const SITE_TITLE = "Juan Canfield | AI Solutions Architect";
+export const SITE_TITLE = "Juan Canfield | AI Solutions Architect & AI Automation Consultant";
 export const SITE_DESCRIPTION =
-  "Fixed-fee AI systems roadmaps and custom implementation for teams with real operational workflows. Architecture, proof of concept, pricing, and delivery scope are defined before build work begins.";
+  "AI automation consultant and AI solutions architect for teams with real operational workflows. Fixed-fee AI systems roadmaps, custom AI development, proof of concept, pricing, and delivery scope are defined before build work begins.";
+export const SITE_KEYWORDS = [
+  "AI solutions architect",
+  "AI automation consultant",
+  "AI workflow automation consultant",
+  "custom AI development services",
+  "AI systems consultant",
+  "AI consultant for startups",
+  "remote AI consultant",
+  "fixed-fee AI roadmap",
+  "AI systems roadmap",
+  "agent workflow automation",
+  "GraphRAG consultant",
+  "LLM orchestration",
+  "data pipeline automation",
+  "revenue operations automation",
+];
 
 // ─────────────────────────────────────────────
 // Metadata helper
@@ -30,6 +46,7 @@ interface PageSEO {
   title: string;
   description: string;
   path: string;
+  keywords?: string[];
   /** Optional override for Open Graph title (defaults to `${title} | Juan Canfield`) */
   ogTitle?: string;
   /** Optional override for OG description (defaults to description) */
@@ -53,6 +70,7 @@ export function generatePageMetadata({
   title,
   description,
   path,
+  keywords,
   ogTitle,
   ogDescription,
 }: PageSEO): Metadata {
@@ -61,6 +79,7 @@ export function generatePageMetadata({
   return {
     title,
     description,
+    keywords,
     alternates: {
       canonical: path,
     },
@@ -98,9 +117,15 @@ export const rootJsonLd = {
       url: SITE_URL,
       jobTitle: "AI Solutions Architect",
       description:
-        "AI Solutions Architect specializing in operational workflows, data systems, agent orchestration, and fixed-fee roadmap engagements for custom AI builds.",
+        "AI Solutions Architect and AI automation consultant specializing in operational workflows, data systems, agent orchestration, and fixed-fee roadmap engagements for custom AI builds.",
       knowsAbout: [
         "Artificial Intelligence",
+        "AI Automation Consulting",
+        "AI Workflow Automation",
+        "Custom AI Development Services",
+        "AI Systems Consulting",
+        "AI Consultant for Startups",
+        "Remote AI Consulting",
         "Systems Architecture",
         "Data Pipeline Engineering",
         "GraphRAG",
@@ -126,11 +151,11 @@ export const rootJsonLd = {
       url: SITE_URL,
       provider: { "@id": `${SITE_URL}/#person` },
       description:
-        "Fixed-fee AI systems roadmap and custom implementation. Phase 1 Roadmap ($4,500) includes discovery, audit, proof of concept, and blueprint. Phase 2 custom implementation is scoped from the roadmap before build work begins.",
-      areaServed: "Worldwide",
+        "AI automation consulting, custom AI development services, and fixed-fee AI systems roadmap engagements. Phase 1 Roadmap ($4,500) includes discovery, audit, proof of concept, and blueprint. Phase 2 custom implementation is scoped from the roadmap before build work begins.",
+      areaServed: ["United States", "Worldwide"],
       hasOfferCatalog: {
         "@type": "OfferCatalog",
-        name: "AI Architecture Services",
+        name: "AI Automation and Architecture Services",
         itemListElement: [
           {
             "@type": "Offer",

@@ -15,6 +15,14 @@ const faqJsonLd = generateFaqJsonLd([
     answer: "The two-phase model scales down just as well. A simple alert pipeline or automation workflow still starts with a Roadmap — it just results in a smaller, faster Phase 2.",
   },
   {
+    question: "Do you offer custom AI development services or just consulting?",
+    answer: "Both. Phase 1 is the consulting and architecture roadmap: discovery, audit, proof of concept, and fixed-scope blueprint. Phase 2 is the custom AI development and implementation work, priced before build begins.",
+  },
+  {
+    question: "Do you work as an AI automation consultant for startups and remote teams?",
+    answer: "Yes, when there is a clear workflow owner, real data, and an implementation path. The work can fit startups, founder-led teams, and remote US or international teams that need AI workflow automation tied to operations.",
+  },
+  {
     question: "Do AI consultants bill hourly?",
     answer: "Not this one. Every engagement is flat-fee or fixed-price. Phase 1 is $4,500 flat. Phase 2 is a fixed price agreed before any work begins. No hourly billing, no surprise invoices.",
   },
@@ -40,6 +48,29 @@ const fitSummary = {
     'Procurement-heavy motions that require enterprise compliance before scoped roadmap work can begin.',
   ],
 };
+
+const buyerLanguage = [
+  {
+    term: 'AI automation consultant',
+    detail: 'When the work is about turning repetitive operational processes into reliable software-backed workflows.',
+  },
+  {
+    term: 'AI workflow automation consultant',
+    detail: 'When the bottleneck crosses inboxes, CRMs, calendars, dashboards, approvals, or internal queues.',
+  },
+  {
+    term: 'Custom AI development services',
+    detail: 'When the solution needs code, integrations, data pipelines, dashboards, and deployment, not just advice.',
+  },
+  {
+    term: 'AI consultant for startups',
+    detail: 'When a smaller team has a concrete workflow, budget path, and enough urgency to scope a build responsibly.',
+  },
+  {
+    term: 'Remote AI consultant',
+    detail: 'When the engagement can be scoped and delivered through async review, video sessions, shared docs, and milestone demos.',
+  },
+];
 
 export default function ServicesPage() {
   return (
@@ -206,6 +237,34 @@ export default function ServicesPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.26 }}
+          className="glass rounded-xl p-8 border border-white/10 mb-16"
+        >
+          <div className="max-w-2xl mb-8">
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              COMMON BUYER LANGUAGE
+            </div>
+            <h2 className="text-xl font-semibold text-white mb-3">
+              Different searches, same underlying service
+            </h2>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Buyers describe this work in a few different ways: AI automation consultant, AI workflow automation consultant, custom AI development services, or AI systems consultant. The engagement model stays the same: roadmap first, then fixed-scope build.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {buyerLanguage.map((item) => (
+              <div key={item.term} className="rounded-lg border border-white/10 bg-black/20 p-5">
+                <h3 className="text-sm font-semibold text-white mb-2">{item.term}</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.28 }}
           className="glass rounded-xl p-8 border border-white/10 mb-16"
         >
@@ -251,6 +310,14 @@ export default function ServicesPage() {
               {
                 q: 'What if my project is small?',
                 a: 'The two-phase model scales down just as well. A simple alert pipeline or automation workflow still starts with a Roadmap — it just results in a smaller, faster Phase 2.',
+              },
+              {
+                q: 'Do you offer custom AI development services or just consulting?',
+                a: 'Both. Phase 1 is the consulting and architecture roadmap. Phase 2 is the custom AI development and implementation work, priced before build begins.',
+              },
+              {
+                q: 'Do you work with startups or remote teams?',
+                a: 'Yes, when there is a clear workflow owner, real data, and an implementation path. The model can fit startups, founder-led teams, and remote teams that need AI workflow automation tied to operations.',
               },
               {
                 q: 'Why can\'t I skip Phase 1?',
