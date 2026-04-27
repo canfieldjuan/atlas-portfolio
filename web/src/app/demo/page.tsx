@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import {
   ArrowRight,
   BarChart3,
@@ -72,7 +73,74 @@ const roadmapOutputs = [
   'What Phase 2 should cost and deliver',
 ];
 
+const capabilityWorkbench = [
+  {
+    id: 'revenue',
+    icon: <TrendingUp className="w-5 h-5" />,
+    label: 'Revenue Ops',
+    title: 'Signal to sales action',
+    trigger: 'An account shows pricing friction, UX pain, and competitor interest across reviews and CRM notes.',
+    inputs: ['Review signal: seat waste and clunky UI', 'CRM owner: existing open opportunity', 'Competitor mention: evaluating alternatives'],
+    steps: ['Match company and vendor mentions', 'Extract pain and buying-stage evidence', 'Score account urgency', 'Generate reviewed outreach and CRM note'],
+    controls: ['Human approval before CRM write', 'Source quote visible beside each claim', 'Dedupe against existing account owner'],
+    outputTitle: 'Sales action packet',
+    output: ['Priority: High', 'Angle: cost waste plus UX fatigue', 'Next action: AE review queue', 'Artifact: outreach draft + battle-card notes'],
+  },
+  {
+    id: 'knowledge',
+    icon: <BrainCircuit className="w-5 h-5" />,
+    label: 'Knowledge',
+    title: 'Documents to sourced answer',
+    trigger: 'Support and operations teams keep asking questions whose answers are buried across tickets, PDFs, policies, and wikis.',
+    inputs: ['PDF policy docs', 'Support ticket history', 'Internal wiki notes'],
+    steps: ['Ingest and chunk trusted sources', 'Rank relevant source passages', 'Check for contradictions', 'Return answer with citation trail'],
+    controls: ['Citation required for every answer', 'Unresolved questions surfaced', 'Low-confidence answers blocked from automation'],
+    outputTitle: 'Evidence-backed answer',
+    output: ['Answer summary with sources', 'Confidence notes', 'Conflicting-source warning', 'Artifact: searchable operator view'],
+  },
+  {
+    id: 'agents',
+    icon: <Bot className="w-5 h-5" />,
+    label: 'Agents',
+    title: 'Inbox to controlled action queue',
+    trigger: 'Inbound requests arrive through email, forms, and Slack, but routing and response drafting are still manual.',
+    inputs: ['Customer email', 'Calendar availability', 'CRM record', 'Slack escalation channel'],
+    steps: ['Classify intent and urgency', 'Route to the right workflow', 'Draft the response or task', 'Wait for human approval before sending'],
+    controls: ['No external send without approval', 'Tool-call failures routed to owner', 'Full status trail for each action'],
+    outputTitle: 'Action queue item',
+    output: ['Owner: Operations lead', 'Status: Ready for review', 'Prepared reply: drafted', 'Artifact: task + escalation trail'],
+  },
+  {
+    id: 'pipelines',
+    icon: <BarChart3 className="w-5 h-5" />,
+    label: 'Pipelines',
+    title: 'Raw data to monitored operations',
+    trigger: 'A recurring report depends on exports, APIs, scraped sources, and manual cleanup before anyone can trust it.',
+    inputs: ['API feed', 'Vendor export', 'Scraped market data', 'Spreadsheet corrections'],
+    steps: ['Schedule ingestion', 'Normalize and deduplicate records', 'Enrich and run quality checks', 'Publish dashboard and alerts'],
+    controls: ['Freshness monitor', 'Bad-record quarantine', 'Threshold alerts with source counts'],
+    outputTitle: 'Operational visibility layer',
+    output: ['Dashboard updated hourly', 'Quality report attached', 'Alert: anomaly detected', 'Artifact: monitored data pipeline'],
+  },
+  {
+    id: 'edge',
+    icon: <Cpu className="w-5 h-5" />,
+    label: 'Specialized AI',
+    title: 'Real-time or local AI system',
+    trigger: 'A workflow has latency, cost, privacy, or connectivity constraints that make a generic cloud-only model a poor fit.',
+    inputs: ['Camera or audio stream', 'Device telemetry', 'Local runtime limits', 'Cloud sync requirements'],
+    steps: ['Define latency and privacy budget', 'Select local/cloud model split', 'Build fallback and sync rules', 'Expose operator console'],
+    controls: ['Local-first failure mode', 'Manual override path', 'Device and cloud state visible'],
+    outputTitle: 'Controlled real-time system',
+    output: ['Detection event stream', 'Operator review panel', 'Fallback state: local mode', 'Artifact: edge workflow console'],
+  },
+];
+
 export default function DemoPage() {
+  const [activeWorkbenchId, setActiveWorkbenchId] = useState(capabilityWorkbench[0].id);
+  const activeWorkbench =
+    capabilityWorkbench.find((item) => item.id === activeWorkbenchId) || capabilityWorkbench[0];
+
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-6xl mx-auto">
@@ -121,6 +189,126 @@ export default function DemoPage() {
             </div>
           </div>
         </motion.div>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.14 }}
+          className="glass rounded-xl p-8 border border-white/10 mb-14"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+            <div className="max-w-2xl">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                INTERACTIVE WORKBENCH
+              </div>
+              <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+                Pick a capability and see the operating shape.
+              </h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Each view shows the kind of input, pipeline, control points, and output that a Phase 1 proof of concept would make concrete before Phase 2 build work.
+              </p>
+            </div>
+            <Link
+              href="/proof"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              Compare build patterns
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+            {capabilityWorkbench.map((item) => {
+              const isActive = item.id === activeWorkbench.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveWorkbenchId(item.id)}
+                  aria-pressed={isActive}
+                  className={`min-h-20 rounded-lg border p-4 text-left transition-colors ${
+                    isActive
+                      ? 'border-primary/50 bg-primary/10 text-white'
+                      : 'border-white/10 bg-black/20 text-foreground/60 hover:border-white/20 hover:text-foreground'
+                  }`}
+                >
+                  <div className={`mb-2 ${isActive ? 'text-primary' : 'text-foreground/45'}`}>
+                    {item.icon}
+                  </div>
+                  <div className="text-sm font-medium leading-tight">{item.label}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-6">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                {activeWorkbench.label.toUpperCase()}
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">{activeWorkbench.title}</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed mb-6">{activeWorkbench.trigger}</p>
+
+              <div className="space-y-5">
+                <div>
+                  <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">INPUTS</div>
+                  <div className="space-y-2">
+                    {activeWorkbench.inputs.map((item) => (
+                      <div key={item} className="rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-foreground/70">
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">CONTROL POINTS</div>
+                  <div className="space-y-2">
+                    {activeWorkbench.controls.map((item) => (
+                      <div key={item} className="flex items-start gap-3 text-sm text-foreground/70">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary/70 shrink-0 mt-1.5" />
+                        <span className="leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 min-h-[30rem]">
+              <div className="grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] gap-6 h-full">
+                <div>
+                  <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-4">SYSTEM PATH</div>
+                  <div className="space-y-4">
+                    {activeWorkbench.steps.map((step, index) => (
+                      <div key={step} className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full border border-primary/30 bg-background/70 text-primary shrink-0 flex items-center justify-center font-mono text-xs">
+                          0{index + 1}
+                        </div>
+                        <p className="text-sm text-foreground/70 leading-relaxed pt-1">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-white/10 bg-[#080808] p-5 flex flex-col">
+                  <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">OUTPUT PREVIEW</div>
+                  <h4 className="text-lg font-semibold text-white mb-4">{activeWorkbench.outputTitle}</h4>
+                  <div className="space-y-3 flex-1">
+                    {activeWorkbench.output.map((line) => (
+                      <div key={line} className="font-mono text-sm text-primary/90 border-b border-white/5 pb-2">
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 rounded-md border border-white/10 bg-white/[0.03] p-3 text-xs text-foreground/50 leading-relaxed">
+                    In Phase 1, this becomes a narrow working proof with real sample data, reviewed outputs, and explicit build risks.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
