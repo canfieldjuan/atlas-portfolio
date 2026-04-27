@@ -72,6 +72,29 @@ const buyerLanguage = [
   },
 ];
 
+const phaseOneDeliverables = [
+  {
+    title: 'Technical blueprint',
+    detail: 'Architecture, workflow boundaries, data flow, implementation assumptions, and recommended build path.',
+  },
+  {
+    title: 'Working proof of concept',
+    detail: 'A narrow end-to-end proof that validates the riskiest part of the workflow before a larger build.',
+  },
+  {
+    title: 'Integration map',
+    detail: 'The systems, data sources, APIs, permissions, and handoffs required for the implementation.',
+  },
+  {
+    title: 'Risk and security notes',
+    detail: 'Deployment constraints, human-review points, sensitive data handling, and open delivery risks.',
+  },
+  {
+    title: 'Fixed-price Phase 2 proposal',
+    detail: 'A scoped implementation plan with deliverables, milestones, and price defined before build work starts.',
+  },
+];
+
 export default function ServicesPage() {
   return (
     <>
@@ -202,6 +225,35 @@ export default function ServicesPage() {
             </Link>
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.22 }}
+          className="glass rounded-xl p-8 border border-white/10 mb-16"
+        >
+          <div className="max-w-2xl mb-8">
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              PHASE 1 DELIVERABLES
+            </div>
+            <h2 className="text-xl font-semibold text-white mb-3">
+              What the $4,500 roadmap actually produces
+            </h2>
+            <p className="text-sm text-foreground/60 leading-relaxed">
+              Phase 1 should leave you with a real build decision, not vague advice. You keep the blueprint and proof of concept whether or not you continue into Phase 2.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {phaseOneDeliverables.map((item) => (
+              <div key={item.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
+                <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
+                <h3 className="text-sm font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
