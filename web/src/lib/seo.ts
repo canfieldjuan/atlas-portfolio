@@ -26,11 +26,15 @@ export const SITE_KEYWORDS = [
   "AI automation consultant",
   "AI workflow automation consultant",
   "custom AI development services",
+  "custom AI software development",
+  "AI implementation consultant",
   "AI systems consultant",
   "AI consultant for startups",
   "remote AI consultant",
   "fixed-fee AI roadmap",
   "AI systems roadmap",
+  "AI systems roadmap consultant",
+  "business AI automation consultant",
   "agent workflow automation",
   "GraphRAG consultant",
   "LLM orchestration",
@@ -207,6 +211,44 @@ export function generateFaqJsonLd(
         text: faq.answer,
       },
     })),
+  };
+}
+
+export function generateArticleJsonLd({
+  title,
+  description,
+  path,
+  publishedAt,
+  modifiedAt,
+  keywords,
+}: {
+  title: string;
+  description: string;
+  path: string;
+  publishedAt: string;
+  modifiedAt?: string;
+  keywords?: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    url: `${SITE_URL}${path}`,
+    mainEntityOfPage: `${SITE_URL}${path}`,
+    datePublished: publishedAt,
+    dateModified: modifiedAt ?? publishedAt,
+    author: {
+      "@type": "Person",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Person",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    keywords,
   };
 }
 

@@ -28,6 +28,8 @@ export function Footer() {
                 { href: '/about', label: 'About' },
                 { href: '/capabilities', label: 'Capabilities' },
                 { href: '/proof', label: 'Proof' },
+                { href: '/resources', label: 'Resources' },
+                { href: '/ai-automation-consultant', label: 'AI Automation Consultant' },
                 { href: '/services', label: 'Services & Pricing' },
                 { href: '/process', label: 'Process' },
                 { href: '/security', label: 'Security' },

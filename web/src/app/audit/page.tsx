@@ -3,7 +3,7 @@
 import type { MutableRefObject } from 'react';
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, CheckCircle2, ArrowRight, Copy, RotateCcw } from 'lucide-react';
+import { Send, CheckCircle2, ArrowRight, Copy, RotateCcw, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 type AuditField =
@@ -22,6 +22,31 @@ type AuditField =
 
 type CopyState = 'idle' | 'copied' | 'failed';
 type AuditFieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+const conversionSignals = [
+  {
+    icon: <Clock className="w-4 h-4" />,
+    title: '5-7 minute brief',
+    detail: 'Short answers are fine. The goal is to qualify fit, not write a full requirements document.',
+  },
+  {
+    icon: <CheckCircle2 className="w-4 h-4" />,
+    title: 'No payment here',
+    detail: 'This is a review request. Phase 1 is only discussed if the workflow looks worth scoping.',
+  },
+  {
+    icon: <ShieldCheck className="w-4 h-4" />,
+    title: 'No sensitive data needed',
+    detail: 'Share enough context to evaluate the workflow. Do not paste credentials, regulated records, or raw datasets.',
+  },
+];
+
+const reviewCriteria = [
+  'A real workflow with an owner',
+  'Available data sources or systems',
+  'A clear business outcome',
+  'A budget path for Phase 1 if there is fit',
+];
 
 export default function AuditPage() {
   const [formData, setFormData] = useState({
@@ -348,40 +373,70 @@ export default function AuditPage() {
 
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="max-w-3xl"
         >
-          <div className="inline-block px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
-            APPLICATION
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
+            <CheckCircle2 className="w-3 h-3" />
+            <span>FIT REVIEW</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            Request an AI Systems Audit
+            Request an AI automation fit review.
           </h1>
-          <p className="text-lg text-foreground/60 leading-relaxed mb-10">
-            I only take on a limited number of builds per quarter. Fill out this brief to qualify fit across operations, timeline, budget, and security requirements before we invest in scoping. This is a fit-review request, not a paid checkout.
+          <p className="text-lg text-foreground/60 leading-relaxed mb-6">
+            Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.
           </p>
+          <div className="flex flex-col sm:flex-row gap-3 mb-10">
+            <a
+              href="#audit-brief"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
+            >
+              Start the brief
+              <ArrowRight className="w-4 h-4" />
+            </a>
+            <Link
+              href="/services"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+            >
+              Review Phase 1 pricing
+            </Link>
+          </div>
         </motion.div>
 
-        <div
-          className="mb-8 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm text-foreground/70"
-        >
-          I review completed audit requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
-        </div>
-
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          {[
-            'Fill out the audit brief.',
-            'Send it for fit review, not payment.',
-            'Receive a next-step response within 48 hours.',
-          ].map((step, index) => (
-            <div key={step} className="rounded-lg border border-white/10 bg-black/20 p-4 text-foreground/65">
-              <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">STEP 0{index + 1}</div>
-              <p>{step}</p>
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {conversionSignals.map((signal) => (
+            <div key={signal.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+                {signal.icon}
+              </div>
+              <h2 className="text-sm font-semibold text-white mb-2">{signal.title}</h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">{signal.detail}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mb-8 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4">
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 text-sm text-foreground/70">
+            <h2 className="text-sm font-semibold text-white mb-2">What happens after you submit</h2>
+            <p className="leading-relaxed">
+              I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
+            </p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 p-5">
+            <h2 className="text-sm font-semibold text-white mb-4">What I am checking for</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {reviewCriteria.map((item) => (
+                <div key={item} className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mb-8 flex flex-wrap items-center gap-3 text-xs text-foreground/50">
@@ -392,9 +447,10 @@ export default function AuditPage() {
           <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 3: Security + timing</span>
           <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 4: Outcome and budget</span>
         </div>
-        <p className="text-xs text-foreground/50 mb-8">Required fields are marked with an asterisk.</p>
+        <p className="text-xs text-foreground/50 mb-8">Required fields are marked with an asterisk. One or two specific sentences per field is enough for a first review.</p>
 
         <motion.form
+          id="audit-brief"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -460,6 +516,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="companyOrProjectUrl">
                 Company / Project (name or URL) <span className="text-primary">*</span>
               </label>
+              <p className="text-xs text-foreground/45">
+                A company name is enough if there is no public URL.
+              </p>
               <input
                 id="companyOrProjectUrl"
                 ref={companyOrProjectUrlRef}
@@ -485,6 +544,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="roleAndDecisionScope">
                 Your role and buying authority <span className="text-primary">*</span>
               </label>
+              <p className="text-xs text-foreground/45">
+                Helps me understand whether the right workflow owner is involved.
+              </p>
               <input
                 id="roleAndDecisionScope"
                 ref={roleAndDecisionScopeRef}
@@ -513,6 +575,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="biggestBottleneck">
                 What is the biggest manual bottleneck in your operations right now? <span className="text-primary">*</span>
               </label>
+              <p className="text-xs text-foreground/45">
+                Be concrete: who does it, how often, and what breaks when it is late or wrong.
+              </p>
               <textarea
                 id="biggestBottleneck"
                 ref={biggestBottleneckRef}
@@ -538,6 +603,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="automationDataSources">
                 What data sources are you trying to automate? <span className="text-primary">*</span>
               </label>
+              <p className="text-xs text-foreground/45">
+                Name the systems, files, inboxes, databases, APIs, dashboards, or documents involved.
+              </p>
               <textarea
                 id="automationDataSources"
                 ref={automationDataSourcesRef}
@@ -563,6 +631,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="currentTechEcosystem">
                 Current Tech Ecosystem
               </label>
+              <p className="text-xs text-foreground/45">
+                Optional, but useful if integrations will drive the scope.
+              </p>
               <input
                 id="currentTechEcosystem"
                 ref={currentTechEcosystemRef}
@@ -648,6 +719,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
                 Deployment or data-handling constraints
               </label>
+              <p className="text-xs text-foreground/45">
+                Do not include credentials, private keys, raw customer records, or regulated datasets.
+              </p>
               <textarea
                 id="deploymentConstraints"
                 ref={deploymentConstraintsRef}
@@ -667,6 +741,9 @@ export default function AuditPage() {
               <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
                 What does success look like? (The ROI)
               </label>
+              <p className="text-xs text-foreground/45">
+                Optional, but the best projects have a measurable time, revenue, accuracy, or risk target.
+              </p>
               <input
                 id="roiGoal"
                 ref={roiGoalRef}
@@ -720,8 +797,12 @@ export default function AuditPage() {
             disabled={isInputDisabled}
           >
             <Send className="w-4 h-4" />
-            {isSubmitting ? 'Submitting audit request...' : 'Submit Audit Request'}
+            {isSubmitting ? 'Sending fit review...' : 'Send Fit Review Request'}
           </button>
+
+          <p className="text-center text-xs text-foreground/45">
+            No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.
+          </p>
 
           <div className="rounded-lg border border-white/10 bg-black/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <p className="text-sm text-foreground/60 leading-relaxed">

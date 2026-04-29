@@ -10,7 +10,10 @@ export const metadata = generatePageMetadata({
     "AI consulting services",
     "custom AI development services",
     "AI workflow automation consultant",
+    "AI implementation consultant",
     "AI systems consultant",
+    "AI systems roadmap consultant",
+    "business AI automation consultant",
     "fixed-fee AI roadmap",
   ],
 });

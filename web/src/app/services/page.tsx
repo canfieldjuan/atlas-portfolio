@@ -19,6 +19,14 @@ const faqJsonLd = generateFaqJsonLd([
     answer: "Both. Phase 1 is the consulting and architecture roadmap: discovery, audit, proof of concept, and fixed-scope blueprint. Phase 2 is the custom AI development and implementation work, priced before build begins.",
   },
   {
+    question: "What is the difference between AI automation consulting and custom AI development?",
+    answer: "AI automation consulting defines the workflow, architecture, data requirements, risk boundaries, and proof of concept. Custom AI development is the implementation work that follows once the system is scoped and priced.",
+  },
+  {
+    question: "What happens after the AI systems roadmap?",
+    answer: "You receive the blueprint, proof of concept, risk notes, integration map, and fixed-price Phase 2 proposal. You can build with me, build internally, pause, or choose a simpler tool.",
+  },
+  {
     question: "Do you work as an AI automation consultant for startups and remote teams?",
     answer: "Yes, when there is a clear workflow owner, real data, and an implementation path. The work can fit startups, founder-led teams, and remote US or international teams that need AI workflow automation tied to operations.",
   },
@@ -61,6 +69,14 @@ const buyerLanguage = [
   {
     term: 'Custom AI development services',
     detail: 'When the solution needs code, integrations, data pipelines, dashboards, and deployment, not just advice.',
+  },
+  {
+    term: 'AI systems roadmap consultant',
+    detail: 'When the team needs the workflow, proof point, architecture, and fixed-price build scope defined before implementation.',
+  },
+  {
+    term: 'AI implementation consultant',
+    detail: 'When the work needs to move from idea to production system with data access, integrations, testing, and operator handoff.',
   },
   {
     term: 'AI consultant for startups',
@@ -327,7 +343,7 @@ export default function ServicesPage() {
                 Review the delivery model on the process page or the current security posture before starting the audit. The pricing only makes sense if the engagement shape and risk boundaries fit your team.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <Link
                 href="/process"
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
@@ -340,6 +356,13 @@ export default function ServicesPage() {
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
               >
                 Review Security
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/resources"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              >
+                Read Resources
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -366,6 +389,14 @@ export default function ServicesPage() {
               {
                 q: 'Do you offer custom AI development services or just consulting?',
                 a: 'Both. Phase 1 is the consulting and architecture roadmap. Phase 2 is the custom AI development and implementation work, priced before build begins.',
+              },
+              {
+                q: 'What is the difference between AI automation consulting and custom AI development?',
+                a: 'Consulting defines the workflow, architecture, proof point, and risk boundaries. Custom AI development is the implementation work that follows after the build is scoped.',
+              },
+              {
+                q: 'What happens after the AI systems roadmap?',
+                a: 'You keep the blueprint, proof of concept, integration map, risk notes, and fixed-price Phase 2 proposal. You can build with me, build internally, pause, or choose a simpler tool.',
               },
               {
                 q: 'Do you work with startups or remote teams?',

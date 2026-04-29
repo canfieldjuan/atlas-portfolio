@@ -218,6 +218,13 @@ export default function ProofPage() {
               <p className="text-sm text-foreground/60 leading-relaxed">
                 The roadmap should give you enough evidence to decide whether to build, reduce scope, pause, or choose a simpler tool. You keep the blueprint and proof of concept either way.
               </p>
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium mt-5"
+              >
+                Read scoping resources
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
             <div className="lg:w-[24rem] space-y-3">
               {deliverables.map((item) => (

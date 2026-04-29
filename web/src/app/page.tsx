@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Database, Code2, Activity, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BookOpen, Database, Code2, Activity, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 const heroFacts = [
@@ -52,6 +52,12 @@ const proofPatterns = [
     detail:
       'Email, CRM, and calendar events are normalized into triage, routing, and approval flows so repetitive internal work stops depending on manual coordination.',
   },
+];
+
+const resourceTopics = [
+  'How to scope an AI automation project',
+  'What changes AI automation consultant cost',
+  'When custom AI development beats another SaaS tool',
 ];
 
 export default function Home() {
@@ -163,6 +169,37 @@ export default function Home() {
                 className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
               >
                 Review representative builds
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-20 rounded-xl border border-white/10 bg-white/[0.02] p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 text-[10px] font-mono text-primary/80 tracking-widest mb-4">
+                <BookOpen className="w-4 h-4" />
+                FIELD NOTES
+              </div>
+              <h2 className="text-2xl font-semibold text-white mb-3">
+                Research the engagement before you start one.
+              </h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Practical resources for buyers comparing AI automation consulting, custom AI development, and workflow automation options.
+              </p>
+            </div>
+            <div className="lg:w-[26rem]">
+              <div className="space-y-3 mb-5">
+                {resourceTopics.map((topic) => (
+                  <div key={topic} className="text-sm text-foreground/65 leading-relaxed">
+                    {topic}
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/resources"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                Read resources
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
