@@ -28,6 +28,15 @@ export type AuditIntakeDelivery = 'webhook' | 'atlas-crm-event' | 'email' | 'fil
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
 
+function fileFallbackEnabled() {
+  const explicit = process.env.AUDIT_INTAKE_ALLOW_FILE_FALLBACK?.trim().toLowerCase();
+  if (explicit) {
+    return explicit === '1' || explicit === 'true' || explicit === 'yes';
+  }
+
+  return process.env.NODE_ENV !== 'production';
+}
+
 function deriveCompanyName(input: string) {
   const trimmed = input.trim();
   if (!trimmed) {
@@ -226,7 +235,13 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
     }
   }
 
-  if (deliveries.length === 0 || warnings.length > 0) {
+  if (deliveries.length === 0 && !fileFallbackEnabled()) {
+    throw new Error(
+      'Audit intake is not configured for durable delivery. Configure email, webhook, or Atlas CRM delivery.'
+    );
+  }
+
+  if (deliveries.length === 0 || (warnings.length > 0 && fileFallbackEnabled())) {
     await writeLocalFallback(record);
     deliveries.push('file');
   }
