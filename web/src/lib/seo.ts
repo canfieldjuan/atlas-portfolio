@@ -40,6 +40,10 @@ export const SITE_KEYWORDS = [
   "LLM orchestration",
   "data pipeline automation",
   "revenue operations automation",
+  "productized AI systems",
+  "competitive intelligence platform",
+  "vendor intelligence platform",
+  "AI content generation pipeline",
 ];
 
 // ─────────────────────────────────────────────
@@ -132,6 +136,9 @@ export const rootJsonLd = {
         "Remote AI Consulting",
         "Systems Architecture",
         "Data Pipeline Engineering",
+        "Competitive Intelligence Automation",
+        "Vendor Intelligence Systems",
+        "AI Content Generation Pipelines",
         "GraphRAG",
         "LangGraph",
         "MCP Servers",
@@ -180,6 +187,12 @@ export const rootJsonLd = {
               maxPrice: "50000",
               priceCurrency: "USD",
             },
+          },
+          {
+            "@type": "Offer",
+            name: "Productized AI Systems",
+            description:
+              "Reusable AI system architectures for competitive intelligence, vendor intelligence, and content generation pipelines, customized with the buyer's data, sources, workflows, and integrations.",
           },
         ],
       },

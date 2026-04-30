@@ -8,6 +8,7 @@ import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { href: '/services', label: 'Services' },
+  { href: '/systems', label: 'Systems' },
   { href: '/process', label: 'Process' },
   { href: '/capabilities', label: 'Capabilities' },
   { href: '/proof', label: 'Proof' },
@@ -40,7 +41,7 @@ export function Navigation() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -69,7 +70,7 @@ export function Navigation() {
         </div>
 
         {/* Mobile Hamburger */}
-        <div className="flex md:hidden items-center gap-3">
+        <div className="flex lg:hidden items-center gap-3">
           <Link
             href="/audit"
             aria-current={isAuditPage ? 'page' : undefined}
@@ -99,7 +100,7 @@ export function Navigation() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden overflow-hidden border-t border-white/5"
+            className="lg:hidden overflow-hidden border-t border-white/5"
           >
             <div className="px-6 py-4 space-y-1 bg-[#0a0a0a]">
               {navLinks.map((link) => (

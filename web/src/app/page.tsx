@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Database, Code2, Activity, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BookOpen, Database, Code2, Activity, ShieldCheck, Radar, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 const heroFacts = [
@@ -51,6 +51,19 @@ const proofPatterns = [
     title: 'Inbox to action queue',
     detail:
       'Email, CRM, and calendar events are normalized into triage, routing, and approval flows so repetitive internal work stops depending on manual coordination.',
+  },
+];
+
+const productizedSystems = [
+  {
+    icon: <Radar className="w-5 h-5 text-primary" />,
+    title: 'Competitive / Vendor Intelligence Platform',
+    desc: 'A ready-made intelligence architecture that becomes specific once your vendors, competitors, accounts, sources, and workflows are connected.',
+  },
+  {
+    icon: <FileText className="w-5 h-5 text-primary" />,
+    title: 'Content Generation Pipeline',
+    desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];
 
@@ -130,6 +143,41 @@ export default function Home() {
                 </p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-24 rounded-xl border border-primary/20 bg-primary/5 p-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 mb-8">
+              <div className="max-w-2xl">
+                <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                  PRODUCTIZED SYSTEMS
+                </div>
+                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+                  Some systems are already built at the core.
+                </h2>
+                <p className="text-sm text-foreground/60 leading-relaxed">
+                  Competitive intelligence and content generation do not always need a blank-slate build. The reusable architecture is already there; your data, sources, approvals, and integrations make it fit your business.
+                </p>
+              </div>
+              <Link
+                href="/systems"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                Explore productized systems
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {productizedSystems.map((system) => (
+                <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+                    {system.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-3">{system.title}</h3>
+                  <p className="text-sm text-foreground/60 leading-relaxed">{system.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-32">

@@ -27,6 +27,7 @@ export function Footer() {
               {[
                 { href: '/about', label: 'About' },
                 { href: '/capabilities', label: 'Capabilities' },
+                { href: '/systems', label: 'Productized Systems' },
                 { href: '/proof', label: 'Proof' },
                 { href: '/resources', label: 'Resources' },
                 { href: '/ai-automation-consultant', label: 'AI Automation Consultant' },

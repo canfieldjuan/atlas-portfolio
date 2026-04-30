@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu } from 'lucide-react';
+import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu, FileText, Radar } from 'lucide-react';
 import Link from 'next/link';
 
 const domains = [
@@ -84,6 +84,21 @@ const capabilitySignals = {
   ],
 };
 
+const productizedSystems = [
+  {
+    icon: <Radar className="w-5 h-5" />,
+    title: 'Competitive / Vendor Intelligence Platform',
+    detail:
+      'Already-built architecture for vendor, competitor, account, review, and market-signal intelligence. Customer data customizes the sources, entities, scoring, dashboards, and alerts.',
+  },
+  {
+    icon: <FileText className="w-5 h-5" />,
+    title: 'Content Generation Pipeline',
+    detail:
+      'Already-built architecture for evidence-backed content operations. Customer data customizes the brand voice, keyword targets, approved claims, review workflow, and publishing handoff.',
+  },
+];
+
 export default function CapabilitiesPage() {
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
@@ -135,6 +150,46 @@ export default function CapabilitiesPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.16 }}
+          className="glass rounded-xl p-8 border border-primary/20 bg-primary/5 mb-12"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
+            <div className="max-w-2xl">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                PRODUCTIZED SYSTEMS
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-3">
+                Ready-made system cores, customized around your data.
+              </h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Some capabilities are mature enough that the architecture does not need to start from zero. The custom work is the data layer, integration map, approvals, and operator surface.
+              </p>
+            </div>
+            <Link
+              href="/systems"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              Explore systems
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {productizedSystems.map((system) => (
+              <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+                  {system.icon}
+                </div>
+                <h3 className="text-base font-semibold text-white mb-3">{system.title}</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">{system.detail}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
 

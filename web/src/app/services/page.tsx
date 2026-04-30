@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Map, Wrench, HelpCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, FileText, HelpCircle, Map, Radar, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { generateFaqJsonLd } from '@/lib/seo';
 
@@ -29,6 +29,10 @@ const faqJsonLd = generateFaqJsonLd([
   {
     question: "Do you work as an AI automation consultant for startups and remote teams?",
     answer: "Yes, when there is a clear workflow owner, real data, and an implementation path. The work can fit startups, founder-led teams, and remote US or international teams that need AI workflow automation tied to operations.",
+  },
+  {
+    question: "Do you already have prebuilt AI systems?",
+    answer: "Yes. Competitive / vendor intelligence and content generation pipelines have reusable architecture already built. Phase 1 customizes the data sources, workflows, approvals, and integrations around the buyer's business before implementation.",
   },
   {
     question: "Do AI consultants bill hourly?",
@@ -108,6 +112,21 @@ const phaseOneDeliverables = [
   {
     title: 'Fixed-price Phase 2 proposal',
     detail: 'A scoped implementation plan with deliverables, milestones, and price defined before build work starts.',
+  },
+];
+
+const productizedSystems = [
+  {
+    icon: <Radar className="w-5 h-5 text-primary" />,
+    title: 'Competitive / Vendor Intelligence Platform',
+    detail:
+      'A reusable system for competitor, vendor, account, review, and market signals. Your source list, CRM context, target vendors, and workflow decide what gets connected.',
+  },
+  {
+    icon: <FileText className="w-5 h-5 text-primary" />,
+    title: 'Content Generation Pipeline',
+    detail:
+      'A reusable system for SEO pages, comparison pages, blogs, email sequences, and campaign assets generated from approved brand, keyword, and proof-point data.',
   },
 ];
 
@@ -241,6 +260,46 @@ export default function ServicesPage() {
             </Link>
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="glass rounded-xl p-8 border border-white/10 mb-16"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
+            <div className="max-w-2xl">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                PRODUCTIZED STARTING POINTS
+              </div>
+              <h2 className="text-xl font-semibold text-white mb-3">
+                Some Phase 2 builds can start from an existing system core.
+              </h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                This does not replace the roadmap. It makes the roadmap faster and more concrete when the fit is clear: the architecture exists, and Phase 1 validates the data, integrations, review rules, and deployment path.
+              </p>
+            </div>
+            <Link
+              href="/systems"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              Review productized systems
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {productizedSystems.map((system) => (
+              <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+                  {system.icon}
+                </div>
+                <h3 className="text-base font-semibold text-white mb-3">{system.title}</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">{system.detail}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -397,6 +456,10 @@ export default function ServicesPage() {
               {
                 q: 'What happens after the AI systems roadmap?',
                 a: 'You keep the blueprint, proof of concept, integration map, risk notes, and fixed-price Phase 2 proposal. You can build with me, build internally, pause, or choose a simpler tool.',
+              },
+              {
+                q: 'Do you already have prebuilt AI systems?',
+                a: 'Yes. Competitive / vendor intelligence and content generation pipelines have reusable architecture already built. Phase 1 customizes the data, workflows, integrations, and approval rules around your business.',
               },
               {
                 q: 'Do you work with startups or remote teams?',
