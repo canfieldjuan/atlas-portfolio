@@ -72,6 +72,7 @@ export function CostObservabilityDemo() {
         setSummary(data.summary as Summary);
       } catch (err) {
         if (cancelled) return;
+        setSummary(null);
         setError(err instanceof Error ? err.message : 'Unable to load cost summary.');
       } finally {
         if (!cancelled) setIsLoading(false);

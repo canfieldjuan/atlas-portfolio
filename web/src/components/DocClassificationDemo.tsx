@@ -114,6 +114,10 @@ export function DocClassificationDemo() {
       }
       return data as { ok: true; result: ClassificationResult; note: string };
     });
+    apiPromise.catch(() => {
+      /* Abandoned runs (Reset / superseded) skip `await apiPromise`.
+         Attach a handler so a later rejection isn't unhandled. */
+    });
 
     try {
       await delay(450);
