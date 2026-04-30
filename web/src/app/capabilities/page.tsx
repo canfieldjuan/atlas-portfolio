@@ -57,7 +57,7 @@ const domains = [
   },
   {
     icon: <Globe className="w-6 h-6" />,
-    title: 'Integrated Web Apps & Marketing Sites',
+    title: 'Production Web Apps with Real Backends',
     desc: 'For teams that need a website with real backend functionality — not a static brochure, but lead capture, document intake, and admin tooling wired into the rest of the stack.',
     examples: [
       'Lead-capture forms wired directly to CRM (HubSpot, Salesforce, Pipedrive)',
