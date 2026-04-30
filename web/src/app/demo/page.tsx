@@ -9,6 +9,8 @@ import {
   BrainCircuit,
   Cpu,
   Database,
+  FileText,
+  Receipt,
   ShieldAlert,
   Terminal,
   TrendingUp,
@@ -16,6 +18,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { CostObservabilityDemo } from '@/components/CostObservabilityDemo';
+import { DocClassificationDemo } from '@/components/DocClassificationDemo';
 
 const workflowDemos = [
   {
@@ -53,6 +57,24 @@ const workflowDemos = [
     input: 'Scraped sources, API feeds, databases, spreadsheets, vendor exports',
     system: 'Deduplication, enrichment, anomaly detection, scheduled jobs, monitoring',
     output: 'Dashboard, threshold alerts, quality report, recurring intelligence feed',
+  },
+  {
+    id: 'web-apps',
+    icon: <FileText className="w-5 h-5" />,
+    label: 'DOC INTAKE',
+    title: 'Inbound documents to routed workflow',
+    input: 'Forms, PDFs, invoices, resumes, contracts, support emails',
+    system: 'Server validation, parsing, classification, routing rules, operator review',
+    output: 'Classified document, routing decision, review queue item, status notification',
+  },
+  {
+    id: 'cost-observability',
+    icon: <Receipt className="w-5 h-5" />,
+    label: 'COST OBSERVABILITY',
+    title: 'LLM usage to cost console',
+    input: 'Provider usage logs, request metadata, feature/tenant tags, budget thresholds',
+    system: 'Token-level attribution, model routing rules, budget caps, runaway-loop detection',
+    output: 'Admin cost dashboard, per-tenant alerts, routing recommendations, margin report',
   },
   {
     id: 'specialized-ai',
@@ -121,6 +143,30 @@ const capabilityWorkbench = [
     controls: ['Freshness monitor', 'Bad-record quarantine', 'Threshold alerts with source counts'],
     outputTitle: 'Operational visibility layer',
     output: ['Dashboard updated hourly', 'Quality report attached', 'Alert: anomaly detected', 'Artifact: monitored data pipeline'],
+  },
+  {
+    id: 'web-apps',
+    icon: <FileText className="w-5 h-5" />,
+    label: 'Doc Intake',
+    title: 'Inbound documents to controlled routing',
+    trigger: 'A team receives documents, forms, and customer requests that need classification, extraction, routing, and operator review.',
+    inputs: ['Invoice, resume, contract, or support email', 'Submission metadata and sender context', 'Business rules for routing and review'],
+    steps: ['Validate the intake event on the server', 'Parse and classify the content', 'Extract key fields and risk flags', 'Route to the right queue or system of record'],
+    controls: ['Server-side validation and rate limits', 'Audit log for every intake event', 'Operator review for sensitive routing decisions'],
+    outputTitle: 'Document intake workflow',
+    output: ['Document classified', 'Fields extracted', 'Review queue updated', 'Artifact: monitored intake pipeline'],
+  },
+  {
+    id: 'cost-observability',
+    icon: <Receipt className="w-5 h-5" />,
+    label: 'Cost Observability',
+    title: 'LLM spend to operator-grade cost console',
+    trigger: 'AI features are shipping but no one can tell which models, features, or tenants are driving spend, or where unit economics break.',
+    inputs: ['Provider usage logs', 'Feature and tenant tags on each call', 'Budget caps per tenant', 'Model price table'],
+    steps: ['Attribute every call to feature + tenant', 'Aggregate spend per model / feature / tenant', 'Apply budget and runaway-spend rules', 'Surface alerts and routing recommendations'],
+    controls: ['Hard budget caps per tenant', 'Circuit breakers on runaway spend', 'Alerts before margin compression hits revenue'],
+    outputTitle: 'Admin cost console',
+    output: ['Live spend dashboard', 'Per-tenant budget alerts', 'Routing wins identified', 'Artifact: margin report for SaaS pricing'],
   },
   {
     id: 'edge',
@@ -217,7 +263,7 @@ export default function DemoPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 mb-8">
             {capabilityWorkbench.map((item) => {
               const isActive = item.id === activeWorkbench.id;
               return (
@@ -310,6 +356,43 @@ export default function DemoPage() {
           </div>
         </motion.section>
 
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="glass rounded-xl p-8 border border-white/10 mb-14"
+          aria-labelledby="live-integrations-heading"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+            <div className="max-w-2xl">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                LIVE INTEGRATIONS
+              </div>
+              <h2
+                id="live-integrations-heading"
+                className="text-2xl md:text-3xl font-semibold text-white mb-3"
+              >
+                Two server-backed patterns you can inspect.
+              </h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Both demos call local API routes in this site and return deterministic representative data. A production build would replace those fixtures with your providers, databases, and model calls while keeping the same UI, server, and operator-control shape.
+              </p>
+            </div>
+            <Link
+              href="/capabilities"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              See related capabilities
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="space-y-6">
+            <DocClassificationDemo />
+            <CostObservabilityDemo />
+          </div>
+        </motion.section>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -319,7 +402,7 @@ export default function DemoPage() {
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
             CHOOSE A WORKFLOW
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
             {workflowDemos.map((demo) => (
               <Link
                 key={demo.id}

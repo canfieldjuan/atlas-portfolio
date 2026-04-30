@@ -44,13 +44,15 @@ const domains = [
   },
   {
     icon: <BarChart3 className="w-6 h-6" />,
-    title: 'Data Pipelines & Monitoring',
-    desc: 'For teams that need raw data turned into trusted alerts, dashboards, and operational visibility.',
+    title: 'Data Pipelines, Monitoring & AI Cost Controls',
+    desc: 'For teams that need raw data, LLM usage, and operational signals turned into trusted dashboards, alerts, and cost controls.',
     examples: [
       'Multi-source web scrapers with proxy rotation & dedup',
       'LLM enrichment pipelines (40+ structured fields per record)',
       'Threshold-based alert systems (email, Slack, ntfy)',
       'Anomaly detection & quality monitoring dashboards',
+      'LLM cost dashboards by model, feature, user, or tenant',
+      'Budget alerts, runaway-spend circuit breakers, and routing recommendations',
       'Autonomous scheduled task orchestration (81+ task patterns)',
       'SEO content generation from structured intelligence data',
     ],
