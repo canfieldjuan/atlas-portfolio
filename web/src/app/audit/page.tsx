@@ -11,6 +11,7 @@ type AuditField =
   | 'workEmail'
   | 'companyOrProjectUrl'
   | 'roleAndDecisionScope'
+  | 'projectInterest'
   | 'biggestBottleneck'
   | 'automationDataSources'
   | 'currentTechEcosystem'
@@ -54,6 +55,7 @@ export default function AuditPage() {
     workEmail: '',
     companyOrProjectUrl: '',
     roleAndDecisionScope: '',
+    projectInterest: '',
     biggestBottleneck: '',
     automationDataSources: '',
     currentTechEcosystem: '',
@@ -80,6 +82,7 @@ export default function AuditPage() {
     'workEmail',
     'companyOrProjectUrl',
     'roleAndDecisionScope',
+    'projectInterest',
     'biggestBottleneck',
     'automationDataSources',
     'desiredTimeline',
@@ -91,6 +94,7 @@ export default function AuditPage() {
   const workEmailRef = useRef<HTMLInputElement>(null);
   const companyOrProjectUrlRef = useRef<HTMLInputElement>(null);
   const roleAndDecisionScopeRef = useRef<HTMLInputElement>(null);
+  const projectInterestRef = useRef<HTMLSelectElement>(null);
   const biggestBottleneckRef = useRef<HTMLTextAreaElement>(null);
   const automationDataSourcesRef = useRef<HTMLTextAreaElement>(null);
   const currentTechEcosystemRef = useRef<HTMLInputElement>(null);
@@ -110,6 +114,8 @@ export default function AuditPage() {
         return companyOrProjectUrlRef;
       case 'roleAndDecisionScope':
         return roleAndDecisionScopeRef;
+      case 'projectInterest':
+        return projectInterestRef;
       case 'biggestBottleneck':
         return biggestBottleneckRef;
       case 'automationDataSources':
@@ -145,6 +151,17 @@ export default function AuditPage() {
     return map[value] || value || 'Not provided';
   };
 
+  const projectInterestLabel = (value: string) => {
+    const map: Record<string, string> = {
+      'custom-build': 'Custom build',
+      'competitive-intelligence': 'Competitive / vendor intelligence platform',
+      'content-generation': 'Content generation pipeline',
+      'not-sure': 'Not sure yet',
+    };
+
+    return map[value] || value || 'Not provided';
+  };
+
   const desiredTimelineLabel = (value: string) => {
     const map: Record<string, string> = {
       asap: 'ASAP - active project now',
@@ -175,6 +192,7 @@ export default function AuditPage() {
       `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
       `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
       `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
+      `Primary Interest: ${projectInterestLabel(formData.projectInterest)}`,
       `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
       `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
       `Current Tech Ecosystem: ${formData.currentTechEcosystem.trim() || 'Not provided'}`,
@@ -267,6 +285,8 @@ export default function AuditPage() {
           workEmail: normalizedEmail,
           companyOrProjectUrl: formData.companyOrProjectUrl.trim(),
           roleAndDecisionScope: formData.roleAndDecisionScope.trim(),
+          projectInterest: formData.projectInterest.trim(),
+          projectInterestLabel: projectInterestLabel(formData.projectInterest),
           biggestBottleneck: formData.biggestBottleneck.trim(),
           automationDataSources: formData.automationDataSources.trim(),
           currentTechEcosystem: formData.currentTechEcosystem.trim(),
@@ -353,6 +373,7 @@ export default function AuditPage() {
       workEmail: '',
       companyOrProjectUrl: '',
       roleAndDecisionScope: '',
+      projectInterest: '',
       biggestBottleneck: '',
       automationDataSources: '',
       currentTechEcosystem: '',
@@ -565,6 +586,39 @@ export default function AuditPage() {
               />
               {formErrors.roleAndDecisionScope ? (
                 <p id="roleAndDecisionScope-error" className="text-red-400 text-sm">{formErrors.roleAndDecisionScope}</p>
+              ) : null}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/80" htmlFor="projectInterest">
+                What are you most interested in? <span className="text-primary">*</span>
+              </label>
+              <p className="text-xs text-foreground/45">
+                Helps route the request between a custom build and the productized system starting points.
+              </p>
+              <select
+                id="projectInterest"
+                ref={projectInterestRef}
+                value={formData.projectInterest}
+                onChange={handleChange('projectInterest')}
+                disabled={isInputDisabled}
+                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                  formErrors.projectInterest ? 'border-red-400/80' : 'border-white/10'
+                }`}
+                required
+                aria-invalid={!!formErrors.projectInterest}
+                aria-describedby={formErrors.projectInterest ? 'projectInterest-error' : undefined}
+                aria-required="true"
+              >
+                <option value="" disabled>
+                  Select primary interest...
+                </option>
+                <option value="custom-build">Custom build</option>
+                <option value="competitive-intelligence">Competitive / vendor intelligence platform</option>
+                <option value="content-generation">Content generation pipeline</option>
+                <option value="not-sure">Not sure yet</option>
+              </select>
+              {formErrors.projectInterest ? (
+                <p id="projectInterest-error" className="text-red-400 text-sm">{formErrors.projectInterest}</p>
               ) : null}
             </div>
           </section>

@@ -123,6 +123,31 @@ export default async function ResourceArticlePage({ params }: PageProps) {
             ))}
           </div>
 
+          {article.relatedLinks && article.relatedLinks.length > 0 ? (
+            <section className="mt-14 glass rounded-xl p-8 border border-white/10">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
+                RELATED NEXT STEP
+              </div>
+              <div className="space-y-4">
+                {article.relatedLinks.map((related) => (
+                  <Link
+                    key={related.href}
+                    href={related.href}
+                    className="block rounded-lg border border-white/10 bg-black/20 p-5 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div>
+                        <h2 className="text-base font-semibold text-white mb-2">{related.label}</h2>
+                        <p className="text-sm text-foreground/60 leading-relaxed">{related.detail}</p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-primary shrink-0 mt-1" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <footer className="mt-16 rounded-xl border border-primary/20 bg-primary/5 p-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="max-w-2xl">

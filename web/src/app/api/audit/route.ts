@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       'workEmail',
       'companyOrProjectUrl',
       'roleAndDecisionScope',
+      'projectInterest',
       'biggestBottleneck',
       'automationDataSources',
       'desiredTimeline',
@@ -52,6 +53,23 @@ export async function POST(request: NextRequest) {
     if (!validTimelines.includes(body.desiredTimeline as (typeof validTimelines)[number])) {
       return NextResponse.json(
         { ok: false, error: 'Invalid desired timeline.' },
+        { status: 400 }
+      );
+    }
+
+    const validProjectInterests = [
+      'custom-build',
+      'competitive-intelligence',
+      'content-generation',
+      'not-sure',
+    ] as const;
+    if (
+      !validProjectInterests.includes(
+        body.projectInterest as (typeof validProjectInterests)[number]
+      )
+    ) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid project interest.' },
         { status: 400 }
       );
     }

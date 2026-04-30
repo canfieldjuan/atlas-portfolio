@@ -11,6 +11,11 @@ export interface ResourceArticle {
     heading: string;
     body: string[];
   }[];
+  relatedLinks?: {
+    href: string;
+    label: string;
+    detail: string;
+  }[];
 }
 
 export const resourceArticles: ResourceArticle[] = [
@@ -61,6 +66,14 @@ export const resourceArticles: ResourceArticle[] = [
           'A roadmap should not end with vague recommendations. It should produce a technical blueprint, a narrow proof of concept, an integration map, risk notes, and a fixed-price implementation proposal.',
           'The point is to answer the build question before the larger build begins: is the data good enough, is the workflow valuable enough, and is the scope clear enough to implement responsibly?',
         ],
+      },
+    ],
+    relatedLinks: [
+      {
+        href: '/systems',
+        label: 'See productized AI systems',
+        detail:
+          'Competitive intelligence and content generation are examples where a prebuilt system core can shorten the path from workflow scoping to implementation.',
       },
     ],
   },
@@ -161,6 +174,14 @@ export const resourceArticles: ResourceArticle[] = [
           'A good AI systems roadmap should be willing to recommend "do not build" when the buyer is better served by an existing tool. The roadmap should compare build value against SaaS alternatives and identify the smallest custom layer that creates real leverage.',
           'Sometimes the answer is a custom integration around existing tools, not a full platform. The point is to scope the useful system, not maximize the build.',
         ],
+      },
+    ],
+    relatedLinks: [
+      {
+        href: '/systems',
+        label: 'Review productized system options',
+        detail:
+          'If the problem is competitive intelligence, vendor intelligence, or content operations, the right answer may be a customized version of an existing system core instead of a blank-slate build.',
       },
     ],
   },

@@ -6,6 +6,8 @@ export type AuditIntakePayload = {
   workEmail: string;
   companyOrProjectUrl: string;
   roleAndDecisionScope: string;
+  projectInterest: string;
+  projectInterestLabel?: string;
   biggestBottleneck: string;
   automationDataSources: string;
   currentTechEcosystem?: string;
@@ -128,6 +130,7 @@ function buildNotificationText(record: AuditIntakeRecord) {
     `Email: ${record.workEmail}`,
     `Company / Project URL: ${record.companyOrProjectUrl}`,
     `Role / Decision Scope: ${record.roleAndDecisionScope}`,
+    `Primary Interest: ${record.projectInterestLabel || record.projectInterest}`,
     '',
     'Biggest Manual Bottleneck',
     record.biggestBottleneck || 'Not provided',
