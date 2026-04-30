@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu } from 'lucide-react';
+import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu, Globe, Receipt } from 'lucide-react';
 import Link from 'next/link';
 
 const domains = [
@@ -53,6 +53,30 @@ const domains = [
       'Anomaly detection & quality monitoring dashboards',
       'Autonomous scheduled task orchestration (81+ task patterns)',
       'SEO content generation from structured intelligence data',
+    ],
+  },
+  {
+    icon: <Globe className="w-6 h-6" />,
+    title: 'Integrated Web Apps & Marketing Sites',
+    desc: 'For teams that need a website with real backend functionality — not a static brochure, but lead capture, document intake, and admin tooling wired into the rest of the stack.',
+    examples: [
+      'Lead-capture forms wired directly to CRM (HubSpot, Salesforce, Pipedrive)',
+      'Customer document upload with on-arrival LLM parsing & classification',
+      'Admin dashboards for cost, usage, and operational visibility',
+      'Auth, scheduling, and payment flows wired to internal tools',
+      'Marketing-grade Next.js front-end with serverless backend integrations',
+    ],
+  },
+  {
+    icon: <Receipt className="w-6 h-6" />,
+    title: 'AI Cost & Usage Observability',
+    desc: 'For teams running LLM-powered features who need visibility into spend, model mix, and unit economics before AI cost outpaces revenue.',
+    examples: [
+      'Admin cost dashboards (per-model, per-feature, per-user, per-tenant)',
+      'Token-level attribution to features, prompts, and customers',
+      'Budget alerts and runaway-spend circuit breakers',
+      'Model routing & caching layers to compress cost without losing quality',
+      'Margin & unit-economics reporting for AI features in SaaS pricing',
     ],
   },
   {
