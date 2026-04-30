@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   CheckCircle2,
   FileText,
@@ -83,16 +83,20 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export default function DocClassificationDemo() {
+export function DocClassificationDemo() {
   const [stage, setStage] = useState<Stage>('idle');
   const [activeDocId, setActiveDocId] = useState<string | null>(null);
   const [result, setResult] = useState<ClassificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const runIdRef = useRef(0);
 
   const isProcessing = stage !== 'idle' && stage !== 'done';
 
   async function processDoc(docId: string) {
+    const runId = ++runIdRef.current;
+    const isCurrent = () => runIdRef.current === runId;
+
     setActiveDocId(docId);
     setResult(null);
     setError(null);
@@ -113,17 +117,23 @@ export default function DocClassificationDemo() {
 
     try {
       await delay(450);
+      if (!isCurrent()) return;
       setStage('parsing');
       await delay(650);
+      if (!isCurrent()) return;
       setStage('classifying');
       const data = await apiPromise;
+      if (!isCurrent()) return;
       await delay(500);
+      if (!isCurrent()) return;
       setStage('routing');
       await delay(450);
+      if (!isCurrent()) return;
       setStage('done');
       setResult(data.result);
       setNote(data.note);
     } catch (err) {
+      if (!isCurrent()) return;
       setStage('idle');
       setActiveDocId(null);
       setError(err instanceof Error ? err.message : 'Classification failed.');
@@ -131,6 +141,7 @@ export default function DocClassificationDemo() {
   }
 
   function reset() {
+    runIdRef.current++;
     setStage('idle');
     setActiveDocId(null);
     setResult(null);

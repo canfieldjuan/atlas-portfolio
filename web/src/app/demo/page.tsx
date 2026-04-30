@@ -18,8 +18,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import CostObservabilityDemo from '@/components/CostObservabilityDemo';
-import DocClassificationDemo from '@/components/DocClassificationDemo';
+import { CostObservabilityDemo } from '@/components/CostObservabilityDemo';
+import { DocClassificationDemo } from '@/components/DocClassificationDemo';
 
 const workflowDemos = [
   {
@@ -263,7 +263,7 @@ export default function DemoPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 mb-8">
             {capabilityWorkbench.map((item) => {
               const isActive = item.id === activeWorkbench.id;
               return (
@@ -402,7 +402,7 @@ export default function DemoPage() {
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
             CHOOSE A WORKFLOW
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
             {workflowDemos.map((demo) => (
               <Link
                 key={demo.id}

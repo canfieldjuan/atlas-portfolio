@@ -93,33 +93,46 @@ function buildAlerts(view: View): CostSummary['alerts'] {
 }
 
 export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const range = (url.searchParams.get('range') as Range) || '7d';
-  const view = (url.searchParams.get('view') as View) || 'model';
+  try {
+    const url = new URL(request.url);
+    const range = (url.searchParams.get('range') as Range) || '7d';
+    const view = (url.searchParams.get('view') as View) || 'model';
 
-  if (!['24h', '7d', '30d'].includes(range)) {
-    return NextResponse.json({ ok: false, error: 'Invalid range.' }, { status: 400 });
+    if (!['24h', '7d', '30d'].includes(range)) {
+      return NextResponse.json({ ok: false, error: 'Invalid range.' }, { status: 400 });
+    }
+    if (!['model', 'feature', 'tenant'].includes(view)) {
+      return NextResponse.json({ ok: false, error: 'Invalid view.' }, { status: 400 });
+    }
+
+    const { total, delta } = RANGE_TOTALS[range];
+    const rows: Row[] = pickDist(view).map((row) => ({
+      ...row,
+      spend: Math.round(total * row.share * 100) / 100,
+    }));
+
+    const summary: CostSummary = {
+      range,
+      view,
+      totalSpend: total,
+      delta,
+      rows,
+      alerts: buildAlerts(view),
+      generatedAt: new Date().toISOString(),
+      note: 'Demo data. A production deploy aggregates from provider APIs and an internal usage table on each request.',
+    };
+
+    return NextResponse.json({ ok: true, summary });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unable to load cost summary right now.',
+      },
+      { status: 500 }
+    );
   }
-  if (!['model', 'feature', 'tenant'].includes(view)) {
-    return NextResponse.json({ ok: false, error: 'Invalid view.' }, { status: 400 });
-  }
-
-  const { total, delta } = RANGE_TOTALS[range];
-  const rows: Row[] = pickDist(view).map((row) => ({
-    ...row,
-    spend: Math.round(total * row.share * 100) / 100,
-  }));
-
-  const summary: CostSummary = {
-    range,
-    view,
-    totalSpend: total,
-    delta,
-    rows,
-    alerts: buildAlerts(view),
-    generatedAt: new Date().toISOString(),
-    note: 'Demo data. A production deploy aggregates from provider APIs and an internal usage table on each request.',
-  };
-
-  return NextResponse.json({ ok: true, summary });
 }

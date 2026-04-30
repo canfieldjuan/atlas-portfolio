@@ -81,21 +81,34 @@ const CLASSIFICATIONS: Record<string, Classification> = {
 };
 
 export async function POST(request: NextRequest) {
-  const body = (await request.json().catch(() => null)) as { docId?: string } | null;
-  const docId = body?.docId;
+  try {
+    const body = (await request.json().catch(() => null)) as { docId?: string } | null;
+    const docId = body?.docId;
 
-  if (!docId || typeof docId !== 'string') {
-    return NextResponse.json({ ok: false, error: 'Missing docId.' }, { status: 400 });
+    if (!docId || typeof docId !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Missing docId.' }, { status: 400 });
+    }
+
+    const result = CLASSIFICATIONS[docId];
+    if (!result) {
+      return NextResponse.json({ ok: false, error: 'Unknown docId.' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      ok: true,
+      result,
+      note: 'Demo data. A production deploy passes the parsed document to an LLM with a strict classification schema and stores the result.',
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unable to classify document right now.',
+      },
+      { status: 500 }
+    );
   }
-
-  const result = CLASSIFICATIONS[docId];
-  if (!result) {
-    return NextResponse.json({ ok: false, error: 'Unknown docId.' }, { status: 404 });
-  }
-
-  return NextResponse.json({
-    ok: true,
-    result,
-    note: 'Demo data. A production deploy passes the parsed document to an LLM with a strict classification schema and stores the result.',
-  });
 }

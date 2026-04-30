@@ -47,7 +47,7 @@ function formatUsd(value: number): string {
   });
 }
 
-export default function CostObservabilityDemo() {
+export function CostObservabilityDemo() {
   const [range, setRange] = useState<Range>('7d');
   const [view, setView] = useState<View>('model');
   const [summary, setSummary] = useState<Summary | null>(null);
