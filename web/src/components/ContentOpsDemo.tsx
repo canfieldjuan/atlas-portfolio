@@ -294,7 +294,14 @@ export function ContentOpsDemo() {
     }
   }
 
-  useEffect(() => clearTimer, []);
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []);
 
   function handleScenarioChange(id: string) {
     if (id === selectedId) return;
@@ -325,15 +332,15 @@ export function ContentOpsDemo() {
 
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
-      {/* Scenario tabs */}
-      <div role="tablist" aria-label="Demo scenarios" className="flex flex-col sm:flex-row border-b border-white/10">
+      {/* Scenario selector — plain button group, not a full ARIA tab pattern */}
+      <div role="group" aria-label="Demo scenarios" className="flex flex-col sm:flex-row border-b border-white/10">
         {scenarios.map((s) => {
           const isActive = s.id === selectedId;
           return (
             <button
               key={s.id}
-              role="tab"
-              aria-selected={isActive}
+              type="button"
+              aria-current={isActive ? 'true' : undefined}
               onClick={() => handleScenarioChange(s.id)}
               className={`flex-1 px-5 py-4 text-left text-sm transition-colors border-b sm:border-b-0 sm:border-r border-white/10 last:border-r-0 last:border-b-0 ${
                 isActive
