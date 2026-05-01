@@ -20,6 +20,7 @@ import {
   GitBranch,
   Gauge,
   Repeat,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ContentOpsDemo } from '@/components/ContentOpsDemo';
@@ -181,20 +182,16 @@ const pricingTiers: PricingTier[] = [
     badge: 'RECOMMENDED FIRST STEP',
     title: 'Content Ops Audit',
     price: '$1,500',
-    priceDetail: 'fixed price',
-    sla: 'Delivered in 2 business days after intake',
+    sla: 'Delivered in 2 business days',
     description:
-      'Best for businesses that want to understand where AI content automation can actually create value.',
+      'In 48 hours, you will know exactly what content your data can produce — and whether it is worth building anything at all.',
     includes: [
-      'Current content workflow review',
-      'Usable data source assessment',
-      'Content opportunity map',
-      '2–3 sample outputs from your data',
-      'Approval workflow recommendation',
-      'Automation roadmap',
-      'Recommended pilot scope and quote',
+      'What usable data you already have',
+      'What content it can produce',
+      'Whether automation is worth building',
+      'What a pilot would look like (scope + cost)',
     ],
-    note: "If there is not enough usable data to justify a build, you'll know before spending more.",
+    note: "If there is no real opportunity, we will tell you — before you spend another dollar.",
     cta: 'Book a Content Ops Audit',
     href: '/audit?interest=content-generation',
     highlighted: true,
@@ -204,7 +201,7 @@ const pricingTiers: PricingTier[] = [
     title: 'Pilot Build',
     price: 'Starts at $7,500',
     description:
-      'Best for teams ready to test one focused content workflow before building a larger system.',
+      'Test one real content workflow using your data — and prove it works before scaling.',
     includes: [
       '1 data source',
       '1 content workflow',
@@ -247,7 +244,7 @@ const retainer = {
   title: 'Ongoing Optimization',
   price: 'Starts at $2,500/month',
   description:
-    'Keep the system tuned as your business, data, offers, and content needs change.',
+    'Once the system is live, ongoing optimization keeps outputs relevant as your data, offers, and campaigns evolve.',
   includes: [
     'New content templates',
     'Prompt and workflow tuning',
@@ -260,6 +257,21 @@ const retainer = {
   cta: 'Ask About Ongoing Support',
   href: '/systems/ai-content-ops/ongoing-support',
 };
+
+const replacesItems: { instead: string; youGet: string }[] = [
+  {
+    instead: 'Guessing what to write',
+    youGet: 'Content based on real customer signals',
+  },
+  {
+    instead: 'Relying on generic AI outputs',
+    youGet: 'Outputs tied to actual pain points',
+  },
+  {
+    instead: 'Spending weeks on content that does not convert',
+    youGet: 'Deliverables your team can use immediately',
+  },
+];
 
 const pricingFaqs: { q: string; a: string }[] = [
   {
@@ -646,6 +658,57 @@ export default function AiContentOpsPage() {
           </div>
         </section>
 
+        {/* What This Replaces */}
+        <section className="mt-32">
+          <div className="max-w-3xl mb-10">
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              WHAT THIS REPLACES
+            </div>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              Most teams choose between guessing, generic AI, or agencies.
+            </h2>
+            <p className="text-foreground/65 leading-relaxed">
+              All three produce content. None of them produce content that actually converts.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-white/10 bg-black/30 p-6 md:p-7">
+              <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-5">
+                INSTEAD OF
+              </div>
+              <ul className="space-y-3">
+                {replacesItems.map((item) => (
+                  <li
+                    key={item.instead}
+                    className="flex items-start gap-3 text-sm text-foreground/55 leading-relaxed"
+                  >
+                    <X className="w-4 h-4 text-foreground/40 shrink-0 mt-0.5" />
+                    <span className="line-through decoration-foreground/30">{item.instead}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-xl border border-primary/30 bg-primary/[0.04] shadow-[0_0_40px_rgba(0,255,204,0.04)] p-6 md:p-7">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
+                YOU GET
+              </div>
+              <ul className="space-y-3">
+                {replacesItems.map((item) => (
+                  <li
+                    key={item.youGet}
+                    className="flex items-start gap-3 text-sm text-white leading-relaxed"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span>{item.youGet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* Pricing / Engagement Path */}
         <section id="pricing" className="mt-32 scroll-mt-24">
           <div className="max-w-3xl mb-12">
@@ -653,10 +716,10 @@ export default function AiContentOpsPage() {
               PRICING / ENGAGEMENT PATH
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              Start Small. Build Only What Makes Sense.
+              Don&apos;t build a content system until you know it will pay off.
             </h2>
             <p className="text-foreground/65 leading-relaxed">
-              AI Content Ops Station is implemented around your actual business data, workflow, and content goals. The first step is a fixed-scope audit so we can identify what data you already have, what content assets it can produce, and what level of automation makes sense.
+              This audit shows you exactly what content your data can produce — and whether it is worth building anything at all.
             </p>
           </div>
 
@@ -694,7 +757,7 @@ export default function AiContentOpsPage() {
                 </p>
 
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
-                  INCLUDES
+                  {tier.id === 'audit' ? 'IN 48 HOURS, YOU WILL KNOW:' : 'INCLUDES'}
                 </div>
                 <ul className="space-y-2 mb-5">
                   {tier.includes.map((item) => (
@@ -709,11 +772,21 @@ export default function AiContentOpsPage() {
                 </ul>
 
                 {tier.example && (
-                  <div className="rounded-lg border border-white/10 bg-black/30 p-3 mb-5">
-                    <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1.5">
-                      EXAMPLE
+                  <div className="rounded-lg border border-primary/30 bg-primary/[0.06] p-4 mb-5">
+                    <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
+                      EXAMPLE WORKFLOW
                     </div>
-                    <p className="text-xs text-foreground/65 leading-relaxed">{tier.example}</p>
+                    <div className="text-sm text-foreground/80 leading-relaxed">
+                      Customer reviews or CRM notes
+                      <span className="text-primary mx-1.5">→</span>
+                      extracted pain points
+                      <span className="text-primary mx-1.5">→</span>
+                      content angles
+                    </div>
+                    <div className="mt-2 text-sm font-semibold text-white leading-relaxed">
+                      Blog draft + email campaign + sales brief
+                      <span className="text-foreground/50 font-normal ml-2">(ready to ship)</span>
+                    </div>
                   </div>
                 )}
 
@@ -830,7 +903,7 @@ export default function AiContentOpsPage() {
                 Start With a Content Ops Audit
               </h2>
               <p className="text-foreground/60 leading-relaxed mb-8">
-                The audit is fixed-fee, fixed-scope, and produces a real build decision — not vague advice. If there is not enough usable data to justify a build, you will know before spending more.
+                The audit is fixed-fee, fixed-scope, and produces a real build decision — not vague advice. If there is no real opportunity, we will tell you — before you spend another dollar.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
