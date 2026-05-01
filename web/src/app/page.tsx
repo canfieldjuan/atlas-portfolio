@@ -62,7 +62,7 @@ const productizedSystems = [
   },
   {
     icon: <FileText className="w-5 h-5 text-primary" />,
-    title: 'Content Generation Pipeline',
+    title: 'AI Content Ops Station',
     desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];

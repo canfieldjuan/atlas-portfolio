@@ -53,9 +53,9 @@ const systems: SystemEntry[] = [
   {
     icon: <FileText className="w-6 h-6" />,
     label: 'CONTENT OPERATIONS',
-    title: 'Content Generation Pipeline',
+    title: 'AI Content Ops Station',
     href: '/systems/ai-content-ops',
-    hrefLabel: 'See AI Content Ops Station',
+    hrefLabel: 'View the landing page',
     summary:
       'A structured content production system for teams that need landing pages, comparison pages, blogs, email sequences, and campaign assets generated from approved evidence.',
     customerData: [

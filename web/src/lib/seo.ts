@@ -138,6 +138,7 @@ export const rootJsonLd = {
         "Data Pipeline Engineering",
         "Competitive Intelligence Automation",
         "Vendor Intelligence Systems",
+        "AI Content Ops Station",
         "AI Content Generation Pipelines",
         "GraphRAG",
         "LangGraph",
