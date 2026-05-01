@@ -344,11 +344,11 @@ export default function AiContentOpsPage() {
               <span>AI CONTENT OPS STATION</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
-              Turn Business Intelligence Into{' '}
-              <span className="gradient-text">Approval-Ready Content</span>
+              Your content isn&apos;t converting{' '}
+              <span className="gradient-text">because it&apos;s guessing.</span>
             </h1>
             <p className="text-lg text-foreground/60 leading-relaxed mb-4">
-              AI Content Ops Station transforms your structured business data into blogs, email campaigns, sales briefs, reports, landing page copy, and social content — with evidence, quality gates, and human approval built into the workflow.
+              We use real customer data — reviews, sales calls, support tickets, CRM notes — to generate content that speaks to what buyers actually care about. Ready to publish in days, not weeks.
             </p>
             <p className="text-sm text-foreground/45 leading-relaxed mb-8">
               Built for businesses that need useful content from real data — not generic AI filler.
@@ -365,7 +365,8 @@ export default function AiContentOpsPage() {
                 href="#demo"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
-                See the Pipeline in Action
+                See What It Generates
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>
@@ -456,10 +457,10 @@ export default function AiContentOpsPage() {
               DEMO
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              See the Pipeline in Action
+              See exactly what it generates.
             </h2>
             <p className="text-foreground/60 leading-relaxed">
-              Pick a scenario and watch the system turn raw business data into approval-ready content. Demo runs on preloaded scenarios — no live model calls, no user input accepted.
+              Pick a scenario and watch real customer data turn into a blog outline, an email sequence, a sales brief, a landing page section, and a social post — generated from the same intelligence layer. Demo runs on preloaded scenarios; no live model calls, no user input accepted.
             </p>
           </div>
           <ContentOpsDemo />
