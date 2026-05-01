@@ -12,7 +12,19 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const systems = [
+type SystemEntry = {
+  icon: React.ReactNode;
+  label: string;
+  title: string;
+  summary: string;
+  customerData: string[];
+  builtCore: string[];
+  outputs: string[];
+  href?: string;
+  hrefLabel?: string;
+};
+
+const systems: SystemEntry[] = [
   {
     icon: <Radar className="w-6 h-6" />,
     label: 'COMPETITIVE INTELLIGENCE',
@@ -42,6 +54,8 @@ const systems = [
     icon: <FileText className="w-6 h-6" />,
     label: 'CONTENT OPERATIONS',
     title: 'Content Generation Pipeline',
+    href: '/systems/ai-content-ops',
+    hrefLabel: 'See AI Content Ops Station',
     summary:
       'A structured content production system for teams that need landing pages, comparison pages, blogs, email sequences, and campaign assets generated from approved evidence.',
     customerData: [
@@ -163,6 +177,15 @@ export default function SystemsPage() {
                   </div>
                   <h2 className="text-2xl font-semibold text-white mb-4">{system.title}</h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">{system.summary}</p>
+                  {system.href && (
+                    <Link
+                      href={system.href}
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium mt-5"
+                    >
+                      {system.hrefLabel ?? 'Learn more'}
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
                 </div>
 
                 <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-6">
