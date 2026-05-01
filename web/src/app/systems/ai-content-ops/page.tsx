@@ -229,7 +229,7 @@ export default function AiContentOpsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/audit"
+                href="/audit?interest=content-generation"
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
                 Book a Content Ops Audit
@@ -538,14 +538,14 @@ export default function AiContentOpsPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
-                    href="/audit"
+                    href="/audit?interest=content-generation"
                     className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                   >
                     Book a Content Ops Audit
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
-                    href="/audit"
+                    href="/audit?interest=content-generation"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
                   >
                     Ask About a Pilot Build
