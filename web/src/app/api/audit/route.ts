@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuditIntakePayload, recordAuditIntake } from '@/lib/audit-intake';
+import { isAuditProjectInterest } from '@/lib/audit-routing';
 
 export const runtime = 'nodejs';
+
+function optionalText(value: unknown) {
+  return typeof value === 'string' ? value.trim() : undefined;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,17 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validProjectInterests = [
-      'custom-build',
-      'competitive-intelligence',
-      'content-generation',
-      'not-sure',
-    ] as const;
-    if (
-      !validProjectInterests.includes(
-        body.projectInterest as (typeof validProjectInterests)[number]
-      )
-    ) {
+    if (!isAuditProjectInterest(body.projectInterest)) {
       return NextResponse.json(
         { ok: false, error: 'Invalid project interest.' },
         { status: 400 }
@@ -104,6 +99,10 @@ export async function POST(request: NextRequest) {
     const { requestId, deliveries, warnings } = await recordAuditIntake({
       ...body,
       workEmail: normalizedWorkEmail,
+      sourcePage: optionalText(body.sourcePage),
+      sourcePageLabel: optionalText(body.sourcePageLabel),
+      sourceOffer: optionalText(body.sourceOffer),
+      sourceOfferLabel: optionalText(body.sourceOfferLabel),
     });
 
     return NextResponse.json({

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu, FileText, Radar } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const domains = [
   {
@@ -274,7 +275,7 @@ export default function CapabilitiesPage() {
             Every engagement starts with a Phase 1 Roadmap: a fixed-fee scoping engagement that defines architecture, proves the approach, and prices the implementation before build work begins.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/audit" className="group px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all flex items-center gap-2 text-sm">
+            <Link href={buildAuditHref({ source: 'capabilities' })} className="group px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all flex items-center gap-2 text-sm">
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>

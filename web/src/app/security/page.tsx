@@ -13,6 +13,7 @@ import {
   CircleDashed,
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const currentStatus = [
   {
@@ -258,7 +259,7 @@ export default function SecurityPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'security' })}
               className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
               Start Systems Audit

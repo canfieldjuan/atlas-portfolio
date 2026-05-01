@@ -20,6 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CostObservabilityDemo } from '@/components/CostObservabilityDemo';
 import { DocClassificationDemo } from '@/components/DocClassificationDemo';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const workflowDemos = [
   {
@@ -593,7 +594,7 @@ export default function DemoPage() {
             Start with a Systems Audit. That is where I decide whether the right next step is revenue automation, a knowledge engine, an agent workflow, a data pipeline, or something narrower.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
+            <Link href={buildAuditHref({ source: 'demo' })} className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 export function Footer() {
   return (
@@ -56,7 +57,7 @@ export function Footer() {
               Every engagement starts with a Systems Audit. I review each submission personally and respond within 48 hours.
             </p>
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'footer' })}
               className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
             >
               Start Systems Audit

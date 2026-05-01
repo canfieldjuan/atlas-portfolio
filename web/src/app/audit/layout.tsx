@@ -1,9 +1,9 @@
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Request an AI Automation Fit Review",
+  title: "Start the AI Systems Audit",
   description:
-    "Submit a short AI automation fit-review brief. I review workflow, data, timeline, security, and budget fit personally before recommending a Phase 1 Roadmap.",
+    "Submit a short AI Systems Audit brief. I review workflow, data, timeline, security, and budget fit personally before recommending a Phase 1 Roadmap.",
   path: "/audit",
   keywords: [
     "AI automation fit review",

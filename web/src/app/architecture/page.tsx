@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Cpu } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 export default function ArchitecturePage() {
   return (
@@ -130,7 +131,7 @@ export default function ArchitecturePage() {
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
             Start with the Systems Audit. That is where architecture, risk boundaries, deployment constraints, and proof-of-concept scope get defined before build work begins.
           </p>
-          <Link href="/audit" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all">
+          <Link href={buildAuditHref({ source: 'architecture' })} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all">
             Start Systems Audit
             <ArrowRight className="w-4 h-4" />
           </Link>

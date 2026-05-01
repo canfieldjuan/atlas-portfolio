@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, FileText, HelpCircle, Map, Radar, Wrench } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
 const faqJsonLd = generateFaqJsonLd([
@@ -200,7 +201,7 @@ export default function ServicesPage() {
               TIMELINE: 2 WEEKS
             </div>
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'services', offer: 'phase-1-roadmap' })}
               className="group w-full py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-all text-sm bg-primary text-black hover:bg-primary/90"
             >
               Start Systems Audit

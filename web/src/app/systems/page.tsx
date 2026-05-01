@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
+import { type AuditProjectInterest, buildAuditHref } from '@/lib/audit-routing';
 
 type SystemEntry = {
   icon: React.ReactNode;
@@ -20,6 +21,7 @@ type SystemEntry = {
   customerData: string[];
   builtCore: string[];
   outputs: string[];
+  interest: AuditProjectInterest;
   href?: string;
   hrefLabel?: string;
 };
@@ -29,6 +31,7 @@ const systems: SystemEntry[] = [
     icon: <Radar className="w-6 h-6" />,
     label: 'COMPETITIVE INTELLIGENCE',
     title: 'Competitive / Vendor Intelligence Platform',
+    interest: 'competitive-intelligence' as const,
     summary:
       'A reusable intelligence system for teams that need vendor, competitor, account, and market signals turned into monitored operating data.',
     customerData: [
@@ -54,6 +57,7 @@ const systems: SystemEntry[] = [
     icon: <FileText className="w-6 h-6" />,
     label: 'CONTENT OPERATIONS',
     title: 'AI Content Ops Station',
+    interest: 'content-generation',
     href: '/systems/ai-content-ops',
     hrefLabel: 'View the landing page',
     summary:
@@ -128,7 +132,7 @@ export default function SystemsPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-8">
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'systems', offer: 'productized-systems' })}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
               Start Systems Audit
@@ -177,15 +181,28 @@ export default function SystemsPage() {
                   </div>
                   <h2 className="text-2xl font-semibold text-white mb-4">{system.title}</h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">{system.summary}</p>
-                  {system.href && (
+                  <div className="mt-5 flex flex-col items-start gap-3">
+                    {system.href && (
+                      <Link
+                        href={system.href}
+                        className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                      >
+                        {system.hrefLabel ?? 'Learn more'}
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
                     <Link
-                      href={system.href}
-                      className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium mt-5"
+                      href={buildAuditHref({
+                        interest: system.interest,
+                        source: 'systems-card',
+                        offer: system.interest,
+                      })}
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                     >
-                      {system.hrefLabel ?? 'Learn more'}
+                      Start audit for this system
                       <ArrowRight className="w-4 h-4" />
                     </Link>
-                  )}
+                  </div>
                 </div>
 
                 <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -271,7 +288,7 @@ export default function SystemsPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'systems', offer: 'productized-systems' })}
               className="group px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all flex items-center gap-2 text-sm"
             >
               Start Systems Audit

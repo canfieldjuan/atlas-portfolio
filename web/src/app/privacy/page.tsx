@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const policySections = [
   {
@@ -182,7 +183,7 @@ export default function PrivacyPage() {
               Review About
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
+            <Link href={buildAuditHref({ source: 'privacy' })} className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>

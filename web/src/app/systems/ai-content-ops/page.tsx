@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { ContentOpsDemo } from '@/components/ContentOpsDemo';
+import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
 const pipelineStages = [
@@ -196,7 +197,11 @@ const pricingTiers: PricingTier[] = [
     ],
     note: "If there is not enough usable data to justify a build, you'll know before spending more.",
     cta: 'Book a Content Ops Audit',
-    href: '/audit?interest=content-generation',
+    href: buildAuditHref({
+      interest: 'content-generation',
+      source: 'ai-content-ops',
+      offer: 'content-generation',
+    }),
     highlighted: true,
   },
   {
@@ -218,7 +223,11 @@ const pricingTiers: PricingTier[] = [
       'Customer reviews or CRM notes → extracted pain points → content angles → blog draft + email campaign + sales brief',
     note: 'Most pilot builds are scoped after the audit.',
     cta: 'Request a Pilot Build',
-    href: '/audit?interest=content-generation',
+    href: buildAuditHref({
+      interest: 'content-generation',
+      source: 'ai-content-ops',
+      offer: 'content-generation',
+    }),
   },
   {
     id: 'full',
@@ -239,7 +248,11 @@ const pricingTiers: PricingTier[] = [
     ],
     note: 'Full builds are scoped based on data sources, integrations, output types, and approval requirements.',
     cta: 'Discuss a Full Build',
-    href: '/audit?interest=content-generation',
+    href: buildAuditHref({
+      interest: 'content-generation',
+      source: 'ai-content-ops',
+      offer: 'content-generation',
+    }),
   },
 ];
 
@@ -258,7 +271,11 @@ const retainer = {
     'Reporting and support',
   ],
   cta: 'Ask About Ongoing Support',
-  href: '/audit?interest=content-generation',
+  href: buildAuditHref({
+    interest: 'content-generation',
+    source: 'ai-content-ops',
+    offer: 'content-generation',
+  }),
 };
 
 const pricingFaqs: { q: string; a: string }[] = [
@@ -355,7 +372,11 @@ export default function AiContentOpsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/audit?interest=content-generation"
+                href={buildAuditHref({
+                  interest: 'content-generation',
+                  source: 'ai-content-ops',
+                  offer: 'content-generation',
+                })}
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
                 Book a Content Ops Audit
@@ -833,14 +854,22 @@ export default function AiContentOpsPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href="/audit?interest=content-generation"
+                  href={buildAuditHref({
+                    interest: 'content-generation',
+                    source: 'ai-content-ops',
+                    offer: 'content-generation',
+                  })}
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
                   Book a Content Ops Audit ($1,500)
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  href="/audit?interest=content-generation"
+                  href={buildAuditHref({
+                    interest: 'content-generation',
+                    source: 'ai-content-ops',
+                    offer: 'content-generation',
+                  })}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
                   Ask About a Pilot Build

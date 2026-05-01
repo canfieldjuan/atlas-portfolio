@@ -1,10 +1,18 @@
 'use client';
 
 import type { MutableRefObject } from 'react';
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, Suspense, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle2, ArrowRight, Copy, RotateCcw, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import {
+  AUDIT_PROJECT_INTERESTS,
+  auditOfferLabel,
+  auditProjectInterestLabel,
+  auditSourceLabel,
+  isAuditProjectInterest,
+} from '@/lib/audit-routing';
 
 type AuditField =
   | 'fullName'
@@ -23,6 +31,46 @@ type AuditField =
 
 type CopyState = 'idle' | 'copied' | 'failed';
 type AuditFieldElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+type AuditFormData = Record<AuditField, string>;
+
+type AuditRouteContext = {
+  projectInterest: string;
+  sourcePage: string;
+  sourcePageLabel: string;
+  sourceOffer: string;
+  sourceOfferLabel: string;
+};
+
+const createEmptyFormData = (projectInterest = ''): AuditFormData => ({
+  fullName: '',
+  workEmail: '',
+  companyOrProjectUrl: '',
+  roleAndDecisionScope: '',
+  projectInterest,
+  biggestBottleneck: '',
+  automationDataSources: '',
+  currentTechEcosystem: '',
+  desiredTimeline: '',
+  securityRequirement: '',
+  deploymentConstraints: '',
+  roiGoal: '',
+  anticipatedInvestmentRange: '',
+});
+
+const buildAuditRouteContext = (params: { get(name: string): string | null }): AuditRouteContext => {
+  const interestParam = params.get('interest') || params.get('projectInterest');
+  const sourcePage = (params.get('source') || '').trim().slice(0, 120);
+  const sourceOffer = (params.get('offer') || '').trim().slice(0, 160);
+
+  return {
+    projectInterest: isAuditProjectInterest(interestParam) ? interestParam : '',
+    sourcePage,
+    sourcePageLabel: auditSourceLabel(sourcePage),
+    sourceOffer,
+    sourceOfferLabel: auditOfferLabel(sourceOffer),
+  };
+};
 
 const conversionSignals = [
   {
@@ -50,21 +98,31 @@ const reviewCriteria = [
 ];
 
 export default function AuditPage() {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    workEmail: '',
-    companyOrProjectUrl: '',
-    roleAndDecisionScope: '',
-    projectInterest: '',
-    biggestBottleneck: '',
-    automationDataSources: '',
-    currentTechEcosystem: '',
-    desiredTimeline: '',
-    securityRequirement: '',
-    deploymentConstraints: '',
-    roiGoal: '',
-    anticipatedInvestmentRange: '',
-  });
+  return (
+    <Suspense fallback={<AuditPageFallback />}>
+      <AuditPageContent />
+    </Suspense>
+  );
+}
+
+function AuditPageFallback() {
+  return (
+    <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
+      <div className="max-w-5xl mx-auto">
+        <div className="rounded-xl border border-white/10 bg-black/20 p-8 text-sm text-foreground/60">
+          Loading Systems Audit...
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function AuditPageContent() {
+  const searchParams = useSearchParams();
+  const routeContext = useMemo(() => buildAuditRouteContext(searchParams), [searchParams]);
+  const [formData, setFormData] = useState<AuditFormData>(() =>
+    createEmptyFormData(routeContext.projectInterest)
+  );
   const [formErrors, setFormErrors] = useState<Partial<Record<AuditField, string>>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,23 +133,7 @@ export default function AuditPage() {
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [estimatedResponseHours, setEstimatedResponseHours] = useState<number | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
-  const [prefilledInterest, setPrefilledInterest] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
-
-  // useState lazy initializer would mismatch SSR (server has no window); useSearchParams would
-  // force a Suspense boundary and opt the page out of static prerendering. This effect runs once
-  // on mount to prefill from ?interest= without changing the prerender contract.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const interest = params.get('interest');
-    const validInterests = ['custom-build', 'competitive-intelligence', 'content-generation', 'not-sure'];
-    if (interest && validInterests.includes(interest)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData((prev) => (prev.projectInterest ? prev : { ...prev, projectInterest: interest }));
-      setPrefilledInterest(interest);
-    }
-  }, []);
 
   const requiredFields: Array<AuditField> = [
     'fullName',
@@ -167,17 +209,6 @@ export default function AuditPage() {
     return map[value] || value || 'Not provided';
   };
 
-  const projectInterestLabel = (value: string) => {
-    const map: Record<string, string> = {
-      'custom-build': 'Custom build',
-      'competitive-intelligence': 'Competitive / Vendor Intelligence Platform',
-      'content-generation': 'AI Content Ops Station',
-      'not-sure': 'Not sure yet',
-    };
-
-    return map[value] || value || 'Not provided';
-  };
-
   const desiredTimelineLabel = (value: string) => {
     const map: Record<string, string> = {
       asap: 'ASAP - active project now',
@@ -202,13 +233,19 @@ export default function AuditPage() {
   };
 
   const requestSummary = useMemo(() => {
+    const routingContext = [
+      routeContext.sourcePageLabel ? `Source Page: ${routeContext.sourcePageLabel}` : null,
+      routeContext.sourceOfferLabel ? `Source Offer: ${routeContext.sourceOfferLabel}` : null,
+    ].filter((item): item is string => Boolean(item));
+
     return [
       'AI Systems Audit Request',
       `Name: ${formData.fullName.trim() || 'Not provided'}`,
       `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
       `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
       `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
-      `Primary Interest: ${projectInterestLabel(formData.projectInterest)}`,
+      `Primary Interest: ${auditProjectInterestLabel(formData.projectInterest)}`,
+      ...(routingContext.length > 0 ? routingContext : []),
       `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
       `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
       `Current Tech Ecosystem: ${formData.currentTechEcosystem.trim() || 'Not provided'}`,
@@ -218,7 +255,7 @@ export default function AuditPage() {
       `Success / ROI: ${formData.roiGoal.trim() || 'Not provided'}`,
       `Anticipated Investment Range: ${investmentRangeLabel(formData.anticipatedInvestmentRange)}`,
     ].join('\n\n');
-  }, [formData]);
+  }, [formData, routeContext]);
 
   const isValidEmail = (value: string) => {
     return /\S+@\S+\.\S+/.test(value);
@@ -302,7 +339,11 @@ export default function AuditPage() {
           companyOrProjectUrl: formData.companyOrProjectUrl.trim(),
           roleAndDecisionScope: formData.roleAndDecisionScope.trim(),
           projectInterest: formData.projectInterest.trim(),
-          projectInterestLabel: projectInterestLabel(formData.projectInterest),
+          projectInterestLabel: auditProjectInterestLabel(formData.projectInterest),
+          sourcePage: routeContext.sourcePage,
+          sourcePageLabel: routeContext.sourcePageLabel,
+          sourceOffer: routeContext.sourceOffer,
+          sourceOfferLabel: routeContext.sourceOfferLabel,
           biggestBottleneck: formData.biggestBottleneck.trim(),
           automationDataSources: formData.automationDataSources.trim(),
           currentTechEcosystem: formData.currentTechEcosystem.trim(),
@@ -384,21 +425,7 @@ export default function AuditPage() {
   };
 
   const resetForm = () => {
-    setFormData({
-      fullName: '',
-      workEmail: '',
-      companyOrProjectUrl: '',
-      roleAndDecisionScope: '',
-      projectInterest: '',
-      biggestBottleneck: '',
-      automationDataSources: '',
-      currentTechEcosystem: '',
-      desiredTimeline: '',
-      securityRequirement: '',
-      deploymentConstraints: '',
-      roiGoal: '',
-      anticipatedInvestmentRange: '',
-    });
+    setFormData(createEmptyFormData(routeContext.projectInterest));
     setFormErrors({});
     setIsSubmitted(false);
     setSubmissionError(null);
@@ -419,10 +446,10 @@ export default function AuditPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
             <CheckCircle2 className="w-3 h-3" />
-            <span>FIT REVIEW</span>
+            <span>SYSTEMS AUDIT</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            Request an AI automation fit review.
+            Start the AI Systems Audit.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
             Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.
@@ -432,7 +459,7 @@ export default function AuditPage() {
               href="#audit-brief"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
-              Start the brief
+              Start the audit brief
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
@@ -443,6 +470,21 @@ export default function AuditPage() {
             </Link>
           </div>
         </motion.div>
+
+        {routeContext.sourcePageLabel || routeContext.sourceOfferLabel || routeContext.projectInterest ? (
+          <div className="mb-8 rounded-lg border border-primary/20 bg-primary/5 p-5">
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
+              ROUTED CONTEXT
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              {routeContext.sourcePageLabel ? `You came from ${routeContext.sourcePageLabel}. ` : null}
+              {routeContext.sourceOfferLabel ? `Offer context: ${routeContext.sourceOfferLabel}. ` : null}
+              {routeContext.projectInterest
+                ? `The primary interest field is preselected as ${auditProjectInterestLabel(routeContext.projectInterest)}; change it below if another path fits better.`
+                : 'Choose the primary interest below so the request routes to the right systems starting point.'}
+            </p>
+          </div>
+        ) : null}
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
           {conversionSignals.map((signal) => (
@@ -609,16 +651,8 @@ export default function AuditPage() {
                 What are you most interested in? <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
-                Helps route the request between a custom build and the productized system starting points.
+                Preselected when you came from a specific offer. Change it if another workflow type fits better.
               </p>
-              {prefilledInterest && formData.projectInterest === prefilledInterest && (
-                <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground/70">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                  <span>
-                    Pre-selected based on the page you came from: <span className="text-white font-medium">{projectInterestLabel(prefilledInterest)}</span>. You can change it below.
-                  </span>
-                </div>
-              )}
               <select
                 id="projectInterest"
                 ref={projectInterestRef}
@@ -636,10 +670,11 @@ export default function AuditPage() {
                 <option value="" disabled>
                   Select primary interest...
                 </option>
-                <option value="custom-build">Custom build</option>
-                <option value="competitive-intelligence">Competitive / Vendor Intelligence Platform</option>
-                <option value="content-generation">AI Content Ops Station</option>
-                <option value="not-sure">Not sure yet</option>
+                {AUDIT_PROJECT_INTERESTS.map((interest) => (
+                  <option key={interest.value} value={interest.value}>
+                    {interest.label}
+                  </option>
+                ))}
               </select>
               {formErrors.projectInterest ? (
                 <p id="projectInterest-error" className="text-red-400 text-sm">{formErrors.projectInterest}</p>
@@ -875,7 +910,7 @@ export default function AuditPage() {
             disabled={isInputDisabled}
           >
             <Send className="w-4 h-4" />
-            {isSubmitting ? 'Sending fit review...' : 'Send Fit Review Request'}
+            {isSubmitting ? 'Sending systems audit...' : 'Send Systems Audit Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">

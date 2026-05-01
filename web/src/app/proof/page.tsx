@@ -11,6 +11,7 @@ import {
   Database,
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const buildExamples = [
   {
@@ -248,7 +249,7 @@ export default function ProofPage() {
             Start with the Systems Audit. I will review whether the workflow has enough data, ownership, and business value to justify a Phase 1 Roadmap. Review services if you want the pricing model before submitting.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
+            <Link href={buildAuditHref({ source: 'proof' })} className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>

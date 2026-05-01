@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const navLinks = [
   { href: '/services', label: 'Services' },
@@ -57,7 +58,7 @@ export function Navigation() {
             </Link>
           ))}
           <Link
-            href="/audit"
+            href={buildAuditHref({ source: 'navigation' })}
             aria-current={isAuditPage ? 'page' : undefined}
             className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
               isAuditPage
@@ -72,7 +73,7 @@ export function Navigation() {
         {/* Mobile Hamburger */}
         <div className="flex lg:hidden items-center gap-3">
           <Link
-            href="/audit"
+            href={buildAuditHref({ source: 'navigation' })}
             aria-current={isAuditPage ? 'page' : undefined}
             className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors text-white"
             onClick={closeMobileMenu}
@@ -119,7 +120,7 @@ export function Navigation() {
                 </Link>
               ))}
               <Link
-                href="/audit"
+                href={buildAuditHref({ source: 'navigation' })}
                 onClick={closeMobileMenu}
                 aria-current={isAuditPage ? 'page' : undefined}
                 className="block py-3 text-sm text-primary font-medium"

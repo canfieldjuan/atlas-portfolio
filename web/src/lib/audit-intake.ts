@@ -8,6 +8,10 @@ export type AuditIntakePayload = {
   roleAndDecisionScope: string;
   projectInterest: string;
   projectInterestLabel?: string;
+  sourcePage?: string;
+  sourcePageLabel?: string;
+  sourceOffer?: string;
+  sourceOfferLabel?: string;
   biggestBottleneck: string;
   automationDataSources: string;
   currentTechEcosystem?: string;
@@ -121,6 +125,15 @@ async function postAtlasCrmEvent(baseUrl: string, record: AuditIntakeRecord) {
 }
 
 function buildNotificationText(record: AuditIntakeRecord) {
+  const routingContext = [
+    record.sourcePage || record.sourcePageLabel
+      ? `Source Page: ${record.sourcePageLabel || record.sourcePage}`
+      : null,
+    record.sourceOffer || record.sourceOfferLabel
+      ? `Source Offer: ${record.sourceOfferLabel || record.sourceOffer}`
+      : null,
+  ].filter((item): item is string => Boolean(item));
+
   return [
     'New AI Systems Audit Request',
     `Request ID: ${record.requestId}`,
@@ -131,6 +144,7 @@ function buildNotificationText(record: AuditIntakeRecord) {
     `Company / Project URL: ${record.companyOrProjectUrl}`,
     `Role / Decision Scope: ${record.roleAndDecisionScope}`,
     `Primary Interest: ${record.projectInterestLabel || record.projectInterest}`,
+    ...(routingContext.length > 0 ? ['', 'Routing Context', ...routingContext] : []),
     '',
     'Biggest Manual Bottleneck',
     record.biggestBottleneck || 'Not provided',

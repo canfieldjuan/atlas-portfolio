@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, MessageSquare, Search, FileText, Hammer, CheckCircle2, Rocket, LifeBuoy, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const steps = [
   {
@@ -215,7 +216,7 @@ export default function ProcessPage() {
           </div>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/audit"
+              href={buildAuditHref({ source: 'process', offer: 'phase-1-roadmap' })}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
               Start Systems Audit
@@ -437,7 +438,7 @@ export default function ProcessPage() {
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
             Start the Systems Audit. I review every submission personally and respond within 48 hours.
           </p>
-          <Link href="/audit" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
+          <Link href={buildAuditHref({ source: 'process', offer: 'phase-1-roadmap' })} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
             Start Systems Audit
             <ArrowRight className="w-4 h-4" />
           </Link>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
+import { buildAuditHref } from '@/lib/audit-routing';
 import { generateArticleJsonLd, generateBreadcrumbJsonLd, generatePageMetadata } from '@/lib/seo';
 import { getResourceArticle, resourceArticles } from '@/lib/resources';
 
@@ -162,7 +163,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
                 </p>
               </div>
               <Link
-                href="/audit"
+                href={buildAuditHref({ source: 'resource', offer: article.title })}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
                 Start Systems Audit

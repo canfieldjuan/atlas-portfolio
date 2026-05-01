@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, Database, Code2, Activity, ShieldCheck, Radar, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const heroFacts = [
   { label: 'PHASE 1', value: '$4,500 fixed fee' },
@@ -71,11 +72,13 @@ const productizedSystems = [
   {
     icon: <Radar className="w-5 h-5 text-primary" />,
     title: 'Competitive / Vendor Intelligence Platform',
+    interest: 'competitive-intelligence' as const,
     desc: 'A ready-made intelligence architecture that becomes specific once your vendors, competitors, accounts, sources, and workflows are connected.',
   },
   {
     icon: <FileText className="w-5 h-5 text-primary" />,
     title: 'AI Content Ops Station',
+    interest: 'content-generation' as const,
     desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];
@@ -118,7 +121,7 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
-              <Link href="/audit" className="group px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all flex items-center gap-2">
+              <Link href={buildAuditHref({ source: 'home-hero' })} className="group px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all flex items-center gap-2">
                 Start Systems Audit
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -223,6 +226,17 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-3">{system.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{system.desc}</p>
+                  <Link
+                    href={buildAuditHref({
+                      interest: system.interest,
+                      source: 'home-productized',
+                      offer: system.interest,
+                    })}
+                    className="mt-5 inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    Start audit for this system
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               ))}
             </div>
@@ -379,7 +393,7 @@ export default function Home() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  href="/audit"
+                  href={buildAuditHref({ source: 'home-bottom', offer: 'phase-1-roadmap' })}
                   className="px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
                   Start Systems Audit

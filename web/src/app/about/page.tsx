@@ -11,6 +11,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 const principles = [
   {
@@ -228,7 +229,7 @@ export default function AboutPage() {
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Start with the Systems Audit. I review whether there is enough workflow clarity, data access, ownership, and budget path to justify a Phase 1 Roadmap.
           </p>
-          <Link href="/audit" className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
+          <Link href={buildAuditHref({ source: 'about' })} className="group inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
             Start Systems Audit
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
