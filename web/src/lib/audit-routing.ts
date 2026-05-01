@@ -64,6 +64,7 @@ const AUDIT_SOURCE_LABELS: Record<string, string> = {
   resource: 'Resource article',
   'ai-automation-consultant': 'AI automation consultant page',
   'ai-content-ops': 'AI Content Ops Station landing page',
+  'ai-content-ops-ongoing-support': 'AI Content Ops ongoing support page',
 };
 
 const AUDIT_OFFER_LABELS: Record<string, string> = {
@@ -72,6 +73,7 @@ const AUDIT_OFFER_LABELS: Record<string, string> = {
   'competitive-intelligence': 'Competitive / vendor intelligence platform',
   'content-generation': 'AI Content Ops Station',
   'custom-build': 'Custom AI system / custom build',
+  'ongoing-support': 'Ongoing Optimization',
 };
 
 export function isAuditProjectInterest(value: unknown): value is AuditProjectInterest {
