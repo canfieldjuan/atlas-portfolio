@@ -76,20 +76,27 @@ export default function AuditPage() {
   const [estimatedResponseHours, setEstimatedResponseHours] = useState<number | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const [prefilledInterest, setPrefilledInterest] = useState<string | null>(null);
+  const [engagementContext, setEngagementContext] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
+  const isOngoingSupport = engagementContext === 'ongoing-support';
 
   // useState lazy initializer would mismatch SSR (server has no window); useSearchParams would
   // force a Suspense boundary and opt the page out of static prerendering. This effect runs once
-  // on mount to prefill from ?interest= without changing the prerender contract.
+  // on mount to prefill from ?interest= and ?context= without changing the prerender contract.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const interest = params.get('interest');
     const validInterests = ['custom-build', 'competitive-intelligence', 'content-generation', 'not-sure'];
+    const context = params.get('context');
+    const validContexts = ['ongoing-support'];
     if (interest && validInterests.includes(interest)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData((prev) => (prev.projectInterest ? prev : { ...prev, projectInterest: interest }));
       setPrefilledInterest(interest);
+    }
+    if (context && validContexts.includes(context)) {
+      setEngagementContext(context);
     }
   }, []);
 
@@ -202,13 +209,17 @@ export default function AuditPage() {
   };
 
   const requestSummary = useMemo(() => {
+    const heading = engagementContext === 'ongoing-support'
+      ? 'Ongoing Optimization Inquiry (AI Content Ops)'
+      : 'AI Systems Audit Request';
     return [
-      'AI Systems Audit Request',
+      heading,
       `Name: ${formData.fullName.trim() || 'Not provided'}`,
       `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
       `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
       `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
       `Primary Interest: ${projectInterestLabel(formData.projectInterest)}`,
+      `Engagement Context: ${engagementContext === 'ongoing-support' ? 'Ongoing Optimization retainer' : 'New build / fit review'}`,
       `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
       `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
       `Current Tech Ecosystem: ${formData.currentTechEcosystem.trim() || 'Not provided'}`,
@@ -218,7 +229,7 @@ export default function AuditPage() {
       `Success / ROI: ${formData.roiGoal.trim() || 'Not provided'}`,
       `Anticipated Investment Range: ${investmentRangeLabel(formData.anticipatedInvestmentRange)}`,
     ].join('\n\n');
-  }, [formData]);
+  }, [formData, engagementContext]);
 
   const isValidEmail = (value: string) => {
     return /\S+@\S+\.\S+/.test(value);
@@ -419,13 +430,17 @@ export default function AuditPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
             <CheckCircle2 className="w-3 h-3" />
-            <span>FIT REVIEW</span>
+            <span>{isOngoingSupport ? 'ONGOING SUPPORT INQUIRY' : 'FIT REVIEW'}</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            Request an AI automation fit review.
+            {isOngoingSupport
+              ? 'Tell me about your current AI content setup.'
+              : 'Request an AI automation fit review.'}
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
-            Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.
+            {isOngoingSupport
+              ? 'Send the context I need to scope an Ongoing Optimization retainer that fits your stack — workflows, output cadence, integrations, and what is currently drifting. I review every request to make sure the retainer scope matches the workflow you actually have.'
+              : 'Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
             <a
@@ -436,10 +451,10 @@ export default function AuditPage() {
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
-              href="/services"
+              href={isOngoingSupport ? '/systems/ai-content-ops/ongoing-support' : '/services'}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
             >
-              Review Phase 1 pricing
+              {isOngoingSupport ? 'Review Ongoing Optimization' : 'Review Phase 1 pricing'}
             </Link>
           </div>
         </motion.div>
@@ -460,7 +475,23 @@ export default function AuditPage() {
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 text-sm text-foreground/70">
             <h2 className="text-sm font-semibold text-white mb-2">What happens after you submit</h2>
             <p className="leading-relaxed">
-              I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
+              {isOngoingSupport ? (
+                <>
+                  I review completed requests within 48 hours. If your workflow looks like a fit, the next step is a 20-minute scoping call to size the retainer at the $2,500/month floor or above. Review{' '}
+                  <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">
+                    privacy and data handling
+                  </Link>{' '}
+                  before sharing sensitive operational context.
+                </>
+              ) : (
+                <>
+                  I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review{' '}
+                  <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">
+                    privacy and data handling
+                  </Link>{' '}
+                  before sharing sensitive project context.
+                </>
+              )}
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-black/20 p-5">
@@ -875,7 +906,9 @@ export default function AuditPage() {
             disabled={isInputDisabled}
           >
             <Send className="w-4 h-4" />
-            {isSubmitting ? 'Sending fit review...' : 'Send Fit Review Request'}
+            {isSubmitting
+              ? isOngoingSupport ? 'Sending inquiry...' : 'Sending fit review...'
+              : isOngoingSupport ? 'Send Ongoing Support Inquiry' : 'Send Fit Review Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">

@@ -258,7 +258,7 @@ const retainer = {
     'Reporting and support',
   ],
   cta: 'Ask About Ongoing Support',
-  href: '/audit?interest=content-generation',
+  href: '/systems/ai-content-ops/ongoing-support',
 };
 
 const pricingFaqs: { q: string; a: string }[] = [
