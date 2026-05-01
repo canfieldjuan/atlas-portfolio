@@ -42,11 +42,41 @@ const conversionSignals = [
   },
 ];
 
+const auditConversionSignals = [
+  {
+    icon: <Clock className="w-4 h-4" />,
+    title: '2-minute brief',
+    detail: 'Five quick fields. The goal is a fast fit review, not a full requirements document.',
+  },
+  {
+    icon: <CheckCircle2 className="w-4 h-4" />,
+    title: 'Payment after fit review',
+    detail: 'I review every audit request within 48 hours. Payment is confirmed once we agree it is a fit.',
+  },
+  {
+    icon: <ShieldCheck className="w-4 h-4" />,
+    title: 'No sensitive data needed',
+    detail: 'Share enough context to evaluate the workflow. Do not paste credentials, regulated records, or raw datasets.',
+  },
+];
+
 const reviewCriteria = [
   'A real workflow with an owner',
   'Available data sources or systems',
   'A clear business outcome',
   'A budget path for Phase 1 if there is fit',
+];
+
+const auditReviewCriteria = [
+  'Existing content, reviews, or CRM data to work from',
+  'A real content goal — not just "we want AI"',
+  'Someone owning the content workflow on your side',
+];
+
+const auditDeliverables = [
+  'Content opportunity map',
+  '2–3 real outputs from your data',
+  'Clear recommendation: build or do not build',
 ];
 
 type AuditFormProps = {
@@ -55,20 +85,25 @@ type AuditFormProps = {
 };
 
 export default function AuditForm({ initialInterest, initialContext }: AuditFormProps) {
+  // Short form is the productized audit path: 5 visible fields, hidden fields auto-populated
+  // with API-valid defaults so the existing intake handler accepts the payload unchanged.
+  const isShortForm = initialInterest === 'content-generation';
+  const isOngoingSupport = initialContext === 'ongoing-support';
+
   const [formData, setFormData] = useState({
     fullName: '',
     workEmail: '',
     companyOrProjectUrl: '',
-    roleAndDecisionScope: '',
+    roleAndDecisionScope: isShortForm ? 'Audit inquiry — short form' : '',
     projectInterest: initialInterest ?? '',
     biggestBottleneck: '',
     automationDataSources: '',
     currentTechEcosystem: '',
-    desiredTimeline: '',
-    securityRequirement: '',
+    desiredTimeline: isShortForm ? 'exploring' : '',
+    securityRequirement: isShortForm ? 'none' : '',
     deploymentConstraints: '',
     roiGoal: '',
-    anticipatedInvestmentRange: '',
+    anticipatedInvestmentRange: isShortForm ? 'unsure' : '',
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<AuditField, string>>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -85,7 +120,6 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
   const prefilledInterest = initialInterest;
   const engagementContext = initialContext;
   const isInputDisabled = isSubmitting || isCopying;
-  const isOngoingSupport = engagementContext === 'ongoing-support';
 
   const requiredFields: Array<AuditField> = [
     'fullName',
@@ -417,16 +451,26 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
             <CheckCircle2 className="w-3 h-3" />
-            <span>{isOngoingSupport ? 'ONGOING SUPPORT INQUIRY' : 'FIT REVIEW'}</span>
+            <span>
+              {isOngoingSupport
+                ? 'ONGOING SUPPORT INQUIRY'
+                : isShortForm
+                ? 'CONTENT OPS AUDIT · $1,500'
+                : 'FIT REVIEW'}
+            </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
             {isOngoingSupport
               ? 'Tell me about your current AI content setup.'
+              : isShortForm
+              ? 'Book your Content Ops Audit.'
               : 'Request an AI automation fit review.'}
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
             {isOngoingSupport
               ? 'Send the context I need to scope an Ongoing Optimization retainer that fits your stack — workflows, output cadence, integrations, and what is currently drifting. I review every request to make sure the retainer scope matches the workflow you actually have.'
+              : isShortForm
+              ? 'Five questions, two business days, $1,500 fixed price. You get a content opportunity map, 2–3 real outputs from your data, and a clear recommendation on whether automation is worth building.'
               : 'Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
@@ -438,16 +482,26 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
-              href={isOngoingSupport ? '/systems/ai-content-ops/ongoing-support' : '/services'}
+              href={
+                isOngoingSupport
+                  ? '/systems/ai-content-ops/ongoing-support'
+                  : isShortForm
+                  ? '/systems/ai-content-ops#pricing'
+                  : '/services'
+              }
               className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
             >
-              {isOngoingSupport ? 'Review Ongoing Optimization' : 'Review Phase 1 pricing'}
+              {isOngoingSupport
+                ? 'Review Ongoing Optimization'
+                : isShortForm
+                ? 'Review audit deliverables'
+                : 'Review Phase 1 pricing'}
             </Link>
           </div>
         </motion.div>
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {conversionSignals.map((signal) => (
+          {(isShortForm ? auditConversionSignals : conversionSignals).map((signal) => (
             <div key={signal.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
               <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
                 {signal.icon}
@@ -470,6 +524,14 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                   </Link>{' '}
                   before sharing sensitive operational context.
                 </>
+              ) : isShortForm ? (
+                <>
+                  I review every audit request within 48 hours. If your data has real opportunity, you confirm the $1,500 fee and I deliver your assessment + 2–3 sample outputs within 2 business days of confirmation. If it is not a fit, I tell you before you spend another dollar. Review{' '}
+                  <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">
+                    privacy and data handling
+                  </Link>{' '}
+                  before sharing sensitive context.
+                </>
               ) : (
                 <>
                   I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review{' '}
@@ -482,9 +544,11 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-black/20 p-5">
-            <h2 className="text-sm font-semibold text-white mb-4">What I am checking for</h2>
+            <h2 className="text-sm font-semibold text-white mb-4">
+              {isShortForm ? 'What makes you a fit' : 'What I am checking for'}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {reviewCriteria.map((item) => (
+              {(isShortForm ? auditReviewCriteria : reviewCriteria).map((item) => (
                 <div key={item} className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
@@ -494,15 +558,31 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
           </div>
         </div>
 
-        <div className="mb-8 flex flex-wrap items-center gap-3 text-xs text-foreground/50">
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
-            Step 1: Contact + context
-          </span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 2: Workflow details</span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 3: Security + timing</span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 4: Outcome and budget</span>
-        </div>
-        <p className="text-xs text-foreground/50 mb-8">Required fields are marked with an asterisk. One or two specific sentences per field is enough for a first review.</p>
+        {isShortForm ? (
+          <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-sm text-white">
+              <span className="font-semibold">Best fit:</span>{' '}
+              <span className="text-foreground/70">teams with existing content, CRM data, or customer feedback.</span>
+            </p>
+            <div className="text-xs font-mono text-primary/80 whitespace-nowrap">
+              $1,500 · 2 business days
+            </div>
+          </div>
+        ) : (
+          <div className="mb-8 flex flex-wrap items-center gap-3 text-xs text-foreground/50">
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              Step 1: Contact + context
+            </span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 2: Workflow details</span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 3: Security + timing</span>
+            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 4: Outcome and budget</span>
+          </div>
+        )}
+        <p className="text-xs text-foreground/50 mb-8">
+          {isShortForm
+            ? 'Required fields are marked with an asterisk. One or two specific sentences per field is enough.'
+            : 'Required fields are marked with an asterisk. One or two specific sentences per field is enough for a first review.'}
+        </p>
 
         <motion.form
           id="audit-brief"
@@ -595,6 +675,7 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 <p id="companyOrProjectUrl-error" className="text-red-400 text-sm">{formErrors.companyOrProjectUrl}</p>
                 ) : null}
             </div>
+            {!isShortForm && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80" htmlFor="roleAndDecisionScope">
                 Your role and buying authority <span className="text-primary">*</span>
@@ -622,6 +703,8 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 <p id="roleAndDecisionScope-error" className="text-red-400 text-sm">{formErrors.roleAndDecisionScope}</p>
               ) : null}
             </div>
+            )}
+            {!isShortForm && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80" htmlFor="projectInterest">
                 What are you most interested in? <span className="text-primary">*</span>
@@ -663,16 +746,28 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 <p id="projectInterest-error" className="text-red-400 text-sm">{formErrors.projectInterest}</p>
               ) : null}
             </div>
+            )}
           </section>
 
           <section className="space-y-6">
-            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OPERATIONAL DETAILS</h2>
+            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">
+              {isShortForm ? 'YOUR CURRENT SETUP' : 'OPERATIONAL DETAILS'}
+            </h2>
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80" htmlFor="biggestBottleneck">
-                What is the biggest manual bottleneck in your operations right now? <span className="text-primary">*</span>
+                {isShortForm
+                  ? isOngoingSupport
+                    ? 'What is drifting in your current AI content workflow?'
+                    : 'What does your current content workflow look like?'
+                  : 'What is the biggest manual bottleneck in your operations right now?'}{' '}
+                <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
-                Be concrete: who does it, how often, and what breaks when it is late or wrong.
+                {isShortForm
+                  ? isOngoingSupport
+                    ? 'How are you producing content today? What is generating poor outputs, drifting, or no longer matching your business?'
+                    : 'How are you producing content today? What is breaking, slow, or producing weak output?'
+                  : 'Be concrete: who does it, how often, and what breaks when it is late or wrong.'}
               </p>
               <textarea
                 id="biggestBottleneck"
@@ -697,10 +792,15 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80" htmlFor="automationDataSources">
-                What data sources are you trying to automate? <span className="text-primary">*</span>
+                {isShortForm
+                  ? 'What data sources can you share?'
+                  : 'What data sources are you trying to automate?'}{' '}
+                <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
-                Name the systems, files, inboxes, databases, APIs, dashboards, or documents involved.
+                {isShortForm
+                  ? 'Anything we can extract signal from. The audit will tell you which sources are usable now and which need cleanup.'
+                  : 'Name the systems, files, inboxes, databases, APIs, dashboards, or documents involved.'}
               </p>
               <textarea
                 id="automationDataSources"
@@ -712,7 +812,11 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
                   formErrors.automationDataSources ? 'border-red-400/80' : 'border-white/10'
                 }`}
-                placeholder="CRMs, internal docs, review sites, incoming emails..."
+                placeholder={
+                  isShortForm
+                    ? 'e.g. customer reviews, CRM notes, support tickets, sales calls, internal docs'
+                    : 'CRMs, internal docs, review sites, incoming emails...'
+                }
                 required
                 aria-invalid={!!formErrors.automationDataSources}
                 aria-describedby={formErrors.automationDataSources ? 'automationDataSources-error' : undefined}
@@ -723,6 +827,7 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 ) : null}
             </div>
 
+            {!isShortForm && (
             <div className="space-y-2">
               <label className="text-sm font-medium text-white/80" htmlFor="currentTechEcosystem">
                 Current Tech Ecosystem
@@ -742,8 +847,10 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 aria-describedby={formErrors.currentTechEcosystem ? 'currentTechEcosystem-error' : undefined}
               />
             </div>
+            )}
           </section>
 
+          {!isShortForm && (
           <section className="space-y-6">
             <h2 className="text-xs font-mono text-foreground/40 tracking-widest">QUALIFICATION AND SECURITY</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -830,7 +937,9 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
               />
             </div>
           </section>
+          )}
 
+          {!isShortForm && (
           <section className="space-y-6">
             <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
             <div className="space-y-2">
@@ -886,6 +995,27 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
                 ) : null}
             </div>
           </section>
+          )}
+
+          {isShortForm && !isOngoingSupport && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-5">
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                YOU WILL RECEIVE
+              </div>
+              <ul className="space-y-2">
+                {auditDeliverables.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-white leading-snug">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span className="font-mono text-primary/80">$1,500 fixed price</span>
+                <span className="font-mono text-foreground/55">Delivered in 2 business days</span>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -894,12 +1024,22 @@ export default function AuditForm({ initialInterest, initialContext }: AuditForm
           >
             <Send className="w-4 h-4" />
             {isSubmitting
-              ? isOngoingSupport ? 'Sending inquiry...' : 'Sending fit review...'
-              : isOngoingSupport ? 'Send Ongoing Support Inquiry' : 'Send Fit Review Request'}
+              ? isOngoingSupport
+                ? 'Sending inquiry...'
+                : isShortForm
+                ? 'Submitting audit request...'
+                : 'Sending fit review...'
+              : isOngoingSupport
+              ? 'Send Ongoing Support Inquiry'
+              : isShortForm
+              ? 'Submit Audit Request ($1,500)'
+              : 'Send Fit Review Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">
-            No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.
+            {isShortForm
+              ? 'No payment is required to submit. You will confirm after a quick fit review.'
+              : 'No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.'}
           </p>
 
           <div className="rounded-lg border border-white/10 bg-black/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
