@@ -32,7 +32,7 @@ const faqJsonLd = generateFaqJsonLd([
   },
   {
     question: "Do you already have prebuilt AI systems?",
-    answer: "Yes. Competitive / vendor intelligence and content generation pipelines have reusable architecture already built. Phase 1 customizes the data sources, workflows, approvals, and integrations around the buyer's business before implementation.",
+    answer: "Yes. The Competitive / Vendor Intelligence Platform and AI Content Ops Station both have reusable architecture already built. Phase 1 customizes the data sources, workflows, approvals, and integrations around the buyer's business before implementation.",
   },
   {
     question: "Do AI consultants bill hourly?",
@@ -154,7 +154,7 @@ export default function ServicesPage() {
             Solutions, not hours.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Every engagement starts with a fixed-fee roadmap before any build work begins. The goal is simple: define scope, prove the approach, and price the implementation before either side takes on larger delivery risk.
+            Most teams pay AI consultants by the hour and end up with slides instead of systems. These engagements work the opposite way: fixed fee, fixed scope, ending in code your team can run — scoped, proved, and priced before any build begins.
           </p>
         </motion.div>
 
@@ -273,10 +273,10 @@ export default function ServicesPage() {
                 PRODUCTIZED STARTING POINTS
               </div>
               <h2 className="text-xl font-semibold text-white mb-3">
-                Some Phase 2 builds can start from an existing system core.
+                When the workflow shape is already known, the build does not have to start from zero.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                This does not replace the roadmap. It makes the roadmap faster and more concrete when the fit is clear: the architecture exists, and Phase 1 validates the data, integrations, review rules, and deployment path.
+                Two of the most common needs — competitive intelligence and content operations — already have systems behind them. The roadmap still happens; it just gets faster and more concrete because the architecture exists. Your data, sources, approvals, and integrations decide what fits.
               </p>
             </div>
             <Link
@@ -459,7 +459,7 @@ export default function ServicesPage() {
               },
               {
                 q: 'Do you already have prebuilt AI systems?',
-                a: 'Yes. Competitive / vendor intelligence and content generation pipelines have reusable architecture already built. Phase 1 customizes the data, workflows, integrations, and approval rules around your business.',
+                a: 'Yes. The Competitive / Vendor Intelligence Platform and AI Content Ops Station both have reusable architecture already built. Phase 1 customizes the data, workflows, integrations, and approval rules around your business.',
               },
               {
                 q: 'Do you work with startups or remote teams?',

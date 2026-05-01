@@ -193,7 +193,7 @@ export const rootJsonLd = {
             "@type": "Offer",
             name: "Productized AI Systems",
             description:
-              "Reusable AI system architectures for competitive intelligence, vendor intelligence, and content generation pipelines, customized with the buyer's data, sources, workflows, and integrations.",
+              "Reusable AI system architectures including the Competitive / Vendor Intelligence Platform and AI Content Ops Station, customized with the buyer's data, sources, workflows, and integrations.",
           },
         ],
       },
