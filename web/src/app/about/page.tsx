@@ -100,10 +100,10 @@ export default function AboutPage() {
             <div>
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">THE OPERATING MODEL</div>
               <h2 className="text-2xl font-semibold text-white mb-4">
-                The job is to turn ambiguous AI potential into a scoped operating system.
+                Useful AI work is not the prompt. It is the system around it.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed mb-4">
-                Most useful AI work is not one prompt or one model choice. It is data handling, workflow design, integration, review states, monitoring, and a clear answer to what should stay human-controlled.
+                Most teams hit the same wall: a chatbot that demos well but never reaches the operator who needs it. The work that actually ships is the data handling, workflow design, integration, review states, monitoring, and human-controlled fallbacks that turn a model output into something a team can run.
               </p>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 That is why every engagement starts with a roadmap. The roadmap is where the real problem, proof of concept, architecture, and implementation price get defined.

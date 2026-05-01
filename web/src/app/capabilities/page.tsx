@@ -93,7 +93,7 @@ const productizedSystems = [
   },
   {
     icon: <FileText className="w-5 h-5" />,
-    title: 'Content Generation Pipeline',
+    title: 'AI Content Ops Station',
     detail:
       'Already-built architecture for evidence-backed content operations. Customer data customizes the brand voice, keyword targets, approved claims, review workflow, and publishing handoff.',
   },

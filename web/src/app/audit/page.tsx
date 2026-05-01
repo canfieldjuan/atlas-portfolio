@@ -1,7 +1,7 @@
 'use client';
 
 import type { MutableRefObject } from 'react';
-import { ChangeEvent, FormEvent, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle2, ArrowRight, Copy, RotateCcw, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
@@ -75,7 +75,23 @@ export default function AuditPage() {
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [estimatedResponseHours, setEstimatedResponseHours] = useState<number | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+  const [prefilledInterest, setPrefilledInterest] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
+
+  // useState lazy initializer would mismatch SSR (server has no window); useSearchParams would
+  // force a Suspense boundary and opt the page out of static prerendering. This effect runs once
+  // on mount to prefill from ?interest= without changing the prerender contract.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const interest = params.get('interest');
+    const validInterests = ['custom-build', 'competitive-intelligence', 'content-generation', 'not-sure'];
+    if (interest && validInterests.includes(interest)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData((prev) => (prev.projectInterest ? prev : { ...prev, projectInterest: interest }));
+      setPrefilledInterest(interest);
+    }
+  }, []);
 
   const requiredFields: Array<AuditField> = [
     'fullName',
@@ -154,8 +170,8 @@ export default function AuditPage() {
   const projectInterestLabel = (value: string) => {
     const map: Record<string, string> = {
       'custom-build': 'Custom build',
-      'competitive-intelligence': 'Competitive / vendor intelligence platform',
-      'content-generation': 'Content generation pipeline',
+      'competitive-intelligence': 'Competitive / Vendor Intelligence Platform',
+      'content-generation': 'AI Content Ops Station',
       'not-sure': 'Not sure yet',
     };
 
@@ -595,6 +611,14 @@ export default function AuditPage() {
               <p className="text-xs text-foreground/45">
                 Helps route the request between a custom build and the productized system starting points.
               </p>
+              {prefilledInterest && formData.projectInterest === prefilledInterest && (
+                <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground/70">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                  <span>
+                    Pre-selected based on the page you came from: <span className="text-white font-medium">{projectInterestLabel(prefilledInterest)}</span>. You can change it below.
+                  </span>
+                </div>
+              )}
               <select
                 id="projectInterest"
                 ref={projectInterestRef}
@@ -613,8 +637,8 @@ export default function AuditPage() {
                   Select primary interest...
                 </option>
                 <option value="custom-build">Custom build</option>
-                <option value="competitive-intelligence">Competitive / vendor intelligence platform</option>
-                <option value="content-generation">Content generation pipeline</option>
+                <option value="competitive-intelligence">Competitive / Vendor Intelligence Platform</option>
+                <option value="content-generation">AI Content Ops Station</option>
                 <option value="not-sure">Not sure yet</option>
               </select>
               {formErrors.projectInterest ? (

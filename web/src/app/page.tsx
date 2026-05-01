@@ -10,25 +10,38 @@ const heroFacts = [
   { label: 'RESPONSE', value: '48-hour review' },
 ];
 
+const trappedSources = [
+  'CRM notes',
+  'Sales calls',
+  'Support tickets',
+  'Customer reviews',
+  'Internal docs',
+  'Spreadsheets',
+  'Vendor research',
+  'Account history',
+  'Product notes',
+  'Operator inboxes',
+];
+
 const capabilities = [
   {
-    title: 'Revenue Operations Automation',
-    desc: 'Lead-to-revenue workflows that turn signals, research, and outreach into repeatable operating systems.',
+    title: 'Stop losing revenue to manual handoffs',
+    desc: 'Lead-to-revenue workflows that turn signals, research, and outreach into repeatable operating systems your team can run without re-coordinating it every week.',
     icon: <Activity className="w-5 h-5 text-primary" />,
   },
   {
-    title: 'Business-Critical Data Systems',
-    desc: 'RAG, synthesis pipelines, and governed data flows built for factual output and operator trust.',
+    title: 'Make internal knowledge actually answer questions',
+    desc: 'RAG, synthesis pipelines, and governed data flows built for factual output and operator trust — so the answer comes from the source, not a guess.',
     icon: <Database className="w-5 h-5 text-primary" />,
   },
   {
-    title: 'Agent Workflows & Orchestration',
-    desc: 'Multi-step systems that route intent, call tools, and execute repeatable internal operations.',
+    title: 'Replace fragile chains of manual steps',
+    desc: 'Multi-step systems that route intent, call tools, and execute repeatable internal operations without depending on someone remembering the next step.',
     icon: <Code2 className="w-5 h-5 text-primary" />,
   },
   {
-    title: 'Operator Visibility & Control',
-    desc: 'Dashboards and workflow surfaces that let your team inspect, monitor, and manage what the system is doing.',
+    title: 'Give operators a system they can inspect',
+    desc: 'Dashboards and workflow surfaces that let your team see, monitor, and manage what the system is doing — not a black box that produces output you have to trust on faith.',
     icon: <ShieldCheck className="w-5 h-5 text-primary" />,
   },
 ];
@@ -62,7 +75,7 @@ const productizedSystems = [
   },
   {
     icon: <FileText className="w-5 h-5 text-primary" />,
-    title: 'Content Generation Pipeline',
+    title: 'AI Content Ops Station',
     desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];
@@ -89,19 +102,19 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide">
               <Activity className="w-3 h-3" />
-              <span>FIXED-FEE AI SYSTEMS ROADMAPS</span>
+              <span>AI SYSTEMS FOR OPERATIONAL TEAMS</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[1.1] max-w-4xl">
-              AI systems for real operational workflows.<br />
-              <span className="gradient-text">Scoped before build. Fixed before delivery.</span>
+              Turn the workflows your team already runs into<br />
+              <span className="gradient-text">AI systems they can trust.</span>
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed mt-4">
-              I work with teams that have a concrete workflow, data, or operational bottleneck to solve. Every engagement starts with a fixed-fee roadmap so scope, proof of concept, pricing, and delivery risk are defined up front.
+              Your business already has the data and the bottleneck. What is missing is the system around the AI — the pipelines, review states, integrations, and operator controls that turn information into action your team can run.
             </p>
             <p className="text-base text-foreground/50 max-w-2xl leading-relaxed">
-              Think of it as AI automation consulting plus custom AI development: first we scope the system, then we build the workflow your operators can actually run.
+              Every engagement starts with a fixed-fee roadmap. Scope, proof, and price defined before any build.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
@@ -123,6 +136,41 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
+
+          {/* Problem Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="mt-32 max-w-4xl"
+          >
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              THE PROBLEM
+            </div>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+              Most teams use AI without a system behind it.
+            </h2>
+            <p className="text-foreground/65 leading-relaxed mb-4">
+              Open a chatbot. Paste in scattered context. Rewrite the prompt five times. Get something that sounds polished but never ships into the workflow.
+            </p>
+            <p className="text-foreground/65 leading-relaxed mb-8">
+              That is not an AI problem. It is a systems problem. The valuable signal in your business is usually trapped in the same places it always was:
+            </p>
+            <div className="flex flex-wrap gap-2 mb-8">
+              {trappedSources.map((source) => (
+                <span
+                  key={source}
+                  className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-sm text-foreground/65"
+                >
+                  {source}
+                </span>
+              ))}
+            </div>
+            <p className="text-foreground/55 leading-relaxed">
+              Without a system around the model — data layer, review states, integrations, controls — none of that turns into operational work. That is what these engagements build.
+            </p>
+          </motion.section>
 
           {/* Capabilities Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-32">
@@ -152,10 +200,10 @@ export default function Home() {
                   PRODUCTIZED SYSTEMS
                 </div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
-                  Some systems are already built at the core.
+                  Two common needs already have systems behind them.
                 </h2>
                 <p className="text-sm text-foreground/60 leading-relaxed">
-                  Competitive intelligence and content generation do not always need a blank-slate build. The reusable architecture is already there; your data, sources, approvals, and integrations make it fit your business.
+                  When the workflow shape is well-known — competitive intelligence or content operations — the architecture does not have to start from zero. Your data, sources, approvals, and integrations make the system fit.
                 </p>
               </div>
               <Link
@@ -183,13 +231,13 @@ export default function Home() {
           <div className="mt-32">
             <div className="max-w-3xl mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground/50 text-xs font-mono tracking-wide mb-4">
-                REPRESENTATIVE PROOF
+                WORKFLOW PATTERNS
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-                Examples of what a scoped workflow can look like
+                What this looks like inside a real operation.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
-                These are representative workflow patterns, not fictional case studies or universal promises. The point is to show the kind of operational shape, evidence model, and downstream output a roadmap can define before build work starts.
+                These are workflow shapes you may recognize. Each one shows what data goes in, what evidence the system holds onto, and what the team actually gets out — before any build work starts.
               </p>
             </div>
 
@@ -229,7 +277,7 @@ export default function Home() {
                 FIELD NOTES
               </div>
               <h2 className="text-2xl font-semibold text-white mb-3">
-                Research the engagement before you start one.
+                The buyer-side research before the conversation.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 Practical resources for buyers comparing AI automation consulting, custom AI development, and workflow automation options.
