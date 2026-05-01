@@ -165,6 +165,7 @@ type PricingTier = {
   title: string;
   price: string;
   priceDetail?: string;
+  sla?: string;
   description: string;
   includes: string[];
   example?: string;
@@ -179,18 +180,19 @@ const pricingTiers: PricingTier[] = [
     id: 'audit',
     badge: 'RECOMMENDED FIRST STEP',
     title: 'Content Ops Audit',
-    price: '$1,000',
+    price: '$1,500',
     priceDetail: 'fixed price',
+    sla: 'Delivered in 2 business days after intake',
     description:
       'Best for businesses that want to understand where AI content automation can actually create value.',
     includes: [
       'Current content workflow review',
       'Usable data source assessment',
       'Content opportunity map',
-      'Recommended content outputs',
+      '2–3 sample outputs from your data',
       'Approval workflow recommendation',
       'Automation roadmap',
-      'Pilot build estimate',
+      'Recommended pilot scope and quote',
     ],
     note: "If there is not enough usable data to justify a build, you'll know before spending more.",
     cta: 'Book a Content Ops Audit',
@@ -200,7 +202,7 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'pilot',
     title: 'Pilot Build',
-    price: 'Starts at $5,000',
+    price: 'Starts at $7,500',
     description:
       'Best for teams ready to test one focused content workflow before building a larger system.',
     includes: [
@@ -278,7 +280,7 @@ const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: 'What happens after the audit?',
-    a: 'You receive a roadmap and build recommendation. If there is a strong fit, the next step is usually a focused pilot build starting at $5,000.',
+    a: 'You receive a roadmap and build recommendation. If there is a strong fit, the next step is usually a focused pilot build starting at $7,500.',
   },
 ];
 
@@ -677,13 +679,16 @@ export default function AiContentOpsPage() {
                   </div>
                 )}
                 <h3 className="text-lg font-semibold text-white mb-3">{tier.title}</h3>
-                <div className="mb-4 flex items-baseline gap-2 flex-wrap">
+                <div className="mb-1 flex items-baseline gap-2 flex-wrap">
                   <span className="text-3xl font-bold text-white">{tier.price}</span>
                   {tier.priceDetail && (
                     <span className="text-sm text-foreground/50">{tier.priceDetail}</span>
                   )}
                 </div>
-                <p className="text-sm text-foreground/65 leading-relaxed mb-5">
+                {tier.sla && (
+                  <p className="text-xs text-primary/80 font-mono mb-4">{tier.sla}</p>
+                )}
+                <p className={`text-sm text-foreground/65 leading-relaxed mb-5 ${tier.sla ? '' : 'mt-3'}`}>
                   {tier.description}
                 </p>
 
@@ -831,7 +836,7 @@ export default function AiContentOpsPage() {
                   href="/audit?interest=content-generation"
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
-                  Book a Content Ops Audit ($1,000)
+                  Book a Content Ops Audit ($1,500)
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
