@@ -20,6 +20,7 @@ import {
   Gauge,
 } from 'lucide-react';
 import Link from 'next/link';
+import { ContentOpsDemo } from '@/components/ContentOpsDemo';
 
 const pipelineStages = [
   { label: 'Business Data', sub: 'CRM • Reviews • Docs • Calls' },
@@ -235,10 +236,10 @@ export default function AiContentOpsPage() {
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="#what-it-produces"
+                href="#demo"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
-                See What It Can Produce
+                See the Pipeline in Action
               </Link>
             </div>
           </motion.div>
@@ -320,6 +321,22 @@ export default function AiContentOpsPage() {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* Demo */}
+        <section id="demo" className="mt-32 scroll-mt-24">
+          <div className="max-w-3xl mb-10">
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              DEMO
+            </div>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              See the Pipeline in Action
+            </h2>
+            <p className="text-foreground/60 leading-relaxed">
+              Pick a scenario and watch the system turn raw business data into approval-ready content. Demo runs on preloaded scenarios — no live model calls, no user input accepted.
+            </p>
+          </div>
+          <ContentOpsDemo />
         </section>
 
         {/* Outputs */}
