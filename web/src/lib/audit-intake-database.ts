@@ -6,7 +6,11 @@ type GlobalWithAuditIntakePool = typeof globalThis & {
 };
 
 function auditIntakeDatabaseUrl() {
-  return process.env.AUDIT_INTAKE_DATABASE_URL?.trim() || '';
+  return (
+    process.env.AUDIT_INTAKE_DATABASE_URL?.trim() ||
+    process.env.DATABASE_URL?.trim() ||
+    ''
+  );
 }
 
 function auditIntakeDatabaseSsl(databaseUrl: string): PoolConfig['ssl'] {
