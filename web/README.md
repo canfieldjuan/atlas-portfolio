@@ -141,3 +141,15 @@ audit_request_submitted
 ```
 
 The event includes only routing metadata such as project interest, source page, source offer, submission status, and delivery path. It does not include names, emails, company URLs, free-text form answers, or request IDs.
+
+## Private Audit Intake Viewer
+
+The read-only `/admin/intake` page shows recent rows from `portfolio_audit_requests`. It is hidden from navigation and requires an HTTP-only cookie set by a shared admin token.
+
+Configure this secret in Production and Preview before using the page:
+
+```text
+ADMIN_INTAKE_TOKEN=
+```
+
+Use a long random value. Do not put this token in links or query strings.
