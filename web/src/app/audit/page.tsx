@@ -13,6 +13,7 @@ import {
   auditSourceLabel,
   isAuditProjectInterest,
 } from '@/lib/audit-routing';
+import { trackAuditRequestSubmitted } from '@/lib/analytics';
 
 type AuditField =
   | 'fullName'
@@ -494,6 +495,7 @@ function AuditPageContent() {
             delivery?: string;
             deliveries?: string[];
             warnings?: string[];
+            status?: string;
             error?: string;
             estimatedResponseHours?: number;
           }
@@ -532,6 +534,7 @@ function AuditPageContent() {
         delivery?: string;
         deliveries?: string[];
         warnings?: string[];
+        status?: string;
         error?: string;
         estimatedResponseHours?: number;
       };
@@ -547,6 +550,13 @@ function AuditPageContent() {
       if (typeof payload.estimatedResponseHours === 'number') {
         setEstimatedResponseHours(payload.estimatedResponseHours);
       }
+      trackAuditRequestSubmitted({
+        projectInterest: effectiveProjectInterest,
+        sourcePage: routeContext.sourcePage,
+        sourceOffer: routeContext.sourceOffer,
+        status: payload.status,
+        delivery: payload.deliveries?.join(',') || payload.delivery,
+      });
       setSubmissionSuccessful(true);
       setSubmissionError(null);
       if (payload.deliveries?.includes('atlas-crm-event') && payload.deliveries?.includes('email')) {
