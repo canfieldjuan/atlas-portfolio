@@ -559,7 +559,11 @@ function AuditPageContent() {
       });
       setSubmissionSuccessful(true);
       setSubmissionError(null);
-      if (payload.deliveries?.includes('atlas-crm-event') && payload.deliveries?.includes('email')) {
+      if (payload.deliveries?.includes('database') && payload.deliveries?.includes('email')) {
+        setSubmissionStatus('Request saved to the intake database and notification email queued.');
+      } else if (payload.deliveries?.includes('database')) {
+        setSubmissionStatus('Request saved to the intake database.');
+      } else if (payload.deliveries?.includes('atlas-crm-event') && payload.deliveries?.includes('email')) {
         setSubmissionStatus('Request submitted to Atlas CRM and notification email queued.');
       } else if (payload.deliveries?.includes('atlas-crm-event')) {
         setSubmissionStatus('Request submitted to Atlas CRM.');

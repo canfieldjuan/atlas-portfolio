@@ -42,11 +42,11 @@ The `/audit` form must have a production delivery path before the site is promot
 Recommended production setup:
 
 ```text
-Persistent sink: Atlas CRM Event Sink or Generic Webhook
+Persistent sink: Dedicated Audit Intake Database
 Notification: Resend Email Notification
 ```
 
-Email is useful for alerts, but it should not be treated as the system of record. If the app successfully sends email but no webhook or Atlas CRM sink is configured, the API response includes a warning so operators know submissions are inbox-only.
+Email is useful for alerts, but it should not be treated as the system of record. If the app successfully sends email but no database, webhook, or Atlas CRM sink is configured, the API response includes a warning so operators know submissions are inbox-only.
 
 Configure at least one delivery path before promoting the site:
 
@@ -66,13 +66,28 @@ ATLAS_CAMPAIGN_SEQ_RESEND_FROM_EMAIL=
 ATLAS_EMAIL_DEFAULT_FROM=
 ```
 
-### Option 2: Generic Webhook (Persistent Sink)
+### Option 2: Dedicated Audit Intake Database (Persistent Sink)
+
+Use a separate Postgres database or schema for portfolio intake so public audit requests do not pollute Atlas B2B CRM event streams.
+
+Run the schema in `sql/001_portfolio_audit_requests.sql`, then configure:
+
+```text
+AUDIT_INTAKE_DATABASE_URL=
+AUDIT_INTAKE_DATABASE_SSL=true
+```
+
+`AUDIT_INTAKE_DATABASE_SSL` is optional if the connection string already includes `sslmode=require`.
+
+### Option 3: Generic Webhook (Persistent Sink)
 
 ```text
 AUDIT_INTAKE_WEBHOOK_URL=
 ```
 
-### Option 3: Atlas CRM Event Sink (Persistent Sink)
+### Option 4: Atlas CRM Event Sink (Persistent Sink)
+
+This is supported for compatibility, but it should only be used if downstream Atlas CRM consumers explicitly ignore portfolio audit events where `event_data.intake_type = "audit_request"`.
 
 ```text
 AUDIT_INTAKE_ATLAS_BASE_URL=
