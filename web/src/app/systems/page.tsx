@@ -22,6 +22,7 @@ type SystemEntry = {
   builtCore: string[];
   outputs: string[];
   interest: AuditProjectInterest;
+  offer?: string;
   href?: string;
   hrefLabel?: string;
 };
@@ -58,6 +59,7 @@ const systems: SystemEntry[] = [
     label: 'CONTENT OPERATIONS',
     title: 'AI Content Ops Station',
     interest: 'content-generation',
+    offer: 'content-ops-audit',
     href: '/systems/ai-content-ops',
     hrefLabel: 'View the landing page',
     summary:
@@ -85,9 +87,9 @@ const systems: SystemEntry[] = [
 
 const implementationSteps = [
   {
-    title: 'Start with the prebuilt core',
+    title: 'Start with the proven workflow pattern',
     detail:
-      'The collection, enrichment, routing, review, and output patterns already exist. Phase 1 validates which parts fit your workflow.',
+      'The collection, enrichment, routing, review, and output patterns already exist. Phase 1 validates where that pattern fits your business and where it should not be forced.',
   },
   {
     title: 'Customize the data layer',
@@ -95,16 +97,16 @@ const implementationSteps = [
       'Your vendors, sources, CRM context, keywords, approvals, data access, and security constraints decide what gets connected.',
   },
   {
-    title: 'Ship the operator surface',
+    title: 'Ship the surface your team actually uses',
     detail:
-      'The final system still needs dashboards, alerts, review queues, exports, or publishing handoffs that match how your team works.',
+      'The final system becomes dashboards, alerts, review queues, exports, publishing handoffs, or reports that match how your team already makes decisions.',
   },
 ];
 
 const fitNotes = [
-  'Best when you already know the market, content, revenue, or intelligence workflow you want to operationalize.',
-  'Useful when speed matters but a generic SaaS tool cannot match your sources, workflow, or review requirements.',
-  'Not a self-serve product. These are reusable architectures customized through the same Phase 1 to Phase 2 model.',
+  'Best when the problem matches a known operating pattern: competitive intelligence, content operations, account signals, or recurring reporting.',
+  'Useful when speed matters but generic SaaS cannot match your sources, approval rules, data access, or handoff requirements.',
+  'Not a self-serve subscription. These are implemented systems customized through the same audit, roadmap, and fixed-scope build model.',
 ];
 
 export default function SystemsPage() {
@@ -122,13 +124,13 @@ export default function SystemsPage() {
             <span>PRODUCTIZED AI SYSTEMS</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
-            Some builds do not start from zero.
+            Start from a proven system pattern, not a blank AI build.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            I already have reusable architectures for a few high-value AI systems. Your data, sources, workflows, approvals, and integrations turn them into a system that fits your business.
+            Some business problems are common enough that the architecture should not start from scratch. Competitive intelligence and content operations already have working cores; your data, sources, approvals, and integrations make them fit your business.
           </p>
           <p className="text-base text-foreground/50 leading-relaxed mt-4">
-            Custom where it matters. Prebuilt where it saves time.
+            Use this path when you want a faster route to a useful system without accepting a generic tool.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-8">
             <Link
@@ -195,7 +197,7 @@ export default function SystemsPage() {
                       href={buildAuditHref({
                         interest: system.interest,
                         source: 'systems-card',
-                        offer: system.interest,
+                        offer: system.offer ?? system.interest,
                       })}
                       className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                     >
@@ -281,10 +283,10 @@ export default function SystemsPage() {
         >
           <BarChart3 className="w-8 h-8 text-primary mx-auto mb-5" />
           <h2 className="text-2xl font-semibold text-white mb-3">
-            Bring the data. I will map the system.
+            Bring the bottleneck. I will map the system.
           </h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
-            The Systems Audit is where we decide whether one of these productized systems fits, what needs to be customized, and what the Phase 1 proof should validate.
+            The Systems Audit is where we decide whether one of these proven patterns fits, what needs to be customized, and what the first proof should validate before a larger build is priced.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link

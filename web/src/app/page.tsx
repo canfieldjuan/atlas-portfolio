@@ -73,12 +73,14 @@ const productizedSystems = [
     icon: <Radar className="w-5 h-5 text-primary" />,
     title: 'Competitive / Vendor Intelligence Platform',
     interest: 'competitive-intelligence' as const,
+    offer: 'competitive-intelligence',
     desc: 'A ready-made intelligence architecture that becomes specific once your vendors, competitors, accounts, sources, and workflows are connected.',
   },
   {
     icon: <FileText className="w-5 h-5 text-primary" />,
     title: 'AI Content Ops Station',
     interest: 'content-generation' as const,
+    offer: 'content-ops-audit',
     desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];
@@ -230,7 +232,7 @@ export default function Home() {
                     href={buildAuditHref({
                       interest: system.interest,
                       source: 'home-productized',
-                      offer: system.interest,
+                      offer: system.offer,
                     })}
                     className="mt-5 inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                   >

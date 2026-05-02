@@ -180,10 +180,10 @@ export default function ProcessPage() {
             THE PROCESS
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
-            From inquiry to live system
+            How a workflow becomes a live AI system
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed max-w-2xl">
-            No black boxes. No months of silence. This is the typical engagement path from the audit request through delivery, handoff, and post-launch support.
+            The process is built to answer one practical question: can this workflow become reliable software your team can run? Each step reduces uncertainty before the next spend.
           </p>
         </motion.div>
 
@@ -211,7 +211,7 @@ export default function ProcessPage() {
             <div className="rounded-lg bg-black/30 border border-white/10 p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">OUTPUT</div>
               <div className="text-base font-semibold text-white mb-1">Blueprint + proof of concept</div>
-              <p className="text-sm text-foreground/60">Plus a fixed-price Phase 2 proposal if the fit is real.</p>
+              <p className="text-sm text-foreground/60">Enough evidence to build, reduce scope, pause, or choose a simpler tool.</p>
             </div>
           </div>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
@@ -394,7 +394,7 @@ export default function ProcessPage() {
         >
           <h2 className="text-lg font-semibold text-white mb-2">Decision gates</h2>
           <p className="text-sm text-foreground/60 mb-6">
-            The process is structured to reduce risk before either side commits to the next level of work.
+            The process is structured so neither side has to pretend certainty exists before the proof does.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {decisionGates.map((gate, index) => (
@@ -436,7 +436,7 @@ export default function ProcessPage() {
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Ready to start at Step 1?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
-            Start the Systems Audit. I review every submission personally and respond within 48 hours.
+            Start the Systems Audit. I will review whether the workflow has enough pain, data, ownership, and budget path to justify paid scoping.
           </p>
           <Link href={buildAuditHref({ source: 'process', offer: 'phase-1-roadmap' })} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm">
             Start Systems Audit
