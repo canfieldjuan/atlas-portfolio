@@ -74,12 +74,9 @@ Run the schema in `sql/001_portfolio_audit_requests.sql`, then configure:
 
 ```text
 AUDIT_INTAKE_DATABASE_URL=
-AUDIT_INTAKE_DATABASE_SSL=true
 ```
 
 Vercel Marketplace Postgres integrations commonly inject `DATABASE_URL`; the app will use that as a fallback if `AUDIT_INTAKE_DATABASE_URL` is not set. Keep `AUDIT_INTAKE_DATABASE_URL` when you want an explicit audit-only connection string.
-
-`AUDIT_INTAKE_DATABASE_SSL` is optional if the connection string already includes `sslmode=require`.
 
 ### Option 3: Generic Webhook (Persistent Sink)
 
