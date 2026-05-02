@@ -37,9 +37,18 @@ Output Directory: .next
 
 ## Required Production Intake Configuration
 
-The `/audit` form must have a durable delivery path in production. Do not rely on local file fallback on Vercel; serverless `/tmp` storage is ephemeral.
+The `/audit` form must have a production delivery path before the site is promoted. Do not rely on local file fallback on Vercel; serverless `/tmp` storage is ephemeral.
 
-Configure at least one of these delivery paths before promoting the site:
+Recommended production setup:
+
+```text
+Persistent sink: Atlas CRM Event Sink or Generic Webhook
+Notification: Resend Email Notification
+```
+
+Email is useful for alerts, but it should not be treated as the system of record. If the app successfully sends email but no webhook or Atlas CRM sink is configured, the API response includes a warning so operators know submissions are inbox-only.
+
+Configure at least one delivery path before promoting the site:
 
 ### Option 1: Resend Email Notification
 
@@ -57,13 +66,13 @@ ATLAS_CAMPAIGN_SEQ_RESEND_FROM_EMAIL=
 ATLAS_EMAIL_DEFAULT_FROM=
 ```
 
-### Option 2: Generic Webhook
+### Option 2: Generic Webhook (Persistent Sink)
 
 ```text
 AUDIT_INTAKE_WEBHOOK_URL=
 ```
 
-### Option 3: Atlas CRM Event Sink
+### Option 3: Atlas CRM Event Sink (Persistent Sink)
 
 ```text
 AUDIT_INTAKE_ATLAS_BASE_URL=
@@ -102,3 +111,19 @@ After deploying a preview, check:
 ```
 
 Submit one test `/audit` request and confirm the selected delivery path receives it.
+
+## Analytics
+
+Google Analytics 4 is optional and disabled unless this public environment variable is configured:
+
+```text
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+When enabled, the site tracks page views and one safe conversion event after a successful audit submission:
+
+```text
+audit_request_submitted
+```
+
+The event includes only routing metadata such as project interest, source page, source offer, submission status, and delivery path. It does not include names, emails, company URLs, free-text form answers, or request IDs.

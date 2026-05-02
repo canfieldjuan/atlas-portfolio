@@ -33,6 +33,11 @@ type AuditIntakeRecord = AuditIntakePayload & {
 export type AuditIntakeDelivery = 'webhook' | 'atlas-crm-event' | 'email' | 'file';
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
+const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = ['webhook', 'atlas-crm-event', 'file'];
+
+function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
+  return deliveries.some((delivery) => PERSISTENT_DELIVERIES.includes(delivery));
+}
 
 function fileFallbackEnabled() {
   const explicit = process.env.AUDIT_INTAKE_ALLOW_FILE_FALLBACK?.trim().toLowerCase();
@@ -254,13 +259,19 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
 
   if (deliveries.length === 0 && !fileFallbackEnabled()) {
     throw new Error(
-      'Audit intake is not configured for durable delivery. Configure email, webhook, or Atlas CRM delivery.'
+      'Audit intake is not configured for production delivery. Configure email notification, webhook, or Atlas CRM delivery.'
     );
   }
 
   if (deliveries.length === 0 || (warnings.length > 0 && fileFallbackEnabled())) {
     await writeLocalFallback(record);
     deliveries.push('file');
+  }
+
+  if (deliveries.length > 0 && !hasPersistentDelivery(deliveries)) {
+    warnings.push(
+      'Audit intake notification succeeded, but no persistent intake sink is configured. Configure AUDIT_INTAKE_WEBHOOK_URL or AUDIT_INTAKE_ATLAS_BASE_URL to store submissions outside the inbox.'
+    );
   }
 
   return { requestId, deliveries, warnings };
