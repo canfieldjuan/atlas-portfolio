@@ -1,9 +1,5 @@
-import { Pool, type PoolConfig } from 'pg';
+import { neon } from '@neondatabase/serverless';
 import type { AuditIntakeRecord } from './audit-intake';
-
-type GlobalWithAuditIntakePool = typeof globalThis & {
-  __auditIntakePool?: Pool;
-};
 
 function auditIntakeDatabaseUrl() {
   return (
@@ -13,49 +9,22 @@ function auditIntakeDatabaseUrl() {
   );
 }
 
-function auditIntakeDatabaseSsl(databaseUrl: string): PoolConfig['ssl'] {
-  const explicit = process.env.AUDIT_INTAKE_DATABASE_SSL?.trim().toLowerCase();
-  if (explicit === 'false' || explicit === '0' || explicit === 'no') {
-    return false;
-  }
-
-  if (
-    explicit === 'true' ||
-    explicit === '1' ||
-    explicit === 'yes' ||
-    databaseUrl.includes('sslmode=require')
-  ) {
-    return { rejectUnauthorized: false };
-  }
-
-  return undefined;
-}
-
-function getAuditIntakePool() {
+function getAuditIntakeSql() {
   const databaseUrl = auditIntakeDatabaseUrl();
   if (!databaseUrl) {
     return null;
   }
 
-  const globalForPool = globalThis as GlobalWithAuditIntakePool;
-  if (!globalForPool.__auditIntakePool) {
-    globalForPool.__auditIntakePool = new Pool({
-      connectionString: databaseUrl,
-      max: 3,
-      ssl: auditIntakeDatabaseSsl(databaseUrl),
-    });
-  }
-
-  return globalForPool.__auditIntakePool;
+  return neon(databaseUrl);
 }
 
 export async function persistAuditIntakeRecord(record: AuditIntakeRecord) {
-  const pool = getAuditIntakePool();
-  if (!pool) {
+  const sql = getAuditIntakeSql();
+  if (!sql) {
     return false;
   }
 
-  await pool.query(
+  await sql.query(
     `
       INSERT INTO portfolio_audit_requests (
         request_id,
