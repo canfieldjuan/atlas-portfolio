@@ -42,6 +42,19 @@ type AuditRouteContext = {
   sourceOfferLabel: string;
 };
 
+type ContentOpsOfferCopy = {
+  title: string;
+  intro: string;
+  startCta: string;
+  entryPriceLabel: string;
+  nextStepCopy: string;
+  submitCopy: string;
+  submitButton: string;
+  noPaymentDetail: string;
+  budgetCriterion: string;
+  investmentHelper: string;
+};
+
 const createEmptyFormData = (projectInterest = ''): AuditFormData => ({
   fullName: '',
   workEmail: '',
@@ -101,6 +114,89 @@ const isContentOpsAuditContext = (routeContext: AuditRouteContext) => {
   return routeContext.projectInterest === 'content-generation';
 };
 
+const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCopy => {
+  if (
+    routeContext.sourcePage === 'ai-content-ops-ongoing-support' ||
+    routeContext.sourceOffer === 'ongoing-support'
+  ) {
+    return {
+      title: 'Start the Ongoing Optimization request.',
+      intro:
+        'Send the workflow context I need to decide whether Ongoing Optimization is worth your time. I review the current content workflow, ownership model, tuning needs, output drift, and monthly support fit before recommending paid retainer work.',
+      startCta: 'Start the support brief',
+      entryPriceLabel: 'Ongoing Optimization ($2,500/mo+)',
+      nextStepCopy:
+        'I review completed requests within 48 hours. If there is a fit, the next step is an Ongoing Optimization scoping conversation. Ongoing Optimization starts at $2,500/month for teams already running an AI content workflow.',
+      submitCopy:
+        'No payment is collected here. If there is a fit, I will reply with next steps for Ongoing Optimization.',
+      submitButton: 'Send Ongoing Optimization Request',
+      noPaymentDetail:
+        'This is a review request. Ongoing Optimization is only discussed if there is a live content workflow worth maintaining.',
+      budgetCriterion: 'A budget path for monthly optimization if there is fit',
+      investmentHelper:
+        'For ongoing support, the relevant starting point is $2,500/mo+. Choose the closest range for monthly optimization or follow-on build work.',
+    };
+  }
+
+  if (routeContext.sourceOffer === 'content-ops-pilot') {
+    return {
+      title: 'Request a Content Ops Pilot Build.',
+      intro:
+        'Send the workflow context I need to decide whether a focused pilot is worth your time. I review source readiness, one viable content workflow, output types, approval needs, timeline, and budget before recommending pilot scoping.',
+      startCta: 'Start the pilot brief',
+      entryPriceLabel: 'Content Ops Pilot Build ($7,500+)',
+      nextStepCopy:
+        'I review completed requests within 48 hours. If there is a fit, the next step is a pilot scoping conversation. Content Ops Pilot Builds start at $7,500 and are usually focused on one data source, one workflow, and 2-3 output types.',
+      submitCopy:
+        'No payment is collected here. If there is a fit, I will reply with next steps for a Content Ops Pilot Build.',
+      submitButton: 'Send Content Ops Pilot Request',
+      noPaymentDetail:
+        'This is a review request. A pilot is only discussed if one focused content workflow looks ready to test.',
+      budgetCriterion: 'A budget path for a $7,500+ pilot if there is fit',
+      investmentHelper:
+        'For this offer, the relevant starting point is a $7,500+ pilot. Choose the closest range for the pilot or follow-on build work.',
+    };
+  }
+
+  if (routeContext.sourceOffer === 'content-ops-full-build') {
+    return {
+      title: 'Discuss a Full Content Ops System.',
+      intro:
+        'Send the workflow context I need to decide whether a full Content Ops System is worth scoping. I review data sources, output volume, approval model, integrations, security constraints, timeline, and budget before recommending a larger build path.',
+      startCta: 'Start the build brief',
+      entryPriceLabel: 'Full Content Ops System ($15,000+)',
+      nextStepCopy:
+        'I review completed requests within 48 hours. If there is a fit, the next step is full-system scoping. Full Content Ops Systems start at $15,000 and are priced around data sources, workflows, integrations, output types, and approval requirements.',
+      submitCopy:
+        'No payment is collected here. If there is a fit, I will reply with next steps for full-system scoping.',
+      submitButton: 'Send Full Content Ops Request',
+      noPaymentDetail:
+        'This is a review request. A full build is only discussed if the workflow, sources, approvals, and budget path are credible.',
+      budgetCriterion: 'A budget path for a $15,000+ full system if there is fit',
+      investmentHelper:
+        'For this offer, the relevant starting point is a $15,000+ full system. Choose the closest range for the build or phased implementation.',
+    };
+  }
+
+  return {
+    title: 'Start the Content Ops Audit request.',
+    intro:
+      'Send the workflow context I need to decide whether the fixed-fee Content Ops Audit is worth your time. I review for usable content sources, workflow fit, approval needs, timeline, and budget before recommending any paid audit work.',
+    startCta: 'Start the audit brief',
+    entryPriceLabel: 'Content Ops Audit Only ($1,500)',
+    nextStepCopy:
+      'I review completed requests within 48 hours. If there is a fit, the next step is the fixed-fee Content Ops Audit at $1,500. If the audit shows a build is worthwhile, the pilot starts at $7,500.',
+    submitCopy:
+      'No payment is collected here. If there is a fit, I will reply with next steps for the fixed-fee Content Ops Audit.',
+    submitButton: 'Send Content Ops Audit Request',
+    noPaymentDetail:
+      'This is a review request. The $1,500 Content Ops Audit is only discussed if the workflow looks worth auditing.',
+    budgetCriterion: 'A budget path for the audit and pilot if there is fit',
+    investmentHelper:
+      'For this offer, the ladder is $1,500 audit, $7,500+ pilot, $15,000+ full system, or $2,500/mo+ ongoing optimization.',
+  };
+};
+
 export default function AuditPage() {
   return (
     <Suspense fallback={<AuditPageFallback />}>
@@ -139,40 +235,30 @@ function AuditPageContent() {
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
   const isContentOpsContext = isContentOpsAuditContext(routeContext);
-  const isOngoingContentOpsContext =
-    isContentOpsContext &&
-    (routeContext.sourcePage === 'ai-content-ops-ongoing-support' ||
-      routeContext.sourceOffer === 'ongoing-support');
-  const contentOpsEntryPriceLabel = isOngoingContentOpsContext
-    ? 'Ongoing Optimization ($2,500/mo+)'
-    : 'Content Ops Audit Only ($1,500)';
-  const contentOpsNextStepCopy = isOngoingContentOpsContext
-    ? 'I review completed requests within 48 hours. If there is a fit, the next step is an Ongoing Optimization scoping conversation. Ongoing Optimization starts at $2,500/month for teams already running an AI content workflow.'
-    : 'I review completed requests within 48 hours. If there is a fit, the next step is the fixed-fee Content Ops Audit at $1,500. If the audit shows a build is worthwhile, the pilot starts at $7,500.';
-  const contentOpsSubmitCopy = isOngoingContentOpsContext
-    ? 'No payment is collected here. If there is a fit, I will reply with next steps for Ongoing Optimization.'
-    : 'No payment is collected here. If there is a fit, I will reply with next steps for the fixed-fee Content Ops Audit.';
+  const contentOpsCopy = useMemo(() => contentOpsOfferCopy(routeContext), [routeContext]);
+  const effectiveProjectInterest = isContentOpsContext
+    ? routeContext.projectInterest
+    : formData.projectInterest;
+
   const pageConversionSignals = isContentOpsContext
     ? conversionSignals.map((signal) =>
         signal.title === 'No payment here'
           ? {
               ...signal,
-              detail:
-                isOngoingContentOpsContext
-                  ? 'This is a review request. Ongoing Optimization is only discussed if there is a live content workflow worth maintaining.'
-                  : 'This is a review request. The $1,500 Content Ops Audit is only discussed if the workflow looks worth auditing.',
+              detail: contentOpsCopy.noPaymentDetail,
             }
           : signal
       )
     : conversionSignals;
   const pageReviewCriteria = isContentOpsContext
     ? [
-        isOngoingContentOpsContext ? 'A live content workflow with an owner' : 'A real content workflow with an owner',
+        routeContext.sourcePage === 'ai-content-ops-ongoing-support' ||
+        routeContext.sourceOffer === 'ongoing-support'
+          ? 'A live content workflow with an owner'
+          : 'A real content workflow with an owner',
         'Usable source material or content data',
         'A clear publishing, review, or campaign outcome',
-        isOngoingContentOpsContext
-          ? 'A budget path for monthly optimization if there is fit'
-          : 'A budget path for the audit and pilot if there is fit',
+        contentOpsCopy.budgetCriterion,
       ]
     : reviewCriteria;
   const fieldCopy = isContentOpsContext
@@ -197,9 +283,7 @@ function AuditPageContent() {
           'Optional, but useful: faster publishing, more campaign assets, fewer review cycles, better sales enablement, or higher conversion.',
         roiPlaceholder:
           'e.g. Publish 4 useful posts/month, repurpose reviews into campaigns, reduce content review from 2 weeks to 2 days',
-        investmentHelper: isOngoingContentOpsContext
-          ? 'For ongoing support, the relevant starting point is $2,500/mo+. Choose the closest range for monthly optimization or follow-on build work.'
-          : 'For this offer, the ladder is $1,500 audit, $7,500+ pilot, $15,000+ full system, or $2,500/mo+ ongoing optimization.',
+        investmentHelper: contentOpsCopy.investmentHelper,
       }
     : {
         bottleneckHelper:
@@ -285,7 +369,7 @@ function AuditPageContent() {
 
   const investmentRangeLabel = (value: string) => {
     const map: Record<string, string> = {
-      phase1: isContentOpsContext ? contentOpsEntryPriceLabel : 'Phase 1 Roadmap Only ($4,500)',
+      phase1: isContentOpsContext ? contentOpsCopy.entryPriceLabel : 'Phase 1 Roadmap Only ($4,500)',
       '10k-25k': '$10k – $25k',
       '25k-50k': '$25k – $50k',
       '50k+': '$50k+',
@@ -329,7 +413,7 @@ function AuditPageContent() {
     `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
     `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
     `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
-    `Primary Interest: ${auditProjectInterestLabel(formData.projectInterest)}`,
+    `Primary Interest: ${auditProjectInterestLabel(effectiveProjectInterest)}`,
     ...(routingContext.length > 0 ? routingContext : []),
     `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
     `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
@@ -374,7 +458,9 @@ function AuditPageContent() {
     const nextErrors: Partial<Record<AuditField, string>> = {};
 
     requiredFields.forEach((field) => {
-      const value = formData[field].trim();
+      const value = field === 'projectInterest'
+        ? effectiveProjectInterest.trim()
+        : formData[field].trim();
       if (!value) {
         nextErrors[field] = 'This field is required.';
       }
@@ -422,8 +508,8 @@ function AuditPageContent() {
           workEmail: normalizedEmail,
           companyOrProjectUrl: formData.companyOrProjectUrl.trim(),
           roleAndDecisionScope: formData.roleAndDecisionScope.trim(),
-          projectInterest: formData.projectInterest.trim(),
-          projectInterestLabel: auditProjectInterestLabel(formData.projectInterest),
+          projectInterest: effectiveProjectInterest.trim(),
+          projectInterestLabel: auditProjectInterestLabel(effectiveProjectInterest),
           sourcePage: routeContext.sourcePage,
           sourcePageLabel: routeContext.sourcePageLabel,
           sourceOffer: routeContext.sourceOffer,
@@ -533,13 +619,11 @@ function AuditPageContent() {
             <span>SYSTEMS AUDIT</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            {isContentOpsContext ? 'Start the Content Ops Audit request.' : 'Start the AI Systems Audit.'}
+            {isContentOpsContext ? contentOpsCopy.title : 'Start the AI Systems Audit.'}
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
             {isContentOpsContext
-              ? isOngoingContentOpsContext
-                ? 'Send the workflow context I need to decide whether Ongoing Optimization is worth your time. I review the current content workflow, ownership model, tuning needs, output drift, and monthly support fit before recommending paid retainer work.'
-                : 'Send the workflow context I need to decide whether the fixed-fee Content Ops Audit is worth your time. I review for usable content sources, workflow fit, approval needs, timeline, and budget before recommending any paid audit work.'
+              ? contentOpsCopy.intro
               : 'Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
@@ -547,7 +631,7 @@ function AuditPageContent() {
               href="#audit-brief"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
-              Start the audit brief
+              {isContentOpsContext ? contentOpsCopy.startCta : 'Start the audit brief'}
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
@@ -593,7 +677,7 @@ function AuditPageContent() {
             <h2 className="text-sm font-semibold text-white mb-2">What happens after you submit</h2>
             <p className="leading-relaxed">
               {isContentOpsContext
-                ? contentOpsNextStepCopy
+                ? contentOpsCopy.nextStepCopy
                 : 'I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced.'}{' '}
               Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
             </p>
@@ -751,7 +835,7 @@ function AuditPageContent() {
                   <input
                     id="projectInterest"
                     type="text"
-                    value={auditProjectInterestLabel(formData.projectInterest)}
+                    value={auditProjectInterestLabel(effectiveProjectInterest)}
                     readOnly
                     disabled={isInputDisabled}
                     className={`w-full bg-white/[0.03] border rounded-md px-4 py-3 text-white/80 focus:outline-none ${
@@ -1012,7 +1096,7 @@ function AuditPageContent() {
                   Select a range...
                 </option>
                 <option value="phase1">
-                  {isContentOpsContext ? contentOpsEntryPriceLabel : 'Phase 1 Roadmap Only ($4,500)'}
+                  {isContentOpsContext ? contentOpsCopy.entryPriceLabel : 'Phase 1 Roadmap Only ($4,500)'}
                 </option>
                 <option value="10k-25k">$10k – $25k</option>
                 <option value="25k-50k">$25k – $50k</option>
@@ -1034,13 +1118,13 @@ function AuditPageContent() {
             {isSubmitting
               ? 'Sending audit request...'
               : isContentOpsContext
-                ? 'Send Content Ops Audit Request'
+                ? contentOpsCopy.submitButton
                 : 'Send Systems Audit Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">
             {isContentOpsContext
-              ? contentOpsSubmitCopy
+              ? contentOpsCopy.submitCopy
               : 'No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.'}
           </p>
 
