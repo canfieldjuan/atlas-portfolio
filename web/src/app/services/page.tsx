@@ -116,6 +116,24 @@ const phaseOneDeliverables = [
   },
 ];
 
+const solutionOutcomes = [
+  {
+    title: 'A manual workflow becomes a runnable system',
+    detail:
+      'The end state is not a strategy document. It is a data flow, approval path, dashboard, queue, report, or automation your team can operate.',
+  },
+  {
+    title: 'The risky part gets proved before the larger spend',
+    detail:
+      'Phase 1 validates the data, integration, model behavior, and operator handoff that decide whether the full build is worth approving.',
+  },
+  {
+    title: 'The implementation is priced before it starts',
+    detail:
+      'You get the build scope, delivery checkpoints, and fixed price before Phase 2 begins, so the project does not turn into open-ended hourly consulting.',
+  },
+];
+
 const productizedSystems = [
   {
     icon: <Radar className="w-5 h-5 text-primary" />,
@@ -155,8 +173,23 @@ export default function ServicesPage() {
             Solutions, not hours.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Most teams pay AI consultants by the hour and end up with slides instead of systems. These engagements work the opposite way: fixed fee, fixed scope, ending in code your team can run — scoped, proved, and priced before any build begins.
+            Use this when a real workflow is costing time, revenue, accuracy, or speed — and another generic SaaS tool will not fit the way your team actually works. The engagement is designed to turn that workflow into a scoped AI system, not an open-ended advisory retainer.
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.08 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-16"
+        >
+          {solutionOutcomes.map((outcome) => (
+            <div key={outcome.title} className="glass rounded-xl p-6 border border-white/10">
+              <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
+              <h2 className="text-base font-semibold text-white mb-3">{outcome.title}</h2>
+              <p className="text-sm text-foreground/60 leading-relaxed">{outcome.detail}</p>
+            </div>
+          ))}
         </motion.div>
 
         {/* Two Phase Cards */}
