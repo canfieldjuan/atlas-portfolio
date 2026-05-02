@@ -97,6 +97,10 @@ const reviewCriteria = [
   'A budget path for Phase 1 if there is fit',
 ];
 
+const isContentOpsAuditContext = (routeContext: AuditRouteContext) => {
+  return routeContext.projectInterest === 'content-generation';
+};
+
 export default function AuditPage() {
   return (
     <Suspense fallback={<AuditPageFallback />}>
@@ -134,6 +138,88 @@ function AuditPageContent() {
   const [estimatedResponseHours, setEstimatedResponseHours] = useState<number | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
+  const isContentOpsContext = isContentOpsAuditContext(routeContext);
+  const isOngoingContentOpsContext =
+    isContentOpsContext &&
+    (routeContext.sourcePage === 'ai-content-ops-ongoing-support' ||
+      routeContext.sourceOffer === 'ongoing-support');
+  const contentOpsEntryPriceLabel = isOngoingContentOpsContext
+    ? 'Ongoing Optimization ($2,500/mo+)'
+    : 'Content Ops Audit Only ($1,500)';
+  const contentOpsNextStepCopy = isOngoingContentOpsContext
+    ? 'I review completed requests within 48 hours. If there is a fit, the next step is an Ongoing Optimization scoping conversation. Ongoing Optimization starts at $2,500/month for teams already running an AI content workflow.'
+    : 'I review completed requests within 48 hours. If there is a fit, the next step is the fixed-fee Content Ops Audit at $1,500. If the audit shows a build is worthwhile, the pilot starts at $7,500.';
+  const contentOpsSubmitCopy = isOngoingContentOpsContext
+    ? 'No payment is collected here. If there is a fit, I will reply with next steps for Ongoing Optimization.'
+    : 'No payment is collected here. If there is a fit, I will reply with next steps for the fixed-fee Content Ops Audit.';
+  const pageConversionSignals = isContentOpsContext
+    ? conversionSignals.map((signal) =>
+        signal.title === 'No payment here'
+          ? {
+              ...signal,
+              detail:
+                isOngoingContentOpsContext
+                  ? 'This is a review request. Ongoing Optimization is only discussed if there is a live content workflow worth maintaining.'
+                  : 'This is a review request. The $1,500 Content Ops Audit is only discussed if the workflow looks worth auditing.',
+            }
+          : signal
+      )
+    : conversionSignals;
+  const pageReviewCriteria = isContentOpsContext
+    ? [
+        isOngoingContentOpsContext ? 'A live content workflow with an owner' : 'A real content workflow with an owner',
+        'Usable source material or content data',
+        'A clear publishing, review, or campaign outcome',
+        isOngoingContentOpsContext
+          ? 'A budget path for monthly optimization if there is fit'
+          : 'A budget path for the audit and pilot if there is fit',
+      ]
+    : reviewCriteria;
+  const fieldCopy = isContentOpsContext
+    ? {
+        bottleneckHelper:
+          'Be concrete: where does content production slow down, who reviews it, and what breaks when it is late, generic, or inconsistent?',
+        bottleneckPlaceholder:
+          'We have customer data and sales notes, but turning them into blogs, emails, and sales briefs still takes days...',
+        dataSourcesHelper:
+          'Name the source material the content engine would use: reviews, CRM notes, sales calls, support tickets, docs, spreadsheets, research, or existing content.',
+        dataSourcesPlaceholder:
+          'Customer reviews, HubSpot notes, sales call summaries, support tickets, Google Docs, content briefs...',
+        techHelper:
+          'Optional, but useful if publishing, approval, or delivery integrations will shape the audit.',
+        techPlaceholder:
+          'HubSpot, Salesforce, Webflow, WordPress, Notion, Google Drive, Airtable, Mailchimp...',
+        deploymentHelper:
+          'Do not paste raw customer records. Summarize privacy, approval, model-provider, or client-data limits that affect content generation.',
+        deploymentPlaceholder:
+          'Human approval required before publishing, no raw customer PII in prompts, client workspaces must stay separate...',
+        roiHelper:
+          'Optional, but useful: faster publishing, more campaign assets, fewer review cycles, better sales enablement, or higher conversion.',
+        roiPlaceholder:
+          'e.g. Publish 4 useful posts/month, repurpose reviews into campaigns, reduce content review from 2 weeks to 2 days',
+        investmentHelper: isOngoingContentOpsContext
+          ? 'For ongoing support, the relevant starting point is $2,500/mo+. Choose the closest range for monthly optimization or follow-on build work.'
+          : 'For this offer, the ladder is $1,500 audit, $7,500+ pilot, $15,000+ full system, or $2,500/mo+ ongoing optimization.',
+      }
+    : {
+        bottleneckHelper:
+          'Be concrete: who does it, how often, and what breaks when it is late or wrong.',
+        bottleneckPlaceholder: 'We spend 40 hours a week manually extracting data from...',
+        dataSourcesHelper:
+          'Name the systems, files, inboxes, databases, APIs, dashboards, or documents involved.',
+        dataSourcesPlaceholder: 'CRMs, internal docs, review sites, incoming emails...',
+        techHelper: 'Optional, but useful if integrations will drive the scope.',
+        techPlaceholder: 'Salesforce, Snowflake, custom APIs, etc.',
+        deploymentHelper:
+          'Do not include credentials, private keys, raw customer records, or regulated datasets.',
+        deploymentPlaceholder:
+          'On-prem only, single-tenant, region lock, customer-managed keys, no external model providers...',
+        roiHelper:
+          'Optional, but the best projects have a measurable time, revenue, accuracy, or risk target.',
+        roiPlaceholder: 'e.g. We save 100 hours/month or generate 20% more pipeline',
+        investmentHelper:
+          'Choose the range that matches what you could realistically approve if the audit shows a strong fit.',
+      };
 
   const requiredFields: Array<AuditField> = [
     'fullName',
@@ -199,7 +285,7 @@ function AuditPageContent() {
 
   const investmentRangeLabel = (value: string) => {
     const map: Record<string, string> = {
-      phase1: 'Phase 1 Roadmap Only ($4,500)',
+      phase1: isContentOpsContext ? contentOpsEntryPriceLabel : 'Phase 1 Roadmap Only ($4,500)',
       '10k-25k': '$10k – $25k',
       '25k-50k': '$25k – $50k',
       '50k+': '$50k+',
@@ -232,30 +318,28 @@ function AuditPageContent() {
     return map[value] || value || 'Not provided';
   };
 
-  const requestSummary = useMemo(() => {
-    const routingContext = [
-      routeContext.sourcePageLabel ? `Source Page: ${routeContext.sourcePageLabel}` : null,
-      routeContext.sourceOfferLabel ? `Source Offer: ${routeContext.sourceOfferLabel}` : null,
-    ].filter((item): item is string => Boolean(item));
+  const routingContext = [
+    routeContext.sourcePageLabel ? `Source Page: ${routeContext.sourcePageLabel}` : null,
+    routeContext.sourceOfferLabel ? `Source Offer: ${routeContext.sourceOfferLabel}` : null,
+  ].filter((item): item is string => Boolean(item));
 
-    return [
-      'AI Systems Audit Request',
-      `Name: ${formData.fullName.trim() || 'Not provided'}`,
-      `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
-      `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
-      `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
-      `Primary Interest: ${auditProjectInterestLabel(formData.projectInterest)}`,
-      ...(routingContext.length > 0 ? routingContext : []),
-      `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
-      `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
-      `Current Tech Ecosystem: ${formData.currentTechEcosystem.trim() || 'Not provided'}`,
-      `Desired Timeline: ${desiredTimelineLabel(formData.desiredTimeline)}`,
-      `Security / Compliance Requirement: ${securityRequirementLabel(formData.securityRequirement)}`,
-      `Deployment / Data Constraints:\n${formData.deploymentConstraints.trim() || 'Not provided'}`,
-      `Success / ROI: ${formData.roiGoal.trim() || 'Not provided'}`,
-      `Anticipated Investment Range: ${investmentRangeLabel(formData.anticipatedInvestmentRange)}`,
-    ].join('\n\n');
-  }, [formData, routeContext]);
+  const requestSummary = [
+    'AI Systems Audit Request',
+    `Name: ${formData.fullName.trim() || 'Not provided'}`,
+    `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
+    `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
+    `Role / Decision Scope: ${formData.roleAndDecisionScope.trim() || 'Not provided'}`,
+    `Primary Interest: ${auditProjectInterestLabel(formData.projectInterest)}`,
+    ...(routingContext.length > 0 ? routingContext : []),
+    `Biggest Manual Bottleneck:\n${formData.biggestBottleneck.trim() || 'Not provided'}`,
+    `What to automate:\n${formData.automationDataSources.trim() || 'Not provided'}`,
+    `Current Tech Ecosystem: ${formData.currentTechEcosystem.trim() || 'Not provided'}`,
+    `Desired Timeline: ${desiredTimelineLabel(formData.desiredTimeline)}`,
+    `Security / Compliance Requirement: ${securityRequirementLabel(formData.securityRequirement)}`,
+    `Deployment / Data Constraints:\n${formData.deploymentConstraints.trim() || 'Not provided'}`,
+    `Success / ROI: ${formData.roiGoal.trim() || 'Not provided'}`,
+    `Anticipated Investment Range: ${investmentRangeLabel(formData.anticipatedInvestmentRange)}`,
+  ].join('\n\n');
 
   const isValidEmail = (value: string) => {
     return /\S+@\S+\.\S+/.test(value);
@@ -449,10 +533,14 @@ function AuditPageContent() {
             <span>SYSTEMS AUDIT</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            Start the AI Systems Audit.
+            {isContentOpsContext ? 'Start the Content Ops Audit request.' : 'Start the AI Systems Audit.'}
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
-            Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.
+            {isContentOpsContext
+              ? isOngoingContentOpsContext
+                ? 'Send the workflow context I need to decide whether Ongoing Optimization is worth your time. I review the current content workflow, ownership model, tuning needs, output drift, and monthly support fit before recommending paid retainer work.'
+                : 'Send the workflow context I need to decide whether the fixed-fee Content Ops Audit is worth your time. I review for usable content sources, workflow fit, approval needs, timeline, and budget before recommending any paid audit work.'
+              : 'Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
             <a
@@ -463,10 +551,10 @@ function AuditPageContent() {
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
-              href="/services"
+              href={isContentOpsContext ? '/systems/ai-content-ops#pricing' : '/services'}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
             >
-              Review Phase 1 pricing
+              {isContentOpsContext ? 'Review Content Ops pricing' : 'Review Phase 1 pricing'}
             </Link>
           </div>
         </motion.div>
@@ -479,7 +567,9 @@ function AuditPageContent() {
             <p className="text-sm text-foreground/70 leading-relaxed">
               {routeContext.sourcePageLabel ? `You came from ${routeContext.sourcePageLabel}. ` : null}
               {routeContext.sourceOfferLabel ? `Offer context: ${routeContext.sourceOfferLabel}. ` : null}
-              {routeContext.projectInterest
+              {isContentOpsContext
+                ? 'This request is locked to AI Content Ops Station so the intake stays aligned with the page you came from.'
+                : routeContext.projectInterest
                 ? `The primary interest field is preselected as ${auditProjectInterestLabel(routeContext.projectInterest)}; change it below if another path fits better.`
                 : 'Choose the primary interest below so the request routes to the right systems starting point.'}
             </p>
@@ -487,7 +577,7 @@ function AuditPageContent() {
         ) : null}
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {conversionSignals.map((signal) => (
+          {pageConversionSignals.map((signal) => (
             <div key={signal.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
               <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
                 {signal.icon}
@@ -502,13 +592,16 @@ function AuditPageContent() {
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 text-sm text-foreground/70">
             <h2 className="text-sm font-semibold text-white mb-2">What happens after you submit</h2>
             <p className="leading-relaxed">
-              I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced. Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
+              {isContentOpsContext
+                ? contentOpsNextStepCopy
+                : 'I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced.'}{' '}
+              Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
             </p>
           </div>
           <div className="rounded-lg border border-white/10 bg-black/20 p-5">
             <h2 className="text-sm font-semibold text-white mb-4">What I am checking for</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {reviewCriteria.map((item) => (
+              {pageReviewCriteria.map((item) => (
                 <div key={item} className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
@@ -650,32 +743,55 @@ function AuditPageContent() {
               <label className="text-sm font-medium text-white/80" htmlFor="projectInterest">
                 What are you most interested in? <span className="text-primary">*</span>
               </label>
-              <p className="text-xs text-foreground/45">
-                Preselected when you came from a specific offer. Change it if another workflow type fits better.
-              </p>
-              <select
-                id="projectInterest"
-                ref={projectInterestRef}
-                value={formData.projectInterest}
-                onChange={handleChange('projectInterest')}
-                disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                  formErrors.projectInterest ? 'border-red-400/80' : 'border-white/10'
-                }`}
-                required
-                aria-invalid={!!formErrors.projectInterest}
-                aria-describedby={formErrors.projectInterest ? 'projectInterest-error' : undefined}
-                aria-required="true"
-              >
-                <option value="" disabled>
-                  Select primary interest...
-                </option>
-                {AUDIT_PROJECT_INTERESTS.map((interest) => (
-                  <option key={interest.value} value={interest.value}>
-                    {interest.label}
-                  </option>
-                ))}
-              </select>
+              {isContentOpsContext ? (
+                <>
+                  <p className="text-xs text-foreground/45">
+                    Selected from the AI Content Ops landing page. Use the general <Link href="/audit" className="text-primary hover:text-primary/80 transition-colors">Systems Audit</Link> if you need a different path.
+                  </p>
+                  <input
+                    id="projectInterest"
+                    type="text"
+                    value={auditProjectInterestLabel(formData.projectInterest)}
+                    readOnly
+                    disabled={isInputDisabled}
+                    className={`w-full bg-white/[0.03] border rounded-md px-4 py-3 text-white/80 focus:outline-none ${
+                      formErrors.projectInterest ? 'border-red-400/80' : 'border-primary/20'
+                    }`}
+                    aria-invalid={!!formErrors.projectInterest}
+                    aria-describedby={formErrors.projectInterest ? 'projectInterest-error' : undefined}
+                    aria-readonly="true"
+                  />
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-foreground/45">
+                    Preselected when you came from a specific offer. Change it if another workflow type fits better.
+                  </p>
+                  <select
+                    id="projectInterest"
+                    ref={projectInterestRef}
+                    value={formData.projectInterest}
+                    onChange={handleChange('projectInterest')}
+                    disabled={isInputDisabled}
+                    className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                      formErrors.projectInterest ? 'border-red-400/80' : 'border-white/10'
+                    }`}
+                    required
+                    aria-invalid={!!formErrors.projectInterest}
+                    aria-describedby={formErrors.projectInterest ? 'projectInterest-error' : undefined}
+                    aria-required="true"
+                  >
+                    <option value="" disabled>
+                      Select primary interest...
+                    </option>
+                    {AUDIT_PROJECT_INTERESTS.map((interest) => (
+                      <option key={interest.value} value={interest.value}>
+                        {interest.label}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
               {formErrors.projectInterest ? (
                 <p id="projectInterest-error" className="text-red-400 text-sm">{formErrors.projectInterest}</p>
               ) : null}
@@ -689,7 +805,7 @@ function AuditPageContent() {
                 What is the biggest manual bottleneck in your operations right now? <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
-                Be concrete: who does it, how often, and what breaks when it is late or wrong.
+                {fieldCopy.bottleneckHelper}
               </p>
               <textarea
                 id="biggestBottleneck"
@@ -701,7 +817,7 @@ function AuditPageContent() {
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
                   formErrors.biggestBottleneck ? 'border-red-400/80' : 'border-white/10'
                 }`}
-                placeholder="We spend 40 hours a week manually extracting data from..."
+                placeholder={fieldCopy.bottleneckPlaceholder}
                 required
                 aria-invalid={!!formErrors.biggestBottleneck}
                 aria-describedby={formErrors.biggestBottleneck ? 'biggestBottleneck-error' : undefined}
@@ -717,7 +833,7 @@ function AuditPageContent() {
                 What data sources are you trying to automate? <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
-                Name the systems, files, inboxes, databases, APIs, dashboards, or documents involved.
+                {fieldCopy.dataSourcesHelper}
               </p>
               <textarea
                 id="automationDataSources"
@@ -729,7 +845,7 @@ function AuditPageContent() {
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
                   formErrors.automationDataSources ? 'border-red-400/80' : 'border-white/10'
                 }`}
-                placeholder="CRMs, internal docs, review sites, incoming emails..."
+                placeholder={fieldCopy.dataSourcesPlaceholder}
                 required
                 aria-invalid={!!formErrors.automationDataSources}
                 aria-describedby={formErrors.automationDataSources ? 'automationDataSources-error' : undefined}
@@ -745,7 +861,7 @@ function AuditPageContent() {
                 Current Tech Ecosystem
               </label>
               <p className="text-xs text-foreground/45">
-                Optional, but useful if integrations will drive the scope.
+                {fieldCopy.techHelper}
               </p>
               <input
                 id="currentTechEcosystem"
@@ -755,7 +871,7 @@ function AuditPageContent() {
                 onChange={handleChange('currentTechEcosystem')}
                 disabled={isInputDisabled}
                 className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder="Salesforce, Snowflake, custom APIs, etc."
+                placeholder={fieldCopy.techPlaceholder}
                 aria-describedby={formErrors.currentTechEcosystem ? 'currentTechEcosystem-error' : undefined}
               />
             </div>
@@ -833,7 +949,7 @@ function AuditPageContent() {
                 Deployment or data-handling constraints
               </label>
               <p className="text-xs text-foreground/45">
-                Do not include credentials, private keys, raw customer records, or regulated datasets.
+                {fieldCopy.deploymentHelper}
               </p>
               <textarea
                 id="deploymentConstraints"
@@ -843,7 +959,7 @@ function AuditPageContent() {
                 onChange={handleChange('deploymentConstraints')}
                 disabled={isInputDisabled}
                 className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
-                placeholder="On-prem only, single-tenant, region lock, customer-managed keys, no external model providers..."
+                placeholder={fieldCopy.deploymentPlaceholder}
               />
             </div>
           </section>
@@ -855,7 +971,7 @@ function AuditPageContent() {
                 What does success look like? (The ROI)
               </label>
               <p className="text-xs text-foreground/45">
-                Optional, but the best projects have a measurable time, revenue, accuracy, or risk target.
+                {fieldCopy.roiHelper}
               </p>
               <input
                 id="roiGoal"
@@ -865,7 +981,7 @@ function AuditPageContent() {
                 onChange={handleChange('roiGoal')}
                 disabled={isInputDisabled}
                 className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder="e.g. We save 100 hours/month or generate 20% more pipeline"
+                placeholder={fieldCopy.roiPlaceholder}
                 aria-invalid={!!formErrors.roiGoal}
                 aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
               />
@@ -875,6 +991,9 @@ function AuditPageContent() {
               <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
                 Anticipated Investment Range <span className="text-primary">*</span>
               </label>
+              <p className="text-xs text-foreground/45">
+                {fieldCopy.investmentHelper}
+              </p>
               <select
                 id="anticipatedInvestmentRange"
                 ref={anticipatedInvestmentRangeRef}
@@ -892,7 +1011,9 @@ function AuditPageContent() {
                 <option value="" disabled>
                   Select a range...
                 </option>
-                <option value="phase1">Phase 1 Roadmap Only ($4,500)</option>
+                <option value="phase1">
+                  {isContentOpsContext ? contentOpsEntryPriceLabel : 'Phase 1 Roadmap Only ($4,500)'}
+                </option>
                 <option value="10k-25k">$10k – $25k</option>
                 <option value="25k-50k">$25k – $50k</option>
                 <option value="50k+">$50k+</option>
@@ -910,11 +1031,17 @@ function AuditPageContent() {
             disabled={isInputDisabled}
           >
             <Send className="w-4 h-4" />
-            {isSubmitting ? 'Sending systems audit...' : 'Send Systems Audit Request'}
+            {isSubmitting
+              ? 'Sending audit request...'
+              : isContentOpsContext
+                ? 'Send Content Ops Audit Request'
+                : 'Send Systems Audit Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">
-            No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.
+            {isContentOpsContext
+              ? contentOpsSubmitCopy
+              : 'No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.'}
           </p>
 
           <div className="rounded-lg border border-white/10 bg-black/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

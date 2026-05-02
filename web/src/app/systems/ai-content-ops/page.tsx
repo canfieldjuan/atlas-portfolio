@@ -197,7 +197,7 @@ const pricingTiers: PricingTier[] = [
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-generation',
+      offer: 'content-ops-audit',
     }),
     highlighted: true,
   },
@@ -223,7 +223,7 @@ const pricingTiers: PricingTier[] = [
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-generation',
+      offer: 'content-ops-pilot',
     }),
   },
   {
@@ -248,7 +248,7 @@ const pricingTiers: PricingTier[] = [
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-generation',
+      offer: 'content-ops-full-build',
     }),
   },
 ];
@@ -383,7 +383,7 @@ export default function AiContentOpsPage() {
                 href={buildAuditHref({
                   interest: 'content-generation',
                   source: 'ai-content-ops',
-                  offer: 'content-generation',
+                  offer: 'content-ops-audit',
                 })}
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
@@ -927,7 +927,7 @@ export default function AiContentOpsPage() {
                   href={buildAuditHref({
                     interest: 'content-generation',
                     source: 'ai-content-ops',
-                    offer: 'content-generation',
+                    offer: 'content-ops-audit',
                   })}
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
@@ -938,7 +938,7 @@ export default function AiContentOpsPage() {
                   href={buildAuditHref({
                     interest: 'content-generation',
                     source: 'ai-content-ops',
-                    offer: 'content-generation',
+                    offer: 'content-ops-pilot',
                   })}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
