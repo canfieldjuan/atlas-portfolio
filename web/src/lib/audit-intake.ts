@@ -1,5 +1,6 @@
 import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { persistAuditIntakeRecord } from './audit-intake-database';
 
 export type AuditIntakePayload = {
   fullName: string;
@@ -25,15 +26,20 @@ export type AuditIntakePayload = {
   anticipatedInvestmentRangeLabel?: string;
 };
 
-type AuditIntakeRecord = AuditIntakePayload & {
+export type AuditIntakeRecord = AuditIntakePayload & {
   requestId: string;
   submittedAt: string;
 };
 
-export type AuditIntakeDelivery = 'webhook' | 'atlas-crm-event' | 'email' | 'file';
+export type AuditIntakeDelivery = 'database' | 'webhook' | 'atlas-crm-event' | 'email' | 'file';
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
-const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = ['webhook', 'atlas-crm-event', 'file'];
+const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = [
+  'database',
+  'webhook',
+  'atlas-crm-event',
+  'file',
+];
 
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
   return deliveries.some((delivery) => PERSISTENT_DELIVERIES.includes(delivery));
@@ -221,6 +227,19 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
   const deliveries: AuditIntakeDelivery[] = [];
   const warnings: string[] = [];
 
+  try {
+    const persisted = await persistAuditIntakeRecord(record);
+    if (persisted) {
+      deliveries.push('database');
+    }
+  } catch (error) {
+    warnings.push(
+      error instanceof Error
+        ? `Audit database persistence failed: ${error.message}`
+        : 'Audit database persistence failed.'
+    );
+  }
+
   const webhookUrl = process.env.AUDIT_INTAKE_WEBHOOK_URL?.trim();
   if (webhookUrl) {
     try {
@@ -270,7 +289,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
 
   if (deliveries.length > 0 && !hasPersistentDelivery(deliveries)) {
     warnings.push(
-      'Audit intake notification succeeded, but no persistent intake sink is configured. Configure AUDIT_INTAKE_WEBHOOK_URL or AUDIT_INTAKE_ATLAS_BASE_URL to store submissions outside the inbox.'
+      'Audit intake notification succeeded, but no persistent intake sink is configured. Configure AUDIT_INTAKE_DATABASE_URL, AUDIT_INTAKE_WEBHOOK_URL, or AUDIT_INTAKE_ATLAS_BASE_URL to store submissions outside the inbox.'
     );
   }
 
