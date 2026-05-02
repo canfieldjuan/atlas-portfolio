@@ -6,6 +6,7 @@
     "dev": "next dev --webpack",
     "dev:turbopack": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/ensure-vercel-routes-manifest.mjs",
     "start": "next start",
     "lint": "eslint"
   },
