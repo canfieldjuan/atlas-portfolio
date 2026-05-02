@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const distDir = join(process.cwd(), '.next');
@@ -17,8 +17,12 @@ function copyManifest(path) {
 
 copyManifest(target);
 
-// Vercel's cloud postprocessor currently looks for this file from the Git
-// checkout root (/vercel/path0), even when the project root is web/.
+// Vercel's cloud postprocessor currently looks for Next build artifacts from
+// the Git checkout root (/vercel/path0), even when the project root is web/.
 if (process.env.VERCEL === '1' || process.cwd().startsWith('/vercel/')) {
-  copyManifest(join(process.cwd(), '..', '.next', 'routes-manifest-deterministic.json'));
+  const checkoutDistDir = join(process.cwd(), '..', '.next');
+
+  rmSync(checkoutDistDir, { recursive: true, force: true });
+  cpSync(distDir, checkoutDistDir, { recursive: true, force: true });
+  console.log(`Mirrored ${distDir} to ${checkoutDistDir} for Vercel packaging.`);
 }
