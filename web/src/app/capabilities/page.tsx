@@ -8,8 +8,8 @@ import { buildAuditHref } from '@/lib/audit-routing';
 const domains = [
   {
     icon: <TrendingUp className="w-6 h-6" />,
-    title: 'GTM & Revenue Automation',
-    desc: 'For teams that need more pipeline leverage from research, signals, and repetitive outbound work.',
+    title: 'Turn market signals into revenue action',
+    desc: 'For teams with useful research, reviews, CRM context, or competitor signals that never make it into sales follow-up fast enough.',
     examples: [
       'Competitor intelligence pipelines (15+ signal sources)',
       'Semantic lead scoring & pain-point matching',
@@ -20,8 +20,8 @@ const domains = [
   },
   {
     icon: <BrainCircuit className="w-6 h-6" />,
-    title: 'Knowledge & Intelligence Systems',
-    desc: 'For teams whose documents, tickets, and internal data are too fragmented to support reliable decisions.',
+    title: 'Make fragmented knowledge answer business questions',
+    desc: 'For teams whose documents, tickets, policies, and internal notes contain answers, but no one trusts the search or summary layer.',
     examples: [
       'GraphRAG knowledge bases with relationship mapping',
       'Document reasoning engines (PDFs, wikis, support tickets)',
@@ -32,8 +32,8 @@ const domains = [
   },
   {
     icon: <Bot className="w-6 h-6" />,
-    title: 'Agentic Operations & Workflow Automation',
-    desc: 'For teams that need multi-step internal processes handled across inboxes, CRMs, calendars, and approval flows.',
+    title: 'Move repetitive operations through controlled workflows',
+    desc: 'For teams that need intake, routing, drafting, tool calls, and approvals to happen consistently across inboxes, CRMs, calendars, and queues.',
     examples: [
       'Email triage, routing & auto-response agents',
       'Scheduling & calendar orchestration',
@@ -45,8 +45,8 @@ const domains = [
   },
   {
     icon: <BarChart3 className="w-6 h-6" />,
-    title: 'Data Pipelines, Monitoring & AI Cost Controls',
-    desc: 'For teams that need raw data, LLM usage, and operational signals turned into trusted dashboards, alerts, and cost controls.',
+    title: 'Turn raw data and AI usage into monitored systems',
+    desc: 'For teams that need recurring data collection, enrichment, dashboards, alerts, and LLM cost controls instead of manual checks and surprise spend.',
     examples: [
       'Multi-source web scrapers with proxy rotation & dedup',
       'LLM enrichment pipelines (40+ structured fields per record)',
@@ -60,8 +60,8 @@ const domains = [
   },
   {
     icon: <Cpu className="w-6 h-6" />,
-    title: 'Edge & Real-Time AI Systems',
-    desc: 'For specialized environments where latency, connectivity, or runtime cost make cloud-first systems a poor fit.',
+    title: 'Run AI where latency, connectivity, or cost matters',
+    desc: 'For specialized environments where cloud-only inference is too slow, too expensive, or too dependent on a stable network connection.',
     examples: [
       'Real-time object detection (YOLO World on NPU)',
       'Face & gait recognition with identity fusion',
@@ -116,10 +116,10 @@ export default function CapabilitiesPage() {
             CAPABILITIES
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
-            The range of what I build
+            Choose the business problem. Then scope the system.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Different teams hit different bottlenecks. Some need revenue operations automation. Others need trustworthy internal intelligence, agent workflows, or specialized real-time systems. This page shows the types of problems I can scope and build when the workflow is real and the owner is clear.
+            These are the situations where custom AI work can be worth building: revenue signals that do not reach sales, knowledge that cannot be trusted, internal work stuck in handoffs, data that no one monitors, or AI workloads that need tighter runtime control.
           </p>
         </motion.div>
 
@@ -166,10 +166,10 @@ export default function CapabilitiesPage() {
                 PRODUCTIZED SYSTEMS
               </div>
               <h2 className="text-xl font-semibold text-white mb-3">
-                Ready-made system cores, customized around your data.
+                Some solutions already have a working core.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                Some capabilities are mature enough that the architecture does not need to start from zero. The custom work is the data layer, integration map, approvals, and operator surface.
+                Competitive intelligence and content operations have reusable architecture behind them. The custom work is your data layer, integration map, approval rules, and operator surface.
               </p>
             </div>
             <Link
@@ -216,7 +216,7 @@ export default function CapabilitiesPage() {
 
                 {/* Right: Examples */}
                 <div className="md:w-3/5 md:border-l md:border-white/5 md:pl-8">
-                  <div className="text-xs font-mono text-foreground/30 tracking-widest mb-4">EXAMPLE BUILDS</div>
+                  <div className="text-xs font-mono text-foreground/30 tracking-widest mb-4">WHAT THE SYSTEM CAN SHIP</div>
                   <div className="space-y-3">
                     {domain.examples.map((ex, j) => (
                       <div key={j} className="flex items-start gap-3">

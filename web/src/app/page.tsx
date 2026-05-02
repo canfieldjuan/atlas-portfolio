@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
 
 const heroFacts = [
-  { label: 'PHASE 1', value: '$4,500 fixed fee' },
-  { label: 'TIMELINE', value: '2-week roadmap' },
+  { label: 'OUTCOME', value: 'Manual workflow removed' },
+  { label: 'FIRST STEP', value: '$4,500 fixed roadmap' },
   { label: 'RESPONSE', value: '48-hour review' },
 ];
 
@@ -73,12 +73,14 @@ const productizedSystems = [
     icon: <Radar className="w-5 h-5 text-primary" />,
     title: 'Competitive / Vendor Intelligence Platform',
     interest: 'competitive-intelligence' as const,
+    offer: 'competitive-intelligence',
     desc: 'A ready-made intelligence architecture that becomes specific once your vendors, competitors, accounts, sources, and workflows are connected.',
   },
   {
     icon: <FileText className="w-5 h-5 text-primary" />,
     title: 'AI Content Ops Station',
     interest: 'content-generation' as const,
+    offer: 'content-ops-audit',
     desc: 'A reusable content operations system for SEO pages, comparison pages, blog drafts, email variants, and claim-reviewed campaign assets.',
   },
 ];
@@ -114,10 +116,10 @@ export default function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-foreground/60 max-w-2xl leading-relaxed mt-4">
-              Your business already has the data and the bottleneck. What is missing is the system around the AI — the pipelines, review states, integrations, and operator controls that turn information into action your team can run.
+              If your team is still copying data between tools, rewriting the same customer context, or waiting on manual review steps, the problem is not that you need more AI. You need a working system around the workflow.
             </p>
             <p className="text-base text-foreground/50 max-w-2xl leading-relaxed">
-              Every engagement starts with a fixed-fee roadmap. Scope, proof, and price defined before any build.
+              I build the pipelines, review states, integrations, dashboards, and operator controls that turn scattered information into repeatable action. Scope, proof, and price are defined before any larger build.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
@@ -152,13 +154,13 @@ export default function Home() {
               THE PROBLEM
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
-              Most teams use AI without a system behind it.
+              Most teams do not have an AI problem. They have an operating-system problem.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
               Open a chatbot. Paste in scattered context. Rewrite the prompt five times. Get something that sounds polished but never ships into the workflow.
             </p>
             <p className="text-foreground/65 leading-relaxed mb-8">
-              That is not an AI problem. It is a systems problem. The valuable signal in your business is usually trapped in the same places it always was:
+              The business value is usually already there. It is trapped in the same places it always was:
             </p>
             <div className="flex flex-wrap gap-2 mb-8">
               {trappedSources.map((source) => (
@@ -171,7 +173,7 @@ export default function Home() {
               ))}
             </div>
             <p className="text-foreground/55 leading-relaxed">
-              Without a system around the model — data layer, review states, integrations, controls — none of that turns into operational work. That is what these engagements build.
+              The solution is the layer that makes those signals usable: collection, enrichment, routing, review, approval, and handoff. That is what these engagements build.
             </p>
           </motion.section>
 
@@ -230,7 +232,7 @@ export default function Home() {
                     href={buildAuditHref({
                       interest: system.interest,
                       source: 'home-productized',
-                      offer: system.interest,
+                      offer: system.offer,
                     })}
                     className="mt-5 inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                   >

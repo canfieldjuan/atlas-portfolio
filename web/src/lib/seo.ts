@@ -163,7 +163,7 @@ export const rootJsonLd = {
       url: SITE_URL,
       provider: { "@id": `${SITE_URL}/#person` },
       description:
-        "AI automation consulting, custom AI development services, and fixed-fee AI systems roadmap engagements. Phase 1 Roadmap ($4,500) includes discovery, audit, proof of concept, and blueprint. Phase 2 custom implementation is scoped from the roadmap before build work begins.",
+        "AI automation consulting, custom AI development services, fixed-fee AI systems roadmap engagements, and productized AI Content Ops audits. Phase 1 Roadmap ($4,500) covers custom AI scoping; Content Ops Audit ($1,500) evaluates content automation fit before pilot or full-system build work begins.",
       areaServed: ["United States", "Worldwide"],
       hasOfferCatalog: {
         "@type": "OfferCatalog",
@@ -194,6 +194,25 @@ export const rootJsonLd = {
             name: "Productized AI Systems",
             description:
               "Reusable AI system architectures including the Competitive / Vendor Intelligence Platform and AI Content Ops Station, customized with the buyer's data, sources, workflows, and integrations.",
+          },
+          {
+            "@type": "Offer",
+            name: "Content Ops Audit",
+            description:
+              "48-hour fixed-fee audit for AI Content Ops fit, source material readiness, content workflow scope, and pilot build recommendation.",
+            price: "1500",
+            priceCurrency: "USD",
+          },
+          {
+            "@type": "Offer",
+            name: "AI Content Ops Pilot Build",
+            description:
+              "Pilot build for one AI content workflow using buyer data sources, approval gates, templates, and export or delivery workflow.",
+            priceSpecification: {
+              "@type": "PriceSpecification",
+              minPrice: "7500",
+              priceCurrency: "USD",
+            },
           },
         ],
       },

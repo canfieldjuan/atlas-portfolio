@@ -48,7 +48,7 @@ type Scenario = {
 const postDemoAuditHref = buildAuditHref({
   interest: 'content-generation',
   source: 'ai-content-ops-demo',
-  offer: 'content-generation',
+  offer: 'content-ops-audit',
 });
 
 const privateDemoHref = buildAuditHref({
