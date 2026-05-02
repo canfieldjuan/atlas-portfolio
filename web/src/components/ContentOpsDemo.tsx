@@ -15,6 +15,7 @@ import {
   ScrollText,
 } from 'lucide-react';
 import Link from 'next/link';
+import { buildAuditHref } from '@/lib/audit-routing';
 
 type StageId = 'extract' | 'angles' | 'approval' | 'assets';
 
@@ -43,6 +44,18 @@ type Scenario = {
     social: { platform: string; post: string };
   };
 };
+
+const postDemoAuditHref = buildAuditHref({
+  interest: 'content-generation',
+  source: 'ai-content-ops-demo',
+  offer: 'content-generation',
+});
+
+const privateDemoHref = buildAuditHref({
+  interest: 'content-generation',
+  source: 'ai-content-ops-demo',
+  offer: 'content-ops-private-demo',
+});
 
 const scenarios: Scenario[] = [
   {
@@ -623,14 +636,14 @@ export function ContentOpsDemo() {
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <Link
-                  href="/audit?interest=content-generation"
+                  href={postDemoAuditHref}
                   className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-colors text-sm"
                 >
                   Book a Content Ops Audit
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
                 <Link
-                  href="/audit?interest=content-generation"
+                  href={privateDemoHref}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 hover:bg-white/5 transition-colors rounded-md text-sm text-foreground/80"
                 >
                   Request a Private Demo

@@ -64,6 +64,7 @@ const AUDIT_SOURCE_LABELS: Record<string, string> = {
   resource: 'Resource article',
   'ai-automation-consultant': 'AI automation consultant page',
   'ai-content-ops': 'AI Content Ops Station landing page',
+  'ai-content-ops-demo': 'AI Content Ops interactive demo',
   'ai-content-ops-ongoing-support': 'AI Content Ops ongoing support page',
 };
 
@@ -73,6 +74,7 @@ const AUDIT_OFFER_LABELS: Record<string, string> = {
   'competitive-intelligence': 'Competitive / vendor intelligence platform',
   'content-generation': 'AI Content Ops Station',
   'custom-build': 'Custom AI system / custom build',
+  'content-ops-private-demo': 'AI Content Ops private demo',
   'ongoing-support': 'Ongoing Optimization',
 };
 
