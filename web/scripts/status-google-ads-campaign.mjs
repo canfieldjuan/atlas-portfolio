@@ -7,6 +7,7 @@ import {
   sanitizeGoogleAdsMessage,
 } from './google-ads-api.mjs';
 import {
+  customerIdFingerprint,
   envValue,
   googleAdsApiVersion,
   maskCustomerId,
@@ -260,6 +261,7 @@ async function main() {
         mutations: false,
         apiVersion,
         targetCustomerId: maskCustomerId(customerId),
+        targetCustomerFingerprint: customerIdFingerprint(customerId),
         campaignName,
         matchedCampaignCount: campaignRows.length,
       });
@@ -289,6 +291,7 @@ async function main() {
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
+      targetCustomerFingerprint: customerIdFingerprint(customerId),
       campaignName,
       campaignFound: Boolean(campaignStatus),
       campaign: campaignStatus
@@ -326,6 +329,7 @@ async function main() {
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
+      targetCustomerFingerprint: customerIdFingerprint(customerId),
       campaignName,
     });
   }

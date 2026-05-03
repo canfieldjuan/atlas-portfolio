@@ -452,6 +452,7 @@ async function main() {
       mutations: true,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
+      targetCustomerFingerprint: customerIdFingerprint(customerId),
       preflightResult: resolvedPath,
       campaign: {
         name: campaign.campaignName,
@@ -486,6 +487,7 @@ async function main() {
       mutations: createdResources.length > 0,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
+      targetCustomerFingerprint: customerIdFingerprint(customerId),
       preflightResult: resolvedPath,
       createdResources,
     });
