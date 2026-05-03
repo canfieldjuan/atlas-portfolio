@@ -63,11 +63,20 @@ function validateReadinessResult(payload) {
   if (!payload?.createResult?.targetCustomerId) {
     errors.push('Readiness createResult must include targetCustomerId');
   }
+  if (!payload?.createResult?.targetCustomerFingerprint) {
+    errors.push('Readiness createResult must include targetCustomerFingerprint');
+  }
   if (!payload?.statusResult) {
     errors.push('Readiness result must include statusResult from ads:google:status');
   }
   if (payload?.statusResult?.targetCustomerId !== payload?.createResult?.targetCustomerId) {
     errors.push('Readiness statusResult targetCustomerId must match createResult targetCustomerId');
+  }
+  if (!payload?.statusResult?.targetCustomerFingerprint) {
+    errors.push('Readiness statusResult must include targetCustomerFingerprint');
+  }
+  if (payload?.statusResult?.targetCustomerFingerprint !== payload?.createResult?.targetCustomerFingerprint) {
+    errors.push('Readiness statusResult targetCustomerFingerprint must match createResult targetCustomerFingerprint');
   }
   if (payload?.statusResult?.apiVersion !== payload?.createResult?.apiVersion) {
     errors.push('Readiness statusResult apiVersion must match createResult apiVersion');
@@ -118,6 +127,18 @@ function validatePreflightResult(payload, expectedCustomerId) {
   }
   if (payload?.targetCustomerFingerprint !== customerIdFingerprint(expectedCustomerId)) {
     errors.push('Preflight target customer fingerprint must match GOOGLE_ADS_CUSTOMER_ID');
+  }
+  return errors;
+}
+
+function validateReadinessAgainstCustomer(readiness, expectedCustomerId) {
+  const errors = [];
+  const expectedFingerprint = customerIdFingerprint(expectedCustomerId);
+  if (readiness?.createResult?.targetCustomerFingerprint !== expectedFingerprint) {
+    errors.push('Readiness createResult targetCustomerFingerprint must match GOOGLE_ADS_CUSTOMER_ID');
+  }
+  if (readiness?.statusResult?.targetCustomerFingerprint !== expectedFingerprint) {
+    errors.push('Readiness statusResult targetCustomerFingerprint must match GOOGLE_ADS_CUSTOMER_ID');
   }
   return errors;
 }
@@ -262,6 +283,7 @@ async function main() {
   const apiVersion = googleAdsApiVersion();
   const { payload: preflight, resolvedPath: resolvedPreflightPath } = await readJsonArtifact(preflightPath);
   const preflightErrors = validatePreflightResult(preflight, customerId);
+  preflightErrors.push(...validateReadinessAgainstCustomer(readiness, customerId));
   if (preflightErrors.length > 0) {
     fail('Preflight result is not valid for campaign enablement.', outputJson, {
       mode: 'GOOGLE_ADS_ENABLE',

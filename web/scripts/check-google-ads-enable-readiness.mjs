@@ -68,6 +68,9 @@ function validateCreateResult(payload) {
   if (!payload?.targetCustomerId) {
     errors.push('Create result must include targetCustomerId');
   }
+  if (!payload?.targetCustomerFingerprint) {
+    errors.push('Create result must include targetCustomerFingerprint');
+  }
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Created campaign must still be recorded as PAUSED');
   }
@@ -118,6 +121,12 @@ function validateStatusResult(payload, createResult) {
   if (payload?.targetCustomerId !== createResult?.targetCustomerId) {
     errors.push('Status result targetCustomerId must match the create-result targetCustomerId');
   }
+  if (!payload?.targetCustomerFingerprint) {
+    errors.push('Status result must include targetCustomerFingerprint');
+  }
+  if (payload?.targetCustomerFingerprint !== createResult?.targetCustomerFingerprint) {
+    errors.push('Status result targetCustomerFingerprint must match the create-result targetCustomerFingerprint');
+  }
   if (payload?.apiVersion !== createResult?.apiVersion) {
     errors.push('Status result apiVersion must match the create-result apiVersion');
   }
@@ -163,6 +172,7 @@ function buildReadinessPayload({
       path: createResultPath,
       apiVersion: createResult.apiVersion || '',
       targetCustomerId: createResult.targetCustomerId || '',
+      targetCustomerFingerprint: createResult.targetCustomerFingerprint || '',
       campaignName: createResult.campaign?.name || '',
       campaignStatus: createResult.campaign?.status || '',
       dailyBudgetUsd: createResult.campaign?.dailyBudgetUsd ?? null,
@@ -172,6 +182,7 @@ function buildReadinessPayload({
       path: statusResultPath,
       apiVersion: statusResult.apiVersion || '',
       targetCustomerId: statusResult.targetCustomerId || '',
+      targetCustomerFingerprint: statusResult.targetCustomerFingerprint || '',
       campaignFound: statusResult.campaignFound === true,
       campaignStatus: statusResult.campaign?.status || '',
       budgetAmountUsd: statusResult.campaign?.budget?.amountUsd ?? null,
