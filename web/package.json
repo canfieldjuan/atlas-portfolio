@@ -13,6 +13,7 @@
     "ads:google:plan": "node scripts/plan-google-ads-operations.mjs",
     "ads:google:preflight": "node scripts/preflight-google-ads.mjs",
     "ads:google:report": "node scripts/report-google-ads-performance.mjs",
+    "ads:ga4:report": "node scripts/report-ga4-performance.mjs",
     "ads:google:create-paused": "node scripts/create-paused-google-ads-campaign.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
