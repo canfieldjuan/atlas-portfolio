@@ -169,3 +169,15 @@ Record the human enablement review before any future campaign-enable command exi
 ```bash
 npm run ads:google:enable-check -- --create-result /tmp/google-ads-create-paused-result.json --funnel-report /tmp/advertising-funnel.json --confirm-assets-reviewed --confirm-budget-reviewed --confirm-conversion-tracking-reviewed --confirm-negative-keywords-reviewed --output /tmp/google-ads-enable-readiness.json
 ```
+
+Preview the final enablement mutation without credentials or API calls:
+
+```bash
+npm run ads:google:enable -- --dry-run --readiness-result /tmp/google-ads-enable-readiness.json --output /tmp/google-ads-enable-plan.json
+```
+
+Enable the campaign only after the readiness artifact exists and a fresh preflight confirms the configured Google Ads customer:
+
+```bash
+npm run ads:google:enable -- --readiness-result /tmp/google-ads-enable-readiness.json --preflight-result /tmp/google-ads-preflight.json --confirm-enable-live-campaign --output /tmp/google-ads-enable-result.json
+```
