@@ -153,7 +153,7 @@ async function main() {
     mode: 'DRY_RUN',
     apiCalls: false,
     env: {
-      checked: requireEnv,
+      checked: true,
       ok: envStatus.ok,
       present: envStatus.present,
       missing: envStatus.missing,
@@ -178,7 +178,7 @@ async function main() {
   console.log(`Campaign: ${payload.campaign.name}`);
   console.log(`Status: ${payload.campaign.status}`);
   console.log(`Budget: $${payload.campaign.dailyBudgetUsd}/day`);
-  console.log(`Env checked: ${requireEnv ? 'yes' : 'no'}`);
+  console.log('Env checked: yes');
   if (requireEnv || envStatus.present.length > 0) {
     console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
     if (!envStatus.ok) {
