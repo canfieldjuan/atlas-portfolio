@@ -1,4 +1,5 @@
 import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields } from './google-ads-artifact-contracts.mjs';
 import {
   googleAdsHeaders,
   parseGoogleError,
@@ -160,6 +161,7 @@ async function main() {
     const targetResourceName = `customers/${customerId}`;
     const payload = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'READ_ONLY_PREFLIGHT',
       apiCalls: true,
       oauthCallAttempted: callState.oauthCallAttempted,
