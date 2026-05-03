@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
 import { validateGoogleAdsEnv } from './google-ads-env.mjs';
+import { loadLocalEnv } from './local-env.mjs';
 
 function runSpecValidator() {
   const result = spawnSync(process.execPath, [join(repoRoot, 'scripts', 'validate-ads-spec.mjs')], {
@@ -108,6 +109,8 @@ async function buildPlan() {
 }
 
 async function main() {
+  await loadLocalEnv();
+
   const args = new Set(process.argv.slice(2));
   const requireEnv = args.has('--check-env');
   const outputJson = args.has('--json');
