@@ -12,6 +12,7 @@
     "ads:validate": "node scripts/validate-ads-spec.mjs",
     "ads:google:plan": "node scripts/plan-google-ads-operations.mjs",
     "ads:google:preflight": "node scripts/preflight-google-ads.mjs",
+    "ads:google:create-paused": "node scripts/create-paused-google-ads-campaign.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
   "dependencies": {
