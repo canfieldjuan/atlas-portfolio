@@ -16,6 +16,7 @@
     "ads:ga4:report": "node scripts/report-ga4-performance.mjs",
     "ads:report:combine": "node scripts/combine-advertising-reports.mjs",
     "ads:google:create-paused": "node scripts/create-paused-google-ads-campaign.mjs",
+    "ads:google:enable-check": "node scripts/check-google-ads-enable-readiness.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
   "dependencies": {
