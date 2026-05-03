@@ -55,6 +55,24 @@ Avoid:
 6. Enable manually or through a separate approval command.
 7. Pull daily performance from Google Ads + GA4 into a report.
 
+## Artifact Contract
+
+The launch path is artifact-gated. Each handoff writes JSON with `artifactVersion: 1` and the downstream command refuses stale or partial artifacts.
+
+| Artifact | Producer | Consumed by | Required safety fields |
+| --- | --- | --- | --- |
+| Preflight | `ads:google:preflight` | `ads:google:create-paused`, `ads:google:enable` | `artifactVersion`, `mode=READ_ONLY_PREFLIGHT`, `mutations=false`, `targetCustomerFingerprint` |
+| Create-paused result | `ads:google:create-paused` | `ads:google:enable-check` | `artifactVersion`, `mode=CREATE_PAUSED`, `mutations=true`, `campaign.status=PAUSED`, created resource list |
+| Status report | `ads:google:status` | `ads:google:enable-check` | `artifactVersion`, `mode=GOOGLE_ADS_CAMPAIGN_STATUS_REPORT`, `mutations=false`, `campaign.status=PAUSED`, ad group/ad counts |
+| Enablement readiness | `ads:google:enable-check` | `ads:google:enable` | `artifactVersion`, `mode=GOOGLE_ADS_ENABLEMENT_READINESS`, confirmations, create/status customer fingerprint match |
+| Enable result | `ads:google:enable` | Operator audit log | `artifactVersion`, `mode=GOOGLE_ADS_ENABLE`, `mutations=true`, `previousStatus=PAUSED`, `currentStatus=ENABLED` |
+
+The checked-in offline harness pins this contract:
+
+```bash
+npm run test:google-ads-artifacts
+```
+
 ## Environment
 
 Use local/operator env only. Do not expose advertising secrets to browser code.
@@ -75,16 +93,42 @@ GA4_REFRESH_TOKEN=
 GA4_API_VERSION=v1beta
 ```
 
-## Next Build Slices
+## Implemented Command Surface
 
 1. Campaign spec + validator. No API calls.
 2. Google Ads read-only preflight. No mutations.
 3. Google Ads API deployer that creates paused campaigns only.
-4. Google Ads reporting pull.
-5. GA4 reporting pull.
-6. Manual approval gate for campaign enablement.
+4. Read-only Google Ads status report before enablement.
+5. Google Ads reporting pull.
+6. GA4 reporting pull.
+7. Combined advertising funnel summary.
+8. Manual approval gate for campaign enablement.
+9. Guarded live enablement command.
 
 ## Local Commands
+
+### Full Launch Order
+
+Use this sequence for a real launch. Do not skip from create-paused to enablement without the status and readiness artifacts.
+
+```bash
+npm run ads:validate
+npm run ads:google:plan
+npm run ads:google:plan -- --check-env
+npm run ads:google:preflight -- --json --output /tmp/google-ads-preflight.json
+npm run ads:google:create-paused -- --dry-run --json --output /tmp/google-ads-create-paused-plan.json
+npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused --output /tmp/google-ads-create-paused-result.json
+npm run ads:google:status -- --output /tmp/google-ads-status.json
+npm run ads:google:report -- --days 7 --output /tmp/google-ads-performance.json
+npm run ads:ga4:report -- --days 7 --output /tmp/ga4-performance.json
+npm run ads:report:combine -- --google-ads-report /tmp/google-ads-performance.json --ga4-report /tmp/ga4-performance.json --output /tmp/advertising-funnel.json
+npm run ads:google:enable-check -- --create-result /tmp/google-ads-create-paused-result.json --status-result /tmp/google-ads-status.json --funnel-report /tmp/advertising-funnel.json --confirm-assets-reviewed --confirm-budget-reviewed --confirm-conversion-tracking-reviewed --confirm-negative-keywords-reviewed --output /tmp/google-ads-enable-readiness.json
+npm run ads:google:enable -- --dry-run --readiness-result /tmp/google-ads-enable-readiness.json --output /tmp/google-ads-enable-plan.json
+npm run ads:google:preflight -- --json --output /tmp/google-ads-preflight-fresh.json
+npm run ads:google:enable -- --readiness-result /tmp/google-ads-enable-readiness.json --preflight-result /tmp/google-ads-preflight-fresh.json --confirm-enable-live-campaign --output /tmp/google-ads-enable-result.json
+```
+
+### Individual Commands
 
 Validate the source-controlled campaign spec:
 
