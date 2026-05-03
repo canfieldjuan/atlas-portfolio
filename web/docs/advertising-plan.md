@@ -122,10 +122,16 @@ Write a reusable preflight artifact for the create-paused guard:
 npm run ads:google:preflight -- --json --output /tmp/google-ads-preflight.json
 ```
 
-The future paused-create command must be guarded by a successful preflight artifact and an explicit confirmation flag. It currently stops before any mutation calls:
+Preview the exact paused-create mutation plan without credentials or API calls:
 
 ```bash
-npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused
+npm run ads:google:create-paused -- --dry-run --output /tmp/google-ads-create-paused-plan.json
+```
+
+Create the campaign in Google Ads in `PAUSED` state only. This is guarded by a successful preflight artifact, an exact customer fingerprint match, duplicate-campaign read check, and an explicit confirmation flag:
+
+```bash
+npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused --output /tmp/google-ads-create-paused-result.json
 ```
 
 Preview the Google Ads performance report query without credentials or API calls:
