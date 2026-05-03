@@ -1,3 +1,5 @@
+import { createHmac } from 'node:crypto';
+
 export const DEFAULT_GOOGLE_ADS_API_VERSION = 'v22';
 
 export const REQUIRED_GOOGLE_ADS_ENV = [
@@ -41,4 +43,14 @@ export function maskCustomerId(value) {
   }
 
   return `${'*'.repeat(Math.max(0, normalized.length - 4))}${normalized.slice(-4)}`;
+}
+
+export function customerIdFingerprint(value) {
+  const normalized = normalizeCustomerId(value);
+  const secret = envValue('GOOGLE_ADS_REFRESH_TOKEN');
+  if (!normalized || !secret) {
+    return '';
+  }
+
+  return createHmac('sha256', secret).update(normalized).digest('hex');
 }
