@@ -1,6 +1,5 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
-import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
+import { loadCampaignSpec } from './ads-spec-io.mjs';
+import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
 const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -63,48 +62,8 @@ function maskPropertyId(value) {
   return `${'*'.repeat(Math.max(0, normalized.length - 4))}${normalized.slice(-4)}`;
 }
 
-function parseArgs(argv) {
-  const values = new Map();
-  const flags = new Set();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const item = argv[index];
-    if (!item.startsWith('-')) {
-      continue;
-    }
-
-    const [name, inlineValue] = item.split('=', 2);
-    if (inlineValue !== undefined) {
-      values.set(name, inlineValue);
-      continue;
-    }
-
-    const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
-      values.set(name, next);
-      index += 1;
-      continue;
-    }
-
-    flags.add(name);
-  }
-
-  return { values, flags };
-}
-
 function fail(message, outputJson, details = {}) {
-  const safeMessage = sanitizeMessage(message);
-  if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: safeMessage, ...details }, null, 2));
-  } else {
-    console.error(safeMessage);
-    if (details.missing?.length) {
-      for (const name of details.missing) {
-        console.error(`- ${name}`);
-      }
-    }
-  }
-  process.exit(1);
+  failCommand(message, outputJson, details, { sanitize: sanitizeMessage });
 }
 
 function sanitizeMessage(message) {
@@ -303,13 +262,6 @@ function aggregateRows(rows, metricNames) {
   );
 }
 
-async function writeReportArtifact(outputPath, payload) {
-  const resolvedPath = isAbsolute(outputPath) ? outputPath : resolve(repoRoot, outputPath);
-  await mkdir(dirname(resolvedPath), { recursive: true });
-  await writeFile(resolvedPath, `${JSON.stringify({ ...payload, outputPath: resolvedPath }, null, 2)}\n`, 'utf8');
-  return resolvedPath;
-}
-
 function printTextReport(payload) {
   console.log('GA4 campaign performance report');
   console.log(`Mode: ${payload.mode}`);
@@ -383,7 +335,7 @@ async function main() {
       },
     };
     if (outputPath) {
-      payload.outputPath = await writeReportArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));
@@ -438,7 +390,7 @@ async function main() {
     };
 
     if (outputPath) {
-      payload.outputPath = await writeReportArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));

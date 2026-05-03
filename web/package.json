@@ -18,6 +18,7 @@
     "ads:google:create-paused": "node scripts/create-paused-google-ads-campaign.mjs",
     "ads:google:enable-check": "node scripts/check-google-ads-enable-readiness.mjs",
     "ads:google:enable": "node scripts/enable-google-ads-campaign.mjs",
+    "test:ads-helpers": "node scripts/test-advertising-cli-helpers.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
   "dependencies": {

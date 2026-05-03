@@ -1,6 +1,10 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
-import { repoRoot } from './ads-spec-io.mjs';
+import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import {
+  googleAdsHeaders,
+  parseGoogleError,
+  refreshAccessToken as refreshGoogleAdsAccessToken,
+  sanitizeGoogleAdsMessage,
+} from './google-ads-api.mjs';
 import {
   customerIdFingerprint,
   envValue,
@@ -11,7 +15,6 @@ import {
 } from './google-ads-env.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
-const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const READ_ONLY_CUSTOMER_QUERY = `
   SELECT
     customer.id,
@@ -54,132 +57,13 @@ Safety:
   Upstream error bodies are summarized by default. Use --debug-errors only in a trusted shell.`);
 }
 
-function parseArgs(argv) {
-  const values = new Map();
-  const flags = new Set();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const item = argv[index];
-    if (!item.startsWith('-')) {
-      continue;
-    }
-
-    const [name, inlineValue] = item.split('=', 2);
-    if (inlineValue !== undefined) {
-      values.set(name, inlineValue);
-      continue;
-    }
-
-    const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
-      values.set(name, next);
-      index += 1;
-      continue;
-    }
-
-    flags.add(name);
-  }
-
-  return { values, flags };
-}
-
 function fail(message, outputJson, details = {}) {
-  const safeMessage = sanitizeMessage(message);
-  if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: safeMessage, ...details }, null, 2));
-  } else {
-    console.error(safeMessage);
-    if (details.missing?.length) {
-      for (const name of details.missing) {
-        console.error(`- ${name}`);
-      }
-    }
-  }
-  process.exit(1);
-}
-
-function sanitizeMessage(message) {
-  let safe = String(message || 'Unknown error.');
-  for (const value of [envValue('GOOGLE_ADS_CUSTOMER_ID'), envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID')]) {
-    const normalized = normalizeCustomerId(value);
-    if (!normalized) {
-      continue;
-    }
-
-    safe = safe.replaceAll(normalized, maskCustomerId(normalized));
-    safe = safe.replaceAll(formatDashedCustomerId(normalized), maskCustomerId(normalized));
-  }
-  return safe;
-}
-
-function formatDashedCustomerId(value) {
-  const normalized = normalizeCustomerId(value);
-  if (normalized.length !== 10) {
-    return normalized;
-  }
-
-  return `${normalized.slice(0, 3)}-${normalized.slice(3, 6)}-${normalized.slice(6)}`;
-}
-
-async function parseGoogleError(response, includeDebug = false) {
-  const text = await response.text();
-  try {
-    const parsed = JSON.parse(text);
-    const code = parsed.error?.status || parsed.error || parsed.error_description;
-    const summary = code ? `Google API request failed with ${code}.` : 'Google API request failed.';
-    if (!includeDebug) {
-      return summary;
-    }
-
-    const debugMessage = parsed.error?.message || parsed.error_description || text;
-    return `${summary} Debug: ${sanitizeMessage(debugMessage)}`;
-  } catch {
-    return `Google API request failed with non-JSON response (${response.status}).`;
-  }
+  failCommand(message, outputJson, details, { sanitize: sanitizeGoogleAdsMessage });
 }
 
 async function refreshAccessToken(options = {}) {
   callState.oauthCallAttempted = true;
-  const body = new URLSearchParams({
-    client_id: envValue('GOOGLE_ADS_CLIENT_ID'),
-    client_secret: envValue('GOOGLE_ADS_CLIENT_SECRET'),
-    refresh_token: envValue('GOOGLE_ADS_REFRESH_TOKEN'),
-    grant_type: 'refresh_token',
-  });
-
-  const response = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    body,
-  });
-
-  if (!response.ok) {
-    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
-  }
-
-  const payload = await response.json();
-  if (!payload.access_token) {
-    throw new Error('OAuth refresh response did not include access_token.');
-  }
-
-  return payload.access_token;
-}
-
-function googleAdsHeaders(accessToken, includeJson = false) {
-  const headers = {
-    authorization: `Bearer ${accessToken}`,
-    'developer-token': envValue('GOOGLE_ADS_DEVELOPER_TOKEN'),
-  };
-  const loginCustomerId = normalizeCustomerId(envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID'));
-  if (loginCustomerId) {
-    headers['login-customer-id'] = loginCustomerId;
-  }
-  if (includeJson) {
-    headers['content-type'] = 'application/json';
-  }
-  return headers;
+  return refreshGoogleAdsAccessToken({ includeDebug: options.debugErrors });
 }
 
 async function listAccessibleCustomers(accessToken, apiVersion, options = {}) {
@@ -190,7 +74,7 @@ async function listAccessibleCustomers(accessToken, apiVersion, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`listAccessibleCustomers failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
+    throw new Error(`listAccessibleCustomers failed (${response.status}): ${await parseGoogleError(response, { includeDebug: options.debugErrors })}`);
   }
 
   const payload = await response.json();
@@ -209,7 +93,7 @@ async function queryTargetCustomer(accessToken, apiVersion, customerId, options 
   });
 
   if (!response.ok) {
-    throw new Error(`target customer query failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
+    throw new Error(`target customer query failed (${response.status}): ${await parseGoogleError(response, { includeDebug: options.debugErrors })}`);
   }
 
   const payload = await response.json();
@@ -230,13 +114,6 @@ function summarizeCustomer(customer) {
     manager: Boolean(customer.manager),
     testAccount: Boolean(customer.testAccount),
   };
-}
-
-async function writePreflightArtifact(outputPath, payload) {
-  const resolvedPath = isAbsolute(outputPath) ? outputPath : resolve(repoRoot, outputPath);
-  await mkdir(dirname(resolvedPath), { recursive: true });
-  await writeFile(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-  return resolvedPath;
 }
 
 async function main() {
@@ -299,7 +176,7 @@ async function main() {
       targetCustomer: summarizeCustomer(customer),
     };
 
-    const artifactPath = outputPath ? await writePreflightArtifact(outputPath, payload) : '';
+    const artifactPath = outputPath ? await writeJsonArtifact(outputPath, payload, { includeOutputPath: false }) : '';
 
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));

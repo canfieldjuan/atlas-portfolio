@@ -1,6 +1,11 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
-import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
+import { loadCampaignSpec } from './ads-spec-io.mjs';
+import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import {
+  escapeGaqlString,
+  googleAdsSearch,
+  refreshAccessToken,
+  sanitizeGoogleAdsMessage,
+} from './google-ads-api.mjs';
 import {
   envValue,
   googleAdsApiVersion,
@@ -10,7 +15,6 @@ import {
 } from './google-ads-env.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
-const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DEFAULT_DAYS = 7;
 const MAX_DAYS = 90;
 
@@ -36,71 +40,8 @@ Safety:
   This command is read-only. It only refreshes OAuth and runs googleAds:search for campaign metrics.`);
 }
 
-function parseArgs(argv) {
-  const values = new Map();
-  const flags = new Set();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const item = argv[index];
-    if (!item.startsWith('-')) {
-      continue;
-    }
-
-    const [name, inlineValue] = item.split('=', 2);
-    if (inlineValue !== undefined) {
-      values.set(name, inlineValue);
-      continue;
-    }
-
-    const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
-      values.set(name, next);
-      index += 1;
-      continue;
-    }
-
-    flags.add(name);
-  }
-
-  return { values, flags };
-}
-
 function fail(message, outputJson, details = {}) {
-  const safeMessage = sanitizeMessage(message);
-  if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: safeMessage, ...details }, null, 2));
-  } else {
-    console.error(safeMessage);
-    if (details.missing?.length) {
-      for (const name of details.missing) {
-        console.error(`- ${name}`);
-      }
-    }
-  }
-  process.exit(1);
-}
-
-function sanitizeMessage(message) {
-  let safe = String(message || 'Unknown error.');
-  for (const value of [envValue('GOOGLE_ADS_CUSTOMER_ID'), envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID')]) {
-    const normalized = normalizeCustomerId(value);
-    if (!normalized) {
-      continue;
-    }
-
-    safe = safe.replaceAll(normalized, maskCustomerId(normalized));
-    safe = safe.replaceAll(formatDashedCustomerId(normalized), maskCustomerId(normalized));
-  }
-  return safe;
-}
-
-function formatDashedCustomerId(value) {
-  const normalized = normalizeCustomerId(value);
-  if (normalized.length !== 10) {
-    return normalized;
-  }
-
-  return `${normalized.slice(0, 3)}-${normalized.slice(3, 6)}-${normalized.slice(6)}`;
+  failCommand(message, outputJson, details, { sanitize: sanitizeGoogleAdsMessage });
 }
 
 function parseDays(value) {
@@ -146,10 +87,6 @@ function buildDateRange(days, endDate) {
   };
 }
 
-function escapeGaqlString(value) {
-  return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-}
-
 function buildPerformanceQuery(campaignName, dateRange) {
   return `
 SELECT
@@ -171,82 +108,12 @@ ORDER BY segments.date ASC
 `.trim();
 }
 
-async function parseGoogleError(response, includeDebug = false) {
-  const text = await response.text();
-  try {
-    const parsed = JSON.parse(text);
-    const code = parsed.error?.status || parsed.error || parsed.error_description;
-    const summary = code ? `Google API request failed with ${code}.` : 'Google API request failed.';
-    if (!includeDebug) {
-      return summary;
-    }
-
-    const debugMessage = parsed.error?.message || parsed.error_description || text;
-    return `${summary} Debug: ${sanitizeMessage(debugMessage)}`;
-  } catch {
-    return `Google API request failed with non-JSON response (${response.status}).`;
-  }
-}
-
-async function refreshAccessToken(options = {}) {
-  const body = new URLSearchParams({
-    client_id: envValue('GOOGLE_ADS_CLIENT_ID'),
-    client_secret: envValue('GOOGLE_ADS_CLIENT_SECRET'),
-    refresh_token: envValue('GOOGLE_ADS_REFRESH_TOKEN'),
-    grant_type: 'refresh_token',
-  });
-
-  const response = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    body,
-  });
-
-  if (!response.ok) {
-    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
-  }
-
-  const payload = await response.json();
-  if (!payload.access_token) {
-    throw new Error('OAuth refresh response did not include access_token.');
-  }
-
-  return payload.access_token;
-}
-
-function googleAdsHeaders(accessToken, includeJson = false) {
-  const headers = {
-    authorization: `Bearer ${accessToken}`,
-    'developer-token': envValue('GOOGLE_ADS_DEVELOPER_TOKEN'),
-  };
-  const loginCustomerId = normalizeCustomerId(envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID'));
-  if (loginCustomerId) {
-    headers['login-customer-id'] = loginCustomerId;
-  }
-  if (includeJson) {
-    headers['content-type'] = 'application/json';
-  }
-  return headers;
-}
-
 async function runPerformanceQuery(accessToken, apiVersion, customerId, query, options = {}) {
-  const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
-    method: 'POST',
-    headers: googleAdsHeaders(accessToken, true),
-    body: JSON.stringify({
-      query,
-      pageSize: 1000,
-    }),
+  return googleAdsSearch(accessToken, apiVersion, customerId, query, {
+    includeDebug: options.debugErrors,
+    pageSize: 1000,
+    errorLabel: 'campaign performance query',
   });
-
-  if (!response.ok) {
-    throw new Error(`campaign performance query failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
-  }
-
-  const payload = await response.json();
-  return payload.results || [];
 }
 
 function numericValue(value) {
@@ -302,13 +169,6 @@ function aggregatePerformance(rows) {
     averageCpcMicros: totals.clicks > 0 ? Math.round(totals.costMicros / totals.clicks) : 0,
     averageCpcUsd: totals.clicks > 0 ? microsToUsd(totals.costMicros / totals.clicks) : 0,
   };
-}
-
-async function writeReportArtifact(outputPath, payload) {
-  const resolvedPath = isAbsolute(outputPath) ? outputPath : resolve(repoRoot, outputPath);
-  await mkdir(dirname(resolvedPath), { recursive: true });
-  await writeFile(resolvedPath, `${JSON.stringify({ ...payload, outputPath: resolvedPath }, null, 2)}\n`, 'utf8');
-  return resolvedPath;
 }
 
 function printTextReport(payload) {
@@ -372,7 +232,7 @@ async function main() {
       totals: aggregatePerformance([]),
     };
     if (outputPath) {
-      payload.outputPath = await writeReportArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));
@@ -397,7 +257,7 @@ async function main() {
   }
 
   try {
-    const accessToken = await refreshAccessToken({ debugErrors });
+    const accessToken = await refreshAccessToken({ includeDebug: debugErrors });
     const rawRows = await runPerformanceQuery(accessToken, apiVersion, customerId, query, { debugErrors });
     const rows = rawRows.map(mapPerformanceRow);
     const payload = {
@@ -415,7 +275,7 @@ async function main() {
     };
 
     if (outputPath) {
-      payload.outputPath = await writeReportArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
 
     if (outputJson) {

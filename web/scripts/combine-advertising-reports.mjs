@@ -1,6 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
-import { repoRoot } from './ads-spec-io.mjs';
+import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 
 function printUsage() {
   console.log(`Advertising funnel report combiner
@@ -14,57 +12,8 @@ Safety:
   This command is offline. It reads existing report artifacts and writes a combined summary; it makes no API calls.`);
 }
 
-function parseArgs(argv) {
-  const values = new Map();
-  const flags = new Set();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const item = argv[index];
-    if (!item.startsWith('-')) {
-      continue;
-    }
-
-    const [name, inlineValue] = item.split('=', 2);
-    if (inlineValue !== undefined) {
-      values.set(name, inlineValue);
-      continue;
-    }
-
-    const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
-      values.set(name, next);
-      index += 1;
-      continue;
-    }
-
-    flags.add(name);
-  }
-
-  return { values, flags };
-}
-
 function fail(message, outputJson, details = {}) {
-  if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: message, ...details }, null, 2));
-  } else {
-    console.error(message);
-    if (details.errors?.length) {
-      for (const error of details.errors) {
-        console.error(`- ${error}`);
-      }
-    }
-  }
-  process.exit(1);
-}
-
-function resolvePath(path) {
-  return isAbsolute(path) ? path : resolve(repoRoot, path);
-}
-
-async function readJsonArtifact(path) {
-  const resolvedPath = resolvePath(path);
-  const payload = JSON.parse(await readFile(resolvedPath, 'utf8'));
-  return { payload, resolvedPath };
+  failCommand(message, outputJson, details);
 }
 
 function numericValue(value) {
@@ -162,13 +111,6 @@ function buildCombinedReport(googleAds, ga4, paths) {
   };
 }
 
-async function writeReportArtifact(outputPath, payload) {
-  const resolvedPath = resolvePath(outputPath);
-  await mkdir(dirname(resolvedPath), { recursive: true });
-  await writeFile(resolvedPath, `${JSON.stringify({ ...payload, outputPath: resolvedPath }, null, 2)}\n`, 'utf8');
-  return resolvedPath;
-}
-
 function printTextReport(payload) {
   console.log('Advertising funnel report');
   console.log(`Campaign: ${payload.campaignName || '(not provided)'}`);
@@ -219,7 +161,7 @@ async function main() {
       ga4Report: ga4Path,
     });
     if (outputPath) {
-      payload.outputPath = await writeReportArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));
