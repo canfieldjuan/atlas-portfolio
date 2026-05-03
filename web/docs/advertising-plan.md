@@ -58,8 +58,9 @@ Avoid:
 ## Artifact Contract
 
 The launch path is artifact-gated. Each handoff writes JSON with `artifactVersion: 1` and the downstream command refuses stale or partial artifacts.
+The table below lists the operator-facing safety highlights, not the full validator schema. The authoritative contract lives in `scripts/create-paused-google-ads-campaign.mjs`, `scripts/check-google-ads-enable-readiness.mjs`, `scripts/enable-google-ads-campaign.mjs`, and `scripts/test-google-ads-artifact-contracts.mjs`.
 
-| Artifact | Producer | Consumed by | Required safety fields |
+| Artifact | Producer | Consumed by | Safety highlights |
 | --- | --- | --- | --- |
 | Preflight | `ads:google:preflight` | `ads:google:create-paused`, `ads:google:enable` | `artifactVersion`, `mode=READ_ONLY_PREFLIGHT`, `mutations=false`, `targetCustomerFingerprint` |
 | Create-paused result | `ads:google:create-paused` | `ads:google:enable-check` | `artifactVersion`, `mode=CREATE_PAUSED`, `mutations=true`, `campaign.status=PAUSED`, created resource list |
