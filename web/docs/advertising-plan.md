@@ -31,7 +31,8 @@ Use:
 - AI content pipeline review
 - Source-to-content automation
 - Approval-ready AI content
-- Content generation workflow
+- Content approval workflow
+- Source material readiness
 
 Avoid:
 
@@ -41,6 +42,8 @@ Avoid:
 - Rank faster with AI
 - Fully automated content machine
 - Generic AI writer
+- Social media caption generator
+- SEO content tool
 
 ## API Sequence
 
