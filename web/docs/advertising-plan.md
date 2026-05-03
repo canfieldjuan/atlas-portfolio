@@ -134,6 +134,12 @@ Create the campaign in Google Ads in `PAUSED` state only. This is guarded by a s
 npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused --output /tmp/google-ads-create-paused-result.json
 ```
 
+Check whether the source-controlled campaign exists, whether it is still paused, and whether the expected ad groups/ads are present. This is read-only and is the safest checkpoint after create-paused and before enablement:
+
+```bash
+npm run ads:google:status -- --output /tmp/google-ads-status.json
+```
+
 Preview the Google Ads performance report query without credentials or API calls:
 
 ```bash
