@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +13,25 @@ import {
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptsDir);
 const tempDir = mkdtempSync(join(tmpdir(), 'atlas-google-ads-artifacts-'));
+let cleanedUp = false;
+
+function cleanupTempDir() {
+  if (cleanedUp) {
+    return;
+  }
+  cleanedUp = true;
+  rmSync(tempDir, { recursive: true, force: true });
+}
+
+process.once('exit', cleanupTempDir);
+process.once('SIGINT', () => {
+  cleanupTempDir();
+  process.exit(130);
+});
+process.once('SIGTERM', () => {
+  cleanupTempDir();
+  process.exit(143);
+});
 
 function writeJson(name, payload) {
   const filePath = join(tempDir, name);
@@ -30,6 +49,12 @@ function runScript(scriptName, args, expectedStatus = 0) {
     encoding: 'utf8',
   });
 
+  assert.equal(result.error, undefined, `${scriptName} failed to spawn: ${result.error?.message || result.error}`);
+  assert.notEqual(
+    result.status,
+    null,
+    `${scriptName} exited without a status; signal=${result.signal || 'unknown'}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`,
+  );
   assert.equal(
     result.status,
     expectedStatus,
@@ -111,9 +136,13 @@ function assertStdoutContains(result, text) {
   assert.ok(result.stdout.includes(text), `Expected stdout to include ${JSON.stringify(text)}\nstdout:\n${result.stdout}`);
 }
 
+function artifactVersionError(label) {
+  return `${label} artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSION}`;
+}
+
 assert.deepEqual(artifactVersionFields(), { artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION });
 assert.deepEqual(validateArtifactVersion({ artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION }, 'test artifact'), []);
-assert.deepEqual(validateArtifactVersion({}, 'test artifact'), [`test artifact artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSION}`]);
+assert.deepEqual(validateArtifactVersion({}, 'test artifact'), [artifactVersionError('test artifact')]);
 
 const createPath = writeJson('create-result.json', createResult());
 const statusPath = writeJson('status-result.json', statusResult());
@@ -147,7 +176,7 @@ const staleCreateRun = runScript(
   ],
   1,
 );
-assertStdoutContains(staleCreateRun, 'create result artifactVersion must be 1');
+assertStdoutContains(staleCreateRun, artifactVersionError('create result'));
 
 const staleStatus = statusResult();
 delete staleStatus.artifactVersion;
@@ -164,7 +193,7 @@ const staleStatusRun = runScript(
   ],
   1,
 );
-assertStdoutContains(staleStatusRun, 'status result artifactVersion must be 1');
+assertStdoutContains(staleStatusRun, artifactVersionError('status result'));
 
 const enableDryRunPath = join(tempDir, 'enable-dry-run.json');
 const enableDryRun = runScript('enable-google-ads-campaign.mjs', [
@@ -187,7 +216,7 @@ const staleReadinessRun = runScript(
   ['--dry-run', '--readiness-result', staleReadinessPath, '--json'],
   1,
 );
-assertStdoutContains(staleReadinessRun, 'readiness result artifactVersion must be 1');
+assertStdoutContains(staleReadinessRun, artifactVersionError('readiness result'));
 
 const statusDryRunPath = join(tempDir, 'status-dry-run.json');
 runScript('status-google-ads-campaign.mjs', ['--dry-run', '--json', '--output', statusDryRunPath]);
@@ -198,3 +227,4 @@ runScript('create-paused-google-ads-campaign.mjs', ['--dry-run', '--json', '--ou
 assert.equal(readJson(createDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
 
 console.log('Google Ads artifact contract tests passed.');
+cleanupTempDir();
