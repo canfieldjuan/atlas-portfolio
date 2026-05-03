@@ -69,6 +69,10 @@ GOOGLE_ADS_LOGIN_CUSTOMER_ID=
 GOOGLE_ADS_CUSTOMER_ID=
 GOOGLE_ADS_API_VERSION=v22
 GA4_PROPERTY_ID=
+GA4_CLIENT_ID=
+GA4_CLIENT_SECRET=
+GA4_REFRESH_TOKEN=
+GA4_API_VERSION=v1beta
 ```
 
 ## Next Build Slices
@@ -134,4 +138,16 @@ Pull read-only Google Ads campaign performance after the campaign exists:
 
 ```bash
 npm run ads:google:report -- --days 7 --output /tmp/google-ads-performance.json
+```
+
+Preview the GA4 landing-page and conversion-event report without credentials or API calls:
+
+```bash
+npm run ads:ga4:report -- --dry-run
+```
+
+Pull read-only GA4 campaign landing-page traffic and audit-request events:
+
+```bash
+npm run ads:ga4:report -- --days 7 --output /tmp/ga4-performance.json
 ```
