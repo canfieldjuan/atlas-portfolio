@@ -28,6 +28,7 @@ function printUsage() {
 
 Usage:
   npm run ads:google:enable-check -- --create-result /tmp/google-ads-create-paused-result.json \\
+    --status-result /tmp/google-ads-status.json \\
     --confirm-assets-reviewed \\
     --confirm-budget-reviewed \\
     --confirm-conversion-tracking-reviewed \\
@@ -91,6 +92,38 @@ function validateFunnelReport(payload) {
   return errors;
 }
 
+function validateStatusResult(payload, createResult) {
+  const errors = [];
+  if (payload?.ok !== true) {
+    errors.push('Status result must have ok=true');
+  }
+  if (payload?.mode !== 'GOOGLE_ADS_CAMPAIGN_STATUS_REPORT') {
+    errors.push('Status result must have mode=GOOGLE_ADS_CAMPAIGN_STATUS_REPORT; dry-run plans are not launch-ready artifacts');
+  }
+  if (payload?.apiCalls !== true || payload?.mutations !== false) {
+    errors.push('Status result must show apiCalls=true and mutations=false');
+  }
+  if (payload?.campaignFound !== true) {
+    errors.push('Status result must show campaignFound=true');
+  }
+  if (payload?.campaignName !== createResult?.campaign?.name) {
+    errors.push('Status result campaignName must match the create-result campaign name');
+  }
+  if (payload?.campaign?.status !== 'PAUSED') {
+    errors.push('Status result must show the Google Ads campaign is still PAUSED');
+  }
+  if (payload?.nextSteps?.enableSafe !== true) {
+    errors.push('Status result must show nextSteps.enableSafe=true');
+  }
+  if (!Number.isInteger(payload?.adGroups?.count) || payload.adGroups.count < 1) {
+    errors.push('Status result must show at least one ad group');
+  }
+  if (!Number.isInteger(payload?.ads?.count) || payload.ads.count < 1) {
+    errors.push('Status result must show at least one ad');
+  }
+  return errors;
+}
+
 function confirmationState(flags) {
   return Object.fromEntries(REQUIRED_CONFIRMATIONS.map((item) => [item.key, flags.has(item.flag)]));
 }
@@ -99,7 +132,15 @@ function missingConfirmations(flags) {
   return REQUIRED_CONFIRMATIONS.filter((item) => !flags.has(item.flag)).map((item) => `${item.flag}: ${item.label}`);
 }
 
-function buildReadinessPayload({ createResult, createResultPath, funnelReport, funnelReportPath, confirmations }) {
+function buildReadinessPayload({
+  createResult,
+  createResultPath,
+  statusResult,
+  statusResultPath,
+  funnelReport,
+  funnelReportPath,
+  confirmations,
+}) {
   return {
     ok: true,
     mode: 'GOOGLE_ADS_ENABLEMENT_READINESS',
@@ -112,6 +153,15 @@ function buildReadinessPayload({ createResult, createResultPath, funnelReport, f
       campaignStatus: createResult.campaign?.status || '',
       dailyBudgetUsd: createResult.campaign?.dailyBudgetUsd ?? null,
       createdResourceCount: createResult.createdResources?.length || 0,
+    },
+    statusResult: {
+      path: statusResultPath,
+      campaignFound: statusResult.campaignFound === true,
+      campaignStatus: statusResult.campaign?.status || '',
+      budgetAmountUsd: statusResult.campaign?.budget?.amountUsd ?? null,
+      adGroupCount: statusResult.adGroups?.count ?? 0,
+      adCount: statusResult.ads?.count ?? 0,
+      enableSafe: statusResult.nextSteps?.enableSafe === true,
     },
     funnelReport: funnelReport
       ? {
@@ -131,6 +181,9 @@ function printTextReport(payload) {
   console.log(`Campaign: ${payload.createResult.campaignName}`);
   console.log(`Campaign status: ${payload.createResult.campaignStatus}`);
   console.log(`Created resources: ${payload.createResult.createdResourceCount}`);
+  console.log(`Google Ads status: ${payload.statusResult.campaignStatus}`);
+  console.log(`Ad groups: ${payload.statusResult.adGroupCount}`);
+  console.log(`Ads: ${payload.statusResult.adCount}`);
   console.log(`Funnel report attached: ${payload.funnelReport ? 'yes' : 'no'}`);
   if (payload.outputPath) {
     console.log(`Readiness artifact: ${payload.outputPath}`);
@@ -154,10 +207,18 @@ async function main() {
   if (!createResultPath) {
     fail('Refusing to continue without --create-result <path>.', outputJson);
   }
+  const statusResultPath = values.get('--status-result');
+  if (!statusResultPath) {
+    fail('Refusing to continue without --status-result <path>.', outputJson);
+  }
 
   try {
-    const [{ payload: createResult, resolvedPath }] = await Promise.all([readJsonArtifact(createResultPath)]);
+    const [
+      { payload: createResult, resolvedPath },
+      { payload: statusResult, resolvedPath: resolvedStatusPath },
+    ] = await Promise.all([readJsonArtifact(createResultPath), readJsonArtifact(statusResultPath)]);
     const errors = [...validateCreateResult(createResult), ...missingConfirmations(flags)];
+    errors.push(...validateStatusResult(statusResult, createResult));
     let funnelReport = null;
     let funnelReportPath = '';
 
@@ -181,6 +242,8 @@ async function main() {
     const payload = buildReadinessPayload({
       createResult,
       createResultPath: resolvedPath,
+      statusResult,
+      statusResultPath: resolvedStatusPath,
       funnelReport,
       funnelReportPath,
       confirmations: confirmationState(flags),
