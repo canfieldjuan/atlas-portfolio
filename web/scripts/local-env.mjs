@@ -27,7 +27,7 @@ export async function loadLocalEnv(files = DEFAULT_ENV_FILES) {
       process.env[parsed.key] = parsed.value;
     }
 
-    loaded.push(file);
+    loaded.push(path);
   }
 
   return loaded;

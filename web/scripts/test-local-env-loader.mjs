@@ -53,6 +53,6 @@ function assert(condition, message) {
 }
 
 main().catch((error) => {
-  console.error(error.message || error);
+  console.error(error.stack || error);
   process.exit(1);
 });
