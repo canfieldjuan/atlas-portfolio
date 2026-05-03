@@ -45,12 +45,19 @@ function validateCampaign(campaign, errors) {
     fail(errors, 'Campaign dailyBudgetUsd must be a positive number.');
   }
 
-  if (campaign.dailyBudgetUsd > campaign.maxInitialDailyBudgetUsd) {
-    fail(errors, 'Campaign dailyBudgetUsd exceeds maxInitialDailyBudgetUsd.');
-  }
+  if (
+    typeof campaign.maxInitialDailyBudgetUsd !== 'number' ||
+    campaign.maxInitialDailyBudgetUsd <= 0
+  ) {
+    fail(errors, 'Campaign maxInitialDailyBudgetUsd must be a positive number.');
+  } else {
+    if (typeof campaign.dailyBudgetUsd === 'number' && campaign.dailyBudgetUsd > campaign.maxInitialDailyBudgetUsd) {
+      fail(errors, 'Campaign dailyBudgetUsd exceeds maxInitialDailyBudgetUsd.');
+    }
 
-  if (campaign.maxInitialDailyBudgetUsd > 50) {
-    fail(errors, 'Initial budget cap must stay at or below $50/day.');
+    if (campaign.maxInitialDailyBudgetUsd > 50) {
+      fail(errors, 'Initial budget cap must stay at or below $50/day.');
+    }
   }
 
   if (!campaign.landingPage?.startsWith('https://juancanfield.com/')) {
@@ -68,24 +75,42 @@ function validateCampaign(campaign, errors) {
   }
 }
 
-function validateRsaAssets(assets, campaign, errors) {
+function validateAdGroup(adGroup, errors) {
+  if (!adGroup?.name) {
+    fail(errors, 'Every ad group must have a name.');
+  }
+
+  if (!adGroup?.keywordFile) {
+    fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare keywordFile.`);
+  }
+
+  if (!adGroup?.negativeKeywordFile) {
+    fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare negativeKeywordFile.`);
+  }
+
+  if (!adGroup?.responsiveSearchAdFile) {
+    fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare responsiveSearchAdFile.`);
+  }
+}
+
+function validateRsaAssets(assets, campaign, errors, context) {
   if (!Array.isArray(assets.headlines) || assets.headlines.length < 3) {
-    fail(errors, 'Responsive search ad needs at least 3 headlines.');
+    fail(errors, `${context}: responsive search ad needs at least 3 headlines.`);
   }
 
   if (!Array.isArray(assets.descriptions) || assets.descriptions.length < 2) {
-    fail(errors, 'Responsive search ad needs at least 2 descriptions.');
+    fail(errors, `${context}: responsive search ad needs at least 2 descriptions.`);
   }
 
   for (const headline of assets.headlines || []) {
     if (headline.length > MAX_HEADLINE_LENGTH) {
-      fail(errors, `Headline exceeds ${MAX_HEADLINE_LENGTH} chars: "${headline}"`);
+      fail(errors, `${context}: headline exceeds ${MAX_HEADLINE_LENGTH} chars: "${headline}"`);
     }
   }
 
   for (const description of assets.descriptions || []) {
     if (description.length > MAX_DESCRIPTION_LENGTH) {
-      fail(errors, `Description exceeds ${MAX_DESCRIPTION_LENGTH} chars: "${description}"`);
+      fail(errors, `${context}: description exceeds ${MAX_DESCRIPTION_LENGTH} chars: "${description}"`);
     }
   }
 
@@ -93,71 +118,96 @@ function validateRsaAssets(assets, campaign, errors) {
   try {
     finalUrl = new URL(assets.finalUrl);
   } catch {
-    fail(errors, 'RSA finalUrl must be a valid URL.');
+    fail(errors, `${context}: RSA finalUrl must be a valid URL.`);
     return;
   }
 
   if (finalUrl.origin !== 'https://juancanfield.com') {
-    fail(errors, 'RSA finalUrl must use https://juancanfield.com.');
+    fail(errors, `${context}: RSA finalUrl must use https://juancanfield.com.`);
   }
 
   for (const key of REQUIRED_UTM_KEYS) {
     if (!finalUrl.searchParams.get(key)) {
-      fail(errors, `RSA finalUrl missing ${key}.`);
+      fail(errors, `${context}: RSA finalUrl missing ${key}.`);
     }
   }
 
   if (finalUrl.searchParams.get('utm_campaign') !== campaign.utm?.campaign) {
-    fail(errors, 'RSA utm_campaign must match campaign.json.');
+    fail(errors, `${context}: RSA utm_campaign must match campaign.json.`);
   }
 
   if (finalUrl.searchParams.get('utm_content') !== campaign.utm?.content) {
-    fail(errors, 'RSA utm_content must match campaign.json.');
+    fail(errors, `${context}: RSA utm_content must match campaign.json.`);
   }
 }
 
-function validateKeywords(keywords, errors) {
+function validateKeywords(keywords, errors, context) {
   if (keywords.length < 8) {
-    fail(errors, 'Keyword list is too small for the first test.');
+    fail(errors, `${context}: keyword list is too small for the first test.`);
   }
 
   for (const row of keywords) {
     if (!ALLOWED_MATCH_TYPES.has(row.match_type)) {
-      fail(errors, `Keyword "${row.keyword}" must use exact or phrase match.`);
+      fail(errors, `${context}: keyword "${row.keyword}" must use exact or phrase match.`);
     }
 
     if (!row.keyword || row.keyword.split(/\s+/).length < 2) {
-      fail(errors, `Keyword is too broad: "${row.keyword}"`);
+      fail(errors, `${context}: keyword is too broad: "${row.keyword}"`);
     }
   }
 }
 
-function validateNegatives(negatives, errors) {
+function validateNegatives(negatives, errors, context) {
   const negativeSet = new Set(negatives.map((row) => row.keyword));
   for (const required of REQUIRED_NEGATIVES) {
     if (!negativeSet.has(required)) {
-      fail(errors, `Missing required negative keyword: "${required}"`);
+      fail(errors, `${context}: missing required negative keyword: "${required}"`);
     }
   }
 
   for (const row of negatives) {
     if (!ALLOWED_MATCH_TYPES.has(row.match_type)) {
-      fail(errors, `Negative keyword "${row.keyword}" must use exact or phrase match.`);
+      fail(errors, `${context}: negative keyword "${row.keyword}" must use exact or phrase match.`);
     }
   }
 }
 
 async function main() {
   const errors = [];
+  const totals = {
+    headlines: 0,
+    descriptions: 0,
+    keywords: 0,
+    negatives: 0,
+  };
   const campaign = await readJson(join(specDir, 'campaign.json'));
-  const rsaAssets = await readJson(join(specDir, 'rsa_assets.json'));
-  const keywords = await readCsv(join(specDir, 'keywords.csv'));
-  const negatives = await readCsv(join(specDir, 'negative_keywords.csv'));
 
   validateCampaign(campaign, errors);
-  validateRsaAssets(rsaAssets, campaign, errors);
-  validateKeywords(keywords, errors);
-  validateNegatives(negatives, errors);
+
+  if (!Array.isArray(campaign.adGroups) || campaign.adGroups.length === 0) {
+    fail(errors, 'Campaign must declare at least one ad group.');
+  }
+
+  for (const adGroup of campaign.adGroups || []) {
+    const context = `Ad group "${adGroup?.name || 'unknown'}"`;
+    validateAdGroup(adGroup, errors);
+    if (!adGroup?.keywordFile || !adGroup?.negativeKeywordFile || !adGroup?.responsiveSearchAdFile) {
+      continue;
+    }
+
+    const rsaAssets = await readJson(join(specDir, adGroup.responsiveSearchAdFile));
+    const keywords = await readCsv(join(specDir, adGroup.keywordFile));
+    const negatives = await readCsv(join(specDir, adGroup.negativeKeywordFile));
+
+    validateRsaAssets(rsaAssets, campaign, errors, context);
+    validateKeywords(keywords, errors, context);
+    validateNegatives(negatives, errors, context);
+
+    totals.headlines += rsaAssets.headlines?.length || 0;
+    totals.descriptions += rsaAssets.descriptions?.length || 0;
+    totals.keywords += keywords.length;
+    totals.negatives += negatives.length;
+  }
 
   if (errors.length > 0) {
     console.error('Ad spec validation failed:');
@@ -170,10 +220,11 @@ async function main() {
   console.log('Ad spec validation passed.');
   console.log(`Campaign: ${campaign.campaignName}`);
   console.log(`Budget: $${campaign.dailyBudgetUsd}/day`);
-  console.log(`Headlines: ${rsaAssets.headlines.length}`);
-  console.log(`Descriptions: ${rsaAssets.descriptions.length}`);
-  console.log(`Keywords: ${keywords.length}`);
-  console.log(`Negative keywords: ${negatives.length}`);
+  console.log(`Ad groups: ${campaign.adGroups.length}`);
+  console.log(`Headlines: ${totals.headlines}`);
+  console.log(`Descriptions: ${totals.descriptions}`);
+  console.log(`Keywords: ${totals.keywords}`);
+  console.log(`Negative keywords: ${totals.negatives}`);
 }
 
 main().catch((error) => {

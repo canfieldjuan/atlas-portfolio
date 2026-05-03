@@ -17,7 +17,7 @@ For the AI Content Ops lane, the paid offer is the **AI Content Workflow Audit**
 | Status | Paused by default |
 | Initial budget | $35/day, capped below $50/day |
 | Geography | United States |
-| Landing page | `/systems/ai-content-ops` |
+| Landing page | `https://juancanfield.com/systems/ai-content-ops` |
 | Conversion | `audit_request_submitted` |
 | Primary offer | $1,500 fixed-fee audit |
 | Downstream ladder | $7,500+ pilot, then $15,000+ full system |
