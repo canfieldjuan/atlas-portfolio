@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/systems/ai-content-ops`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/systems/ai-content-ops/ongoing-support`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
     { url: `${baseUrl}/podcast-repurposing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/dark-story-engine`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/proof`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/process`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
