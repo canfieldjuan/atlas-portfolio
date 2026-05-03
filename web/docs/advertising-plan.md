@@ -76,8 +76,9 @@ GA4_PROPERTY_ID=
 1. Campaign spec + validator. No API calls.
 2. Google Ads read-only preflight. No mutations.
 3. Google Ads API deployer that creates paused campaigns only.
-4. GA4 + Google Ads reporting pull.
-5. Manual approval gate for campaign enablement.
+4. Google Ads reporting pull.
+5. GA4 reporting pull.
+6. Manual approval gate for campaign enablement.
 
 ## Local Commands
 
@@ -121,4 +122,16 @@ The future paused-create command must be guarded by a successful preflight artif
 
 ```bash
 npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused
+```
+
+Preview the Google Ads performance report query without credentials or API calls:
+
+```bash
+npm run ads:google:report -- --dry-run
+```
+
+Pull read-only Google Ads campaign performance after the campaign exists:
+
+```bash
+npm run ads:google:report -- --days 7 --output /tmp/google-ads-performance.json
 ```
