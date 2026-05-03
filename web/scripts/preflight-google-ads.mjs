@@ -1,4 +1,5 @@
 import {
+  customerIdFingerprint,
   envValue,
   googleAdsApiVersion,
   maskCustomerId,
@@ -244,6 +245,7 @@ async function main() {
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
+      targetCustomerFingerprint: customerIdFingerprint(customerId),
       loginCustomerId: envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID')
         ? maskCustomerId(envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID'))
         : null,

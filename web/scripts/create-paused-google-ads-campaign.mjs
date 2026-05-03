@@ -1,7 +1,15 @@
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
-import { googleAdsApiVersion, maskCustomerId, normalizeCustomerId, validateGoogleAdsEnv } from './google-ads-env.mjs';
+import {
+  customerIdFingerprint,
+  googleAdsApiVersion,
+  maskCustomerId,
+  normalizeCustomerId,
+  validateGoogleAdsEnv,
+} from './google-ads-env.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
 function printUsage() {
@@ -27,7 +35,7 @@ function parseArgs(argv) {
 
   for (let index = 0; index < argv.length; index += 1) {
     const item = argv[index];
-    if (!item.startsWith('--')) {
+    if (!item.startsWith('-')) {
       continue;
     }
 
@@ -60,8 +68,30 @@ function fail(message, outputJson, details = {}) {
         console.error(`- ${name}`);
       }
     }
+    if (details.errors?.length) {
+      for (const error of details.errors) {
+        console.error(`- ${error}`);
+      }
+    }
   }
   process.exit(1);
+}
+
+function runSpecValidator() {
+  const result = spawnSync(process.execPath, [join(repoRoot, 'scripts', 'validate-ads-spec.mjs')], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  if (result.status !== 0) {
+    return {
+      ok: false,
+      output: `${result.stdout || ''}${result.stderr || ''}`.trim(),
+      status: result.status || 1,
+    };
+  }
+
+  return { ok: true };
 }
 
 async function readPreflightResult(path) {
@@ -85,8 +115,8 @@ function validatePreflightResult(payload, expectedCustomerId) {
   if (payload?.googleAdsCallAttempted !== true) {
     errors.push('preflight result must show googleAdsCallAttempted=true');
   }
-  if (payload?.targetCustomerId !== maskCustomerId(expectedCustomerId)) {
-    errors.push('preflight target customer must match GOOGLE_ADS_CUSTOMER_ID');
+  if (payload?.targetCustomerFingerprint !== customerIdFingerprint(expectedCustomerId)) {
+    errors.push('preflight target customer fingerprint must match GOOGLE_ADS_CUSTOMER_ID');
   }
 
   return errors;
@@ -120,6 +150,16 @@ async function main() {
       mutations: false,
       missing: envStatus.missing,
       present: envStatus.present,
+    });
+  }
+
+  const specValidation = runSpecValidator();
+  if (!specValidation.ok) {
+    fail('Ad spec validation failed.', outputJson, {
+      mode: 'CREATE_PAUSED_GUARD',
+      apiCalls: false,
+      mutations: false,
+      validatorOutput: specValidation.output,
     });
   }
 
@@ -171,6 +211,10 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message || error);
-  process.exit(1);
+  const outputJson = process.argv.includes('--json');
+  fail(error.message || String(error), outputJson, {
+    mode: 'CREATE_PAUSED_GUARD',
+    apiCalls: false,
+    mutations: false,
+  });
 });
