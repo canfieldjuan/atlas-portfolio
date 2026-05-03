@@ -57,6 +57,36 @@ function validateReadinessResult(payload) {
   if (payload?.createResult?.campaignStatus !== 'PAUSED') {
     errors.push('Readiness result must record the created campaign as PAUSED');
   }
+  if (!payload?.createResult?.apiVersion) {
+    errors.push('Readiness createResult must include apiVersion');
+  }
+  if (!payload?.createResult?.targetCustomerId) {
+    errors.push('Readiness createResult must include targetCustomerId');
+  }
+  if (!payload?.statusResult) {
+    errors.push('Readiness result must include statusResult from ads:google:status');
+  }
+  if (payload?.statusResult?.targetCustomerId !== payload?.createResult?.targetCustomerId) {
+    errors.push('Readiness statusResult targetCustomerId must match createResult targetCustomerId');
+  }
+  if (payload?.statusResult?.apiVersion !== payload?.createResult?.apiVersion) {
+    errors.push('Readiness statusResult apiVersion must match createResult apiVersion');
+  }
+  if (payload?.statusResult?.campaignFound !== true) {
+    errors.push('Readiness statusResult must show campaignFound=true');
+  }
+  if (payload?.statusResult?.campaignStatus !== 'PAUSED') {
+    errors.push('Readiness statusResult must show campaignStatus=PAUSED');
+  }
+  if (payload?.statusResult?.enableSafe !== true) {
+    errors.push('Readiness statusResult must show enableSafe=true');
+  }
+  if (!Number.isInteger(payload?.statusResult?.adGroupCount) || payload.statusResult.adGroupCount < 1) {
+    errors.push('Readiness statusResult must show at least one ad group');
+  }
+  if (!Number.isInteger(payload?.statusResult?.adCount) || payload.statusResult.adCount < 1) {
+    errors.push('Readiness statusResult must show at least one ad');
+  }
 
   for (const [key, value] of Object.entries(payload?.confirmations || {})) {
     if (value !== true) {

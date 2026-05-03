@@ -170,10 +170,10 @@ Combine the Google Ads and GA4 artifacts into one funnel summary:
 npm run ads:report:combine -- --google-ads-report /tmp/google-ads-performance.json --ga4-report /tmp/ga4-performance.json --output /tmp/advertising-funnel.json
 ```
 
-Record the human enablement review before any future campaign-enable command exists:
+Record the human enablement review. This now requires the live read-only status artifact so the enablement packet proves the campaign still exists in Google Ads, remains `PAUSED`, and has at least one ad group and ad:
 
 ```bash
-npm run ads:google:enable-check -- --create-result /tmp/google-ads-create-paused-result.json --funnel-report /tmp/advertising-funnel.json --confirm-assets-reviewed --confirm-budget-reviewed --confirm-conversion-tracking-reviewed --confirm-negative-keywords-reviewed --output /tmp/google-ads-enable-readiness.json
+npm run ads:google:enable-check -- --create-result /tmp/google-ads-create-paused-result.json --status-result /tmp/google-ads-status.json --funnel-report /tmp/advertising-funnel.json --confirm-assets-reviewed --confirm-budget-reviewed --confirm-conversion-tracking-reviewed --confirm-negative-keywords-reviewed --output /tmp/google-ads-enable-readiness.json
 ```
 
 Preview the final enablement mutation without credentials or API calls:
