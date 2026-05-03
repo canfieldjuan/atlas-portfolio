@@ -62,6 +62,12 @@ function validateCreateResult(payload) {
   if (payload?.mutations !== true || payload?.apiCalls !== true) {
     errors.push('Create result must show apiCalls=true and mutations=true');
   }
+  if (!payload?.apiVersion) {
+    errors.push('Create result must include apiVersion');
+  }
+  if (!payload?.targetCustomerId) {
+    errors.push('Create result must include targetCustomerId');
+  }
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Created campaign must still be recorded as PAUSED');
   }
@@ -109,6 +115,12 @@ function validateStatusResult(payload, createResult) {
   if (payload?.campaignName !== createResult?.campaign?.name) {
     errors.push('Status result campaignName must match the create-result campaign name');
   }
+  if (payload?.targetCustomerId !== createResult?.targetCustomerId) {
+    errors.push('Status result targetCustomerId must match the create-result targetCustomerId');
+  }
+  if (payload?.apiVersion !== createResult?.apiVersion) {
+    errors.push('Status result apiVersion must match the create-result apiVersion');
+  }
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Status result must show the Google Ads campaign is still PAUSED');
   }
@@ -149,6 +161,8 @@ function buildReadinessPayload({
     readyForEnablement: true,
     createResult: {
       path: createResultPath,
+      apiVersion: createResult.apiVersion || '',
+      targetCustomerId: createResult.targetCustomerId || '',
       campaignName: createResult.campaign?.name || '',
       campaignStatus: createResult.campaign?.status || '',
       dailyBudgetUsd: createResult.campaign?.dailyBudgetUsd ?? null,
@@ -156,6 +170,8 @@ function buildReadinessPayload({
     },
     statusResult: {
       path: statusResultPath,
+      apiVersion: statusResult.apiVersion || '',
+      targetCustomerId: statusResult.targetCustomerId || '',
       campaignFound: statusResult.campaignFound === true,
       campaignStatus: statusResult.campaign?.status || '',
       budgetAmountUsd: statusResult.campaign?.budget?.amountUsd ?? null,

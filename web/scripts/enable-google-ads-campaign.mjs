@@ -57,8 +57,20 @@ function validateReadinessResult(payload) {
   if (payload?.createResult?.campaignStatus !== 'PAUSED') {
     errors.push('Readiness result must record the created campaign as PAUSED');
   }
+  if (!payload?.createResult?.apiVersion) {
+    errors.push('Readiness createResult must include apiVersion');
+  }
+  if (!payload?.createResult?.targetCustomerId) {
+    errors.push('Readiness createResult must include targetCustomerId');
+  }
   if (!payload?.statusResult) {
     errors.push('Readiness result must include statusResult from ads:google:status');
+  }
+  if (payload?.statusResult?.targetCustomerId !== payload?.createResult?.targetCustomerId) {
+    errors.push('Readiness statusResult targetCustomerId must match createResult targetCustomerId');
+  }
+  if (payload?.statusResult?.apiVersion !== payload?.createResult?.apiVersion) {
+    errors.push('Readiness statusResult apiVersion must match createResult apiVersion');
   }
   if (payload?.statusResult?.campaignFound !== true) {
     errors.push('Readiness statusResult must show campaignFound=true');
