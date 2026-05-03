@@ -89,7 +89,7 @@ Preview the Google Ads operations without making API calls:
 npm run ads:google:plan
 ```
 
-Check local Google Ads API credentials without creating anything:
+Check local Google Ads API credentials only. This skips campaign spec validation and does not create anything:
 
 ```bash
 npm run ads:google:plan -- --check-env

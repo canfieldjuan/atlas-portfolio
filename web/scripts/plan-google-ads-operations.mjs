@@ -59,6 +59,32 @@ function validateGoogleAdsEnv() {
   };
 }
 
+function printEnvCheck(envStatus, outputJson) {
+  const payload = {
+    mode: 'ENV_CHECK',
+    apiCalls: false,
+    env: {
+      checked: true,
+      ok: envStatus.ok,
+      present: envStatus.present,
+      missing: envStatus.missing,
+    },
+  };
+
+  if (outputJson) {
+    console.log(JSON.stringify(payload, null, 2));
+    return;
+  }
+
+  console.log('Google Ads environment check');
+  console.log('API calls: disabled');
+  console.log('Spec validation: skipped');
+  console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
+  if (!envStatus.ok) {
+    console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+  }
+}
+
 function plannedResourceName(prefix, name) {
   return `${prefix}:${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
 }
@@ -138,16 +164,14 @@ async function main() {
     process.exit(1);
   }
 
-  runSpecValidator();
   const envStatus = validateGoogleAdsEnv();
 
-  if (requireEnv && !envStatus.ok) {
-    console.error('Google Ads environment is incomplete:');
-    for (const name of envStatus.missing) {
-      console.error(`- ${name}`);
-    }
-    process.exit(1);
+  if (requireEnv) {
+    printEnvCheck(envStatus, outputJson);
+    process.exit(envStatus.ok ? 0 : 1);
   }
+
+  runSpecValidator();
 
   const plan = await buildPlan();
   const payload = {
