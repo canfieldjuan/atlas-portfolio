@@ -8,7 +8,8 @@
     "build": "next build",
     "postbuild": "node scripts/ensure-vercel-routes-manifest.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ads:validate": "node scripts/validate-ads-spec.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
