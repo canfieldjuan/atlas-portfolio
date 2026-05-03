@@ -58,6 +58,7 @@ Avoid:
 ## Environment
 
 Use local/operator env only. Do not expose advertising secrets to browser code.
+The local operator scripts load `.env.local` first, then `.env`, without overriding already-exported shell variables.
 
 ```text
 GOOGLE_ADS_DEVELOPER_TOKEN=

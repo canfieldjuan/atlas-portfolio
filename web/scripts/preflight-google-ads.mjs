@@ -5,6 +5,7 @@ import {
   normalizeCustomerId,
   validateGoogleAdsEnv,
 } from './google-ads-env.mjs';
+import { loadLocalEnv } from './local-env.mjs';
 
 const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const READ_ONLY_CUSTOMER_QUERY = `
@@ -198,6 +199,8 @@ function summarizeCustomer(customer) {
 }
 
 async function main() {
+  await loadLocalEnv();
+
   const args = new Set(process.argv.slice(2));
   const outputJson = args.has('--json');
   const debugErrors = args.has('--debug-errors');
