@@ -9,7 +9,8 @@
     "postbuild": "node scripts/ensure-vercel-routes-manifest.mjs",
     "start": "next start",
     "lint": "eslint",
-    "ads:validate": "node scripts/validate-ads-spec.mjs"
+    "ads:validate": "node scripts/validate-ads-spec.mjs",
+    "ads:google:plan": "node scripts/plan-google-ads-operations.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

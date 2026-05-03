@@ -74,3 +74,23 @@ GA4_PROPERTY_ID=
 2. Google Ads API deployer that creates paused campaigns only.
 3. GA4 + Google Ads reporting pull.
 4. Manual approval gate for campaign enablement.
+
+## Local Commands
+
+Validate the source-controlled campaign spec:
+
+```bash
+npm run ads:validate
+```
+
+Preview the Google Ads operations without making API calls:
+
+```bash
+npm run ads:google:plan
+```
+
+Check local Google Ads API credentials only. This skips campaign spec validation and does not create anything:
+
+```bash
+npm run ads:google:plan -- --check-env
+```

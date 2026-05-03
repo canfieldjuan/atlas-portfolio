@@ -1,10 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, '..');
-const specDir = join(repoRoot, 'ads', 'content-workflow-audit');
+import { loadCampaignSpec } from './ads-spec-io.mjs';
 
 const MAX_HEADLINE_LENGTH = 30;
 const MAX_DESCRIPTION_LENGTH = 90;
@@ -12,27 +6,15 @@ const REQUIRED_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_cont
 const ALLOWED_MATCH_TYPES = new Set(['exact', 'phrase']);
 const REQUIRED_NEGATIVES = ['free', 'template', 'jobs', 'course', 'blog generator', 'essay'];
 
-async function readJson(path) {
-  return JSON.parse(await readFile(path, 'utf8'));
-}
-
-async function readCsv(path) {
-  const text = await readFile(path, 'utf8');
-  const [headerLine, ...lines] = text.trim().split(/\r?\n/);
-  const headers = headerLine.split(',').map((item) => item.trim());
-  return lines
-    .filter(Boolean)
-    .map((line) => {
-      const values = line.split(',').map((item) => item.trim());
-      return Object.fromEntries(headers.map((header, index) => [header, values[index] || '']));
-    });
-}
-
 function fail(errors, message) {
   errors.push(message);
 }
 
 function validateCampaign(campaign, errors) {
+  if (typeof campaign.campaignName !== 'string' || !campaign.campaignName.trim()) {
+    fail(errors, 'Campaign campaignName must be a non-empty string.');
+  }
+
   if (campaign.status !== 'PAUSED') {
     fail(errors, 'Campaign status must be PAUSED before API deployment.');
   }
@@ -78,6 +60,10 @@ function validateCampaign(campaign, errors) {
 function validateAdGroup(adGroup, errors) {
   if (!adGroup?.name) {
     fail(errors, 'Every ad group must have a name.');
+  }
+
+  if (typeof adGroup?.defaultMaxCpcUsd !== 'number' || adGroup.defaultMaxCpcUsd <= 0) {
+    fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare a positive defaultMaxCpcUsd.`);
   }
 
   if (!adGroup?.keywordFile) {
@@ -132,6 +118,14 @@ function validateRsaAssets(assets, campaign, errors, context) {
     }
   }
 
+  if (finalUrl.searchParams.get('utm_source') !== campaign.utm?.source) {
+    fail(errors, `${context}: RSA utm_source must match campaign.json.`);
+  }
+
+  if (finalUrl.searchParams.get('utm_medium') !== campaign.utm?.medium) {
+    fail(errors, `${context}: RSA utm_medium must match campaign.json.`);
+  }
+
   if (finalUrl.searchParams.get('utm_campaign') !== campaign.utm?.campaign) {
     fail(errors, `${context}: RSA utm_campaign must match campaign.json.`);
   }
@@ -180,7 +174,7 @@ async function main() {
     keywords: 0,
     negatives: 0,
   };
-  const campaign = await readJson(join(specDir, 'campaign.json'));
+  const { campaign, adGroups } = await loadCampaignSpec();
 
   validateCampaign(campaign, errors);
 
@@ -188,16 +182,12 @@ async function main() {
     fail(errors, 'Campaign must declare at least one ad group.');
   }
 
-  for (const adGroup of campaign.adGroups || []) {
+  for (const { adGroup, rsaAssets, keywords, negatives } of adGroups) {
     const context = `Ad group "${adGroup?.name || 'unknown'}"`;
     validateAdGroup(adGroup, errors);
     if (!adGroup?.keywordFile || !adGroup?.negativeKeywordFile || !adGroup?.responsiveSearchAdFile) {
       continue;
     }
-
-    const rsaAssets = await readJson(join(specDir, adGroup.responsiveSearchAdFile));
-    const keywords = await readCsv(join(specDir, adGroup.keywordFile));
-    const negatives = await readCsv(join(specDir, adGroup.negativeKeywordFile));
 
     validateRsaAssets(rsaAssets, campaign, errors, context);
     validateKeywords(keywords, errors, context);
