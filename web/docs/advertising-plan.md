@@ -151,3 +151,9 @@ Pull read-only GA4 campaign landing-page traffic and audit-request events:
 ```bash
 npm run ads:ga4:report -- --days 7 --output /tmp/ga4-performance.json
 ```
+
+Combine the Google Ads and GA4 artifacts into one funnel summary:
+
+```bash
+npm run ads:report:combine -- --google-ads-report /tmp/google-ads-performance.json --ga4-report /tmp/ga4-performance.json --output /tmp/advertising-funnel.json
+```
