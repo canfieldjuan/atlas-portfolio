@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -80,7 +81,7 @@ function runSpecValidator() {
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'preflight result');
 
   if (payload?.ok !== true) {
     errors.push('preflight result must have ok=true');
@@ -313,6 +314,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'CREATE_PAUSED_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -447,6 +449,7 @@ async function main() {
 
     const summary = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'CREATE_PAUSED',
       apiCalls: true,
       mutations: true,
@@ -463,7 +466,7 @@ async function main() {
       createdResources,
     };
     if (outputPath) {
-      summary.outputPath = await writeResultArtifact(outputPath, summary);
+      summary.outputPath = await writeJsonArtifact(outputPath, summary);
     }
 
     if (outputJson) {

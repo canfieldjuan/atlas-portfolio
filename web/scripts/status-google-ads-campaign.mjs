@@ -1,5 +1,6 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
 import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -158,6 +159,7 @@ function buildDryRunPayload({ apiVersion, campaignName }) {
   const campaignResourcePlaceholder = 'customers/{customer_id}/campaigns/{campaign_id}';
   return {
     ok: true,
+    ...artifactVersionFields(),
     mode: 'GOOGLE_ADS_CAMPAIGN_STATUS_DRY_RUN',
     apiCalls: false,
     mutations: false,
@@ -286,6 +288,7 @@ async function main() {
     const ads = adRows.map(mapAdRow);
     const payload = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'GOOGLE_ADS_CAMPAIGN_STATUS_REPORT',
       apiCalls: true,
       mutations: false,

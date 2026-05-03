@@ -1,4 +1,5 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -38,7 +39,7 @@ function fail(message, outputJson, details = {}) {
 }
 
 function validateReadinessResult(payload) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'readiness result');
   if (payload?.ok !== true) {
     errors.push('Readiness result must have ok=true');
   }
@@ -112,7 +113,7 @@ function validateReadinessResult(payload) {
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'preflight result');
   if (payload?.ok !== true) {
     errors.push('Preflight result must have ok=true');
   }
@@ -241,6 +242,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'GOOGLE_ADS_ENABLE_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -307,6 +309,7 @@ async function main() {
     const enabledResourceName = await mutateCampaignStatus(accessToken, apiVersion, customerId, campaign.resourceName, 'ENABLED');
     const payload = {
       ok: true,
+      ...artifactVersionFields(),
       mode: 'GOOGLE_ADS_ENABLE',
       apiCalls: true,
       mutations: true,
