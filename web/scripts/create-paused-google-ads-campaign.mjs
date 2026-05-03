@@ -1,8 +1,14 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
+import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import {
+  escapeGaqlString,
+  googleAdsSearch,
+  mutateGoogleAds,
+  refreshAccessToken,
+  sanitizeGoogleAdsMessage,
+} from './google-ads-api.mjs';
 import {
   customerIdFingerprint,
   envValue,
@@ -13,7 +19,6 @@ import {
 } from './google-ads-env.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
-const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GEO_TARGET_CONSTANTS = {
   US: 'geoTargetConstants/2840',
 };
@@ -41,66 +46,8 @@ Safety:
   read-only preflight artifact and --confirm-create-paused. Use --dry-run to inspect the mutation plan.`);
 }
 
-function parseArgs(argv) {
-  const args = new Map();
-  const flags = new Set();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const item = argv[index];
-    if (!item.startsWith('-')) {
-      continue;
-    }
-
-    const [name, inlineValue] = item.split('=', 2);
-    if (inlineValue !== undefined) {
-      args.set(name, inlineValue);
-      continue;
-    }
-
-    const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
-      args.set(name, next);
-      index += 1;
-      continue;
-    }
-
-    flags.add(name);
-  }
-
-  return { args, flags };
-}
-
 function fail(message, outputJson, details = {}) {
-  const safeMessage = sanitizeMessage(message);
-  if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: safeMessage, ...details }, null, 2));
-  } else {
-    console.error(safeMessage);
-    if (details.missing?.length) {
-      for (const name of details.missing) {
-        console.error(`- ${name}`);
-      }
-    }
-    if (details.errors?.length) {
-      for (const error of details.errors) {
-        console.error(`- ${error}`);
-      }
-    }
-  }
-  process.exit(1);
-}
-
-function sanitizeMessage(message) {
-  let safe = String(message || 'Unknown error.');
-  for (const value of [envValue('GOOGLE_ADS_CUSTOMER_ID'), envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID')]) {
-    const normalized = normalizeCustomerId(value);
-    if (!normalized) {
-      continue;
-    }
-    safe = safe.replaceAll(normalized, maskCustomerId(normalized));
-    safe = safe.replaceAll(`customers/${normalized}`, `customers/${maskCustomerId(normalized)}`);
-  }
-  return safe;
+  failCommand(message, outputJson, details, { sanitize: sanitizeGoogleAdsMessage });
 }
 
 function maskResourceName(value) {
@@ -130,12 +77,6 @@ function runSpecValidator() {
   }
 
   return { ok: true };
-}
-
-async function readPreflightResult(path) {
-  const resolvedPath = isAbsolute(path) ? path : resolve(repoRoot, path);
-  const payload = JSON.parse(await readFile(resolvedPath, 'utf8'));
-  return { payload, resolvedPath };
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
@@ -172,95 +113,6 @@ function keywordMatchType(value) {
   return String(value || '').toUpperCase();
 }
 
-function escapeGaqlString(value) {
-  return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-}
-
-function googleAdsHeaders(accessToken, includeJson = false) {
-  const headers = {
-    authorization: `Bearer ${accessToken}`,
-    'developer-token': envValue('GOOGLE_ADS_DEVELOPER_TOKEN'),
-  };
-  const loginCustomerId = normalizeCustomerId(envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID'));
-  if (loginCustomerId) {
-    headers['login-customer-id'] = loginCustomerId;
-  }
-  if (includeJson) {
-    headers['content-type'] = 'application/json';
-  }
-  return headers;
-}
-
-async function parseGoogleError(response) {
-  const text = await response.text();
-  try {
-    const parsed = JSON.parse(text);
-    const status = parsed.error?.status || parsed.error;
-    const message = parsed.error?.message || 'Google API request failed.';
-    return status ? `Google API request failed with ${status}: ${message}` : message;
-  } catch {
-    return `Google API request failed with non-JSON response (${response.status}).`;
-  }
-}
-
-async function refreshAccessToken() {
-  const response = await fetch(GOOGLE_OAUTH_TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: envValue('GOOGLE_ADS_CLIENT_ID'),
-      client_secret: envValue('GOOGLE_ADS_CLIENT_SECRET'),
-      refresh_token: envValue('GOOGLE_ADS_REFRESH_TOKEN'),
-      grant_type: 'refresh_token',
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response)}`);
-  }
-
-  const payload = await response.json();
-  if (!payload.access_token) {
-    throw new Error('OAuth refresh response did not include access_token.');
-  }
-  return payload.access_token;
-}
-
-async function googleAdsSearch(accessToken, apiVersion, customerId, query) {
-  const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
-    method: 'POST',
-    headers: googleAdsHeaders(accessToken, true),
-    body: JSON.stringify({
-      query,
-      pageSize: 1,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Google Ads search failed (${response.status}): ${await parseGoogleError(response)}`);
-  }
-
-  const payload = await response.json();
-  return payload.results || [];
-}
-
-async function mutateGoogleAds(accessToken, apiVersion, customerId, collection, operations) {
-  const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/${collection}:mutate`, {
-    method: 'POST',
-    headers: googleAdsHeaders(accessToken, true),
-    body: JSON.stringify({ operations }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`${collection}:mutate failed (${response.status}): ${await parseGoogleError(response)}`);
-  }
-
-  const payload = await response.json();
-  return payload.results || [];
-}
-
 async function assertCampaignDoesNotExist(accessToken, apiVersion, customerId, campaignName) {
   const rows = await googleAdsSearch(
     accessToken,
@@ -275,6 +127,7 @@ FROM campaign
 WHERE campaign.name = '${escapeGaqlString(campaignName)}'
 LIMIT 1
 `.trim(),
+    { includeMessage: true },
   );
   if (rows.length > 0) {
     throw new Error(`Campaign already exists in Google Ads: ${campaignName}`);
@@ -420,17 +273,10 @@ function buildDryRunPlan(campaign, adGroups) {
   };
 }
 
-async function writeResultArtifact(outputPath, payload) {
-  const resolvedPath = isAbsolute(outputPath) ? outputPath : resolve(repoRoot, outputPath);
-  await mkdir(dirname(resolvedPath), { recursive: true });
-  await writeFile(resolvedPath, `${JSON.stringify({ ...payload, outputPath: resolvedPath }, null, 2)}\n`, 'utf8');
-  return resolvedPath;
-}
-
 async function main() {
   await loadLocalEnv();
 
-  const { args, flags } = parseArgs(process.argv.slice(2));
+  const { values: args, flags } = parseArgs(process.argv.slice(2));
   const outputJson = flags.has('--json');
   const dryRun = flags.has('--dry-run');
   const outputPath = args.get('--output');
@@ -481,7 +327,7 @@ async function main() {
       mutationPlan: buildDryRunPlan(campaign, adGroups),
     };
     if (outputPath) {
-      payload.outputPath = await writeResultArtifact(outputPath, payload);
+      payload.outputPath = await writeJsonArtifact(outputPath, payload);
     }
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));
@@ -511,7 +357,7 @@ async function main() {
   }
 
   const customerId = normalizeCustomerId(process.env.GOOGLE_ADS_CUSTOMER_ID);
-  const { payload: preflight, resolvedPath } = await readPreflightResult(preflightPath);
+  const { payload: preflight, resolvedPath } = await readJsonArtifact(preflightPath);
   const preflightErrors = validatePreflightResult(preflight, customerId);
 
   if (preflightErrors.length > 0) {
@@ -527,7 +373,7 @@ async function main() {
   const apiVersion = googleAdsApiVersion();
   const createdResources = [];
   try {
-    const accessToken = await refreshAccessToken();
+    const accessToken = await refreshAccessToken({ includeMessage: true });
     await assertCampaignDoesNotExist(accessToken, apiVersion, customerId, campaign.campaignName);
 
     const [budgetResult] = await mutateGoogleAds(accessToken, apiVersion, customerId, 'campaignBudgets', [
