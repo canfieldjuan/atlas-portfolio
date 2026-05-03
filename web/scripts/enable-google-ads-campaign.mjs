@@ -283,13 +283,21 @@ async function main() {
   const apiVersion = googleAdsApiVersion();
   const { payload: preflight, resolvedPath: resolvedPreflightPath } = await readJsonArtifact(preflightPath);
   const preflightErrors = validatePreflightResult(preflight, customerId);
-  preflightErrors.push(...validateReadinessAgainstCustomer(readiness, customerId));
   if (preflightErrors.length > 0) {
     fail('Preflight result is not valid for campaign enablement.', outputJson, {
       mode: 'GOOGLE_ADS_ENABLE',
       apiCalls: false,
       mutations: false,
       errors: preflightErrors,
+    });
+  }
+  const readinessCustomerErrors = validateReadinessAgainstCustomer(readiness, customerId);
+  if (readinessCustomerErrors.length > 0) {
+    fail('Readiness artifact does not match the configured Google Ads customer.', outputJson, {
+      mode: 'GOOGLE_ADS_ENABLE',
+      apiCalls: false,
+      mutations: false,
+      errors: readinessCustomerErrors,
     });
   }
 
