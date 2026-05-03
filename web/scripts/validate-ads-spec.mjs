@@ -80,6 +80,10 @@ function validateAdGroup(adGroup, errors) {
     fail(errors, 'Every ad group must have a name.');
   }
 
+  if (typeof adGroup?.defaultMaxCpcUsd !== 'number' || adGroup.defaultMaxCpcUsd <= 0) {
+    fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare a positive defaultMaxCpcUsd.`);
+  }
+
   if (!adGroup?.keywordFile) {
     fail(errors, `Ad group "${adGroup?.name || 'unknown'}" must declare keywordFile.`);
   }
@@ -130,6 +134,14 @@ function validateRsaAssets(assets, campaign, errors, context) {
     if (!finalUrl.searchParams.get(key)) {
       fail(errors, `${context}: RSA finalUrl missing ${key}.`);
     }
+  }
+
+  if (finalUrl.searchParams.get('utm_source') !== campaign.utm?.source) {
+    fail(errors, `${context}: RSA utm_source must match campaign.json.`);
+  }
+
+  if (finalUrl.searchParams.get('utm_medium') !== campaign.utm?.medium) {
+    fail(errors, `${context}: RSA utm_medium must match campaign.json.`);
   }
 
   if (finalUrl.searchParams.get('utm_campaign') !== campaign.utm?.campaign) {
