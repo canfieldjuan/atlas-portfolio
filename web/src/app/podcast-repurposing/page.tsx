@@ -31,17 +31,18 @@ const tiers: Tier[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '$297',
+    price: '$497',
     cadence: '/month',
-    bestFor: 'Monthly or biweekly podcasters',
+    bestFor: 'Biweekly business shows',
     episodes: '2 episodes / month',
-    assetsPerEpisode: '5 assets per episode',
+    assetsPerEpisode: '6 assets per episode',
     features: [
-      'Newsletter version',
+      'Newsletter',
       'SEO blog post',
       'LinkedIn post',
       'X / Twitter thread',
-      'Shorts / Reels script',
+      'Short-form script',
+      'Pull quotes + promo captions',
       'Voice-matched delivery',
       '3 business day turnaround',
     ],
@@ -50,18 +51,16 @@ const tiers: Tier[] = [
   {
     id: 'growth',
     name: 'Growth',
-    price: '$597',
+    price: '$997',
     cadence: '/month',
-    bestFor: 'Weekly podcasters — most popular',
+    bestFor: 'Weekly business shows — most popular',
     episodes: '4 episodes / month',
-    assetsPerEpisode: '5–7 assets per episode',
+    assetsPerEpisode: '6 assets per episode',
     features: [
       'Everything in Starter, plus:',
-      'LinkedIn carousel outline',
-      'Pull quotes + highlight snippets',
-      'Show notes',
-      'Voice-matched delivery',
-      '3 business day turnaround',
+      'Voice profile (calibrated to your archive)',
+      'Light content calendar',
+      'Priority turnaround',
     ],
     highlighted: true,
     cta: 'Start Growth',
@@ -69,32 +68,31 @@ const tiers: Tier[] = [
   {
     id: 'authority',
     name: 'Authority',
-    price: '$997',
+    price: '$1,997',
     cadence: '/month',
-    bestFor: 'Founder-led brands and serious business shows',
+    bestFor: 'Founder-led brands and authority-driven shows',
     episodes: '4–6 episodes / month',
-    assetsPerEpisode: '7–10 assets per episode',
+    assetsPerEpisode: '8–10 assets per episode',
     features: [
       'Everything in Growth, plus:',
-      'Deeper voice matching',
-      'Monthly content calendar',
-      'Stronger SEO formatting',
-      'Promotional captions and angles',
-      'Priority turnaround',
+      'SEO keyword targeting',
+      'LinkedIn carousel outline',
+      'Monthly content strategy review',
+      'Optional publishing / scheduling support',
     ],
     cta: 'Start Authority',
   },
 ];
 
 const deliverables = [
-  'A polished email newsletter',
-  'An SEO-friendly blog post',
-  'A LinkedIn post or carousel outline',
-  'An X / Twitter thread',
-  'A YouTube Shorts / Reels / TikTok script',
-  'Pull quotes and highlight snippets',
-  'Episode summary and show notes',
-  'Promotional captions',
+  'Email newsletter',
+  'SEO-friendly blog post',
+  'LinkedIn post or carousel outline',
+  'X / Twitter thread',
+  'Short-form script (Shorts / Reels / TikTok)',
+  'Pull quotes + promo captions',
+  'Show notes',
+  'Episode summary',
 ];
 
 const howItWorks = [
@@ -168,14 +166,14 @@ export default function PodcastRepurposingPage() {
               <span>PODCAST REPURPOSING ENGINE</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05] mb-6">
-              Turn one podcast episode into{' '}
-              <span className="gradient-text">a week of ready-to-post content.</span>
+              Turn one business podcast episode into{' '}
+              <span className="gradient-text">a week of authority content.</span>
             </h1>
             <p className="text-lg text-foreground/65 leading-relaxed mb-4 max-w-3xl">
-              Your podcast already contains the ideas your audience needs. We turn each episode into a newsletter, blog post, LinkedIn post, X thread, and short-form script — written in your voice and built from the actual episode.
+              Built for consultants, founders, and operators running business podcasts. We turn each episode into a newsletter, blog post, LinkedIn post, X thread, short-form script, and pull-quote pack — written in your voice and built from the actual episode.
             </p>
             <p className="text-sm text-foreground/45 leading-relaxed mb-8">
-              For podcast hosts, coaches, consultants, creators, and founder-led brands publishing weekly or monthly.
+              For business, consulting, and founder-led shows where authority and trust are the buying signal — not vanity metrics.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link

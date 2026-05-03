@@ -14,6 +14,12 @@ The buyer can understand the offer in one sentence:
 
 The page does not need to educate them for 3,000 words. The demo carries the sale.
 
+## Niche
+
+**Business, consultant, and founder-led podcasts.** Not generic "all podcasters." Not hobby shows. The buyer profile is hosts who use the podcast as an authority and lead-gen channel — they care about thought leadership, trust signals, and visibility, not vanity metrics. They are also more likely to pay $500–$2,000/month than hobby podcasters in the $15–$80 self-serve tool range.
+
+Niche-pickers (where the buyer self-selects from multiple verticals) are deferred until there are multiple verticals live. For one vertical, a single clear lane converts better — buyers do not have to classify themselves before they feel the offer.
+
 ## Page shape
 
 Short above-the-fold + strong sample-output demo + modular sections below. Not a long-form VSL.
@@ -55,7 +61,18 @@ Do not over-explain. The pain is obvious to the buyer; the page just needs to sa
 
 ### 4. Deliverables section
 
-Concrete list of what every episode CAN become. Phrasing matters — "can become" lets tier packages flex without overpromising every asset in every tier.
+The **six core outputs every episode becomes**:
+
+1. Email newsletter
+2. SEO blog post
+3. LinkedIn post
+4. X / Twitter thread
+5. Short-form video script (Shorts / Reels / TikTok)
+6. Pull quotes + promo captions
+
+The page also lists secondary deliverables (show notes, episode summary) under the same "every episode CAN become…" framing — phrasing matters because it lets tier packages flex without overpromising every asset in every tier. The demo renders all six core outputs as tabs the buyer can scan side-by-side.
+
+Upsells should NOT be more random asset types. Upsells happen around **strategy, volume, and publishing support**: voice profile, content calendar, SEO keyword targeting, LinkedIn carousel outline, monthly performance review, publishing/scheduling support.
 
 ### 5. Voice / quality section
 
@@ -80,13 +97,18 @@ Four steps maximum, in buyer language. No pipeline diagrams.
 
 Lead with the **trial** (low-friction paid sample). Then 2–3 monthly tiers, with the middle tier visually highlighted as "most popular." Do not highlight the most expensive plan — that reads pushy.
 
-For productized-service offers below $1,000/month, simpler is better. **Two monthly tiers + a trial is usually plenty**:
+This offer sits between DIY tools (Repurpose.io et al at ~$35–$79/month) and full-service podcast marketing agencies ($2k–$7.5k/month). Pricing should not compete with cheap software; it should price as the leveraged-service alternative to hiring an agency.
 
-- **Trial** — small one-time fee, single deliverable, no commitment
-- **Standard monthly** — main offer, the one most buyers will pick
-- **Higher tier** — for buyers who want priority or volume
+**Locked pricing ladder for this offer:**
 
-Adding a third low-end monthly tier ($297-ish) creates decision paralysis without adding revenue. Drop it unless there is a specific market segment it unlocks.
+- **First Episode — $149 one-time.** Low-friction paid sample. Conversion bridge.
+- **Starter — $497/month.** Biweekly business shows. 2 episodes/month, 6 assets each.
+- **Growth — $997/month.** Weekly business shows. The main offer. 4 episodes/month, 6 assets each, voice profile, light content calendar, priority turnaround. Marked "MOST POPULAR."
+- **Authority — $1,997/month.** Founder-led brands and authority-driven shows. 4–6 episodes/month, 8–10 assets, SEO targeting, monthly content strategy review, optional publishing/scheduling support. Functions as the ceiling so the rest of the ladder doesn't feel small.
+
+The page should sell the $149 first episode hard, then convert satisfied buyers into the $997/month plan. That's the funnel.
+
+The Starter tier is justified at $497 (well above the "decision paralysis at $297" warning). Below that price, the third tier becomes friction without revenue — drop it.
 
 ### 8. FAQ
 

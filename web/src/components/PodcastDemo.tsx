@@ -11,7 +11,7 @@ import {
   Video,
 } from 'lucide-react';
 
-type OutputId = 'newsletter' | 'blog' | 'linkedin' | 'twitter' | 'shorts';
+type OutputId = 'newsletter' | 'blog' | 'linkedin' | 'twitter' | 'shorts' | 'pullquotes';
 
 type Episode = {
   id: string;
@@ -25,6 +25,10 @@ type Episode = {
     linkedin: { hook: string; body: string; close: string };
     twitter: { tweets: string[] };
     shorts: { hook: string; script: string; cta: string };
+    pullquotes: {
+      quotes: string[];
+      promoCaptions: { platform: string; text: string }[];
+    };
   };
 };
 
@@ -90,6 +94,31 @@ const episodes: Episode[] = [
           'First: permissioning. The role model that was fine at 20 users falls apart at 60, and audit logs become a fire drill.\n\nSecond: reporting. Two dashboards from two different people start disagreeing, and nobody can tell which is right.\n\nThird: the AI sidebar. Useful at small scale. Background noise nobody trusts at large scale.\n\nNone of this shows up in the renewal pitch. It shows up two weeks before procurement opens a search.',
         cta: 'Full episode in the link.',
       },
+      pullquotes: {
+        quotes: [
+          "Most teams don't switch tools because they outgrow features. They switch because they outgrow trust.",
+          'Three things break in sequence around the 50-seat mark, and they almost always show up in the same order: permissioning, then reporting, then AI.',
+          'None of this shows up in the renewal pitch. It shows up two weeks before procurement opens a search.',
+          'The teams that handled the switch gracefully had one thing in common: they were already building the spec for the next tool 60 days before they "officially" needed to leave.',
+        ],
+        promoCaptions: [
+          {
+            platform: 'LinkedIn',
+            text:
+              'New episode of The Operator: the 50-seat wall. Why permissioning fails before reporting does, what AI sidebars get demoted to, and what teams actually switch to. Link in comments.',
+          },
+          {
+            platform: 'X / Twitter',
+            text:
+              'New ep: the 50-seat wall in mid-market PM tooling. Three things break in sequence, and the order is more predictable than people think. Link below.',
+          },
+          {
+            platform: 'Instagram / Threads',
+            text:
+              'You don\'t outgrow your tool because of features. You outgrow it because of trust. New episode breaks down what actually breaks first at 50 users — and where teams go next.',
+          },
+        ],
+      },
     },
   },
   {
@@ -152,6 +181,31 @@ const episodes: Episode[] = [
         script:
           'Three questions I ask in every scoping call now:\n\nOne: who internally loses if this project succeeds? Every champion has a peer who does not want this to work. If they cannot name them, you are walking into politics you cannot see.\n\nTwo: what does week three look like? Not kickoff. Not the deliverable. Week three. If they cannot picture it, the project has not been internally sold yet.\n\nThree: who can kill this project, and what would make them? If the only answer is your champion, you are one reorg away from cancellation.',
         cta: 'Full episode is linked.',
+      },
+      pullquotes: {
+        quotes: [
+          "Almost every consulting project that went sideways had the same warning sign before the contract was signed. I just wasn't asking for it.",
+          'Every champion has at least one peer who quietly does not want this work to land. If your champion cannot name them, you are walking into politics you cannot see.',
+          'If the only person who can kill the project is your champion, the project is one reorg away from cancellation.',
+          'You will not always get clean answers. That is the point. The unclean answers are the data.',
+        ],
+        promoCaptions: [
+          {
+            platform: 'LinkedIn',
+            text:
+              'New episode of Practice First: the three questions I now ask in every scoping call before saying yes to a consulting project. Built from 100+ engagements. The unclean answers are the data.',
+          },
+          {
+            platform: 'X / Twitter',
+            text:
+              'New ep: 3 questions every consultant should ask before signing the contract. The projects I walked away from using this filter, I am almost always glad I walked away from.',
+          },
+          {
+            platform: 'Instagram / Threads',
+            text:
+              'If you have ever taken a consulting project that went sideways, the warning sign was probably visible before you signed. Three questions I now run before every yes. Full episode linked.',
+          },
+        ],
       },
     },
   },
@@ -216,6 +270,31 @@ const episodes: Episode[] = [
           'I just spent 40 minutes with two enterprise procurement heads. The pattern is consistent.\n\nFirst: the artifacts that work for traditional SaaS — SOC 2, DPA, data flow diagrams — assume the product is stable for the contract term. AI products are not. The model can change underneath the same product name within a quarter.\n\nSecond: data residency is the most-asked, least-answered question. It gets three different answers depending on whether you mean model weights, inference endpoint, or training data.\n\nThird: the leading procurement teams are quietly building a modified framework. They have not published it. They will not for at least 18 months.',
         cta: 'Full conversation is in the description.',
       },
+      pullquotes: {
+        quotes: [
+          'Enterprise procurement was not designed for AI vendors, and the gap is starting to show in ways nobody is talking about clearly.',
+          'The model can change underneath the same product name within a quarter. Most procurement contracts have no language for that.',
+          'Data residency is the most-asked, least-answered question. It gets three different answers depending on whether you mean model weights, inference endpoint, or training data.',
+          'If you are evaluating AI vendors right now, the procurement playbook you have is probably 70 percent useful and 30 percent actively misleading.',
+        ],
+        promoCaptions: [
+          {
+            platform: 'LinkedIn',
+            text:
+              'New episode of Procurement Wire: 40 minutes with two enterprise procurement heads on why traditional vendor evaluation is breaking on AI deals. The model-version problem nobody is naming. Link in comments.',
+          },
+          {
+            platform: 'X / Twitter',
+            text:
+              'New ep: enterprise procurement was not designed for AI vendors. Three things the leading teams are doing differently — and why most playbooks are 70% useful, 30% actively misleading.',
+          },
+          {
+            platform: 'Instagram / Threads',
+            text:
+              'If you are evaluating AI vendors with a traditional SaaS procurement framework, you are missing about a third of what matters. New episode on what the leading teams are doing instead.',
+          },
+        ],
+      },
     },
   },
 ];
@@ -226,6 +305,7 @@ const outputTabs: { id: OutputId; label: string; icon: React.ReactNode }[] = [
   { id: 'linkedin', label: 'LinkedIn Post', icon: <AtSign className="w-4 h-4" /> },
   { id: 'twitter', label: 'X Thread', icon: <Hash className="w-4 h-4" /> },
   { id: 'shorts', label: 'Shorts Script', icon: <Video className="w-4 h-4" /> },
+  { id: 'pullquotes', label: 'Pull Quotes + Captions', icon: <Quote className="w-4 h-4" /> },
 ];
 
 export function PodcastDemo() {
@@ -424,6 +504,40 @@ export function PodcastDemo() {
               <p className="text-sm text-foreground/75 leading-relaxed">
                 {episode.outputs.shorts.cta}
               </p>
+            </div>
+          </div>
+        )}
+
+        {selectedOutput === 'pullquotes' && (
+          <div className="rounded-lg border border-white/10 bg-black/30 p-5 md:p-6">
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-4">
+              PULL QUOTES — DROP INTO QUOTE CARDS, GRAPHICS, OR FOOTERS
+            </div>
+            <div className="space-y-3 mb-6">
+              {episode.outputs.pullquotes.quotes.map((q, i) => (
+                <div
+                  key={i}
+                  className="rounded-md border-l-2 border-primary/60 bg-white/[0.02] pl-4 pr-3 py-2.5"
+                >
+                  <p className="text-sm text-white leading-relaxed italic">&ldquo;{q}&rdquo;</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3 border-t border-white/10 pt-5">
+              PROMO CAPTIONS — READY TO PASTE WITH THE EPISODE LINK
+            </div>
+            <div className="space-y-3">
+              {episode.outputs.pullquotes.promoCaptions.map((cap) => (
+                <div
+                  key={cap.platform}
+                  className="rounded-md border border-white/10 bg-black/40 p-3"
+                >
+                  <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-1.5">
+                    {cap.platform.toUpperCase()}
+                  </div>
+                  <p className="text-sm text-foreground/75 leading-relaxed">{cap.text}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
