@@ -29,6 +29,7 @@ function printUsage() {
 Usage:
   npm run ads:google:preflight
   npm run ads:google:preflight -- --json
+  npm run ads:google:preflight -- --debug-errors
 
 Required env:
   GOOGLE_ADS_DEVELOPER_TOKEN
@@ -43,7 +44,8 @@ Optional env:
 
 Safety:
   This script only refreshes OAuth, lists accessible customers, and runs a read-only customer query.
-  It does not create campaigns, budgets, ad groups, keywords, or ads.`);
+  It does not create campaigns, budgets, ad groups, keywords, or ads.
+  Upstream error bodies are summarized by default. Use --debug-errors only in a trusted shell.`);
 }
 
 function fail(message, outputJson, details = {}) {
@@ -84,17 +86,24 @@ function formatDashedCustomerId(value) {
   return `${normalized.slice(0, 3)}-${normalized.slice(3, 6)}-${normalized.slice(6)}`;
 }
 
-async function parseGoogleError(response) {
+async function parseGoogleError(response, includeDebug = false) {
   const text = await response.text();
   try {
     const parsed = JSON.parse(text);
-    return parsed.error?.message || parsed.error_description || parsed.error || 'Google API request failed.';
+    const code = parsed.error?.status || parsed.error || parsed.error_description;
+    const summary = code ? `Google API request failed with ${code}.` : 'Google API request failed.';
+    if (!includeDebug) {
+      return summary;
+    }
+
+    const debugMessage = parsed.error?.message || parsed.error_description || text;
+    return `${summary} Debug: ${sanitizeMessage(debugMessage)}`;
   } catch {
     return `Google API request failed with non-JSON response (${response.status}).`;
   }
 }
 
-async function refreshAccessToken() {
+async function refreshAccessToken(options = {}) {
   callState.oauthCallAttempted = true;
   const body = new URLSearchParams({
     client_id: envValue('GOOGLE_ADS_CLIENT_ID'),
@@ -112,7 +121,7 @@ async function refreshAccessToken() {
   });
 
   if (!response.ok) {
-    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response)}`);
+    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
   }
 
   const payload = await response.json();
@@ -138,7 +147,7 @@ function googleAdsHeaders(accessToken, includeJson = false) {
   return headers;
 }
 
-async function listAccessibleCustomers(accessToken, apiVersion) {
+async function listAccessibleCustomers(accessToken, apiVersion, options = {}) {
   callState.googleAdsCallAttempted = true;
   const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers:listAccessibleCustomers`, {
     method: 'GET',
@@ -146,14 +155,14 @@ async function listAccessibleCustomers(accessToken, apiVersion) {
   });
 
   if (!response.ok) {
-    throw new Error(`listAccessibleCustomers failed (${response.status}): ${await parseGoogleError(response)}`);
+    throw new Error(`listAccessibleCustomers failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
   }
 
   const payload = await response.json();
   return payload.resourceNames || [];
 }
 
-async function queryTargetCustomer(accessToken, apiVersion, customerId) {
+async function queryTargetCustomer(accessToken, apiVersion, customerId, options = {}) {
   callState.googleAdsCallAttempted = true;
   const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
     method: 'POST',
@@ -165,7 +174,7 @@ async function queryTargetCustomer(accessToken, apiVersion, customerId) {
   });
 
   if (!response.ok) {
-    throw new Error(`target customer query failed (${response.status}): ${await parseGoogleError(response)}`);
+    throw new Error(`target customer query failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
   }
 
   const payload = await response.json();
@@ -191,6 +200,7 @@ function summarizeCustomer(customer) {
 async function main() {
   const args = new Set(process.argv.slice(2));
   const outputJson = args.has('--json');
+  const debugErrors = args.has('--debug-errors');
 
   if (args.has('--help') || args.has('-h')) {
     printUsage();
@@ -218,9 +228,9 @@ async function main() {
   }
 
   try {
-    const accessToken = await refreshAccessToken();
-    const accessibleResourceNames = await listAccessibleCustomers(accessToken, apiVersion);
-    const customer = await queryTargetCustomer(accessToken, apiVersion, customerId);
+    const accessToken = await refreshAccessToken({ debugErrors });
+    const accessibleResourceNames = await listAccessibleCustomers(accessToken, apiVersion, { debugErrors });
+    const customer = await queryTargetCustomer(accessToken, apiVersion, customerId, { debugErrors });
     const targetResourceName = `customers/${customerId}`;
     const payload = {
       ok: true,
