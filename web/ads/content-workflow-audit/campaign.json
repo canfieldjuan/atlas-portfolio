@@ -1,0 +1,32 @@
+{
+  "campaignName": "AI Content Workflow Audit - Search - US",
+  "channel": "SEARCH",
+  "status": "PAUSED",
+  "dailyBudgetUsd": 35,
+  "maxInitialDailyBudgetUsd": 50,
+  "geoTargets": ["US"],
+  "languageTargets": ["en"],
+  "landingPage": "https://juancanfield.com/systems/ai-content-ops",
+  "utm": {
+    "source": "google",
+    "medium": "cpc",
+    "campaign": "ai_content_workflow_audit_search",
+    "content": "rsa_v1"
+  },
+  "conversionGoal": "audit_request_submitted",
+  "offer": {
+    "name": "AI Content Workflow Audit",
+    "priceUsd": 1500,
+    "downstreamPilotStartsAtUsd": 7500,
+    "downstreamFullSystemStartsAtUsd": 15000
+  },
+  "adGroups": [
+    {
+      "name": "workflow-automation",
+      "defaultMaxCpcUsd": 4.5,
+      "keywordFile": "keywords.csv",
+      "negativeKeywordFile": "negative_keywords.csv",
+      "responsiveSearchAdFile": "rsa_assets.json"
+    }
+  ]
+}
