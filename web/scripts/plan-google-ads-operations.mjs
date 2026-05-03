@@ -1,11 +1,6 @@
-import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, '..');
-const specDir = join(repoRoot, 'ads', 'content-workflow-audit');
+import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
 
 const REQUIRED_GOOGLE_ADS_ENV = [
   'GOOGLE_ADS_DEVELOPER_TOKEN',
@@ -16,22 +11,6 @@ const REQUIRED_GOOGLE_ADS_ENV = [
 ];
 
 const OPTIONAL_GOOGLE_ADS_ENV = ['GOOGLE_ADS_LOGIN_CUSTOMER_ID'];
-
-async function readJson(path) {
-  return JSON.parse(await readFile(path, 'utf8'));
-}
-
-async function readCsv(path) {
-  const text = await readFile(path, 'utf8');
-  const [headerLine, ...lines] = text.trim().split(/\r?\n/);
-  const headers = headerLine.split(',').map((item) => item.trim());
-  return lines
-    .filter(Boolean)
-    .map((line) => {
-      const values = line.split(',').map((item) => item.trim());
-      return Object.fromEntries(headers.map((header, index) => [header, values[index] || '']));
-    });
-}
 
 function runSpecValidator() {
   const result = spawnSync(process.execPath, [join(repoRoot, 'scripts', 'validate-ads-spec.mjs')], {
@@ -90,7 +69,7 @@ function plannedResourceName(prefix, name) {
 }
 
 async function buildPlan() {
-  const campaign = await readJson(join(specDir, 'campaign.json'));
+  const { campaign, adGroups } = await loadCampaignSpec();
   const operations = [
     {
       operation: 'create_campaign_budget',
@@ -110,11 +89,7 @@ async function buildPlan() {
     },
   ];
 
-  for (const adGroup of campaign.adGroups) {
-    const keywords = await readCsv(join(specDir, adGroup.keywordFile));
-    const negatives = await readCsv(join(specDir, adGroup.negativeKeywordFile));
-    const rsaAssets = await readJson(join(specDir, adGroup.responsiveSearchAdFile));
-
+  for (const { adGroup, keywords, negatives, rsaAssets } of adGroups) {
     operations.push({
       operation: 'create_ad_group',
       status: 'ENABLED',
@@ -132,8 +107,8 @@ async function buildPlan() {
     });
 
     operations.push({
-      operation: 'create_negative_keywords',
-      campaignName: campaign.campaignName,
+      operation: 'create_ad_group_negative_keywords',
+      adGroupName: adGroup.name,
       count: negatives.length,
       matchTypes: [...new Set(negatives.map((row) => row.match_type))].sort(),
       negativeKeywords: negatives,
@@ -219,6 +194,12 @@ async function main() {
     }
     if (operation.status) {
       console.log(`   status: ${operation.status}`);
+    }
+    if (operation.campaignName) {
+      console.log(`   campaignName: ${operation.campaignName}`);
+    }
+    if (operation.adGroupName) {
+      console.log(`   adGroupName: ${operation.adGroupName}`);
     }
     if (typeof operation.count === 'number') {
       console.log(`   count: ${operation.count}`);
