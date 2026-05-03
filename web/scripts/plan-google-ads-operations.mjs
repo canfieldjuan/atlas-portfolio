@@ -1,16 +1,7 @@
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
-
-const REQUIRED_GOOGLE_ADS_ENV = [
-  'GOOGLE_ADS_DEVELOPER_TOKEN',
-  'GOOGLE_ADS_CLIENT_ID',
-  'GOOGLE_ADS_CLIENT_SECRET',
-  'GOOGLE_ADS_REFRESH_TOKEN',
-  'GOOGLE_ADS_CUSTOMER_ID',
-];
-
-const OPTIONAL_GOOGLE_ADS_ENV = ['GOOGLE_ADS_LOGIN_CUSTOMER_ID'];
+import { validateGoogleAdsEnv } from './google-ads-env.mjs';
 
 function runSpecValidator() {
   const result = spawnSync(process.execPath, [join(repoRoot, 'scripts', 'validate-ads-spec.mjs')], {
@@ -23,19 +14,6 @@ function runSpecValidator() {
     process.stderr.write(result.stderr);
     process.exit(result.status || 1);
   }
-}
-
-function envValue(name) {
-  return process.env[name]?.trim() || '';
-}
-
-function validateGoogleAdsEnv() {
-  const missing = REQUIRED_GOOGLE_ADS_ENV.filter((name) => !envValue(name));
-  return {
-    ok: missing.length === 0,
-    missing,
-    present: [...REQUIRED_GOOGLE_ADS_ENV, ...OPTIONAL_GOOGLE_ADS_ENV].filter((name) => envValue(name)),
-  };
 }
 
 function printEnvCheck(envStatus, outputJson) {

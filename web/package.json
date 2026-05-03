@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "ads:validate": "node scripts/validate-ads-spec.mjs",
-    "ads:google:plan": "node scripts/plan-google-ads-operations.mjs"
+    "ads:google:plan": "node scripts/plan-google-ads-operations.mjs",
+    "ads:google:preflight": "node scripts/preflight-google-ads.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

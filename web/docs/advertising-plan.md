@@ -49,10 +49,11 @@ Avoid:
 
 1. Keep campaign specs in source control.
 2. Validate specs locally before any API call.
-3. Create campaigns through Google Ads API in `PAUSED` state only.
-4. Inspect assets, keywords, negatives, and budget in Google Ads UI.
-5. Enable manually or through a separate approval command.
-6. Pull daily performance from Google Ads + GA4 into a report.
+3. Run a read-only Google Ads preflight against the intended customer account.
+4. Create campaigns through Google Ads API in `PAUSED` state only.
+5. Inspect assets, keywords, negatives, and budget in Google Ads UI.
+6. Enable manually or through a separate approval command.
+7. Pull daily performance from Google Ads + GA4 into a report.
 
 ## Environment
 
@@ -65,15 +66,17 @@ GOOGLE_ADS_CLIENT_SECRET=
 GOOGLE_ADS_REFRESH_TOKEN=
 GOOGLE_ADS_LOGIN_CUSTOMER_ID=
 GOOGLE_ADS_CUSTOMER_ID=
+GOOGLE_ADS_API_VERSION=v22
 GA4_PROPERTY_ID=
 ```
 
 ## Next Build Slices
 
 1. Campaign spec + validator. No API calls.
-2. Google Ads API deployer that creates paused campaigns only.
-3. GA4 + Google Ads reporting pull.
-4. Manual approval gate for campaign enablement.
+2. Google Ads read-only preflight. No mutations.
+3. Google Ads API deployer that creates paused campaigns only.
+4. GA4 + Google Ads reporting pull.
+5. Manual approval gate for campaign enablement.
 
 ## Local Commands
 
@@ -93,4 +96,16 @@ Check local Google Ads API credentials only. This skips campaign spec validation
 
 ```bash
 npm run ads:google:plan -- --check-env
+```
+
+Run the read-only Google Ads API preflight. This refreshes OAuth, lists accessible customers, and verifies the configured customer can be queried without creating or changing campaigns:
+
+```bash
+npm run ads:google:preflight
+```
+
+Use JSON output for operator logs:
+
+```bash
+npm run ads:google:preflight -- --json
 ```
