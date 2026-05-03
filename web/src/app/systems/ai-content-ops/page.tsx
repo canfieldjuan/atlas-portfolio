@@ -479,7 +479,7 @@ export default function AiContentOpsPage() {
         </section>
 
         {/* Outputs */}
-        <section id="what-it-produces" className="mt-32 scroll-mt-24">
+        <section className="mt-32">
           <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               OUTPUTS
