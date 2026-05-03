@@ -18,6 +18,10 @@ const READ_ONLY_CUSTOMER_QUERY = `
   FROM customer
   LIMIT 1
 `;
+const callState = {
+  oauthCallAttempted: false,
+  googleAdsCallAttempted: false,
+};
 
 function printUsage() {
   console.log(`Google Ads read-only preflight
@@ -43,10 +47,11 @@ Safety:
 }
 
 function fail(message, outputJson, details = {}) {
+  const safeMessage = sanitizeMessage(message);
   if (outputJson) {
-    console.log(JSON.stringify({ ok: false, error: message, ...details }, null, 2));
+    console.log(JSON.stringify({ ok: false, error: safeMessage, ...details }, null, 2));
   } else {
-    console.error(message);
+    console.error(safeMessage);
     if (details.missing?.length) {
       for (const name of details.missing) {
         console.error(`- ${name}`);
@@ -56,17 +61,41 @@ function fail(message, outputJson, details = {}) {
   process.exit(1);
 }
 
+function sanitizeMessage(message) {
+  let safe = String(message || 'Unknown error.');
+  for (const value of [envValue('GOOGLE_ADS_CUSTOMER_ID'), envValue('GOOGLE_ADS_LOGIN_CUSTOMER_ID')]) {
+    const normalized = normalizeCustomerId(value);
+    if (!normalized) {
+      continue;
+    }
+
+    safe = safe.replaceAll(normalized, maskCustomerId(normalized));
+    safe = safe.replaceAll(formatDashedCustomerId(normalized), maskCustomerId(normalized));
+  }
+  return safe;
+}
+
+function formatDashedCustomerId(value) {
+  const normalized = normalizeCustomerId(value);
+  if (normalized.length !== 10) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, 3)}-${normalized.slice(3, 6)}-${normalized.slice(6)}`;
+}
+
 async function parseGoogleError(response) {
   const text = await response.text();
   try {
     const parsed = JSON.parse(text);
-    return parsed.error?.message || parsed.error_description || parsed.error || text;
+    return parsed.error?.message || parsed.error_description || parsed.error || 'Google API request failed.';
   } catch {
-    return text;
+    return `Google API request failed with non-JSON response (${response.status}).`;
   }
 }
 
 async function refreshAccessToken() {
+  callState.oauthCallAttempted = true;
   const body = new URLSearchParams({
     client_id: envValue('GOOGLE_ADS_CLIENT_ID'),
     client_secret: envValue('GOOGLE_ADS_CLIENT_SECRET'),
@@ -110,6 +139,7 @@ function googleAdsHeaders(accessToken, includeJson = false) {
 }
 
 async function listAccessibleCustomers(accessToken, apiVersion) {
+  callState.googleAdsCallAttempted = true;
   const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers:listAccessibleCustomers`, {
     method: 'GET',
     headers: googleAdsHeaders(accessToken),
@@ -124,6 +154,7 @@ async function listAccessibleCustomers(accessToken, apiVersion) {
 }
 
 async function queryTargetCustomer(accessToken, apiVersion, customerId) {
+  callState.googleAdsCallAttempted = true;
   const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
     method: 'POST',
     headers: googleAdsHeaders(accessToken, true),
@@ -195,6 +226,8 @@ async function main() {
       ok: true,
       mode: 'READ_ONLY_PREFLIGHT',
       apiCalls: true,
+      oauthCallAttempted: callState.oauthCallAttempted,
+      googleAdsCallAttempted: callState.googleAdsCallAttempted,
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
@@ -226,7 +259,9 @@ async function main() {
   } catch (error) {
     fail(error.message || String(error), outputJson, {
       mode: 'READ_ONLY_PREFLIGHT',
-      apiCalls: true,
+      apiCalls: callState.googleAdsCallAttempted,
+      oauthCallAttempted: callState.oauthCallAttempted,
+      googleAdsCallAttempted: callState.googleAdsCallAttempted,
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
@@ -235,6 +270,11 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error);
-  process.exit(1);
+  fail(error.message || String(error), false, {
+    mode: 'READ_ONLY_PREFLIGHT',
+    apiCalls: callState.googleAdsCallAttempted,
+    oauthCallAttempted: callState.oauthCallAttempted,
+    googleAdsCallAttempted: callState.googleAdsCallAttempted,
+    mutations: false,
+  });
 });
