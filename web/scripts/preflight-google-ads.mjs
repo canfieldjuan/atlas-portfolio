@@ -1,3 +1,6 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, isAbsolute, resolve } from 'node:path';
+import { repoRoot } from './ads-spec-io.mjs';
 import {
   customerIdFingerprint,
   envValue,
@@ -31,6 +34,7 @@ function printUsage() {
 Usage:
   npm run ads:google:preflight
   npm run ads:google:preflight -- --json
+  npm run ads:google:preflight -- --output /tmp/google-ads-preflight.json
   npm run ads:google:preflight -- --debug-errors
 
 Required env:
@@ -48,6 +52,35 @@ Safety:
   This script only refreshes OAuth, lists accessible customers, and runs a read-only customer query.
   It does not create campaigns, budgets, ad groups, keywords, or ads.
   Upstream error bodies are summarized by default. Use --debug-errors only in a trusted shell.`);
+}
+
+function parseArgs(argv) {
+  const values = new Map();
+  const flags = new Set();
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const item = argv[index];
+    if (!item.startsWith('-')) {
+      continue;
+    }
+
+    const [name, inlineValue] = item.split('=', 2);
+    if (inlineValue !== undefined) {
+      values.set(name, inlineValue);
+      continue;
+    }
+
+    const next = argv[index + 1];
+    if (next && !next.startsWith('-')) {
+      values.set(name, next);
+      index += 1;
+      continue;
+    }
+
+    flags.add(name);
+  }
+
+  return { values, flags };
 }
 
 function fail(message, outputJson, details = {}) {
@@ -199,20 +232,32 @@ function summarizeCustomer(customer) {
   };
 }
 
+async function writePreflightArtifact(outputPath, payload) {
+  const resolvedPath = isAbsolute(outputPath) ? outputPath : resolve(repoRoot, outputPath);
+  await mkdir(dirname(resolvedPath), { recursive: true });
+  await writeFile(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  return resolvedPath;
+}
+
 async function main() {
   await loadLocalEnv();
 
-  const args = new Set(process.argv.slice(2));
-  const outputJson = args.has('--json');
-  const debugErrors = args.has('--debug-errors');
+  const { values, flags } = parseArgs(process.argv.slice(2));
+  const outputJson = flags.has('--json');
+  const debugErrors = flags.has('--debug-errors');
+  const outputPath = values.get('--output');
 
-  if (args.has('--help') || args.has('-h')) {
+  if (flags.has('--help') || flags.has('-h')) {
     printUsage();
     return;
   }
 
-  if (args.has('--execute')) {
+  if (flags.has('--execute')) {
     fail('Execution is intentionally not implemented. This command is read-only.', outputJson);
+  }
+
+  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+    fail('Refusing to continue without --output <path>.', outputJson);
   }
 
   const envStatus = validateGoogleAdsEnv();
@@ -254,6 +299,8 @@ async function main() {
       targetCustomer: summarizeCustomer(customer),
     };
 
+    const artifactPath = outputPath ? await writePreflightArtifact(outputPath, payload) : '';
+
     if (outputJson) {
       console.log(JSON.stringify(payload, null, 2));
       return;
@@ -271,6 +318,9 @@ async function main() {
     console.log(`Time zone: ${payload.targetCustomer.timeZone || '(not provided)'}`);
     console.log(`Manager: ${payload.targetCustomer.manager ? 'yes' : 'no'}`);
     console.log(`Test account: ${payload.targetCustomer.testAccount ? 'yes' : 'no'}`);
+    if (artifactPath) {
+      console.log(`Preflight artifact: ${artifactPath}`);
+    }
   } catch (error) {
     fail(error.message || String(error), outputJson, {
       mode: 'READ_ONLY_PREFLIGHT',

@@ -111,8 +111,14 @@ Use JSON output for operator logs:
 npm run ads:google:preflight -- --json
 ```
 
+Write a reusable preflight artifact for the create-paused guard:
+
+```bash
+npm run ads:google:preflight -- --json --output /tmp/google-ads-preflight.json
+```
+
 The future paused-create command must be guarded by a successful preflight artifact and an explicit confirmation flag. It currently stops before any mutation calls:
 
 ```bash
-npm run ads:google:create-paused -- --preflight-result ./preflight.json --confirm-create-paused
+npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused
 ```
