@@ -139,7 +139,7 @@ function mapAdRow(row) {
   };
 }
 
-function buildNextSteps(campaign) {
+function buildNextSteps(campaign, adGroups = [], ads = []) {
   if (!campaign) {
     return {
       createPausedSafe: true,
@@ -148,10 +148,47 @@ function buildNextSteps(campaign) {
     };
   }
 
+  if (campaign.status !== 'PAUSED') {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: `campaign_${String(campaign.status || 'unknown').toLowerCase()}`,
+    };
+  }
+
+  // A paused campaign cannot serve traffic unless at least one ENABLED ad group
+  // contains at least one ENABLED ad. Checking "any enabled ad group" and "any
+  // enabled ad" independently is insufficient — those can belong to different
+  // ad groups. The enabled ad has to live inside the enabled ad group for the
+  // hierarchy to actually serve once the campaign flips to ENABLED.
+  const enabledAdGroupNames = new Set(
+    adGroups.filter((adGroup) => adGroup.status === 'ENABLED').map((adGroup) => adGroup.name),
+  );
+
+  if (enabledAdGroupNames.size === 0) {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: 'no_enabled_ad_group',
+    };
+  }
+
+  const hasServingPair = ads.some(
+    (ad) => ad.status === 'ENABLED' && enabledAdGroupNames.has(ad.adGroupName),
+  );
+
+  if (!hasServingPair) {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: 'no_enabled_ad_in_enabled_ad_group',
+    };
+  }
+
   return {
     createPausedSafe: false,
-    enableSafe: campaign.status === 'PAUSED',
-    reason: campaign.status === 'PAUSED' ? 'campaign_paused' : `campaign_${String(campaign.status || 'unknown').toLowerCase()}`,
+    enableSafe: true,
+    reason: 'campaign_paused',
   };
 }
 
@@ -314,7 +351,7 @@ async function main() {
         typeBreakdown: statusBreakdown(ads, (row) => row.type),
         rows: ads,
       },
-      nextSteps: buildNextSteps(campaignStatus),
+      nextSteps: buildNextSteps(campaignStatus, adGroups, ads),
     };
 
     if (outputPath) {

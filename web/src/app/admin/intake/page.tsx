@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { Lock, LogOut, Mail, ShieldCheck } from 'lucide-react';
-import { ADMIN_INTAKE_COOKIE, adminIntakeConfigured, verifyAdminIntakeToken } from '@/lib/admin-intake-auth';
+import { ADMIN_INTAKE_COOKIE, adminIntakeConfigured, verifyAdminIntakeCookie } from '@/lib/admin-intake-auth';
 import {
   auditIntakeDatabaseConfigured,
   listAuditIntakeRecords,
@@ -154,7 +154,7 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
 export default async function AdminIntakePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const cookieStore = await cookies();
-  const isAuthorized = verifyAdminIntakeToken(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
+  const isAuthorized = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
 
   if (!isAuthorized) {
     return <LoginPanel invalid={params?.error === 'invalid'} />;

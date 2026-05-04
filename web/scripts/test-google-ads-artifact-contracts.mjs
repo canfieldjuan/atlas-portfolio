@@ -75,6 +75,10 @@ function createResult(overrides = {}) {
     targetCustomerId: '***-***-7890',
     targetCustomerFingerprint: 'fingerprint-123',
     campaign: {
+      // v2: campaign.id is required so the live enable command can resolve the exact
+      // campaign by resource name (customers/<customer>/campaigns/<id>) instead of by
+      // name with LIMIT 1.
+      id: '987654321',
       name: 'Atlas AI Content Ops Station',
       status: 'PAUSED',
       dailyBudgetUsd: 50,
@@ -105,6 +109,10 @@ function statusResult(overrides = {}) {
     campaignName: 'Atlas AI Content Ops Station',
     campaignFound: true,
     campaign: {
+      // v2: status result must include campaign.id and the readiness gate verifies it
+      // matches the create-result campaign.id to defend against name-collision
+      // substitution.
+      id: '987654321',
       status: 'PAUSED',
       budget: {
         amountUsd: 50,
@@ -194,6 +202,58 @@ const staleStatusRun = runScript(
   1,
 );
 assertStdoutContains(staleStatusRun, artifactVersionError('status result'));
+
+// v2: create result missing campaign.id must be rejected.
+const createMissingIdPath = writeJson(
+  'create-missing-id.json',
+  createResult({
+    campaign: {
+      name: 'Atlas AI Content Ops Station',
+      status: 'PAUSED',
+      dailyBudgetUsd: 50,
+      adGroups: 2,
+    },
+  }),
+);
+const createMissingIdRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createMissingIdPath,
+    '--status-result',
+    statusPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(createMissingIdRun, 'Create result must include numeric campaign.id (artifact contract v2)');
+
+// v2: status result with a different campaign.id than the create result must be rejected.
+// Defends against a status packet substituted from a different campaign in the same account.
+const mismatchStatusPath = writeJson(
+  'status-id-mismatch.json',
+  statusResult({
+    campaign: {
+      id: '111222333',
+      status: 'PAUSED',
+      budget: { amountUsd: 50 },
+    },
+  }),
+);
+const mismatchStatusRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    mismatchStatusPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(mismatchStatusRun, 'Status result campaign.id must match the create-result campaign.id');
 
 const enableDryRunPath = join(tempDir, 'enable-dry-run.json');
 const enableDryRun = runScript('enable-google-ads-campaign.mjs', [

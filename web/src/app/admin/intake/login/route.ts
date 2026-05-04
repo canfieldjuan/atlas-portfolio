@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ADMIN_INTAKE_COOKIE, verifyAdminIntakeToken } from '@/lib/admin-intake-auth';
+import {
+  ADMIN_INTAKE_COOKIE,
+  adminIntakeCookieValue,
+  verifyAdminIntakeToken,
+} from '@/lib/admin-intake-auth';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +18,9 @@ export async function POST(request: NextRequest) {
   }
 
   const response = NextResponse.redirect(destination, { status: 303 });
-  response.cookies.set(ADMIN_INTAKE_COOKIE, token, {
+  // Persist a one-way hash of the token, not the token itself — an exfiltrated cookie
+  // does not reveal the underlying shared admin secret.
+  response.cookies.set(ADMIN_INTAKE_COOKIE, adminIntakeCookieValue(), {
     httpOnly: true,
     maxAge: 60 * 60 * 12,
     path: '/admin',

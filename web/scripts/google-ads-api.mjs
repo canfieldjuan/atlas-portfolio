@@ -91,23 +91,58 @@ export async function refreshAccessToken(options = {}) {
   return payload.access_token;
 }
 
+// Hard upper bound on pages followed for a single googleAdsSearch call. At pageSize 1000
+// this covers up to a million rows per call, which is far above any realistic Google Ads
+// resource count for a single campaign. The cap prevents an infinite loop if the API
+// returned the same token repeatedly.
+const GOOGLE_ADS_SEARCH_MAX_PAGES = 1000;
+
 export async function googleAdsSearch(accessToken, apiVersion, customerId, query, options = {}) {
-  const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
-    method: 'POST',
-    headers: googleAdsHeaders(accessToken, true),
-    body: JSON.stringify({
-      query,
-      pageSize: options.pageSize || 1,
-    }),
-  });
+  const label = options.errorLabel || 'Google Ads search';
+  const pageSize = options.pageSize || 1;
+  const maxPages = Math.max(1, Math.min(options.maxPages || GOOGLE_ADS_SEARCH_MAX_PAGES, GOOGLE_ADS_SEARCH_MAX_PAGES));
+  const aggregated = [];
+  let pageToken = '';
+  let pagesFetched = 0;
 
-  if (!response.ok) {
-    const label = options.errorLabel || 'Google Ads search';
-    throw new Error(`${label} failed (${response.status}): ${await parseGoogleError(response, options)}`);
+  while (true) {
+    pagesFetched += 1;
+    const requestBody = pageToken
+      ? { query, pageSize, pageToken }
+      : { query, pageSize };
+    const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
+      method: 'POST',
+      headers: googleAdsHeaders(accessToken, true),
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(`${label} failed (${response.status}): ${await parseGoogleError(response, options)}`);
+    }
+
+    const payload = await response.json();
+    if (Array.isArray(payload.results)) {
+      aggregated.push(...payload.results);
+    }
+
+    const nextPageToken = payload.nextPageToken || '';
+    if (!nextPageToken) {
+      return aggregated;
+    }
+    if (nextPageToken === pageToken) {
+      // The API returned the same nextPageToken it just received. That is either an
+      // API quirk or a malformed response, but in both cases continuing or returning
+      // would silently truncate results. Fail closed — silent data loss is the failure
+      // mode this pagination loop exists to eliminate.
+      throw new Error(
+        `${label} returned the same nextPageToken twice in a row; refusing to risk silent truncation.`,
+      );
+    }
+    if (pagesFetched >= maxPages) {
+      throw new Error(`${label} exceeded the ${maxPages}-page safety cap; refusing to follow more pages.`);
+    }
+    pageToken = nextPageToken;
   }
-
-  const payload = await response.json();
-  return payload.results || [];
 }
 
 export async function mutateGoogleAds(accessToken, apiVersion, customerId, collection, operations) {

@@ -51,6 +51,14 @@ function fail(message, outputJson, details = {}) {
   failCommand(message, outputJson, details, { sanitize: sanitizeGoogleAdsMessage });
 }
 
+// Pulls the trailing campaign ID from a Google Ads campaign resource name.
+// Format: customers/<customer_id>/campaigns/<campaign_id>
+// Returns '' when the input is missing or does not match.
+function extractCampaignId(resourceName) {
+  const match = String(resourceName || '').match(/\/campaigns\/(\d+)$/);
+  return match ? match[1] : '';
+}
+
 function maskResourceName(value) {
   const customerId = normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'));
   if (!customerId) {
@@ -242,7 +250,14 @@ function responsiveSearchAdOperation(adGroupResourceName, rsaAssets) {
   return {
     create: {
       adGroup: adGroupResourceName,
-      status: 'PAUSED',
+      // The operator-meaningful safety boundary is the CAMPAIGN status, which stays
+      // PAUSED until ads:google:enable runs. Ad groups and ads are provisioned
+      // ENABLED so that the moment the campaign flips, the hierarchy can actually
+      // serve. Keeping the ads paused here would force an additional manual
+      // ad-activation step the operator workflow does not currently encode, and
+      // would leave the launch gate (status enableSafe) permanently red after every
+      // fresh create-paused run.
+      status: 'ENABLED',
       ad: {
         finalUrls: [rsaAssets.finalUrl],
         responsiveSearchAd: {
@@ -394,6 +409,10 @@ async function main() {
     if (!campaignResourceName) {
       throw new Error('Google Ads did not return a campaign resource name.');
     }
+    const campaignId = extractCampaignId(campaignResourceName);
+    if (!campaignId) {
+      throw new Error(`Could not parse campaign id from resource name: ${maskResourceName(campaignResourceName)}`);
+    }
     recordCreatedResource(createdResources, 'campaign', campaignResourceName);
 
     const criterionResults = await mutateGoogleAds(
@@ -458,6 +477,10 @@ async function main() {
       targetCustomerFingerprint: customerIdFingerprint(customerId),
       preflightResult: resolvedPath,
       campaign: {
+        // Persisted so the readiness gate and the live enable command can resolve the
+        // exact campaign by ID. Lookup-by-name with LIMIT 1 is unsafe when two campaigns
+        // share a name — see the artifact contract v2 note.
+        id: campaignId,
         name: campaign.campaignName,
         status: 'PAUSED',
         dailyBudgetUsd: campaign.dailyBudgetUsd,

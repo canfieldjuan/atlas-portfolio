@@ -1,7 +1,6 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
 import {
-  escapeGaqlString,
   googleAdsSearch,
   mutateCampaignStatus,
   refreshAccessToken,
@@ -54,6 +53,27 @@ function validateReadinessResult(payload) {
   }
   if (!payload?.createResult?.campaignName) {
     errors.push('Readiness result must include createResult.campaignName');
+  }
+  const hasCreateCampaignId =
+    payload?.createResult?.campaignId && /^\d+$/.test(String(payload.createResult.campaignId));
+  if (!hasCreateCampaignId) {
+    errors.push('Readiness result must include numeric createResult.campaignId (artifact contract v2)');
+  }
+  // statusResult.campaignId is REQUIRED, not optional. Making the consistency check
+  // conditional on its presence would let a hand-edited readiness artifact bypass
+  // the cross-artifact ID check by simply omitting statusResult.campaignId, which
+  // is exactly the tampering vector the v2 contract is supposed to close.
+  const hasStatusCampaignId =
+    payload?.statusResult?.campaignId && /^\d+$/.test(String(payload.statusResult.campaignId));
+  if (!hasStatusCampaignId) {
+    errors.push('Readiness result must include numeric statusResult.campaignId (artifact contract v2)');
+  }
+  if (
+    hasCreateCampaignId &&
+    hasStatusCampaignId &&
+    String(payload.statusResult.campaignId) !== String(payload.createResult.campaignId)
+  ) {
+    errors.push('Readiness statusResult.campaignId must match createResult.campaignId');
   }
   if (payload?.createResult?.campaignStatus !== 'PAUSED') {
     errors.push('Readiness result must record the created campaign as PAUSED');
@@ -144,7 +164,14 @@ function validateReadinessAgainstCustomer(readiness, expectedCustomerId) {
   return errors;
 }
 
-async function findPausedCampaign(accessToken, apiVersion, customerId, campaignName) {
+async function findPausedCampaignByResourceName(accessToken, apiVersion, customerId, campaignId) {
+  // Look up the exact campaign by its resource name. The resource name binds the
+  // campaign to a specific customer ID and a specific campaign ID, so a name
+  // collision within the account cannot resolve to the wrong campaign. The
+  // campaign ID is sourced from the readiness artifact (which itself validates that
+  // status and create artifacts agree on the ID), so this is the authoritative ID
+  // for the live mutation.
+  const resourceName = `customers/${customerId}/campaigns/${campaignId}`;
   const rows = await googleAdsSearch(
     accessToken,
     apiVersion,
@@ -156,20 +183,23 @@ SELECT
   campaign.resource_name,
   campaign.status
 FROM campaign
-WHERE campaign.name = '${escapeGaqlString(campaignName)}'
-LIMIT 1
+WHERE campaign.resource_name = '${resourceName}'
+LIMIT 2
 `.trim(),
     { includeMessage: true },
   );
+  if (rows.length > 1) {
+    throw new Error('Google Ads returned more than one campaign for the configured resource name; refusing to enable.');
+  }
   const campaign = rows[0]?.campaign;
   if (!campaign) {
-    throw new Error(`Campaign not found in Google Ads: ${campaignName}`);
+    throw new Error(`Campaign not found in Google Ads for campaign id ${campaignId}.`);
   }
   if (campaign.status !== 'PAUSED') {
     throw new Error(`Campaign is not PAUSED in Google Ads. Current status: ${campaign.status || 'unknown'}`);
   }
   if (!campaign.resourceName) {
-    throw new Error(`Campaign query returned no resourceName for ${campaignName}.`);
+    throw new Error(`Campaign query returned no resourceName for campaign id ${campaignId}.`);
   }
   return campaign;
 }
@@ -305,7 +335,12 @@ async function main() {
 
   try {
     const accessToken = await refreshAccessToken({ includeMessage: true });
-    const campaign = await findPausedCampaign(accessToken, apiVersion, customerId, readiness.createResult.campaignName);
+    const campaign = await findPausedCampaignByResourceName(
+      accessToken,
+      apiVersion,
+      customerId,
+      readiness.createResult.campaignId,
+    );
     const enabledResourceName = await mutateCampaignStatus(accessToken, apiVersion, customerId, campaign.resourceName, 'ENABLED');
     const payload = {
       ok: true,
