@@ -1,5 +1,7 @@
-import { neon } from '@neondatabase/serverless';
+import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import type { AuditIntakeRecord } from './audit-intake';
+
+type AuditIntakeSql = NeonQueryFunction<false, false>;
 
 export type AuditIntakeSummaryRow = {
   requestId: string;
@@ -35,13 +37,36 @@ function auditIntakeDatabaseUrl() {
   );
 }
 
-function getAuditIntakeSql() {
+// Cache the Neon client per database URL across requests + Next dev HMR. Without
+// this each persist/list call constructs a fresh client, which is wasted work in
+// serverless and causes connection churn under load. globalThis is the right scope
+// because Next dev HMR replaces the module but keeps globals. The cache value is
+// kept loosely typed because neon()'s generic signature does not survive a
+// Map<string, ...> round-trip; the call sites get the narrowed type back.
+const neonClientGlobalKey = Symbol.for('atlas-portfolio.audit-intake.neon-clients');
+type NeonClientCache = Map<string, unknown>;
+const globalScope = globalThis as unknown as { [neonClientGlobalKey]?: NeonClientCache };
+function neonClientCache(): NeonClientCache {
+  if (!globalScope[neonClientGlobalKey]) {
+    globalScope[neonClientGlobalKey] = new Map();
+  }
+  return globalScope[neonClientGlobalKey];
+}
+
+function getAuditIntakeSql(): AuditIntakeSql | null {
   const databaseUrl = auditIntakeDatabaseUrl();
   if (!databaseUrl) {
     return null;
   }
 
-  return neon(databaseUrl);
+  const cache = neonClientCache();
+  const cached = cache.get(databaseUrl);
+  if (cached) {
+    return cached as AuditIntakeSql;
+  }
+  const client: AuditIntakeSql = neon(databaseUrl);
+  cache.set(databaseUrl, client);
+  return client;
 }
 
 export function auditIntakeDatabaseConfigured() {
@@ -148,11 +173,14 @@ export async function listAuditIntakeRecords(limit = 50): Promise<AuditIntakeSum
   }
 
   const boundedLimit = Math.max(1, Math.min(limit, 100));
+  // Format submitted_at explicitly as ISO-8601 in UTC. The bare `::text` cast
+  // emits whatever the database session's `DateStyle` is set to, which makes
+  // `new Date(value)` in the admin UI sensitive to Postgres locale settings.
   const rows = await sql.query(
     `
       SELECT
         request_id::text AS request_id,
-        submitted_at::text AS submitted_at,
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
         full_name,
         work_email,
         company_or_project_url,
