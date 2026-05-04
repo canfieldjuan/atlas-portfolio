@@ -233,11 +233,11 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       deliveries.push('database');
     }
   } catch (error) {
-    warnings.push(
-      error instanceof Error
-        ? `Audit database persistence failed: ${error.message}`
-        : 'Audit database persistence failed.'
-    );
+    // Database errors can include connection strings, schema names, host/user, and SQL
+    // fragments. `warnings` is returned to the client by /api/audit, so surface only a
+    // generic message and log the full error server-side for operator triage.
+    console.error('Audit database persistence failed', error);
+    warnings.push('Audit database persistence failed.');
   }
 
   const webhookUrl = process.env.AUDIT_INTAKE_WEBHOOK_URL?.trim();
