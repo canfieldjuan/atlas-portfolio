@@ -11,9 +11,12 @@ export function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const item = argv[index];
 
-    // `--` is the conventional end-of-options marker. Everything after it is
-    // treated as a positional, even if it starts with a dash. Dash-prefixed
-    // option values still need the inline `--name=value` form.
+    // `--` is the conventional end-of-options marker. Tokens after it land in
+    // `positional` even if they start with a dash, so they no longer get
+    // parsed as flags. This does NOT change how option values are consumed:
+    // dash-prefixed values still require the inline `--name=value` form
+    // (the value-lookahead step rejects tokens that start with `-`). The
+    // marker itself is also never consumed as a preceding option's value.
     if (item === '--') {
       endOfOptions = true;
       continue;

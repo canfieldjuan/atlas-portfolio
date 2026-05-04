@@ -13,9 +13,12 @@ async function testParseArgs() {
   assert.equal(values.get('--output'), '/tmp/result.json');
   assert.equal(values.get('--campaign-name'), 'Audit');
 
-  // `--` ends option parsing; everything after is positional even if it starts
-  // with a dash. Dash-prefixed option values still use `--name=value`; this
-  // marker only prevents later tokens from being parsed as flags.
+  // `--` is the conventional end-of-options marker. Tokens after it land in
+  // `positional` even if they start with a dash, instead of being parsed as
+  // flags. (It does NOT change how option values are consumed: dash-prefixed
+  // values still need the equals form, e.g. `--output=-foo.json`.) The
+  // important property is that `--` itself never gets consumed as an option
+  // value, and tokens after it never become flags.
   const eooParsed = parseArgs(['--output', '/tmp/x.json', '--', '--not-a-flag', '-foo.json']);
   assert.equal(eooParsed.values.get('--output'), '/tmp/x.json');
   assert.deepEqual(eooParsed.positional, ['--not-a-flag', '-foo.json']);
