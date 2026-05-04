@@ -34,15 +34,63 @@ export type AuditIntakeRecord = AuditIntakePayload & {
 export type AuditIntakeDelivery = 'database' | 'webhook' | 'atlas-crm-event' | 'email' | 'file';
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
+// 'database', 'webhook', and 'atlas-crm-event' are unconditionally durable when
+// they succeed. 'file' is conditional: it only counts as persistent when the
+// configured AUDIT_INTAKE_FILE_PATH resolves outside /tmp (the README's
+// "Local Fallback" section documents the AUDIT_INTAKE_ALLOW_FILE_FALLBACK opt-in
+// for production deployments with a real persistent disk). On Vercel, /tmp is
+// ephemeral — function dies, file dies — so a file-only delivery there should
+// still trigger the "no persistent sink" warning instead of giving operators a
+// false sense the submission was durably stored.
 const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = [
   'database',
   'webhook',
   'atlas-crm-event',
-  'file',
 ];
 
+function configuredAuditFilePath() {
+  return process.env.AUDIT_INTAKE_FILE_PATH?.trim() || DEFAULT_AUDIT_FILE_PATH;
+}
+
+function normalizePosixPathForDurabilityCheck(path: string) {
+  const absolute = path.startsWith('/');
+  const segments: string[] = [];
+
+  for (const segment of path.split('/')) {
+    if (!segment || segment === '.') {
+      continue;
+    }
+    if (segment === '..') {
+      if (segments.length > 0 && segments[segments.length - 1] !== '..') {
+        segments.pop();
+      } else if (!absolute) {
+        segments.push(segment);
+      }
+      continue;
+    }
+    segments.push(segment);
+  }
+
+  if (absolute) {
+    return `/${segments.join('/')}`;
+  }
+  return segments.join('/') || '.';
+}
+
+function fileDeliveryIsDurable() {
+  // Resolve the configured path so aliases like `/var/../tmp/audit.ndjson` are
+  // collapsed to `/tmp/audit.ndjson` before the prefix check; otherwise an
+  // operator could accidentally suppress the "no persistent sink" warning by
+  // configuring a path that loops back into ephemeral storage.
+  const normalized = normalizePosixPathForDurabilityCheck(configuredAuditFilePath());
+  return normalized !== '/tmp' && !normalized.startsWith('/tmp/');
+}
+
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
-  return deliveries.some((delivery) => PERSISTENT_DELIVERIES.includes(delivery));
+  return deliveries.some(
+    (delivery) =>
+      PERSISTENT_DELIVERIES.includes(delivery) || (delivery === 'file' && fileDeliveryIsDurable()),
+  );
 }
 
 function fileFallbackEnabled() {
@@ -77,7 +125,7 @@ function parseRecipientList(value: string | undefined) {
 }
 
 async function writeLocalFallback(record: AuditIntakeRecord) {
-  const filePath = process.env.AUDIT_INTAKE_FILE_PATH?.trim() || DEFAULT_AUDIT_FILE_PATH;
+  const filePath = configuredAuditFilePath();
   await mkdir(dirname(filePath), { recursive: true });
   await appendFile(filePath, `${JSON.stringify(record)}\n`, 'utf8');
 }
