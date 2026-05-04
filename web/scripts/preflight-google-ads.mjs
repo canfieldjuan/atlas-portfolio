@@ -153,9 +153,6 @@ async function main() {
 
   const apiVersion = googleAdsApiVersion();
   const customerId = normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'));
-  if (!customerId) {
-    fail('GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.', outputJson);
-  }
 
   try {
     const accessToken = await refreshAccessToken({ debugErrors });

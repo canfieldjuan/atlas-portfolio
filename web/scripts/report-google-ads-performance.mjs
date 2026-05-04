@@ -324,9 +324,6 @@ async function main() {
       errors: invalidGoogleAdsEnvErrors(envStatus),
     });
   }
-  if (!customerId) {
-    fail('GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.', outputJson);
-  }
 
   try {
     const accessToken = await refreshAccessToken({ includeDebug: debugErrors });
