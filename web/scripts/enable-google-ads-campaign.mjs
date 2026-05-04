@@ -1,4 +1,4 @@
-import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
@@ -15,6 +15,7 @@ import {
   envValue,
   googleAdsApiVersion,
   maskCustomerId,
+  maskResourceName,
   normalizeCustomerId,
   validateGoogleAdsEnv,
 } from './google-ads-env.mjs';
@@ -223,9 +224,6 @@ function buildDryRunPlan(readiness) {
   };
 }
 
-function maskResourceName(value, customerId) {
-  return String(value || '').replaceAll(`customers/${customerId}`, `customers/${maskCustomerId(customerId)}`);
-}
 
 function printTextReport(payload) {
   console.log('Google Ads campaign enablement');
@@ -253,7 +251,7 @@ async function main() {
     printUsage();
     return;
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 

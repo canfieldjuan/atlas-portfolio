@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
-import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
@@ -19,6 +19,7 @@ import {
   envValue,
   googleAdsApiVersion,
   maskCustomerId,
+  maskResourceName,
   normalizeCustomerId,
   validateGoogleAdsEnv,
 } from './google-ads-env.mjs';
@@ -63,16 +64,14 @@ function extractCampaignId(resourceName) {
   return match ? match[1] : '';
 }
 
-function maskResourceName(value) {
-  const customerId = normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'));
-  if (!customerId) {
-    return value;
-  }
-  return String(value || '').replaceAll(`customers/${customerId}`, `customers/${maskCustomerId(customerId)}`);
-}
-
 function recordCreatedResource(resources, type, resourceName) {
-  resources.push({ type, resourceName: maskResourceName(resourceName) });
+  // Mask using the configured customer id so the persisted artifact never
+  // echoes the raw account id back. Reads env at call time so the env loader
+  // has had a chance to populate it.
+  resources.push({
+    type,
+    resourceName: maskResourceName(resourceName, normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'))),
+  });
 }
 
 function runSpecValidator() {
@@ -306,7 +305,7 @@ async function main() {
     return;
   }
 
-  if ((flags.has('--output') || args.has('--output')) && !outputPath) {
+  if (isBareFlag({ values: args, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 
@@ -415,7 +414,7 @@ async function main() {
     }
     const campaignId = extractCampaignId(campaignResourceName);
     if (!campaignId) {
-      throw new Error(`Could not parse campaign id from resource name: ${maskResourceName(campaignResourceName)}`);
+      throw new Error(`Could not parse campaign id from resource name: ${maskResourceName(campaignResourceName, customerId)}`);
     }
     recordCreatedResource(createdResources, 'campaign', campaignResourceName);
 

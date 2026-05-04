@@ -1,4 +1,4 @@
-import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
@@ -292,13 +292,13 @@ async function main() {
     printUsage();
     return;
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
-  if (flags.has('--funnel-report') || (values.has('--funnel-report') && !values.get('--funnel-report'))) {
-    // parseArgs() puts a value-less option in flags AND treats `--funnel-report=` as an
-    // empty-string value entry; either form must be rejected so the operator doesn't
-    // silently bypass the funnel report binding gate and hit a confusing fs error later.
+  if (isBareFlag({ values, flags }, '--funnel-report')) {
+    // Either `--funnel-report` (no value) or `--funnel-report=` (empty value)
+    // must fail closed; otherwise the operator silently bypasses the funnel
+    // report binding gate and hits a confusing fs error later.
     fail('Refusing to continue with bare --funnel-report; pass a path or omit the flag.', outputJson);
   }
 

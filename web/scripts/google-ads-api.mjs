@@ -45,22 +45,30 @@ export function googleAdsHeaders(accessToken, includeJson = false) {
   return headers;
 }
 
+// Shared error parser for both Google Ads API responses and OAuth token endpoint
+// responses. The token endpoint commonly returns `{ error, error_description }`,
+// the Ads API returns `{ error: { status, message } }`; this helper handles both
+// so OAuth refresh failures and Ads API failures yield consistently formatted
+// summaries. `options.sanitize` defaults to `sanitizeGoogleAdsMessage` (masks
+// Google Ads customer ids) but can be overridden — e.g., the GA4 reporter passes
+// a property-id masker so it can reuse this helper without leaking GA4 ids.
 export async function parseGoogleError(response, options = {}) {
+  const sanitize = options.sanitize || sanitizeGoogleAdsMessage;
   const text = await response.text();
   try {
     const parsed = JSON.parse(text);
     const status = parsed.error?.status || parsed.error || parsed.error_description;
     const message = parsed.error?.message || parsed.error_description || 'Google API request failed.';
     if (options.includeMessage) {
-      return status ? `Google API request failed with ${status}: ${sanitizeGoogleAdsMessage(message)}` : sanitizeGoogleAdsMessage(message);
+      return status ? `Google API request failed with ${status}: ${sanitize(message)}` : sanitize(message);
     }
     if (!options.includeDebug) {
-      return status ? `Google API request failed with ${status}.` : sanitizeGoogleAdsMessage(message);
+      return status ? `Google API request failed with ${status}.` : sanitize(message);
     }
 
     return status
-      ? `Google API request failed with ${status}. Debug: ${sanitizeGoogleAdsMessage(message || text)}`
-      : sanitizeGoogleAdsMessage(message || text);
+      ? `Google API request failed with ${status}. Debug: ${sanitize(message || text)}`
+      : sanitize(message || text);
   } catch {
     return `Google API request failed with non-JSON response (${response.status}).`;
   }

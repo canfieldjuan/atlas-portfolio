@@ -1,4 +1,4 @@
-import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
@@ -160,7 +160,7 @@ async function main() {
     printUsage();
     return;
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 

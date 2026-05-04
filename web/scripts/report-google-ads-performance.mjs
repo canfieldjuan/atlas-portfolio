@@ -1,5 +1,5 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
-import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
@@ -261,13 +261,13 @@ async function main() {
   if (flags.has('--execute')) {
     fail('Execution mode is not supported. This command is read-only.', outputJson);
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
-  if (flags.has('--campaign-id') || (values.has('--campaign-id') && !values.get('--campaign-id'))) {
-    // parseArgs() puts a value-less option in flags AND treats `--campaign-id=` as an
-    // empty-string value entry; either form must be rejected so the operator's attempt
-    // to disambiguate by id isn't silently dropped into the name-lookup fallback.
+  if (isBareFlag({ values, flags }, '--campaign-id')) {
+    // Either `--campaign-id` (no value) or `--campaign-id=` (empty value) must
+    // fail closed; otherwise the operator's attempt to disambiguate by id is
+    // silently dropped into the name-lookup fallback.
     fail('Refusing to continue with bare --campaign-id; pass a numeric id or omit the flag.', outputJson);
   }
 
