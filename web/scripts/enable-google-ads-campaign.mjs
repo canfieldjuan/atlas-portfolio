@@ -1,5 +1,9 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 import {
   googleAdsSearch,
   mutateCampaignStatus,
@@ -38,7 +42,7 @@ function fail(message, outputJson, details = {}) {
 }
 
 function validateReadinessResult(payload) {
-  const errors = validateArtifactVersion(payload, 'readiness result');
+  const errors = validateArtifactVersion(payload, 'readiness result', GOOGLE_ADS_ARTIFACT_TYPES.READINESS);
   if (payload?.ok !== true) {
     errors.push('Readiness result must have ok=true');
   }
@@ -133,7 +137,7 @@ function validateReadinessResult(payload) {
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
-  const errors = validateArtifactVersion(payload, 'preflight result');
+  const errors = validateArtifactVersion(payload, 'preflight result', GOOGLE_ADS_ARTIFACT_TYPES.PREFLIGHT);
   if (payload?.ok !== true) {
     errors.push('Preflight result must have ok=true');
   }
@@ -272,7 +276,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.ENABLE),
       mode: 'GOOGLE_ADS_ENABLE_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -344,7 +348,7 @@ async function main() {
     const enabledResourceName = await mutateCampaignStatus(accessToken, apiVersion, customerId, campaign.resourceName, 'ENABLED');
     const payload = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.ENABLE),
       mode: 'GOOGLE_ADS_ENABLE',
       apiCalls: true,
       mutations: true,

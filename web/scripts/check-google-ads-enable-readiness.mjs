@@ -1,5 +1,9 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 
 const REQUIRED_CONFIRMATIONS = [
   {
@@ -53,7 +57,7 @@ function requiredResourceTypes(resources) {
 }
 
 function validateCreateResult(payload) {
-  const errors = validateArtifactVersion(payload, 'create result');
+  const errors = validateArtifactVersion(payload, 'create result', GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED);
   if (payload?.ok !== true) {
     errors.push('Create result must have ok=true');
   }
@@ -72,6 +76,23 @@ function validateCreateResult(payload) {
   if (!payload?.targetCustomerFingerprint) {
     errors.push('Create result must include targetCustomerFingerprint');
   }
+  if (!payload?.preflightResult || typeof payload.preflightResult !== 'object') {
+    errors.push('Create result must include the preflightResult provenance block');
+  } else {
+    if (payload.preflightResult.ok !== true) {
+      errors.push('Create result preflightResult must show ok=true');
+    }
+    if (!payload.preflightResult.targetCustomerFingerprint) {
+      errors.push('Create result preflightResult must include targetCustomerFingerprint');
+    }
+    if (
+      payload.preflightResult.targetCustomerFingerprint
+      && payload.targetCustomerFingerprint
+      && payload.preflightResult.targetCustomerFingerprint !== payload.targetCustomerFingerprint
+    ) {
+      errors.push('Create result preflightResult.targetCustomerFingerprint must match the create result targetCustomerFingerprint');
+    }
+  }
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Created campaign must still be recorded as PAUSED');
   }
@@ -88,8 +109,8 @@ function validateCreateResult(payload) {
   return errors;
 }
 
-function validateFunnelReport(payload) {
-  const errors = [];
+function validateFunnelReport(payload, createResult) {
+  const errors = validateArtifactVersion(payload, 'funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL);
   if (payload?.ok !== true) {
     errors.push('Funnel report must have ok=true');
   }
@@ -102,11 +123,35 @@ function validateFunnelReport(payload) {
   if (payload?.dateRange?.aligned !== true) {
     errors.push('Funnel report must have aligned Google Ads and GA4 date ranges');
   }
+  // Pin the funnel report to the same campaign as the create-result. Name alone is
+  // not enough — Google Ads campaign names are not unique inside an account, so a
+  // funnel report from a duplicate-name campaign could otherwise satisfy the gate.
+  // Require campaign.id (carried through by combine-advertising-reports) and also
+  // verify campaignName as a defense-in-depth check.
+  const expectedCampaignName = createResult?.campaign?.name;
+  const expectedCampaignId = createResult?.campaign?.id ? String(createResult.campaign.id) : '';
+  if (expectedCampaignName && payload?.campaignName !== expectedCampaignName) {
+    errors.push(
+      `Funnel report campaignName (${payload?.campaignName || 'missing'}) must match the create-result campaign name (${expectedCampaignName})`,
+    );
+  }
+  if (expectedCampaignId) {
+    const funnelCampaignId = payload?.campaignId ? String(payload.campaignId) : '';
+    if (!funnelCampaignId) {
+      errors.push(
+        'Funnel report must include campaignId; regenerate the funnel report against the current Google Ads performance artifact.',
+      );
+    } else if (funnelCampaignId !== expectedCampaignId) {
+      errors.push(
+        `Funnel report campaignId (${funnelCampaignId}) must match the create-result campaign.id (${expectedCampaignId})`,
+      );
+    }
+  }
   return errors;
 }
 
 function validateStatusResult(payload, createResult) {
-  const errors = validateArtifactVersion(payload, 'status result');
+  const errors = validateArtifactVersion(payload, 'status result', GOOGLE_ADS_ARTIFACT_TYPES.STATUS);
   if (payload?.ok !== true) {
     errors.push('Status result must have ok=true');
   }
@@ -178,7 +223,7 @@ function buildReadinessPayload({
 }) {
   return {
     ok: true,
-    ...artifactVersionFields(),
+    ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.READINESS),
     mode: 'GOOGLE_ADS_ENABLEMENT_READINESS',
     apiCalls: false,
     mutations: false,
@@ -210,6 +255,8 @@ function buildReadinessPayload({
     funnelReport: funnelReport
       ? {
           path: funnelReportPath,
+          campaignName: funnelReport.campaignName || '',
+          campaignId: funnelReport.campaignId ? String(funnelReport.campaignId) : '',
           dateRange: funnelReport.dateRange,
           funnel: funnelReport.funnel,
           rates: funnelReport.rates,
@@ -246,6 +293,12 @@ async function main() {
   if ((flags.has('--output') || values.has('--output')) && !outputPath) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
+  if (flags.has('--funnel-report') || (values.has('--funnel-report') && !values.get('--funnel-report'))) {
+    // parseArgs() puts a value-less option in flags AND treats `--funnel-report=` as an
+    // empty-string value entry; either form must be rejected so the operator doesn't
+    // silently bypass the funnel report binding gate and hit a confusing fs error later.
+    fail('Refusing to continue with bare --funnel-report; pass a path or omit the flag.', outputJson);
+  }
 
   const createResultPath = values.get('--create-result');
   if (!createResultPath) {
@@ -270,7 +323,7 @@ async function main() {
       const { payload, resolvedPath: resolvedFunnelPath } = await readJsonArtifact(values.get('--funnel-report'));
       funnelReport = payload;
       funnelReportPath = resolvedFunnelPath;
-      errors.push(...validateFunnelReport(payload));
+      errors.push(...validateFunnelReport(payload, createResult));
     }
 
     if (errors.length > 0) {

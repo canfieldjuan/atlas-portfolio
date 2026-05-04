@@ -2,7 +2,11 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -89,7 +93,7 @@ function runSpecValidator() {
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
-  const errors = validateArtifactVersion(payload, 'preflight result');
+  const errors = validateArtifactVersion(payload, 'preflight result', GOOGLE_ADS_ARTIFACT_TYPES.PREFLIGHT);
 
   if (payload?.ok !== true) {
     errors.push('preflight result must have ok=true');
@@ -329,7 +333,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED),
       mode: 'CREATE_PAUSED_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -415,15 +419,20 @@ async function main() {
     }
     recordCreatedResource(createdResources, 'campaign', campaignResourceName);
 
-    const criterionResults = await mutateGoogleAds(
-      accessToken,
-      apiVersion,
-      customerId,
-      'campaignCriteria',
-      campaignCriterionOperations(campaignResourceName, campaign),
-    );
-    for (const item of criterionResults) {
-      recordCreatedResource(createdResources, 'campaignCriterion', item.resourceName);
+    // Google Ads rejects mutate requests with zero operations. The spec may legitimately
+    // omit geoTargets/languageTargets, so skip the call instead of forcing an API error.
+    const criterionOperations = campaignCriterionOperations(campaignResourceName, campaign);
+    if (criterionOperations.length > 0) {
+      const criterionResults = await mutateGoogleAds(
+        accessToken,
+        apiVersion,
+        customerId,
+        'campaignCriteria',
+        criterionOperations,
+      );
+      for (const item of criterionResults) {
+        recordCreatedResource(createdResources, 'campaignCriterion', item.resourceName);
+      }
     }
 
     for (const { adGroup, keywords, negatives, rsaAssets } of adGroups) {
@@ -468,14 +477,23 @@ async function main() {
 
     const summary = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED),
       mode: 'CREATE_PAUSED',
       apiCalls: true,
       mutations: true,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
       targetCustomerFingerprint: customerIdFingerprint(customerId),
-      preflightResult: resolvedPath,
+      // Embed the preflight provenance so the readiness gate can verify this create
+      // result was produced from a preflight run against the same customer. Shape
+      // must stay in sync with validateCreateResult() in
+      // check-google-ads-enable-readiness.mjs.
+      preflightResult: {
+        path: resolvedPath,
+        ok: preflight?.ok === true,
+        targetCustomerFingerprint: preflight?.targetCustomerFingerprint || '',
+        apiVersion: preflight?.apiVersion || '',
+      },
       campaign: {
         // Persisted so the readiness gate and the live enable command can resolve the
         // exact campaign by ID. Lookup-by-name with LIMIT 1 is unsafe when two campaigns

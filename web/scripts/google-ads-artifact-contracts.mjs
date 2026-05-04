@@ -1,19 +1,47 @@
-// v2: create-paused result records `campaign.id` (parsed from the API resourceName);
-//     readiness validates that statusResult campaign.id matches createResult campaign.id;
-//     enable looks up the campaign by resource name (constructed from the configured
-//     customer ID + readiness campaignId), not by name with LIMIT 1, so a campaign
-//     name collision within the same account cannot resolve to the wrong campaign.
-export const GOOGLE_ADS_ARTIFACT_VERSION = 2;
+// Per-artifact version map. Bump only the type whose producer schema actually
+// changed; everything else keeps its current version so unrelated artifacts (e.g.
+// preflight, status) are not invalidated by a tightening that only affects one type.
+//
+// History:
+// - CREATE_PAUSED v2: success artifact records `campaign.id` (PR #28)
+// - CREATE_PAUSED v3: `preflightResult` is an embedded provenance object
+//   (`{ path, ok, targetCustomerFingerprint, apiVersion }`) instead of a path string,
+//   so the readiness gate can verify the create result was produced from a preflight
+//   run against the same customer (PR #29)
+// - ADVERTISING_FUNNEL v1: introducing versioning + required `campaignId`. Funnel
+//   reports produced before this change do not advertise a version and are rejected
+//   on purpose — they can also lack `campaignId`, which the readiness gate requires
+//   to defend against duplicate-name campaign collisions (PR #29)
+export const GOOGLE_ADS_ARTIFACT_VERSIONS = Object.freeze({
+  PREFLIGHT: 2,
+  CREATE_PAUSED: 3,
+  STATUS: 2,
+  READINESS: 2,
+  ENABLE: 2,
+  ADVERTISING_FUNNEL: 1,
+});
 
-export function artifactVersionFields() {
+export const GOOGLE_ADS_ARTIFACT_TYPES = Object.freeze(
+  Object.fromEntries(Object.keys(GOOGLE_ADS_ARTIFACT_VERSIONS).map((key) => [key, key])),
+);
+
+function versionForType(type) {
+  if (!Object.prototype.hasOwnProperty.call(GOOGLE_ADS_ARTIFACT_VERSIONS, type)) {
+    throw new Error(`Unknown Google Ads artifact type: ${type}`);
+  }
+  return GOOGLE_ADS_ARTIFACT_VERSIONS[type];
+}
+
+export function artifactVersionFields(type) {
   return {
-    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION,
+    artifactVersion: versionForType(type),
   };
 }
 
-export function validateArtifactVersion(payload, label) {
-  if (payload?.artifactVersion !== GOOGLE_ADS_ARTIFACT_VERSION) {
-    return [`${label} artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSION}`];
+export function validateArtifactVersion(payload, label, type) {
+  const expected = versionForType(type);
+  if (payload?.artifactVersion !== expected) {
+    return [`${label} artifactVersion must be ${expected}`];
   }
   return [];
 }

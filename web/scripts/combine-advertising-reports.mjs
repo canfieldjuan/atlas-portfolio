@@ -1,4 +1,5 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 
 function printUsage() {
   console.log(`Advertising funnel report combiner
@@ -43,6 +44,17 @@ function validateGoogleAdsReport(payload) {
   if (!payload?.totals || typeof payload.totals !== 'object') {
     errors.push('Google Ads report must include totals');
   }
+  // The combiner produces a versioned funnel artifact whose contract requires
+  // numeric campaignId. Fail closed at combine time regardless of source mode —
+  // a dry-run input without --campaign-id would otherwise produce a funnel with
+  // empty campaignId that gets rejected later at the readiness gate with a less
+  // obvious error. Operators wanting to test the combine pipeline with dry-run
+  // inputs should pass --campaign-id to the reporter so the chain is consistent.
+  if (!payload?.campaignId || !/^\d+$/.test(String(payload.campaignId))) {
+    errors.push(
+      'Google Ads report must include numeric campaignId. Regenerate with `npm run ads:google:report` (pass --campaign-id <id> when using --dry-run) to pick up the campaign-id contract.',
+    );
+  }
   return errors;
 }
 
@@ -74,6 +86,7 @@ function buildCombinedReport(googleAds, ga4, paths) {
 
   return {
     ok: true,
+    ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL),
     mode: 'ADVERTISING_FUNNEL_REPORT',
     apiCalls: false,
     mutations: false,
@@ -84,6 +97,10 @@ function buildCombinedReport(googleAds, ga4, paths) {
       ga4Mode: ga4.mode,
     },
     campaignName: googleAds.campaignName || '',
+    // Carried through from the Google Ads performance report so the readiness gate can
+    // bind the funnel report to a specific campaign.id. Defends against attaching a
+    // funnel report from a duplicate-name campaign.
+    campaignId: googleAds.campaignId || '',
     landingPage: ga4.landingPage || '',
     conversionEvent: ga4.conversionEvent || '',
     dateRange: {

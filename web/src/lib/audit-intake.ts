@@ -233,11 +233,11 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       deliveries.push('database');
     }
   } catch (error) {
-    warnings.push(
-      error instanceof Error
-        ? `Audit database persistence failed: ${error.message}`
-        : 'Audit database persistence failed.'
-    );
+    // Database errors can include connection strings, schema names, host/user, and SQL
+    // fragments. `warnings` is returned to the client by /api/audit, so surface only a
+    // generic message and log the full error server-side for operator triage.
+    console.error('Audit database persistence failed', error);
+    warnings.push('Audit database persistence failed.');
   }
 
   const webhookUrl = process.env.AUDIT_INTAKE_WEBHOOK_URL?.trim();
@@ -246,7 +246,10 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       await postAuditWebhook(webhookUrl, record);
       deliveries.push('webhook');
     } catch (error) {
-      warnings.push(error instanceof Error ? error.message : 'Audit webhook delivery failed.');
+      // Webhook errors can include the upstream URL, response body, or
+      // auth-related details. Generic message for the client; full error to logs.
+      console.error('Audit webhook delivery failed', error);
+      warnings.push('Audit webhook delivery failed.');
     }
   }
 
@@ -256,7 +259,9 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       await postAtlasCrmEvent(atlasBaseUrl, record);
       deliveries.push('atlas-crm-event');
     } catch (error) {
-      warnings.push(error instanceof Error ? error.message : 'Atlas CRM event delivery failed.');
+      // Atlas CRM errors can echo the upstream endpoint, response body, or auth state.
+      console.error('Atlas CRM event delivery failed', error);
+      warnings.push('Atlas CRM event delivery failed.');
     }
   }
 
@@ -272,7 +277,10 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       await sendNotificationEmail(record);
       deliveries.push('email');
     } catch (error) {
-      warnings.push(error instanceof Error ? error.message : 'Audit notification email failed.');
+      // Email provider errors can include API keys, recipient lists, and provider
+      // response bodies that should never reach the submitter.
+      console.error('Audit notification email failed', error);
+      warnings.push('Audit notification email failed.');
     }
   }
 
