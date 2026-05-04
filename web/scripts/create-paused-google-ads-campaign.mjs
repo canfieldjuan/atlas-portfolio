@@ -415,15 +415,20 @@ async function main() {
     }
     recordCreatedResource(createdResources, 'campaign', campaignResourceName);
 
-    const criterionResults = await mutateGoogleAds(
-      accessToken,
-      apiVersion,
-      customerId,
-      'campaignCriteria',
-      campaignCriterionOperations(campaignResourceName, campaign),
-    );
-    for (const item of criterionResults) {
-      recordCreatedResource(createdResources, 'campaignCriterion', item.resourceName);
+    // Google Ads rejects mutate requests with zero operations. The spec may legitimately
+    // omit geoTargets/languageTargets, so skip the call instead of forcing an API error.
+    const criterionOperations = campaignCriterionOperations(campaignResourceName, campaign);
+    if (criterionOperations.length > 0) {
+      const criterionResults = await mutateGoogleAds(
+        accessToken,
+        apiVersion,
+        customerId,
+        'campaignCriteria',
+        criterionOperations,
+      );
+      for (const item of criterionResults) {
+        recordCreatedResource(createdResources, 'campaignCriterion', item.resourceName);
+      }
     }
 
     for (const { adGroup, keywords, negatives, rsaAssets } of adGroups) {
