@@ -5,10 +5,21 @@ import { repoRoot } from './ads-spec-io.mjs';
 export function parseArgs(argv) {
   const values = new Map();
   const flags = new Set();
+  const positional = [];
+  let endOfOptions = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const item = argv[index];
-    if (!item.startsWith('-')) {
+
+    // `--` is the conventional end-of-options marker. Everything after it is
+    // treated as a positional, even if it starts with a dash. Lets operators
+    // pass values like `--output -foo.json` when needed.
+    if (item === '--') {
+      endOfOptions = true;
+      continue;
+    }
+    if (endOfOptions || !item.startsWith('-')) {
+      positional.push(item);
       continue;
     }
 
@@ -19,7 +30,7 @@ export function parseArgs(argv) {
     }
 
     const next = argv[index + 1];
-    if (next && !next.startsWith('-')) {
+    if (next !== undefined && next !== '--' && !next.startsWith('-')) {
       values.set(name, next);
       index += 1;
       continue;
@@ -28,7 +39,30 @@ export function parseArgs(argv) {
     flags.add(name);
   }
 
-  return { values, flags };
+  return { values, flags, positional };
+}
+
+// Returns true when `--name` was passed without a meaningful value — either as
+// a bare flag (`--name` followed by another flag or end of args) or as the
+// empty-equals form (`--name=`). Centralizes the predicate that --output,
+// --campaign-id, and --funnel-report each had inline; call sites use it with
+// their own fail() helper so script-specific hint text is preserved.
+//
+// Returns false when the flag wasn't passed at all, or when it has a non-empty
+// value.
+export function isBareFlag(parsed, name) {
+  const { values, flags } = parsed;
+  if (flags.has(name)) {
+    return true;
+  }
+  if (!values.has(name)) {
+    return false;
+  }
+  const raw = values.get(name);
+  if (raw === undefined || raw === '') {
+    return true;
+  }
+  return typeof raw === 'string' && raw.trim() === '';
 }
 
 export function resolveRepoPath(path) {

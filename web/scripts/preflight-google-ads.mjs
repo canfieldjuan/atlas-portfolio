@@ -1,4 +1,4 @@
-import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 import {
   googleAdsHeaders,
@@ -134,7 +134,7 @@ async function main() {
     fail('Execution is intentionally not implemented. This command is read-only.', outputJson);
   }
 
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 
