@@ -182,9 +182,9 @@ const pricingTiers: PricingTier[] = [
     badge: 'RECOMMENDED FIRST STEP',
     title: 'Content Ops Audit',
     price: '$1,500',
-    sla: 'Delivered in 2 business days',
+    sla: 'Delivered in 2 business days after intake',
     description:
-      'In 48 hours, you will know exactly what content your data can produce — and whether it is worth building anything at all.',
+      'Written assessment plus 2–3 sample outputs generated from your real data. In 48 hours, you will know what content your data can produce — and whether it is worth building anything at all.',
     includes: [
       'What usable data you already have',
       'What content it can produce',
