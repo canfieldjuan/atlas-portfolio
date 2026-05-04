@@ -17,7 +17,9 @@ export function parseArgs(argv) {
     // dash-prefixed values still require the inline `--name=value` form
     // (the value-lookahead step rejects tokens that start with `-`). The
     // marker itself is also never consumed as a preceding option's value.
-    if (item === '--') {
+    // Only the FIRST `--` is special; subsequent `--` tokens are positional,
+    // matching standard CLI behavior.
+    if (!endOfOptions && item === '--') {
       endOfOptions = true;
       continue;
     }
