@@ -10,6 +10,7 @@ import {
   customerIdFingerprint,
   envValue,
   googleAdsApiVersion,
+  invalidGoogleAdsEnvErrors,
   maskCustomerId,
   normalizeCustomerId,
   validateGoogleAdsEnv,
@@ -144,7 +145,9 @@ async function main() {
       mode: 'READ_ONLY_PREFLIGHT',
       apiCalls: false,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
       present: envStatus.present,
+      errors: invalidGoogleAdsEnvErrors(envStatus),
     });
   }
 

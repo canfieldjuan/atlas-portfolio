@@ -11,6 +11,7 @@ import {
   customerIdFingerprint,
   envValue,
   googleAdsApiVersion,
+  invalidGoogleAdsEnvErrors,
   maskCustomerId,
   maskResourceName,
   normalizeCustomerId,
@@ -275,7 +276,9 @@ async function main() {
       apiCalls: false,
       mutations: false,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
       present: envStatus.present,
+      errors: invalidGoogleAdsEnvErrors(envStatus),
     });
   }
 
