@@ -250,7 +250,14 @@ function responsiveSearchAdOperation(adGroupResourceName, rsaAssets) {
   return {
     create: {
       adGroup: adGroupResourceName,
-      status: 'PAUSED',
+      // The operator-meaningful safety boundary is the CAMPAIGN status, which stays
+      // PAUSED until ads:google:enable runs. Ad groups and ads are provisioned
+      // ENABLED so that the moment the campaign flips, the hierarchy can actually
+      // serve. Keeping the ads paused here would force an additional manual
+      // ad-activation step the operator workflow does not currently encode, and
+      // would leave the launch gate (status enableSafe) permanently red after every
+      // fresh create-paused run.
+      status: 'ENABLED',
       ad: {
         finalUrls: [rsaAssets.finalUrl],
         responsiveSearchAd: {
