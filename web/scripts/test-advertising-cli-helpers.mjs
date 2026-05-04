@@ -30,6 +30,14 @@ async function testParseArgs() {
   const trailingEoo = parseArgs(['--funnel-report', '--']);
   assert.equal(trailingEoo.flags.has('--funnel-report'), true);
   assert.equal(trailingEoo.values.has('--funnel-report'), false);
+
+  // Only the FIRST `--` is the end-of-options marker; subsequent `--` tokens
+  // become positional like any other dash-prefixed token after the marker.
+  // Standard CLI behavior — see e.g. POSIX guideline 10.
+  const doubleEoo = parseArgs(['--', '--', '-foo']);
+  assert.deepEqual(doubleEoo.positional, ['--', '-foo']);
+  assert.equal(doubleEoo.flags.size, 0);
+  assert.equal(doubleEoo.values.size, 0);
 }
 
 function testIsBareFlag() {
