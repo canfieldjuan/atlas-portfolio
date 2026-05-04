@@ -1,5 +1,9 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 
 const REQUIRED_CONFIRMATIONS = [
   {
@@ -53,7 +57,7 @@ function requiredResourceTypes(resources) {
 }
 
 function validateCreateResult(payload) {
-  const errors = validateArtifactVersion(payload, 'create result');
+  const errors = validateArtifactVersion(payload, 'create result', GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED);
   if (payload?.ok !== true) {
     errors.push('Create result must have ok=true');
   }
@@ -106,7 +110,7 @@ function validateCreateResult(payload) {
 }
 
 function validateFunnelReport(payload, createResult) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL);
   if (payload?.ok !== true) {
     errors.push('Funnel report must have ok=true');
   }
@@ -147,7 +151,7 @@ function validateFunnelReport(payload, createResult) {
 }
 
 function validateStatusResult(payload, createResult) {
-  const errors = validateArtifactVersion(payload, 'status result');
+  const errors = validateArtifactVersion(payload, 'status result', GOOGLE_ADS_ARTIFACT_TYPES.STATUS);
   if (payload?.ok !== true) {
     errors.push('Status result must have ok=true');
   }
@@ -219,7 +223,7 @@ function buildReadinessPayload({
 }) {
   return {
     ok: true,
-    ...artifactVersionFields(),
+    ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.READINESS),
     mode: 'GOOGLE_ADS_ENABLEMENT_READINESS',
     apiCalls: false,
     mutations: false,

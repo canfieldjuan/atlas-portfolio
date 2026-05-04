@@ -2,7 +2,11 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadCampaignSpec, repoRoot } from './ads-spec-io.mjs';
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, validateArtifactVersion } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -89,7 +93,7 @@ function runSpecValidator() {
 }
 
 function validatePreflightResult(payload, expectedCustomerId) {
-  const errors = validateArtifactVersion(payload, 'preflight result');
+  const errors = validateArtifactVersion(payload, 'preflight result', GOOGLE_ADS_ARTIFACT_TYPES.PREFLIGHT);
 
   if (payload?.ok !== true) {
     errors.push('preflight result must have ok=true');
@@ -329,7 +333,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED),
       mode: 'CREATE_PAUSED_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -473,7 +477,7 @@ async function main() {
 
     const summary = {
       ok: true,
-      ...artifactVersionFields(),
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED),
       mode: 'CREATE_PAUSED',
       apiCalls: true,
       mutations: true,

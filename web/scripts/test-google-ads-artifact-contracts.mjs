@@ -5,7 +5,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import {
-  GOOGLE_ADS_ARTIFACT_VERSION,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  GOOGLE_ADS_ARTIFACT_VERSIONS,
   artifactVersionFields,
   validateArtifactVersion,
 } from './google-ads-artifact-contracts.mjs';
@@ -67,7 +68,7 @@ function runScript(scriptName, args, expectedStatus = 0) {
 function createResult(overrides = {}) {
   return {
     ok: true,
-    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION,
+    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.CREATE_PAUSED,
     mode: 'CREATE_PAUSED',
     apiCalls: true,
     mutations: true,
@@ -108,6 +109,7 @@ function createResult(overrides = {}) {
 function funnelReport(overrides = {}) {
   return {
     ok: true,
+    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.ADVERTISING_FUNNEL,
     mode: 'ADVERTISING_FUNNEL_REPORT',
     apiCalls: false,
     mutations: false,
@@ -130,7 +132,7 @@ function funnelReport(overrides = {}) {
 function statusResult(overrides = {}) {
   return {
     ok: true,
-    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION,
+    artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.STATUS,
     mode: 'GOOGLE_ADS_CAMPAIGN_STATUS_REPORT',
     apiCalls: true,
     mutations: false,
@@ -175,13 +177,35 @@ function assertStdoutContains(result, text) {
   assert.ok(result.stdout.includes(text), `Expected stdout to include ${JSON.stringify(text)}\nstdout:\n${result.stdout}`);
 }
 
-function artifactVersionError(label) {
-  return `${label} artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSION}`;
+function artifactVersionError(label, type) {
+  return `${label} artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSIONS[type]}`;
 }
 
-assert.deepEqual(artifactVersionFields(), { artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION });
-assert.deepEqual(validateArtifactVersion({ artifactVersion: GOOGLE_ADS_ARTIFACT_VERSION }, 'test artifact'), []);
-assert.deepEqual(validateArtifactVersion({}, 'test artifact'), [artifactVersionError('test artifact')]);
+// Smoke tests for the per-artifact version helpers.
+for (const type of Object.values(GOOGLE_ADS_ARTIFACT_TYPES)) {
+  const expected = GOOGLE_ADS_ARTIFACT_VERSIONS[type];
+  assert.deepEqual(artifactVersionFields(type), { artifactVersion: expected });
+  assert.deepEqual(
+    validateArtifactVersion({ artifactVersion: expected }, 'test artifact', type),
+    [],
+  );
+  assert.deepEqual(
+    validateArtifactVersion({}, 'test artifact', type),
+    [artifactVersionError('test artifact', type)],
+  );
+  // An artifact advertising another type's version is rejected — versions are no
+  // longer interchangeable across types.
+  for (const otherType of Object.values(GOOGLE_ADS_ARTIFACT_TYPES)) {
+    if (otherType === type) continue;
+    const otherVersion = GOOGLE_ADS_ARTIFACT_VERSIONS[otherType];
+    if (otherVersion === expected) continue;
+    assert.deepEqual(
+      validateArtifactVersion({ artifactVersion: otherVersion }, 'test artifact', type),
+      [artifactVersionError('test artifact', type)],
+    );
+  }
+}
+assert.throws(() => artifactVersionFields('UNKNOWN_TYPE'), /Unknown Google Ads artifact type/);
 
 const createPath = writeJson('create-result.json', createResult());
 const statusPath = writeJson('status-result.json', statusResult());
@@ -197,8 +221,8 @@ const readinessRun = runScript('check-google-ads-enable-readiness.mjs', [
   readinessPath,
 ]);
 const readinessPayload = JSON.parse(readinessRun.stdout);
-assert.equal(readinessPayload.artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
-assert.equal(readJson(readinessPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
+assert.equal(readinessPayload.artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.READINESS);
+assert.equal(readJson(readinessPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.READINESS);
 
 const staleCreate = createResult();
 delete staleCreate.artifactVersion;
@@ -215,7 +239,7 @@ const staleCreateRun = runScript(
   ],
   1,
 );
-assertStdoutContains(staleCreateRun, artifactVersionError('create result'));
+assertStdoutContains(staleCreateRun, artifactVersionError('create result', GOOGLE_ADS_ARTIFACT_TYPES.CREATE_PAUSED));
 
 const staleStatus = statusResult();
 delete staleStatus.artifactVersion;
@@ -232,7 +256,7 @@ const staleStatusRun = runScript(
   ],
   1,
 );
-assertStdoutContains(staleStatusRun, artifactVersionError('status result'));
+assertStdoutContains(staleStatusRun, artifactVersionError('status result', GOOGLE_ADS_ARTIFACT_TYPES.STATUS));
 
 // v2: create result missing campaign.id must be rejected.
 const createMissingIdPath = writeJson(
@@ -369,6 +393,30 @@ const bareFunnelRun = runScript(
 );
 assertStdoutContains(bareFunnelRun, 'Refusing to continue with bare --funnel-report');
 
+// Funnel report missing the artifactVersion field must be rejected — pre-versioning
+// (legacy) funnel artifacts now fail closed; operators regenerate via combine-advertising-reports.
+const unversionedFunnel = funnelReport();
+delete unversionedFunnel.artifactVersion;
+const unversionedFunnelPath = writeJson('funnel-unversioned.json', unversionedFunnel);
+const unversionedFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    unversionedFunnelPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(
+  unversionedFunnelRun,
+  artifactVersionError('funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL),
+);
+
 // Funnel report whose campaignName matches but campaignId differs must be rejected.
 // Defends against the duplicate-name collision class — two campaigns can share a
 // name in Google Ads, so name-only binding is not sufficient.
@@ -437,8 +485,8 @@ const enableDryRun = runScript('enable-google-ads-campaign.mjs', [
   enableDryRunPath,
 ]);
 const enablePayload = JSON.parse(enableDryRun.stdout);
-assert.equal(enablePayload.artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
-assert.equal(readJson(enableDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
+assert.equal(enablePayload.artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.ENABLE);
+assert.equal(readJson(enableDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.ENABLE);
 
 const staleReadiness = readJson(readinessPath);
 delete staleReadiness.artifactVersion;
@@ -448,15 +496,15 @@ const staleReadinessRun = runScript(
   ['--dry-run', '--readiness-result', staleReadinessPath, '--json'],
   1,
 );
-assertStdoutContains(staleReadinessRun, artifactVersionError('readiness result'));
+assertStdoutContains(staleReadinessRun, artifactVersionError('readiness result', GOOGLE_ADS_ARTIFACT_TYPES.READINESS));
 
 const statusDryRunPath = join(tempDir, 'status-dry-run.json');
 runScript('status-google-ads-campaign.mjs', ['--dry-run', '--json', '--output', statusDryRunPath]);
-assert.equal(readJson(statusDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
+assert.equal(readJson(statusDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.STATUS);
 
 const createDryRunPath = join(tempDir, 'create-dry-run.json');
 runScript('create-paused-google-ads-campaign.mjs', ['--dry-run', '--json', '--output', createDryRunPath]);
-assert.equal(readJson(createDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSION);
+assert.equal(readJson(createDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.CREATE_PAUSED);
 
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();

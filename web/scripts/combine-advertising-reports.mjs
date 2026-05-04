@@ -1,4 +1,5 @@
 import { failCommand, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 
 function printUsage() {
   console.log(`Advertising funnel report combiner
@@ -74,6 +75,7 @@ function buildCombinedReport(googleAds, ga4, paths) {
 
   return {
     ok: true,
+    ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL),
     mode: 'ADVERTISING_FUNNEL_REPORT',
     apiCalls: false,
     mutations: false,
