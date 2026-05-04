@@ -34,19 +34,34 @@ export type AuditIntakeRecord = AuditIntakePayload & {
 export type AuditIntakeDelivery = 'database' | 'webhook' | 'atlas-crm-event' | 'email' | 'file';
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
-// 'file' is intentionally NOT in this set: the file fallback writes to /tmp, which
-// is ephemeral on Vercel (the function dies, the file dies). Counting it as
-// persistent would mute the "no persistent sink" warning when only the file
-// fallback succeeded, giving operators a false sense the submission was durably
-// stored. The warning is the prompt to configure database/webhook/Atlas instead.
+// 'database', 'webhook', and 'atlas-crm-event' are unconditionally durable when
+// they succeed. 'file' is conditional: it only counts as persistent when the
+// configured AUDIT_INTAKE_FILE_PATH points outside /tmp (per README:104-110, an
+// operator can opt into a durable filesystem target with
+// AUDIT_INTAKE_ALLOW_FILE_FALLBACK=true). On Vercel, /tmp is ephemeral — function
+// dies, file dies — so a file-only delivery there should still trigger the
+// "no persistent sink" warning instead of giving operators a false sense the
+// submission was durably stored.
 const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = [
   'database',
   'webhook',
   'atlas-crm-event',
 ];
 
+function configuredAuditFilePath() {
+  return process.env.AUDIT_INTAKE_FILE_PATH?.trim() || DEFAULT_AUDIT_FILE_PATH;
+}
+
+function fileDeliveryIsDurable() {
+  const filePath = configuredAuditFilePath();
+  return !filePath.startsWith('/tmp/') && filePath !== '/tmp';
+}
+
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
-  return deliveries.some((delivery) => PERSISTENT_DELIVERIES.includes(delivery));
+  return deliveries.some(
+    (delivery) =>
+      PERSISTENT_DELIVERIES.includes(delivery) || (delivery === 'file' && fileDeliveryIsDurable()),
+  );
 }
 
 function fileFallbackEnabled() {
@@ -81,7 +96,7 @@ function parseRecipientList(value: string | undefined) {
 }
 
 async function writeLocalFallback(record: AuditIntakeRecord) {
-  const filePath = process.env.AUDIT_INTAKE_FILE_PATH?.trim() || DEFAULT_AUDIT_FILE_PATH;
+  const filePath = configuredAuditFilePath();
   await mkdir(dirname(filePath), { recursive: true });
   await appendFile(filePath, `${JSON.stringify(record)}\n`, 'utf8');
 }
