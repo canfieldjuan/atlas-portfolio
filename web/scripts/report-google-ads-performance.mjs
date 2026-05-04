@@ -118,11 +118,32 @@ ORDER BY segments.date ASC
 `.trim();
 }
 
-async function resolveCampaignId(accessToken, apiVersion, customerId, campaignName, options = {}) {
+async function resolveCampaign(accessToken, apiVersion, customerId, { campaignId, campaignName }, options = {}) {
+  if (campaignId) {
+    // Operator passed --campaign-id; verify the id resolves and pull the canonical name
+    // from the API. Without this, the artifact's campaignName would echo the CLI/spec
+    // value, which can disagree with the campaign that --campaign-id actually points at.
+    const query = `SELECT campaign.id, campaign.name FROM campaign WHERE campaign.id = ${campaignId} LIMIT 2`.trim();
+    const rows = await googleAdsSearch(accessToken, apiVersion, customerId, query, {
+      includeDebug: options.debugErrors,
+      pageSize: 2,
+      errorLabel: 'campaign id lookup',
+    });
+    if (rows.length === 0) {
+      throw new Error(`No campaign found with id ${campaignId}.`);
+    }
+    const id = rows[0]?.campaign?.id;
+    const name = rows[0]?.campaign?.name || '';
+    if (!id || !/^\d+$/.test(String(id))) {
+      throw new Error(`Campaign id lookup returned a non-numeric id for ${campaignId}.`);
+    }
+    return { id: String(id), name };
+  }
+
   const rows = await googleAdsSearch(accessToken, apiVersion, customerId, buildCampaignLookupQuery(campaignName), {
     includeDebug: options.debugErrors,
     pageSize: 2,
-    errorLabel: 'campaign lookup',
+    errorLabel: 'campaign name lookup',
   });
   if (rows.length === 0) {
     throw new Error(`No campaign found with name "${campaignName}".`);
@@ -135,10 +156,11 @@ async function resolveCampaignId(accessToken, apiVersion, customerId, campaignNa
     );
   }
   const id = rows[0]?.campaign?.id;
+  const name = rows[0]?.campaign?.name || campaignName;
   if (!id || !/^\d+$/.test(String(id))) {
     throw new Error(`Campaign lookup returned a non-numeric id for "${campaignName}".`);
   }
-  return String(id);
+  return { id: String(id), name };
 }
 
 async function runPerformanceQuery(accessToken, apiVersion, customerId, query, options = {}) {
@@ -300,9 +322,14 @@ async function main() {
 
   try {
     const accessToken = await refreshAccessToken({ includeDebug: debugErrors });
-    const campaignId = campaignIdOverride
-      || (await resolveCampaignId(accessToken, apiVersion, customerId, campaignName, { debugErrors }));
-    const query = buildPerformanceQuery(campaignId, dateRange);
+    const resolved = await resolveCampaign(
+      accessToken,
+      apiVersion,
+      customerId,
+      { campaignId: campaignIdOverride, campaignName },
+      { debugErrors },
+    );
+    const query = buildPerformanceQuery(resolved.id, dateRange);
     const rawRows = await runPerformanceQuery(accessToken, apiVersion, customerId, query, { debugErrors });
     const rows = rawRows.map(mapPerformanceRow);
     const payload = {
@@ -312,8 +339,12 @@ async function main() {
       mutations: false,
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
-      campaignName,
-      campaignId,
+      // Both fields come from the same API row so they are guaranteed consistent. When
+      // --campaign-id is supplied, the canonical name from the API is used here even if
+      // it differs from the spec/CLI value, so combine-advertising-reports and the
+      // readiness gate get a self-consistent funnel report.
+      campaignName: resolved.name,
+      campaignId: resolved.id,
       dateRange,
       rowCount: rows.length,
       totals: aggregatePerformance(rows),
