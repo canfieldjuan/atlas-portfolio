@@ -29,6 +29,7 @@ Usage:
 
 Options:
   --campaign-name <name>   Override the source-controlled campaign name
+  --campaign-id <id>       Filter on a specific campaign id (skips name lookup; use to disambiguate name collisions)
   --days <number>          Date window ending at --end-date or today; default ${DEFAULT_DAYS}, max ${MAX_DAYS}
   --end-date <YYYY-MM-DD>  Report end date in UTC; defaults to today
   --output <path>          Write the report JSON artifact
@@ -87,7 +88,16 @@ function buildDateRange(days, endDate) {
   };
 }
 
-function buildPerformanceQuery(campaignName, dateRange) {
+function buildCampaignLookupQuery(campaignName) {
+  return `
+SELECT campaign.id, campaign.name
+FROM campaign
+WHERE campaign.name = '${escapeGaqlString(campaignName)}'
+LIMIT 2
+`.trim();
+}
+
+function buildPerformanceQuery(campaignId, dateRange) {
   return `
 SELECT
   segments.date,
@@ -102,10 +112,33 @@ SELECT
   metrics.ctr,
   metrics.average_cpc
 FROM campaign
-WHERE campaign.name = '${escapeGaqlString(campaignName)}'
+WHERE campaign.id = ${campaignId}
   AND segments.date BETWEEN '${dateRange.startDate}' AND '${dateRange.endDate}'
 ORDER BY segments.date ASC
 `.trim();
+}
+
+async function resolveCampaignId(accessToken, apiVersion, customerId, campaignName, options = {}) {
+  const rows = await googleAdsSearch(accessToken, apiVersion, customerId, buildCampaignLookupQuery(campaignName), {
+    includeDebug: options.debugErrors,
+    pageSize: 2,
+    errorLabel: 'campaign lookup',
+  });
+  if (rows.length === 0) {
+    throw new Error(`No campaign found with name "${campaignName}".`);
+  }
+  if (rows.length > 1) {
+    // Refuse to aggregate metrics across multiple campaigns sharing a name. Silent
+    // aggregation here would overstate totals without any warning to the operator.
+    throw new Error(
+      `Multiple campaigns share the name "${campaignName}". Re-run with --campaign-id to disambiguate.`,
+    );
+  }
+  const id = rows[0]?.campaign?.id;
+  if (!id || !/^\d+$/.test(String(id))) {
+    throw new Error(`Campaign lookup returned a non-numeric id for "${campaignName}".`);
+  }
+  return String(id);
 }
 
 async function runPerformanceQuery(accessToken, apiVersion, customerId, query, options = {}) {
@@ -176,7 +209,7 @@ function printTextReport(payload) {
   console.log(`Mode: ${payload.mode}`);
   console.log(`API calls: ${payload.apiCalls ? 'enabled' : 'disabled'}`);
   console.log('Mutations: disabled');
-  console.log(`Campaign: ${payload.campaignName}`);
+  console.log(`Campaign: ${payload.campaignName}${payload.campaignId ? ` (id ${payload.campaignId})` : ''}`);
   console.log(`Date range: ${payload.dateRange.startDate} to ${payload.dateRange.endDate}`);
   console.log(`Rows: ${payload.rows.length}`);
   console.log(`Impressions: ${payload.totals.impressions}`);
@@ -211,13 +244,17 @@ async function main() {
 
   const { campaign } = await loadCampaignSpec();
   const campaignName = values.get('--campaign-name') || campaign.campaignName;
+  const campaignIdOverride = values.get('--campaign-id');
+  if (campaignIdOverride && !/^\d+$/.test(String(campaignIdOverride))) {
+    fail('--campaign-id must be a numeric Google Ads campaign id.', outputJson);
+  }
   const days = parseDays(values.get('--days'));
   const dateRange = buildDateRange(days, values.get('--end-date'));
-  const query = buildPerformanceQuery(campaignName, dateRange);
   const apiVersion = googleAdsApiVersion();
   const customerId = normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'));
 
   if (dryRun) {
+    const placeholderCampaignId = campaignIdOverride || '<CAMPAIGN_ID>';
     const payload = {
       ok: true,
       mode: 'GOOGLE_ADS_PERFORMANCE_DRY_RUN',
@@ -225,8 +262,10 @@ async function main() {
       mutations: false,
       apiVersion,
       campaignName,
+      campaignId: campaignIdOverride || '',
       dateRange,
-      query,
+      query: buildPerformanceQuery(placeholderCampaignId, dateRange),
+      campaignLookupQuery: campaignIdOverride ? null : buildCampaignLookupQuery(campaignName),
       rowCount: 0,
       rows: [],
       totals: aggregatePerformance([]),
@@ -258,6 +297,9 @@ async function main() {
 
   try {
     const accessToken = await refreshAccessToken({ includeDebug: debugErrors });
+    const campaignId = campaignIdOverride
+      || (await resolveCampaignId(accessToken, apiVersion, customerId, campaignName, { debugErrors }));
+    const query = buildPerformanceQuery(campaignId, dateRange);
     const rawRows = await runPerformanceQuery(accessToken, apiVersion, customerId, query, { debugErrors });
     const rows = rawRows.map(mapPerformanceRow);
     const payload = {
@@ -268,6 +310,7 @@ async function main() {
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
       campaignName,
+      campaignId,
       dateRange,
       rowCount: rows.length,
       totals: aggregatePerformance(rows),
