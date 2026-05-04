@@ -54,3 +54,17 @@ export function customerIdFingerprint(value) {
 
   return createHmac('sha256', secret).update(normalized).digest('hex');
 }
+
+// Mask the `customers/<id>` prefix inside a Google Ads resource name (e.g.
+// `customers/1234567890/campaigns/9876543210` becomes
+// `customers/******7890/campaigns/9876543210`) so error output and emitted
+// artifacts don't echo the raw customer id. Three operator scripts had
+// near-identical local copies of this; centralized here so future masking
+// rules only need to change in one place.
+export function maskResourceName(value, customerId) {
+  const normalized = normalizeCustomerId(customerId);
+  if (!normalized) {
+    return String(value || '');
+  }
+  return String(value || '').replaceAll(`customers/${normalized}`, `customers/${maskCustomerId(normalized)}`);
+}

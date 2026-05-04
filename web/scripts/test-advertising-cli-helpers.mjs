@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { escapeGaqlString, sanitizeGoogleAdsMessage } from './google-ads-api.mjs';
+import { maskResourceName } from './google-ads-env.mjs';
 
 async function testParseArgs() {
   const { values, flags } = parseArgs(['--json', '--output', '/tmp/result.json', '--campaign-name=Audit', '--dry-run']);
@@ -11,6 +12,66 @@ async function testParseArgs() {
   assert.equal(flags.has('--dry-run'), true);
   assert.equal(values.get('--output'), '/tmp/result.json');
   assert.equal(values.get('--campaign-name'), 'Audit');
+
+  // `--` is the conventional end-of-options marker. Tokens after it land in
+  // `positional` even if they start with a dash, instead of being parsed as
+  // flags. (It does NOT change how option values are consumed: dash-prefixed
+  // values still need the equals form, e.g. `--output=-foo.json`.) The
+  // important property is that `--` itself never gets consumed as an option
+  // value, and tokens after it never become flags.
+  const eooParsed = parseArgs(['--output', '/tmp/x.json', '--', '--not-a-flag', '-foo.json']);
+  assert.equal(eooParsed.values.get('--output'), '/tmp/x.json');
+  assert.deepEqual(eooParsed.positional, ['--not-a-flag', '-foo.json']);
+  assert.equal(eooParsed.flags.has('--not-a-flag'), false);
+
+  // `--foo --bar` puts --foo in flags (not values) because the next token is
+  // another flag. `--foo --` (end-of-options follows) also keeps --foo as a
+  // bare flag — `--` must not be consumed as --foo's value.
+  const trailingEoo = parseArgs(['--funnel-report', '--']);
+  assert.equal(trailingEoo.flags.has('--funnel-report'), true);
+  assert.equal(trailingEoo.values.has('--funnel-report'), false);
+
+  // Only the FIRST `--` is the end-of-options marker; subsequent `--` tokens
+  // become positional like any other dash-prefixed token after the marker.
+  // Standard CLI behavior — see e.g. POSIX guideline 10.
+  const doubleEoo = parseArgs(['--', '--', '-foo']);
+  assert.deepEqual(doubleEoo.positional, ['--', '-foo']);
+  assert.equal(doubleEoo.flags.size, 0);
+  assert.equal(doubleEoo.values.size, 0);
+}
+
+function testIsBareFlag() {
+  // Bare flag form
+  assert.equal(isBareFlag(parseArgs(['--funnel-report']), '--funnel-report'), true);
+  // Equals-empty form
+  assert.equal(isBareFlag(parseArgs(['--funnel-report=']), '--funnel-report'), true);
+  // Whitespace-only value form
+  assert.equal(isBareFlag(parseArgs(['--funnel-report=  ']), '--funnel-report'), true);
+  // Real value
+  assert.equal(isBareFlag(parseArgs(['--funnel-report', '/tmp/funnel.json']), '--funnel-report'), false);
+  assert.equal(isBareFlag(parseArgs(['--funnel-report=/tmp/funnel.json']), '--funnel-report'), false);
+  // Not provided at all — must return false (the option is optional in many scripts)
+  assert.equal(isBareFlag(parseArgs(['--other']), '--funnel-report'), false);
+}
+
+function testMaskResourceName() {
+  // Masks the customers/<id> prefix using the canonical maskCustomerId rule.
+  assert.equal(
+    maskResourceName('customers/1234567890/campaigns/9876543210', '1234567890'),
+    'customers/******7890/campaigns/9876543210',
+  );
+  // Accepts dashed ids the same way (they normalize to digits).
+  assert.equal(
+    maskResourceName('customers/1234567890/campaigns/9876543210', '123-456-7890'),
+    'customers/******7890/campaigns/9876543210',
+  );
+  // Returns the value unchanged when no customer id is configured.
+  assert.equal(
+    maskResourceName('customers/1234567890/campaigns/9876543210', ''),
+    'customers/1234567890/campaigns/9876543210',
+  );
+  // Returns empty string for nullish input rather than throwing.
+  assert.equal(maskResourceName(undefined, '1234567890'), '');
 }
 
 async function testJsonArtifacts() {
@@ -61,6 +122,8 @@ function testGoogleAdsHelpers() {
 }
 
 await testParseArgs();
+testIsBareFlag();
+testMaskResourceName();
 await testJsonArtifacts();
 testGoogleAdsHelpers();
 
