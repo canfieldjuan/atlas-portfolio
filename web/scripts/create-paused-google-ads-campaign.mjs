@@ -480,7 +480,16 @@ async function main() {
       apiVersion,
       targetCustomerId: maskCustomerId(customerId),
       targetCustomerFingerprint: customerIdFingerprint(customerId),
-      preflightResult: resolvedPath,
+      // Embed the preflight provenance so the readiness gate can verify this create
+      // result was produced from a preflight run against the same customer. Shape
+      // must stay in sync with validateCreateResult() in
+      // check-google-ads-enable-readiness.mjs.
+      preflightResult: {
+        path: resolvedPath,
+        ok: preflight?.ok === true,
+        targetCustomerFingerprint: preflight?.targetCustomerFingerprint || '',
+        apiVersion: preflight?.apiVersion || '',
+      },
       campaign: {
         // Persisted so the readiness gate and the live enable command can resolve the
         // exact campaign by ID. Lookup-by-name with LIMIT 1 is unsafe when two campaigns
