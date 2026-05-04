@@ -26,14 +26,14 @@ Options:
   --event-name <name>    Conversion event to filter; default ${DEFAULT_CONVERSION_EVENT}
   --days <number>        Date window ending at --end-date or today; default ${DEFAULT_DAYS}, max ${MAX_DAYS}
   --end-date <YYYY-MM-DD>
-  --output <path>        Write the report JSON artifact
+  --output <path>        Write the report/env-check JSON artifact
   --json                 Print machine-readable JSON
   --check-env            Check GA4 credentials without loading campaign spec or making API calls
   --dry-run              Build request payloads without API calls
   --debug-errors         Include sanitized upstream API error messages
 
 Safety:
-  This command is read-only. It only refreshes OAuth and calls GA4 Data API runReport.`);
+  This command is read-only. --check-env only inspects local env. Report mode refreshes OAuth and calls GA4 Data API runReport.`);
 }
 
 function envValue(name) {
@@ -42,15 +42,24 @@ function envValue(name) {
 
 function validateGa4Env() {
   const missing = REQUIRED_GA4_ENV.filter((name) => !envValue(name));
+  const invalid = [];
+  if (envValue('GA4_PROPERTY_ID') && !normalizePropertyId(envValue('GA4_PROPERTY_ID'))) {
+    invalid.push('GA4_PROPERTY_ID');
+  }
   return {
-    ok: missing.length === 0,
+    ok: missing.length === 0 && invalid.length === 0,
     missing,
+    invalid,
     present: [...REQUIRED_GA4_ENV, ...OPTIONAL_GA4_ENV].filter((name) => envValue(name)),
   };
 }
 
-function printEnvCheck(envStatus, outputJson) {
-  const payload = {
+function invalidEnvErrors(envStatus) {
+  return (envStatus.invalid || []).map((name) => `${name} must contain at least one digit.`);
+}
+
+async function printEnvCheck(envStatus, outputJson, outputPath) {
+  let payload = {
     mode: 'GA4_ENV_CHECK',
     apiCalls: false,
     mutations: false,
@@ -59,8 +68,16 @@ function printEnvCheck(envStatus, outputJson) {
       ok: envStatus.ok,
       present: envStatus.present,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
     },
   };
+
+  if (outputPath) {
+    payload = {
+      ...payload,
+      outputPath: await writeJsonArtifact(outputPath, payload),
+    };
+  }
 
   if (outputJson) {
     console.log(JSON.stringify(payload, null, 2));
@@ -72,7 +89,15 @@ function printEnvCheck(envStatus, outputJson) {
   console.log('Report generation: skipped');
   console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
   if (!envStatus.ok) {
-    console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+    if (envStatus.missing.length) {
+      console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+    }
+    if (envStatus.invalid.length) {
+      console.log(`Invalid env: ${envStatus.invalid.join(', ')}`);
+    }
+  }
+  if (payload.outputPath) {
+    console.log(`Env check artifact: ${payload.outputPath}`);
   }
 }
 
@@ -315,7 +340,7 @@ async function main() {
 
   const envStatus = validateGa4Env();
   if (checkEnv) {
-    printEnvCheck(envStatus, outputJson);
+    await printEnvCheck(envStatus, outputJson, outputPath);
     process.exit(envStatus.ok ? 0 : 1);
   }
 
@@ -373,6 +398,7 @@ async function main() {
       mutations: false,
       missing: envStatus.missing,
       present: envStatus.present,
+      errors: invalidEnvErrors(envStatus),
     });
   }
   if (!propertyId) {
