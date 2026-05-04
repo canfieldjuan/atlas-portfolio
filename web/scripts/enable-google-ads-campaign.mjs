@@ -54,12 +54,23 @@ function validateReadinessResult(payload) {
   if (!payload?.createResult?.campaignName) {
     errors.push('Readiness result must include createResult.campaignName');
   }
-  if (!payload?.createResult?.campaignId || !/^\d+$/.test(String(payload.createResult.campaignId))) {
+  const hasCreateCampaignId =
+    payload?.createResult?.campaignId && /^\d+$/.test(String(payload.createResult.campaignId));
+  if (!hasCreateCampaignId) {
     errors.push('Readiness result must include numeric createResult.campaignId (artifact contract v2)');
   }
+  // statusResult.campaignId is REQUIRED, not optional. Making the consistency check
+  // conditional on its presence would let a hand-edited readiness artifact bypass
+  // the cross-artifact ID check by simply omitting statusResult.campaignId, which
+  // is exactly the tampering vector the v2 contract is supposed to close.
+  const hasStatusCampaignId =
+    payload?.statusResult?.campaignId && /^\d+$/.test(String(payload.statusResult.campaignId));
+  if (!hasStatusCampaignId) {
+    errors.push('Readiness result must include numeric statusResult.campaignId (artifact contract v2)');
+  }
   if (
-    payload?.statusResult?.campaignId &&
-    payload?.createResult?.campaignId &&
+    hasCreateCampaignId &&
+    hasStatusCampaignId &&
     String(payload.statusResult.campaignId) !== String(payload.createResult.campaignId)
   ) {
     errors.push('Readiness statusResult.campaignId must match createResult.campaignId');
