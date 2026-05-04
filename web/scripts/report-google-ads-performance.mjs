@@ -241,6 +241,9 @@ async function main() {
   if ((flags.has('--output') || values.has('--output')) && !outputPath) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
+  if (flags.has('--campaign-id')) {
+    fail('Refusing to continue with bare --campaign-id; pass a numeric id or omit the flag.', outputJson);
+  }
 
   const { campaign } = await loadCampaignSpec();
   const campaignName = values.get('--campaign-name') || campaign.campaignName;
