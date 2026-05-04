@@ -74,9 +74,14 @@ function createResult(overrides = {}) {
     apiVersion: 'v22',
     targetCustomerId: '***-***-7890',
     targetCustomerFingerprint: 'fingerprint-123',
+    // Shape mirrors create-paused-google-ads-campaign.mjs success path. If you change
+    // one, change the other — the readiness validator depends on this provenance block
+    // being an object, not a path string.
     preflightResult: {
+      path: '/tmp/google-ads-preflight.json',
       ok: true,
       targetCustomerFingerprint: 'fingerprint-123',
+      apiVersion: 'v22',
     },
     campaign: {
       // v2: campaign.id is required so the live enable command can resolve the exact
@@ -107,6 +112,10 @@ function funnelReport(overrides = {}) {
     apiCalls: false,
     mutations: false,
     campaignName: 'Atlas AI Content Ops Station',
+    // Carried through by combine-advertising-reports from the Google Ads performance
+    // report; required by the readiness gate so a duplicate-name campaign cannot
+    // satisfy validation.
+    campaignId: '987654321',
     dateRange: {
       googleAds: { startDate: '2026-04-01', endDate: '2026-04-07' },
       ga4: { startDate: '2026-04-01', endDate: '2026-04-07' },
@@ -360,7 +369,52 @@ const bareFunnelRun = runScript(
 );
 assertStdoutContains(bareFunnelRun, 'Refusing to continue with bare --funnel-report');
 
-// Aligned funnel report whose campaignName matches must pass.
+// Funnel report whose campaignName matches but campaignId differs must be rejected.
+// Defends against the duplicate-name collision class — two campaigns can share a
+// name in Google Ads, so name-only binding is not sufficient.
+const sameNameDifferentIdFunnelPath = writeJson(
+  'funnel-same-name-different-id.json',
+  funnelReport({ campaignId: '111222333' }),
+);
+const sameNameDifferentIdFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    sameNameDifferentIdFunnelPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(sameNameDifferentIdFunnelRun, 'Funnel report campaignId (111222333) must match');
+
+// Funnel report missing campaignId entirely must be rejected when create-result
+// carries one — operator must regenerate the funnel report against the current
+// Google Ads performance artifact (which now emits campaignId).
+const missingCampaignIdFunnel = funnelReport();
+delete missingCampaignIdFunnel.campaignId;
+const missingCampaignIdFunnelPath = writeJson('funnel-no-campaign-id.json', missingCampaignIdFunnel);
+const missingCampaignIdFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    missingCampaignIdFunnelPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(missingCampaignIdFunnelRun, 'Funnel report must include campaignId');
+
+// Aligned funnel report whose campaignName AND campaignId both match must pass.
 const matchedFunnelPath = writeJson('funnel-aligned.json', funnelReport());
 runScript('check-google-ads-enable-readiness.mjs', [
   '--create-result',

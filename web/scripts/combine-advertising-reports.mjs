@@ -84,6 +84,10 @@ function buildCombinedReport(googleAds, ga4, paths) {
       ga4Mode: ga4.mode,
     },
     campaignName: googleAds.campaignName || '',
+    // Carried through from the Google Ads performance report so the readiness gate can
+    // bind the funnel report to a specific campaign.id. Defends against attaching a
+    // funnel report from a duplicate-name campaign.
+    campaignId: googleAds.campaignId || '',
     landingPage: ga4.landingPage || '',
     conversionEvent: ga4.conversionEvent || '',
     dateRange: {

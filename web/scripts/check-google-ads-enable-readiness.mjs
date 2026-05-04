@@ -119,13 +119,29 @@ function validateFunnelReport(payload, createResult) {
   if (payload?.dateRange?.aligned !== true) {
     errors.push('Funnel report must have aligned Google Ads and GA4 date ranges');
   }
-  // Pin the funnel report to the same campaign as the create-result. Without this an
-  // unrelated campaign's funnel can be attached and still satisfy the readiness gate.
+  // Pin the funnel report to the same campaign as the create-result. Name alone is
+  // not enough — Google Ads campaign names are not unique inside an account, so a
+  // funnel report from a duplicate-name campaign could otherwise satisfy the gate.
+  // Require campaign.id (carried through by combine-advertising-reports) and also
+  // verify campaignName as a defense-in-depth check.
   const expectedCampaignName = createResult?.campaign?.name;
+  const expectedCampaignId = createResult?.campaign?.id ? String(createResult.campaign.id) : '';
   if (expectedCampaignName && payload?.campaignName !== expectedCampaignName) {
     errors.push(
       `Funnel report campaignName (${payload?.campaignName || 'missing'}) must match the create-result campaign name (${expectedCampaignName})`,
     );
+  }
+  if (expectedCampaignId) {
+    const funnelCampaignId = payload?.campaignId ? String(payload.campaignId) : '';
+    if (!funnelCampaignId) {
+      errors.push(
+        'Funnel report must include campaignId; regenerate the funnel report against the current Google Ads performance artifact.',
+      );
+    } else if (funnelCampaignId !== expectedCampaignId) {
+      errors.push(
+        `Funnel report campaignId (${funnelCampaignId}) must match the create-result campaign.id (${expectedCampaignId})`,
+      );
+    }
   }
   return errors;
 }
@@ -235,6 +251,8 @@ function buildReadinessPayload({
     funnelReport: funnelReport
       ? {
           path: funnelReportPath,
+          campaignName: funnelReport.campaignName || '',
+          campaignId: funnelReport.campaignId ? String(funnelReport.campaignId) : '',
           dateRange: funnelReport.dateRange,
           funnel: funnelReport.funnel,
           rates: funnelReport.rates,
