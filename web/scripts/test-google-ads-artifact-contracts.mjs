@@ -551,6 +551,7 @@ const legacyAdsReport = {
 };
 const minimalGa4Report = {
   ok: true,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE,
   mode: 'GA4_PERFORMANCE_REPORT',
   apiCalls: true,
   mutations: false,
@@ -574,6 +575,7 @@ const combinerLegacyRun = runScript(
   1,
 );
 assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric campaignId');
+assertStdoutContains(combinerLegacyRun, artifactVersionError('Google Ads report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE));
 
 // Combiner: same fail-closed must fire for dry-run Google Ads reports without
 // campaignId — a dry-run-derived funnel artifact with empty campaignId is still
@@ -581,6 +583,7 @@ assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric 
 // is better than producing a misleading-looking artifact.
 const dryRunAdsReportPath = writeJson('google-ads-dry-run.json', {
   ...legacyAdsReport,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
   mode: 'GOOGLE_ADS_PERFORMANCE_DRY_RUN',
   apiCalls: false,
 });
@@ -596,6 +599,54 @@ const combinerDryRunRun = runScript(
   1,
 );
 assertStdoutContains(combinerDryRunRun, 'Google Ads report must include numeric campaignId');
+
+const versionedAdsReportPath = writeJson('google-ads-versioned.json', {
+  ...legacyAdsReport,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
+  campaignId: '987654321',
+});
+const unversionedGa4Report = { ...minimalGa4Report };
+delete unversionedGa4Report.artifactVersion;
+const unversionedGa4ReportPath = writeJson('ga4-unversioned.json', unversionedGa4Report);
+const combinerUnversionedGa4Run = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    versionedAdsReportPath,
+    '--ga4-report',
+    unversionedGa4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(combinerUnversionedGa4Run, artifactVersionError('GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE));
+
+const combinedFunnelPath = join(tempDir, 'advertising-funnel.json');
+runScript('combine-advertising-reports.mjs', [
+  '--google-ads-report',
+  versionedAdsReportPath,
+  '--ga4-report',
+  ga4ReportPath,
+  '--json',
+  '--output',
+  combinedFunnelPath,
+]);
+assert.equal(readJson(combinedFunnelPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.ADVERTISING_FUNNEL);
+
+const googleAdsReportDryRunPath = join(tempDir, 'google-ads-report-dry-run-output.json');
+runScript('report-google-ads-performance.mjs', [
+  '--dry-run',
+  '--campaign-id',
+  '987654321',
+  '--json',
+  '--output',
+  googleAdsReportDryRunPath,
+]);
+assert.equal(readJson(googleAdsReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE);
+
+const ga4ReportDryRunPath = join(tempDir, 'ga4-report-dry-run-output.json');
+runScript('report-ga4-performance.mjs', ['--dry-run', '--json', '--output', ga4ReportDryRunPath]);
+assert.equal(readJson(ga4ReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
 
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();

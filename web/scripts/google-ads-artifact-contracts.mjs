@@ -12,12 +12,18 @@
 //   reports produced before this change do not advertise a version and are rejected
 //   on purpose — they can also lack `campaignId`, which the readiness gate requires
 //   to defend against duplicate-name campaign collisions (PR #29)
+// - GOOGLE_ADS_PERFORMANCE v1 / GA4_PERFORMANCE v1: source report artifacts
+//   now advertise their own versions before the combiner can produce a funnel
+//   artifact. Legacy unversioned reports must be regenerated instead of silently
+//   feeding enablement readiness.
 export const GOOGLE_ADS_ARTIFACT_VERSIONS = Object.freeze({
   PREFLIGHT: 2,
   CREATE_PAUSED: 3,
   STATUS: 2,
   READINESS: 2,
   ENABLE: 2,
+  GOOGLE_ADS_PERFORMANCE: 1,
+  GA4_PERFORMANCE: 1,
   ADVERTISING_FUNNEL: 1,
 });
 
