@@ -57,16 +57,18 @@ Avoid:
 
 ## Artifact Contract
 
-The launch path is artifact-gated. Each handoff writes JSON with `artifactVersion: 1` and the downstream command refuses stale or partial artifacts.
+The launch path is artifact-gated. Each handoff writes JSON with a per-type `artifactVersion` and the downstream command refuses stale or partial artifacts. Versions are tracked in `scripts/google-ads-artifact-contracts.mjs`; only the type whose schema actually changed is bumped, so a tightening to one artifact does not invalidate unrelated ones.
+
 The table below lists the operator-facing safety highlights, not the full validator schema. The authoritative contract lives in `scripts/create-paused-google-ads-campaign.mjs`, `scripts/check-google-ads-enable-readiness.mjs`, `scripts/enable-google-ads-campaign.mjs`, and `scripts/test-google-ads-artifact-contracts.mjs`.
 
-| Artifact | Producer | Consumed by | Safety highlights |
-| --- | --- | --- | --- |
-| Preflight | `ads:google:preflight` | `ads:google:create-paused`, `ads:google:enable` | `artifactVersion`, `mode=READ_ONLY_PREFLIGHT`, `mutations=false`, `targetCustomerFingerprint` |
-| Create-paused result | `ads:google:create-paused` | `ads:google:enable-check` | `artifactVersion`, `mode=CREATE_PAUSED`, `mutations=true`, `campaign.status=PAUSED`, created resource list |
-| Status report | `ads:google:status` | `ads:google:enable-check` | `artifactVersion`, `mode=GOOGLE_ADS_CAMPAIGN_STATUS_REPORT`, `mutations=false`, `campaign.status=PAUSED`, ad group/ad counts |
-| Enablement readiness | `ads:google:enable-check` | `ads:google:enable` | `artifactVersion`, `mode=GOOGLE_ADS_ENABLEMENT_READINESS`, confirmations, create/status customer fingerprint match |
-| Enable result | `ads:google:enable` | Operator audit log | `artifactVersion`, `mode=GOOGLE_ADS_ENABLE`, `mutations=true`, `previousStatus=PAUSED`, `currentStatus=ENABLED` |
+| Artifact | Producer | Consumed by | Current version | Safety highlights |
+| --- | --- | --- | --- | --- |
+| Preflight | `ads:google:preflight` | `ads:google:create-paused`, `ads:google:enable` | 2 | `mode=READ_ONLY_PREFLIGHT`, `mutations=false`, `targetCustomerFingerprint`, separate `oauthCallAttempted`/`googleAdsCallAttempted` flags |
+| Create-paused result | `ads:google:create-paused` | `ads:google:enable-check` | 3 | `mode=CREATE_PAUSED`, `mutations=true`, `campaign.status=PAUSED`, numeric `campaign.id`, embedded `preflightResult` provenance object with matching `targetCustomerFingerprint`, created resource list |
+| Status report | `ads:google:status` | `ads:google:enable-check` | 2 | `mode=GOOGLE_ADS_CAMPAIGN_STATUS_REPORT`, `mutations=false`, `campaign.status=PAUSED`, numeric `campaign.id` matching create-result, ad group/ad counts, `nextSteps.enableSafe` only when at least one ENABLED ad lives under an ENABLED ad group |
+| Funnel report | `ads:report:combine` | `ads:google:enable-check` (optional) | 1 | `mode=ADVERTISING_FUNNEL_REPORT`, `apiCalls=false`, aligned date ranges, numeric `campaignId` matching create-result (defends against duplicate-name collisions) |
+| Enablement readiness | `ads:google:enable-check` | `ads:google:enable` | 2 | `mode=GOOGLE_ADS_ENABLEMENT_READINESS`, all four operator confirmations, create/status customer fingerprint match, create/status `campaign.id` match |
+| Enable result | `ads:google:enable` | Operator audit log | 2 | `mode=GOOGLE_ADS_ENABLE`, `mutations=true`, `previousStatus=PAUSED`, `currentStatus=ENABLED` |
 
 The checked-in offline harness pins this contract:
 
@@ -179,7 +181,7 @@ Create the campaign in Google Ads in `PAUSED` state only. This is guarded by a s
 npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused --output /tmp/google-ads-create-paused-result.json
 ```
 
-Check whether the source-controlled campaign exists, whether it is still paused, and whether the expected ad groups/ads are present. This is read-only and is the safest checkpoint after create-paused and before enablement:
+Read the live Google Ads state for the source-controlled campaign — whether it exists, current status, ad group/ad counts and statuses as returned by the API, and whether at least one ENABLED ad lives under an ENABLED ad group (the `nextSteps.enableSafe` gate). This is read-only and the safest checkpoint after create-paused and before enablement. The command does **not** validate the API response against the source-controlled spec; it only reports what Google Ads currently has.
 
 ```bash
 npm run ads:google:status -- --output /tmp/google-ads-status.json
@@ -191,7 +193,7 @@ Preview the Google Ads performance report query without credentials or API calls
 npm run ads:google:report -- --dry-run
 ```
 
-Pull read-only Google Ads campaign performance after the campaign exists:
+Pull read-only Google Ads campaign performance after the campaign exists. The campaign is resolved by name → id (refused on duplicate-name collisions) and the report query then filters by id; pass `--campaign-id <id>` to bypass the lookup or disambiguate when two campaigns in the account share a name:
 
 ```bash
 npm run ads:google:report -- --days 7 --output /tmp/google-ads-performance.json
