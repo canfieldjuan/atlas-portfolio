@@ -26,6 +26,7 @@ function printEnvCheck(envStatus, outputJson) {
       ok: envStatus.ok,
       present: envStatus.present,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
     },
   };
 
@@ -39,7 +40,12 @@ function printEnvCheck(envStatus, outputJson) {
   console.log('Spec validation: skipped');
   console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
   if (!envStatus.ok) {
-    console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+    if (envStatus.missing.length) {
+      console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+    }
+    if (envStatus.invalid.length) {
+      console.log(`Invalid env: ${envStatus.invalid.join(', ')}`);
+    }
   }
 }
 
@@ -141,6 +147,7 @@ async function main() {
       ok: envStatus.ok,
       present: envStatus.present,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
     },
     campaign: {
       name: plan.campaign.campaignName,
@@ -166,7 +173,12 @@ async function main() {
   if (requireEnv || envStatus.present.length > 0) {
     console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
     if (!envStatus.ok) {
-      console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+      if (envStatus.missing.length) {
+        console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+      }
+      if (envStatus.invalid.length) {
+        console.log(`Invalid env: ${envStatus.invalid.join(', ')}`);
+      }
     }
   }
   console.log('');

@@ -21,11 +21,26 @@ export function envValue(name) {
 
 export function validateGoogleAdsEnv() {
   const missing = REQUIRED_GOOGLE_ADS_ENV.filter((name) => !envValue(name));
+  const invalid = [];
+  for (const name of ['GOOGLE_ADS_CUSTOMER_ID', 'GOOGLE_ADS_LOGIN_CUSTOMER_ID']) {
+    if (envValue(name) && !normalizeCustomerId(envValue(name))) {
+      invalid.push(name);
+    }
+  }
   return {
-    ok: missing.length === 0,
+    ok: missing.length === 0 && invalid.length === 0,
     missing,
+    invalid,
     present: [...REQUIRED_GOOGLE_ADS_ENV, ...OPTIONAL_GOOGLE_ADS_ENV].filter((name) => envValue(name)),
   };
+}
+
+export function invalidGoogleAdsEnvErrors(envStatus) {
+  const messages = {
+    GOOGLE_ADS_CUSTOMER_ID: 'GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.',
+    GOOGLE_ADS_LOGIN_CUSTOMER_ID: 'GOOGLE_ADS_LOGIN_CUSTOMER_ID must contain at least one digit when set.',
+  };
+  return (envStatus.invalid || []).map((name) => messages[name] || `${name} is invalid.`);
 }
 
 export function googleAdsApiVersion() {

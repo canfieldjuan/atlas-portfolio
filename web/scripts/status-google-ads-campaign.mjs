@@ -11,6 +11,7 @@ import {
   customerIdFingerprint,
   envValue,
   googleAdsApiVersion,
+  invalidGoogleAdsEnvErrors,
   maskCustomerId,
   maskResourceName,
   normalizeCustomerId,
@@ -275,14 +276,13 @@ async function main() {
       apiCalls: false,
       mutations: false,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
       present: envStatus.present,
+      errors: invalidGoogleAdsEnvErrors(envStatus),
     });
   }
 
   const customerId = normalizeCustomerId(envValue('GOOGLE_ADS_CUSTOMER_ID'));
-  if (!customerId) {
-    fail('GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.', outputJson);
-  }
 
   try {
     const accessToken = await refreshAccessToken({ includeDebug: debugErrors });

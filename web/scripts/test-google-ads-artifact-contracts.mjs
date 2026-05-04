@@ -237,6 +237,99 @@ const rsaPlan = planPayload.operations.find((operation) => operation.operation =
 assert.ok(rsaPlan, 'Expected plan output to include create_responsive_search_ad operation');
 assert.equal(rsaPlan.status, 'ENABLED');
 
+const googleAdsMalformedEnvRun = runScript(
+  'plan-google-ads-operations.mjs',
+  ['--check-env', '--json'],
+  1,
+  {
+    env: {
+      GOOGLE_ADS_DEVELOPER_TOKEN: 'developer-token',
+      GOOGLE_ADS_CLIENT_ID: 'client-id',
+      GOOGLE_ADS_CLIENT_SECRET: 'client-secret',
+      GOOGLE_ADS_REFRESH_TOKEN: 'refresh-token',
+      GOOGLE_ADS_CUSTOMER_ID: 'not-a-customer-id',
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: '',
+      GOOGLE_ADS_API_VERSION: 'v22',
+    },
+  },
+);
+const googleAdsMalformedEnvPayload = JSON.parse(googleAdsMalformedEnvRun.stdout);
+assert.equal(googleAdsMalformedEnvPayload.mode, 'ENV_CHECK');
+assert.equal(googleAdsMalformedEnvPayload.apiCalls, false);
+assert.equal(googleAdsMalformedEnvPayload.env.ok, false);
+assert.deepEqual(googleAdsMalformedEnvPayload.env.missing, []);
+assert.deepEqual(googleAdsMalformedEnvPayload.env.invalid, ['GOOGLE_ADS_CUSTOMER_ID']);
+
+const googleAdsMalformedLoginEnvRun = runScript(
+  'plan-google-ads-operations.mjs',
+  ['--check-env', '--json'],
+  1,
+  {
+    env: {
+      GOOGLE_ADS_DEVELOPER_TOKEN: 'developer-token',
+      GOOGLE_ADS_CLIENT_ID: 'client-id',
+      GOOGLE_ADS_CLIENT_SECRET: 'client-secret',
+      GOOGLE_ADS_REFRESH_TOKEN: 'refresh-token',
+      GOOGLE_ADS_CUSTOMER_ID: '1234567890',
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: 'not-a-login-customer-id',
+      GOOGLE_ADS_API_VERSION: 'v22',
+    },
+  },
+);
+const googleAdsMalformedLoginEnvPayload = JSON.parse(googleAdsMalformedLoginEnvRun.stdout);
+assert.equal(googleAdsMalformedLoginEnvPayload.mode, 'ENV_CHECK');
+assert.equal(googleAdsMalformedLoginEnvPayload.apiCalls, false);
+assert.equal(googleAdsMalformedLoginEnvPayload.env.ok, false);
+assert.deepEqual(googleAdsMalformedLoginEnvPayload.env.missing, []);
+assert.deepEqual(googleAdsMalformedLoginEnvPayload.env.invalid, ['GOOGLE_ADS_LOGIN_CUSTOMER_ID']);
+
+const googleAdsCompleteEnvRun = runScript(
+  'plan-google-ads-operations.mjs',
+  ['--check-env', '--json'],
+  0,
+  {
+    env: {
+      GOOGLE_ADS_DEVELOPER_TOKEN: 'developer-token',
+      GOOGLE_ADS_CLIENT_ID: 'client-id',
+      GOOGLE_ADS_CLIENT_SECRET: 'client-secret',
+      GOOGLE_ADS_REFRESH_TOKEN: 'refresh-token',
+      GOOGLE_ADS_CUSTOMER_ID: '123-456-7890',
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: '',
+      GOOGLE_ADS_API_VERSION: 'v22',
+    },
+  },
+);
+const googleAdsCompleteEnvPayload = JSON.parse(googleAdsCompleteEnvRun.stdout);
+assert.equal(googleAdsCompleteEnvPayload.mode, 'ENV_CHECK');
+assert.equal(googleAdsCompleteEnvPayload.apiCalls, false);
+assert.equal(googleAdsCompleteEnvPayload.env.ok, true);
+assert.deepEqual(googleAdsCompleteEnvPayload.env.missing, []);
+assert.deepEqual(googleAdsCompleteEnvPayload.env.invalid, []);
+
+const googleAdsMalformedPreflightRun = runScript(
+  'preflight-google-ads.mjs',
+  ['--json'],
+  1,
+  {
+    env: {
+      GOOGLE_ADS_DEVELOPER_TOKEN: 'developer-token',
+      GOOGLE_ADS_CLIENT_ID: 'client-id',
+      GOOGLE_ADS_CLIENT_SECRET: 'client-secret',
+      GOOGLE_ADS_REFRESH_TOKEN: 'refresh-token',
+      GOOGLE_ADS_CUSTOMER_ID: 'not-a-customer-id',
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: '',
+      GOOGLE_ADS_API_VERSION: 'v22',
+    },
+  },
+);
+const googleAdsMalformedPreflightPayload = JSON.parse(googleAdsMalformedPreflightRun.stdout);
+assert.equal(googleAdsMalformedPreflightPayload.mode, 'READ_ONLY_PREFLIGHT');
+assert.equal(googleAdsMalformedPreflightPayload.apiCalls, false);
+assert.deepEqual(googleAdsMalformedPreflightPayload.invalid, ['GOOGLE_ADS_CUSTOMER_ID']);
+assert.deepEqual(googleAdsMalformedPreflightPayload.errors, [
+  'GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.',
+]);
+
 assert.deepEqual(
   validateArtifactFreshness(
     { generatedAt: '2026-04-07T10:00:00.000Z' },

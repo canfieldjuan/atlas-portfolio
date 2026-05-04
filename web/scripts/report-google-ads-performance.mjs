@@ -10,6 +10,7 @@ import {
 import {
   envValue,
   googleAdsApiVersion,
+  invalidGoogleAdsEnvErrors,
   maskCustomerId,
   normalizeCustomerId,
   validateGoogleAdsEnv,
@@ -318,11 +319,10 @@ async function main() {
       apiCalls: false,
       mutations: false,
       missing: envStatus.missing,
+      invalid: envStatus.invalid,
       present: envStatus.present,
+      errors: invalidGoogleAdsEnvErrors(envStatus),
     });
-  }
-  if (!customerId) {
-    fail('GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.', outputJson);
   }
 
   try {
