@@ -234,7 +234,8 @@ const planRun = runScript('plan-google-ads-operations.mjs', ['--json']);
 const planPayload = JSON.parse(planRun.stdout);
 assert.equal(planPayload.campaign.status, 'PAUSED');
 const rsaPlan = planPayload.operations.find((operation) => operation.operation === 'create_responsive_search_ad');
-assert.equal(rsaPlan?.status, 'ENABLED');
+assert.ok(rsaPlan, 'Expected plan output to include create_responsive_search_ad operation');
+assert.equal(rsaPlan.status, 'ENABLED');
 
 assert.deepEqual(
   validateArtifactFreshness(
