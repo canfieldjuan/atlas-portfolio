@@ -72,6 +72,23 @@ function validateCreateResult(payload) {
   if (!payload?.targetCustomerFingerprint) {
     errors.push('Create result must include targetCustomerFingerprint');
   }
+  if (!payload?.preflightResult || typeof payload.preflightResult !== 'object') {
+    errors.push('Create result must include the preflightResult provenance block');
+  } else {
+    if (payload.preflightResult.ok !== true) {
+      errors.push('Create result preflightResult must show ok=true');
+    }
+    if (!payload.preflightResult.targetCustomerFingerprint) {
+      errors.push('Create result preflightResult must include targetCustomerFingerprint');
+    }
+    if (
+      payload.preflightResult.targetCustomerFingerprint
+      && payload.targetCustomerFingerprint
+      && payload.preflightResult.targetCustomerFingerprint !== payload.targetCustomerFingerprint
+    ) {
+      errors.push('Create result preflightResult.targetCustomerFingerprint must match the create result targetCustomerFingerprint');
+    }
+  }
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Created campaign must still be recorded as PAUSED');
   }
@@ -88,7 +105,7 @@ function validateCreateResult(payload) {
   return errors;
 }
 
-function validateFunnelReport(payload) {
+function validateFunnelReport(payload, createResult) {
   const errors = [];
   if (payload?.ok !== true) {
     errors.push('Funnel report must have ok=true');
@@ -101,6 +118,14 @@ function validateFunnelReport(payload) {
   }
   if (payload?.dateRange?.aligned !== true) {
     errors.push('Funnel report must have aligned Google Ads and GA4 date ranges');
+  }
+  // Pin the funnel report to the same campaign as the create-result. Without this an
+  // unrelated campaign's funnel can be attached and still satisfy the readiness gate.
+  const expectedCampaignName = createResult?.campaign?.name;
+  if (expectedCampaignName && payload?.campaignName !== expectedCampaignName) {
+    errors.push(
+      `Funnel report campaignName (${payload?.campaignName || 'missing'}) must match the create-result campaign name (${expectedCampaignName})`,
+    );
   }
   return errors;
 }
@@ -246,6 +271,9 @@ async function main() {
   if ((flags.has('--output') || values.has('--output')) && !outputPath) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
+  if (flags.has('--funnel-report')) {
+    fail('Refusing to continue with bare --funnel-report; pass a path or omit the flag.', outputJson);
+  }
 
   const createResultPath = values.get('--create-result');
   if (!createResultPath) {
@@ -270,7 +298,7 @@ async function main() {
       const { payload, resolvedPath: resolvedFunnelPath } = await readJsonArtifact(values.get('--funnel-report'));
       funnelReport = payload;
       funnelReportPath = resolvedFunnelPath;
-      errors.push(...validateFunnelReport(payload));
+      errors.push(...validateFunnelReport(payload, createResult));
     }
 
     if (errors.length > 0) {

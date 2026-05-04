@@ -74,6 +74,10 @@ function createResult(overrides = {}) {
     apiVersion: 'v22',
     targetCustomerId: '***-***-7890',
     targetCustomerFingerprint: 'fingerprint-123',
+    preflightResult: {
+      ok: true,
+      targetCustomerFingerprint: 'fingerprint-123',
+    },
     campaign: {
       // v2: campaign.id is required so the live enable command can resolve the exact
       // campaign by resource name (customers/<customer>/campaigns/<id>) instead of by
@@ -92,6 +96,24 @@ function createResult(overrides = {}) {
       { type: 'negativeKeyword' },
       { type: 'responsiveSearchAd' },
     ],
+    ...overrides,
+  };
+}
+
+function funnelReport(overrides = {}) {
+  return {
+    ok: true,
+    mode: 'ADVERTISING_FUNNEL_REPORT',
+    apiCalls: false,
+    mutations: false,
+    campaignName: 'Atlas AI Content Ops Station',
+    dateRange: {
+      googleAds: { startDate: '2026-04-01', endDate: '2026-04-07' },
+      ga4: { startDate: '2026-04-01', endDate: '2026-04-07' },
+      aligned: true,
+    },
+    funnel: { impressions: 0, clicks: 0, costUsd: 0, landingSessions: 0, landingActiveUsers: 0, auditRequests: 0, googleAdsConversions: 0 },
+    rates: {},
     ...overrides,
   };
 }
@@ -254,6 +276,102 @@ const mismatchStatusRun = runScript(
   1,
 );
 assertStdoutContains(mismatchStatusRun, 'Status result campaign.id must match the create-result campaign.id');
+
+// Create result with the preflightResult provenance block omitted must be rejected.
+// Without this check, a hand-edited shell of a JSON satisfies the readiness gate.
+const createNoPreflight = createResult();
+delete createNoPreflight.preflightResult;
+const createNoPreflightPath = writeJson('create-no-preflight.json', createNoPreflight);
+const createNoPreflightRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createNoPreflightPath,
+    '--status-result',
+    statusPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(createNoPreflightRun, 'Create result must include the preflightResult provenance block');
+
+// Create result whose preflightResult.targetCustomerFingerprint disagrees with the
+// outer targetCustomerFingerprint must be rejected — defends against a preflight
+// from one customer being stapled into a create result for another.
+const createPreflightMismatchPath = writeJson(
+  'create-preflight-mismatch.json',
+  createResult({
+    preflightResult: { ok: true, targetCustomerFingerprint: 'fingerprint-DIFFERENT' },
+  }),
+);
+const createPreflightMismatchRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPreflightMismatchPath,
+    '--status-result',
+    statusPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(
+  createPreflightMismatchRun,
+  'Create result preflightResult.targetCustomerFingerprint must match the create result targetCustomerFingerprint',
+);
+
+// Funnel report whose campaignName doesn't match the create-result campaign name
+// must be rejected — defends against an unrelated campaign's funnel satisfying the gate.
+const mismatchedFunnelPath = writeJson(
+  'funnel-wrong-campaign.json',
+  funnelReport({ campaignName: 'Some Other Campaign' }),
+);
+const mismatchedFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    mismatchedFunnelPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(mismatchedFunnelRun, 'Funnel report campaignName');
+
+// Bare --funnel-report flag (no path) must error rather than silently skip the report.
+const bareFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(bareFunnelRun, 'Refusing to continue with bare --funnel-report');
+
+// Aligned funnel report whose campaignName matches must pass.
+const matchedFunnelPath = writeJson('funnel-aligned.json', funnelReport());
+runScript('check-google-ads-enable-readiness.mjs', [
+  '--create-result',
+  createPath,
+  '--status-result',
+  statusPath,
+  '--funnel-report',
+  matchedFunnelPath,
+  ...requiredConfirmations(),
+  '--json',
+]);
 
 const enableDryRunPath = join(tempDir, 'enable-dry-run.json');
 const enableDryRun = runScript('enable-google-ads-campaign.mjs', [
