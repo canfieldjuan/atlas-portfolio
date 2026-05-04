@@ -293,7 +293,10 @@ async function main() {
   if ((flags.has('--output') || values.has('--output')) && !outputPath) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
-  if (flags.has('--funnel-report')) {
+  if (flags.has('--funnel-report') || (values.has('--funnel-report') && !values.get('--funnel-report'))) {
+    // parseArgs() puts a value-less option in flags AND treats `--funnel-report=` as an
+    // empty-string value entry; either form must be rejected so the operator doesn't
+    // silently bypass the funnel report binding gate and hit a confusing fs error later.
     fail('Refusing to continue with bare --funnel-report; pass a path or omit the flag.', outputJson);
   }
 

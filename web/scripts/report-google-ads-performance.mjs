@@ -263,7 +263,10 @@ async function main() {
   if ((flags.has('--output') || values.has('--output')) && !outputPath) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
-  if (flags.has('--campaign-id')) {
+  if (flags.has('--campaign-id') || (values.has('--campaign-id') && !values.get('--campaign-id'))) {
+    // parseArgs() puts a value-less option in flags AND treats `--campaign-id=` as an
+    // empty-string value entry; either form must be rejected so the operator's attempt
+    // to disambiguate by id isn't silently dropped into the name-lookup fallback.
     fail('Refusing to continue with bare --campaign-id; pass a numeric id or omit the flag.', outputJson);
   }
 

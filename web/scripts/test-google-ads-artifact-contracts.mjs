@@ -506,5 +506,74 @@ const createDryRunPath = join(tempDir, 'create-dry-run.json');
 runScript('create-paused-google-ads-campaign.mjs', ['--dry-run', '--json', '--output', createDryRunPath]);
 assert.equal(readJson(createDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.CREATE_PAUSED);
 
+// Equals-form `--campaign-id=` (empty value after =) must be rejected the same way as
+// the bare flag form. parseArgs() puts the empty value into `values`, not `flags`, so
+// the guard has to check both. The reporter's bare-flag guard fires before env
+// validation, so this works in a no-env environment.
+const equalsFormCampaignIdRun = runScript(
+  'report-google-ads-performance.mjs',
+  ['--dry-run', '--campaign-id=', '--json'],
+  1,
+);
+assertStdoutContains(equalsFormCampaignIdRun, 'Refusing to continue with bare --campaign-id');
+
+// Bare equals-form `--funnel-report=` (empty value) must be rejected the same way as
+// the bare flag form. parseArgs() puts an empty value into `values`, not `flags`, so
+// the guard has to check both — otherwise the operator's intent to attach a report is
+// silently dropped and the gate accepts the readiness check without the funnel binding.
+const equalsFormFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report=',
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(equalsFormFunnelRun, 'Refusing to continue with bare --funnel-report');
+
+// Combiner: Google Ads report missing campaignId must fail closed at combine time
+// (operator gets a clear "regenerate" hint) instead of producing a misleading funnel
+// artifact that fails later at the readiness gate with a less obvious error.
+const legacyAdsReport = {
+  ok: true,
+  mode: 'GOOGLE_ADS_PERFORMANCE_REPORT',
+  apiCalls: true,
+  mutations: false,
+  campaignName: 'Atlas AI Content Ops Station',
+  // No campaignId — pre-versioned legacy report.
+  dateRange: { startDate: '2026-04-01', endDate: '2026-04-07' },
+  totals: { impressions: 0, clicks: 0, costUsd: 0, conversions: 0 },
+};
+const minimalGa4Report = {
+  ok: true,
+  mode: 'GA4_PERFORMANCE_REPORT',
+  apiCalls: true,
+  mutations: false,
+  dateRange: { startDate: '2026-04-01', endDate: '2026-04-07' },
+  landingPage: '/audit',
+  conversionEvent: 'audit_request_submitted',
+  landingPageReport: { totals: { sessions: 0, activeUsers: 0 } },
+  conversionEventReport: { totals: { eventCount: 0 } },
+};
+const legacyAdsReportPath = writeJson('google-ads-legacy.json', legacyAdsReport);
+const ga4ReportPath = writeJson('ga4-aligned.json', minimalGa4Report);
+const combinerLegacyRun = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    legacyAdsReportPath,
+    '--ga4-report',
+    ga4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric campaignId');
+
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();
