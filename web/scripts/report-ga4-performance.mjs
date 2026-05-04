@@ -1,8 +1,8 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
-import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { GOOGLE_OAUTH_TOKEN_URL, parseGoogleError } from './google-ads-api.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
-const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DEFAULT_GA4_API_VERSION = 'v1beta';
 const DEFAULT_DAYS = 7;
 const MAX_DAYS = 90;
@@ -162,23 +162,6 @@ function buildConversionEventRequest(eventName, dateRange) {
   };
 }
 
-async function parseGoogleError(response, includeDebug = false) {
-  const text = await response.text();
-  try {
-    const parsed = JSON.parse(text);
-    const code = parsed.error?.status || parsed.error;
-    const summary = code ? `Google API request failed with ${code}.` : 'Google API request failed.';
-    if (!includeDebug) {
-      return summary;
-    }
-
-    const debugMessage = parsed.error?.message || text;
-    return `${summary} Debug: ${sanitizeMessage(debugMessage)}`;
-  } catch {
-    return `Google API request failed with non-JSON response (${response.status}).`;
-  }
-}
-
 async function refreshAccessToken(options = {}) {
   const body = new URLSearchParams({
     client_id: envValue('GA4_CLIENT_ID'),
@@ -196,7 +179,7 @@ async function refreshAccessToken(options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
+    throw new Error(`OAuth refresh failed (${response.status}): ${await parseGoogleError(response, { includeDebug: options.debugErrors, sanitize: sanitizeMessage })}`);
   }
 
   const payload = await response.json();
@@ -218,7 +201,7 @@ async function runReport(accessToken, apiVersion, propertyId, request, options =
   });
 
   if (!response.ok) {
-    throw new Error(`GA4 runReport failed (${response.status}): ${await parseGoogleError(response, options.debugErrors)}`);
+    throw new Error(`GA4 runReport failed (${response.status}): ${await parseGoogleError(response, { includeDebug: options.debugErrors, sanitize: sanitizeMessage })}`);
   }
 
   return response.json();
@@ -295,7 +278,7 @@ async function main() {
   if (flags.has('--execute')) {
     fail('Execution mode is not supported. This command is read-only.', outputJson);
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 
