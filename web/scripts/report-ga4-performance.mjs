@@ -16,6 +16,7 @@ function printUsage() {
 
 Usage:
   npm run ads:ga4:report
+  npm run ads:ga4:report -- --check-env
   npm run ads:ga4:report -- --dry-run
   npm run ads:ga4:report -- --json
   npm run ads:ga4:report -- --days 14 --output /tmp/ga4-performance.json
@@ -27,6 +28,7 @@ Options:
   --end-date <YYYY-MM-DD>
   --output <path>        Write the report JSON artifact
   --json                 Print machine-readable JSON
+  --check-env            Check GA4 credentials without loading campaign spec or making API calls
   --dry-run              Build request payloads without API calls
   --debug-errors         Include sanitized upstream API error messages
 
@@ -45,6 +47,33 @@ function validateGa4Env() {
     missing,
     present: [...REQUIRED_GA4_ENV, ...OPTIONAL_GA4_ENV].filter((name) => envValue(name)),
   };
+}
+
+function printEnvCheck(envStatus, outputJson) {
+  const payload = {
+    mode: 'GA4_ENV_CHECK',
+    apiCalls: false,
+    mutations: false,
+    env: {
+      checked: true,
+      ok: envStatus.ok,
+      present: envStatus.present,
+      missing: envStatus.missing,
+    },
+  };
+
+  if (outputJson) {
+    console.log(JSON.stringify(payload, null, 2));
+    return;
+  }
+
+  console.log('GA4 environment check');
+  console.log('API calls: disabled');
+  console.log('Report generation: skipped');
+  console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
+  if (!envStatus.ok) {
+    console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+  }
 }
 
 function ga4ApiVersion() {
@@ -269,6 +298,7 @@ async function main() {
   const { values, flags } = parseArgs(process.argv.slice(2));
   const outputJson = flags.has('--json');
   const dryRun = flags.has('--dry-run');
+  const checkEnv = flags.has('--check-env');
   const debugErrors = flags.has('--debug-errors');
   const outputPath = values.get('--output');
 
@@ -281,6 +311,12 @@ async function main() {
   }
   if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
+  }
+
+  const envStatus = validateGa4Env();
+  if (checkEnv) {
+    printEnvCheck(envStatus, outputJson);
+    process.exit(envStatus.ok ? 0 : 1);
   }
 
   const { campaign } = await loadCampaignSpec();
@@ -330,7 +366,6 @@ async function main() {
     return;
   }
 
-  const envStatus = validateGa4Env();
   if (!envStatus.ok) {
     fail('GA4 environment is incomplete.', outputJson, {
       mode: 'GA4_PERFORMANCE_REPORT',
