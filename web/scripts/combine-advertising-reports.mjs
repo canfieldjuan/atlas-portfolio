@@ -1,5 +1,9 @@
 import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact } from './ads-cli-helpers.mjs';
-import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
+import {
+  artifactVersionFields,
+  GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactVersion,
+} from './google-ads-artifact-contracts.mjs';
 
 function printUsage() {
   console.log(`Advertising funnel report combiner
@@ -31,7 +35,7 @@ function moneyRatio(numerator, denominator) {
 }
 
 function validateGoogleAdsReport(payload) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'Google Ads report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE);
   if (payload?.ok !== true) {
     errors.push('Google Ads report must have ok=true');
   }
@@ -59,7 +63,7 @@ function validateGoogleAdsReport(payload) {
 }
 
 function validateGa4Report(payload) {
-  const errors = [];
+  const errors = validateArtifactVersion(payload, 'GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE);
   if (payload?.ok !== true) {
     errors.push('GA4 report must have ok=true');
   }

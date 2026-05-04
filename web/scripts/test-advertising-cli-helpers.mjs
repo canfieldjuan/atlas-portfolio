@@ -14,8 +14,8 @@ async function testParseArgs() {
   assert.equal(values.get('--campaign-name'), 'Audit');
 
   // `--` ends option parsing; everything after is positional even if it starts
-  // with a dash. Lets operators pass values like `--output -foo.json` if
-  // needed, and prevents `--` itself from being misread as a value.
+  // with a dash. Dash-prefixed option values still use `--name=value`; this
+  // marker only prevents later tokens from being parsed as flags.
   const eooParsed = parseArgs(['--output', '/tmp/x.json', '--', '--not-a-flag', '-foo.json']);
   assert.equal(eooParsed.values.get('--output'), '/tmp/x.json');
   assert.deepEqual(eooParsed.positional, ['--not-a-flag', '-foo.json']);

@@ -12,8 +12,8 @@ export function parseArgs(argv) {
     const item = argv[index];
 
     // `--` is the conventional end-of-options marker. Everything after it is
-    // treated as a positional, even if it starts with a dash. Lets operators
-    // pass values like `--output -foo.json` when needed.
+    // treated as a positional, even if it starts with a dash. Dash-prefixed
+    // option values still need the inline `--name=value` form.
     if (item === '--') {
       endOfOptions = true;
       continue;

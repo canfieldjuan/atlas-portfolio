@@ -1,5 +1,6 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
 import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 import { GOOGLE_OAUTH_TOKEN_URL, parseGoogleError } from './google-ads-api.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
@@ -295,6 +296,7 @@ async function main() {
   if (dryRun) {
     const payload = {
       ok: true,
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE),
       mode: 'GA4_PERFORMANCE_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -352,6 +354,7 @@ async function main() {
     const conversionRows = mapConversionRows(conversionPayload);
     const payload = {
       ok: true,
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE),
       mode: 'GA4_PERFORMANCE_REPORT',
       apiCalls: true,
       mutations: false,

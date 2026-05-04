@@ -1,5 +1,6 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
 import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
   googleAdsSearch,
@@ -285,6 +286,7 @@ async function main() {
     const placeholderCampaignId = campaignIdOverride || '<CAMPAIGN_ID>';
     const payload = {
       ok: true,
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE),
       mode: 'GOOGLE_ADS_PERFORMANCE_DRY_RUN',
       apiCalls: false,
       mutations: false,
@@ -337,6 +339,7 @@ async function main() {
     const rows = rawRows.map(mapPerformanceRow);
     const payload = {
       ok: true,
+      ...artifactVersionFields(GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE),
       mode: 'GOOGLE_ADS_PERFORMANCE_REPORT',
       apiCalls: true,
       mutations: false,
