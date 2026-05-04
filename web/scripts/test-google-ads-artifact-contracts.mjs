@@ -575,5 +575,27 @@ const combinerLegacyRun = runScript(
 );
 assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric campaignId');
 
+// Combiner: same fail-closed must fire for dry-run Google Ads reports without
+// campaignId — a dry-run-derived funnel artifact with empty campaignId is still
+// guaranteed to fail at the readiness gate, so failing earlier with a clear hint
+// is better than producing a misleading-looking artifact.
+const dryRunAdsReportPath = writeJson('google-ads-dry-run.json', {
+  ...legacyAdsReport,
+  mode: 'GOOGLE_ADS_PERFORMANCE_DRY_RUN',
+  apiCalls: false,
+});
+const combinerDryRunRun = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    dryRunAdsReportPath,
+    '--ga4-report',
+    ga4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(combinerDryRunRun, 'Google Ads report must include numeric campaignId');
+
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();

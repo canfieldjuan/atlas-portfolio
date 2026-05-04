@@ -44,15 +44,15 @@ function validateGoogleAdsReport(payload) {
   if (!payload?.totals || typeof payload.totals !== 'object') {
     errors.push('Google Ads report must include totals');
   }
-  // Non-dry-run reports must carry campaignId so the combined funnel artifact can bind
-  // the funnel to a specific campaign downstream. Older Google Ads performance reports
-  // (pre-`report-google-ads-performance` campaign-id resolution) lack this field; fail
-  // closed here with a regenerate hint instead of producing a funnel artifact that will
-  // be rejected later at the readiness gate with a less obvious error.
-  if (payload?.mode === 'GOOGLE_ADS_PERFORMANCE_REPORT'
-      && (!payload?.campaignId || !/^\d+$/.test(String(payload.campaignId)))) {
+  // The combiner produces a versioned funnel artifact whose contract requires
+  // numeric campaignId. Fail closed at combine time regardless of source mode —
+  // a dry-run input without --campaign-id would otherwise produce a funnel with
+  // empty campaignId that gets rejected later at the readiness gate with a less
+  // obvious error. Operators wanting to test the combine pipeline with dry-run
+  // inputs should pass --campaign-id to the reporter so the chain is consistent.
+  if (!payload?.campaignId || !/^\d+$/.test(String(payload.campaignId))) {
     errors.push(
-      'Google Ads report must include numeric campaignId. Regenerate with `npm run ads:google:report` to pick up the campaign-id contract.',
+      'Google Ads report must include numeric campaignId. Regenerate with `npm run ads:google:report` (pass --campaign-id <id> when using --dry-run) to pick up the campaign-id contract.',
     );
   }
   return errors;
