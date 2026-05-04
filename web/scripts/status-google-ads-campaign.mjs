@@ -1,5 +1,5 @@
 import { loadCampaignSpec } from './ads-spec-io.mjs';
-import { failCommand, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
 import { artifactVersionFields, GOOGLE_ADS_ARTIFACT_TYPES } from './google-ads-artifact-contracts.mjs';
 import {
   escapeGaqlString,
@@ -12,6 +12,7 @@ import {
   envValue,
   googleAdsApiVersion,
   maskCustomerId,
+  maskResourceName,
   normalizeCustomerId,
   validateGoogleAdsEnv,
 } from './google-ads-env.mjs';
@@ -47,9 +48,6 @@ function microsToUsd(value) {
   return Number.isFinite(parsed) ? Math.round((parsed / 1_000_000) * 100) / 100 : 0;
 }
 
-function maskResourceName(value, customerId) {
-  return String(value || '').replaceAll(`customers/${customerId}`, `customers/${maskCustomerId(customerId)}`);
-}
 
 function buildCampaignQuery(campaignName) {
   return `
@@ -249,7 +247,7 @@ async function main() {
   if (flags.has('--execute')) {
     fail('Execution mode is not supported. This command is read-only.', outputJson);
   }
-  if ((flags.has('--output') || values.has('--output')) && !outputPath) {
+  if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
 
