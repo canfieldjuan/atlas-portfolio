@@ -95,7 +95,10 @@ async function buildPlan() {
 
     operations.push({
       operation: 'create_responsive_search_ad',
-      status: 'PAUSED',
+      // Matches create-paused-google-ads-campaign.mjs: the campaign is the
+      // serving safety boundary and remains PAUSED, while child ads are created
+      // ENABLED so the later enablement gate can verify the hierarchy is ready.
+      status: 'ENABLED',
       adGroupName: adGroup.name,
       finalUrl: rsaAssets.finalUrl,
       headlineCount: rsaAssets.headlines.length,

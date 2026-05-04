@@ -230,6 +230,13 @@ for (const type of Object.values(GOOGLE_ADS_ARTIFACT_TYPES)) {
 }
 assert.throws(() => artifactVersionFields('UNKNOWN_TYPE'), /Unknown Google Ads artifact type/);
 
+const planRun = runScript('plan-google-ads-operations.mjs', ['--json']);
+const planPayload = JSON.parse(planRun.stdout);
+assert.equal(planPayload.campaign.status, 'PAUSED');
+const rsaPlan = planPayload.operations.find((operation) => operation.operation === 'create_responsive_search_ad');
+assert.ok(rsaPlan, 'Expected plan output to include create_responsive_search_ad operation');
+assert.equal(rsaPlan.status, 'ENABLED');
+
 assert.deepEqual(
   validateArtifactFreshness(
     { generatedAt: '2026-04-07T10:00:00.000Z' },
