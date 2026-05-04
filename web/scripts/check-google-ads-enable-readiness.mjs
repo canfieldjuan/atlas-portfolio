@@ -2,6 +2,7 @@ import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactFreshness,
   validateArtifactVersion,
 } from './google-ads-artifact-contracts.mjs';
 
@@ -111,6 +112,7 @@ function validateCreateResult(payload) {
 
 function validateFunnelReport(payload, createResult) {
   const errors = validateArtifactVersion(payload, 'funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL);
+  errors.push(...validateArtifactFreshness(payload, 'funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL));
   if (payload?.ok !== true) {
     errors.push('Funnel report must have ok=true');
   }

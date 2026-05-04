@@ -2,6 +2,7 @@ import { failCommand, isBareFlag, parseArgs, readJsonArtifact, writeJsonArtifact
 import {
   artifactVersionFields,
   GOOGLE_ADS_ARTIFACT_TYPES,
+  validateArtifactFreshness,
   validateArtifactVersion,
 } from './google-ads-artifact-contracts.mjs';
 
@@ -36,6 +37,7 @@ function moneyRatio(numerator, denominator) {
 
 function validateGoogleAdsReport(payload) {
   const errors = validateArtifactVersion(payload, 'Google Ads report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE);
+  errors.push(...validateArtifactFreshness(payload, 'Google Ads report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE));
   if (payload?.ok !== true) {
     errors.push('Google Ads report must have ok=true');
   }
@@ -64,6 +66,7 @@ function validateGoogleAdsReport(payload) {
 
 function validateGa4Report(payload) {
   const errors = validateArtifactVersion(payload, 'GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE);
+  errors.push(...validateArtifactFreshness(payload, 'GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE));
   if (payload?.ok !== true) {
     errors.push('GA4 report must have ok=true');
   }

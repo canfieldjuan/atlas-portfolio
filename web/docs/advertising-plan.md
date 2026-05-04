@@ -57,7 +57,7 @@ Avoid:
 
 ## Artifact Contract
 
-The launch path is artifact-gated. Each handoff writes JSON with a per-type `artifactVersion` and the downstream command refuses stale or partial artifacts. Versions are tracked in `scripts/google-ads-artifact-contracts.mjs`; only the type whose schema actually changed is bumped, so a tightening to one artifact does not invalidate unrelated ones.
+The launch/reporting path is artifact-gated. Each handoff writes JSON with a per-type `artifactVersion` and `generatedAt`. Downstream commands refuse incompatible versions, and the performance/funnel reporting chain also refuses artifacts older than 48 hours. Versions and freshness windows are tracked in `scripts/google-ads-artifact-contracts.mjs`; only the type whose schema actually changed is bumped, so a tightening to one artifact does not invalidate unrelated ones.
 
 The table below lists the operator-facing safety highlights, not the full validator schema. The authoritative contract lives in the producing/consuming scripts plus `scripts/test-google-ads-artifact-contracts.mjs`.
 
@@ -66,9 +66,9 @@ The table below lists the operator-facing safety highlights, not the full valida
 | Preflight | `ads:google:preflight` | `ads:google:create-paused`, `ads:google:enable` | 2 | `mode=READ_ONLY_PREFLIGHT`, `mutations=false`, `targetCustomerFingerprint`, separate `oauthCallAttempted`/`googleAdsCallAttempted` flags |
 | Create-paused result | `ads:google:create-paused` | `ads:google:enable-check` | 3 | `mode=CREATE_PAUSED`, `mutations=true`, `campaign.status=PAUSED`, numeric `campaign.id`, embedded `preflightResult` provenance object with matching `targetCustomerFingerprint`, created resource list |
 | Status report | `ads:google:status` | `ads:google:enable-check` | 2 | `mode=GOOGLE_ADS_CAMPAIGN_STATUS_REPORT`, `mutations=false`, `campaign.status=PAUSED`, numeric `campaign.id` matching create-result, ad group/ad counts, `nextSteps.enableSafe` only when at least one ENABLED ad lives under an ENABLED ad group |
-| Google Ads performance report | `ads:google:report` | `ads:report:combine` | 1 | `mode=GOOGLE_ADS_PERFORMANCE_REPORT` or dry-run mode, date range, totals, numeric `campaignId` |
-| GA4 performance report | `ads:ga4:report` | `ads:report:combine` | 1 | `mode=GA4_PERFORMANCE_REPORT` or dry-run mode, date range, landing-page totals, conversion-event totals |
-| Funnel report | `ads:report:combine` | `ads:google:enable-check` (optional) | 1 | `mode=ADVERTISING_FUNNEL_REPORT`, `apiCalls=false`, aligned date ranges, numeric `campaignId` matching create-result (defends against duplicate-name collisions) |
+| Google Ads performance report | `ads:google:report` | `ads:report:combine` | 2 | `mode=GOOGLE_ADS_PERFORMANCE_REPORT` or dry-run mode, canonical UTC ISO `generatedAt` within 48h, date range, totals, numeric `campaignId` |
+| GA4 performance report | `ads:ga4:report` | `ads:report:combine` | 2 | `mode=GA4_PERFORMANCE_REPORT` or dry-run mode, canonical UTC ISO `generatedAt` within 48h, date range, landing-page totals, conversion-event totals |
+| Funnel report | `ads:report:combine` | `ads:google:enable-check` (optional) | 2 | `mode=ADVERTISING_FUNNEL_REPORT`, `apiCalls=false`, canonical UTC ISO `generatedAt` within 48h, aligned date ranges, numeric `campaignId` matching create-result (defends against duplicate-name collisions) |
 | Enablement readiness | `ads:google:enable-check` | `ads:google:enable` | 2 | `mode=GOOGLE_ADS_ENABLEMENT_READINESS`, all four operator confirmations, create/status customer fingerprint match, create/status `campaign.id` match |
 | Enable result | `ads:google:enable` | Operator audit log | 2 | `mode=GOOGLE_ADS_ENABLE`, `mutations=true`, `previousStatus=PAUSED`, `currentStatus=ENABLED` |
 

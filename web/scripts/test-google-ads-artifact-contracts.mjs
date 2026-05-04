@@ -8,12 +8,15 @@ import {
   GOOGLE_ADS_ARTIFACT_TYPES,
   GOOGLE_ADS_ARTIFACT_VERSIONS,
   artifactVersionFields,
+  validateArtifactFreshness,
   validateArtifactVersion,
 } from './google-ads-artifact-contracts.mjs';
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = dirname(scriptsDir);
 const tempDir = mkdtempSync(join(tmpdir(), 'atlas-google-ads-artifacts-'));
+const FIXED_NOW = new Date('2026-04-07T12:00:00.000Z');
+const FIXED_GENERATED_AT = FIXED_NOW.toISOString();
 let cleanedUp = false;
 
 function cleanupTempDir() {
@@ -114,6 +117,7 @@ function funnelReport(overrides = {}) {
   return {
     ok: true,
     artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.ADVERTISING_FUNNEL,
+    generatedAt: freshGeneratedAt(),
     mode: 'ADVERTISING_FUNNEL_REPORT',
     apiCalls: false,
     mutations: false,
@@ -185,10 +189,25 @@ function artifactVersionError(label, type) {
   return `${label} artifactVersion must be ${GOOGLE_ADS_ARTIFACT_VERSIONS[type]}`;
 }
 
+function artifactFreshnessError(label, detail) {
+  return `${label} ${detail}`;
+}
+
+function freshGeneratedAt() {
+  return new Date().toISOString();
+}
+
+function staleGeneratedAt() {
+  return new Date(Date.now() - 49 * 60 * 60 * 1000).toISOString();
+}
+
 // Smoke tests for the per-artifact version helpers.
 for (const type of Object.values(GOOGLE_ADS_ARTIFACT_TYPES)) {
   const expected = GOOGLE_ADS_ARTIFACT_VERSIONS[type];
-  assert.deepEqual(artifactVersionFields(type), { artifactVersion: expected });
+  assert.deepEqual(artifactVersionFields(type, { now: FIXED_NOW }), {
+    artifactVersion: expected,
+    generatedAt: FIXED_GENERATED_AT,
+  });
   assert.deepEqual(
     validateArtifactVersion({ artifactVersion: expected }, 'test artifact', type),
     [],
@@ -210,6 +229,59 @@ for (const type of Object.values(GOOGLE_ADS_ARTIFACT_TYPES)) {
   }
 }
 assert.throws(() => artifactVersionFields('UNKNOWN_TYPE'), /Unknown Google Ads artifact type/);
+
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: '2026-04-07T10:00:00.000Z' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [],
+);
+assert.deepEqual(
+  validateArtifactFreshness({}, 'test report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE, {
+    now: FIXED_NOW,
+    maxAgeHours: 48,
+  }),
+  [artifactFreshnessError('test report', 'must include generatedAt')],
+);
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: 'not-a-date' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [artifactFreshnessError('test report', 'generatedAt must be a valid UTC ISO timestamp')],
+);
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: '04/07/2026' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [artifactFreshnessError('test report', 'generatedAt must be a valid UTC ISO timestamp')],
+);
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: '2026-04-05T11:59:59.000Z' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [artifactFreshnessError('test report', 'generatedAt is older than 48 hours; regenerate the artifact')],
+);
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: '2026-04-07T12:06:00.000Z' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [artifactFreshnessError('test report', 'generatedAt is in the future; check system clocks')],
+);
 
 const createPath = writeJson('create-result.json', createResult());
 const statusPath = writeJson('status-result.json', statusResult());
@@ -421,6 +493,29 @@ assertStdoutContains(
   artifactVersionError('funnel report', GOOGLE_ADS_ARTIFACT_TYPES.ADVERTISING_FUNNEL),
 );
 
+// Funnel report with a valid schema but stale generatedAt must be rejected at
+// readiness time. The report may still be version-correct, but old performance data
+// should not be attached to a launch approval packet.
+const staleFunnelPath = writeJson('funnel-stale.json', funnelReport({ generatedAt: staleGeneratedAt() }));
+const staleFunnelRun = runScript(
+  'check-google-ads-enable-readiness.mjs',
+  [
+    '--create-result',
+    createPath,
+    '--status-result',
+    statusPath,
+    '--funnel-report',
+    staleFunnelPath,
+    ...requiredConfirmations(),
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(
+  staleFunnelRun,
+  artifactFreshnessError('funnel report', 'generatedAt is older than 48 hours; regenerate the artifact'),
+);
+
 // Funnel report whose campaignName matches but campaignId differs must be rejected.
 // Defends against the duplicate-name collision class — two campaigns can share a
 // name in Google Ads, so name-only binding is not sufficient.
@@ -556,6 +651,7 @@ const legacyAdsReport = {
 const minimalGa4Report = {
   ok: true,
   artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE,
+  generatedAt: freshGeneratedAt(),
   mode: 'GA4_PERFORMANCE_REPORT',
   apiCalls: true,
   mutations: false,
@@ -603,10 +699,12 @@ const combinerDryRunRun = runScript(
   1,
 );
 assertStdoutContains(combinerDryRunRun, 'Google Ads report must include numeric campaignId');
+assertStdoutContains(combinerDryRunRun, artifactFreshnessError('Google Ads report', 'must include generatedAt'));
 
 const versionedAdsReportPath = writeJson('google-ads-versioned.json', {
   ...legacyAdsReport,
   artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
+  generatedAt: freshGeneratedAt(),
   campaignId: '987654321',
 });
 const unversionedGa4Report = { ...minimalGa4Report };
@@ -625,6 +723,48 @@ const combinerUnversionedGa4Run = runScript(
 );
 assertStdoutContains(combinerUnversionedGa4Run, artifactVersionError('GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE));
 
+const staleAdsReportPath = writeJson('google-ads-stale.json', {
+  ...legacyAdsReport,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
+  generatedAt: staleGeneratedAt(),
+  campaignId: '987654321',
+});
+const combinerStaleAdsRun = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    staleAdsReportPath,
+    '--ga4-report',
+    ga4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(
+  combinerStaleAdsRun,
+  artifactFreshnessError('Google Ads report', 'generatedAt is older than 48 hours; regenerate the artifact'),
+);
+
+const malformedGa4ReportPath = writeJson('ga4-malformed-generated-at.json', {
+  ...minimalGa4Report,
+  generatedAt: 'not-a-date',
+});
+const combinerMalformedGa4Run = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    versionedAdsReportPath,
+    '--ga4-report',
+    malformedGa4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(
+  combinerMalformedGa4Run,
+  artifactFreshnessError('GA4 report', 'generatedAt must be a valid UTC ISO timestamp'),
+);
+
 const combinedFunnelPath = join(tempDir, 'advertising-funnel.json');
 runScript('combine-advertising-reports.mjs', [
   '--google-ads-report',
@@ -636,6 +776,7 @@ runScript('combine-advertising-reports.mjs', [
   combinedFunnelPath,
 ]);
 assert.equal(readJson(combinedFunnelPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.ADVERTISING_FUNNEL);
+assert.equal(typeof readJson(combinedFunnelPath).generatedAt, 'string');
 
 const googleAdsReportDryRunPath = join(tempDir, 'google-ads-report-dry-run-output.json');
 runScript('report-google-ads-performance.mjs', [
@@ -647,10 +788,12 @@ runScript('report-google-ads-performance.mjs', [
   googleAdsReportDryRunPath,
 ]);
 assert.equal(readJson(googleAdsReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE);
+assert.equal(typeof readJson(googleAdsReportDryRunPath).generatedAt, 'string');
 
 const ga4ReportDryRunPath = join(tempDir, 'ga4-report-dry-run-output.json');
 runScript('report-ga4-performance.mjs', ['--dry-run', '--json', '--output', ga4ReportDryRunPath]);
 assert.equal(readJson(ga4ReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
+assert.equal(typeof readJson(ga4ReportDryRunPath).generatedAt, 'string');
 
 const googleAdsFetchMockPath = writeJson('mock-google-ads-fetch.mjs', {});
 writeFileSync(
@@ -740,6 +883,7 @@ runScript(
   },
 );
 assert.equal(readJson(googleAdsReportLivePath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE);
+assert.equal(typeof readJson(googleAdsReportLivePath).generatedAt, 'string');
 
 const ga4FetchMockPath = writeJson('mock-ga4-fetch.mjs', {});
 writeFileSync(
@@ -812,6 +956,7 @@ runScript(
   },
 );
 assert.equal(readJson(ga4ReportLivePath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
+assert.equal(typeof readJson(ga4ReportLivePath).generatedAt, 'string');
 
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();
