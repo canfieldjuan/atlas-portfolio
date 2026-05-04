@@ -1,5 +1,5 @@
 import { appendFile, mkdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { persistAuditIntakeRecord } from './audit-intake-database';
 
 export type AuditIntakePayload = {
@@ -36,12 +36,12 @@ export type AuditIntakeDelivery = 'database' | 'webhook' | 'atlas-crm-event' | '
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
 // 'database', 'webhook', and 'atlas-crm-event' are unconditionally durable when
 // they succeed. 'file' is conditional: it only counts as persistent when the
-// configured AUDIT_INTAKE_FILE_PATH points outside /tmp (per README:104-110, an
-// operator can opt into a durable filesystem target with
-// AUDIT_INTAKE_ALLOW_FILE_FALLBACK=true). On Vercel, /tmp is ephemeral — function
-// dies, file dies — so a file-only delivery there should still trigger the
-// "no persistent sink" warning instead of giving operators a false sense the
-// submission was durably stored.
+// configured AUDIT_INTAKE_FILE_PATH resolves outside /tmp (the README's
+// "Local Fallback" section documents the AUDIT_INTAKE_ALLOW_FILE_FALLBACK opt-in
+// for production deployments with a real persistent disk). On Vercel, /tmp is
+// ephemeral — function dies, file dies — so a file-only delivery there should
+// still trigger the "no persistent sink" warning instead of giving operators a
+// false sense the submission was durably stored.
 const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = [
   'database',
   'webhook',
@@ -53,8 +53,12 @@ function configuredAuditFilePath() {
 }
 
 function fileDeliveryIsDurable() {
-  const filePath = configuredAuditFilePath();
-  return !filePath.startsWith('/tmp/') && filePath !== '/tmp';
+  // Resolve the configured path so aliases like `/var/../tmp/audit.ndjson` are
+  // collapsed to `/tmp/audit.ndjson` before the prefix check; otherwise an
+  // operator could accidentally suppress the "no persistent sink" warning by
+  // configuring a path that loops back into ephemeral storage.
+  const resolved = resolve(configuredAuditFilePath());
+  return resolved !== '/tmp' && !resolved.startsWith('/tmp/');
 }
 
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
