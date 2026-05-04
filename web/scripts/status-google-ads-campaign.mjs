@@ -139,7 +139,7 @@ function mapAdRow(row) {
   };
 }
 
-function buildNextSteps(campaign) {
+function buildNextSteps(campaign, adGroups = [], ads = []) {
   if (!campaign) {
     return {
       createPausedSafe: true,
@@ -148,10 +148,40 @@ function buildNextSteps(campaign) {
     };
   }
 
+  if (campaign.status !== 'PAUSED') {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: `campaign_${String(campaign.status || 'unknown').toLowerCase()}`,
+    };
+  }
+
+  // A paused campaign cannot serve traffic if its ad groups or ads are also paused.
+  // Flipping campaign.status to ENABLED in that state would leave the campaign live
+  // but unable to deliver, which is the failure mode this gate must prevent.
+  const hasEnabledAdGroup = adGroups.some((adGroup) => adGroup.status === 'ENABLED');
+  const hasEnabledAd = ads.some((ad) => ad.status === 'ENABLED');
+
+  if (!hasEnabledAdGroup) {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: 'no_enabled_ad_group',
+    };
+  }
+
+  if (!hasEnabledAd) {
+    return {
+      createPausedSafe: false,
+      enableSafe: false,
+      reason: 'no_enabled_ad',
+    };
+  }
+
   return {
     createPausedSafe: false,
-    enableSafe: campaign.status === 'PAUSED',
-    reason: campaign.status === 'PAUSED' ? 'campaign_paused' : `campaign_${String(campaign.status || 'unknown').toLowerCase()}`,
+    enableSafe: true,
+    reason: 'campaign_paused',
   };
 }
 
@@ -314,7 +344,7 @@ async function main() {
         typeBreakdown: statusBreakdown(ads, (row) => row.type),
         rows: ads,
       },
-      nextSteps: buildNextSteps(campaignStatus),
+      nextSteps: buildNextSteps(campaignStatus, adGroups, ads),
     };
 
     if (outputPath) {
