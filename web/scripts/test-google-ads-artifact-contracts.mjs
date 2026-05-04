@@ -44,10 +44,14 @@ function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
-function runScript(scriptName, args, expectedStatus = 0) {
+function runScript(scriptName, args, expectedStatus = 0, options = {}) {
   const result = spawnSync(process.execPath, [join(scriptsDir, scriptName), ...args], {
     cwd: repoRoot,
     encoding: 'utf8',
+    env: {
+      ...process.env,
+      ...(options.env || {}),
+    },
   });
 
   assert.equal(result.error, undefined, `${scriptName} failed to spawn: ${result.error?.message || result.error}`);
@@ -551,6 +555,7 @@ const legacyAdsReport = {
 };
 const minimalGa4Report = {
   ok: true,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE,
   mode: 'GA4_PERFORMANCE_REPORT',
   apiCalls: true,
   mutations: false,
@@ -574,6 +579,7 @@ const combinerLegacyRun = runScript(
   1,
 );
 assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric campaignId');
+assertStdoutContains(combinerLegacyRun, artifactVersionError('Google Ads report', GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE));
 
 // Combiner: same fail-closed must fire for dry-run Google Ads reports without
 // campaignId — a dry-run-derived funnel artifact with empty campaignId is still
@@ -581,6 +587,7 @@ assertStdoutContains(combinerLegacyRun, 'Google Ads report must include numeric 
 // is better than producing a misleading-looking artifact.
 const dryRunAdsReportPath = writeJson('google-ads-dry-run.json', {
   ...legacyAdsReport,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
   mode: 'GOOGLE_ADS_PERFORMANCE_DRY_RUN',
   apiCalls: false,
 });
@@ -596,6 +603,215 @@ const combinerDryRunRun = runScript(
   1,
 );
 assertStdoutContains(combinerDryRunRun, 'Google Ads report must include numeric campaignId');
+
+const versionedAdsReportPath = writeJson('google-ads-versioned.json', {
+  ...legacyAdsReport,
+  artifactVersion: GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE,
+  campaignId: '987654321',
+});
+const unversionedGa4Report = { ...minimalGa4Report };
+delete unversionedGa4Report.artifactVersion;
+const unversionedGa4ReportPath = writeJson('ga4-unversioned.json', unversionedGa4Report);
+const combinerUnversionedGa4Run = runScript(
+  'combine-advertising-reports.mjs',
+  [
+    '--google-ads-report',
+    versionedAdsReportPath,
+    '--ga4-report',
+    unversionedGa4ReportPath,
+    '--json',
+  ],
+  1,
+);
+assertStdoutContains(combinerUnversionedGa4Run, artifactVersionError('GA4 report', GOOGLE_ADS_ARTIFACT_TYPES.GA4_PERFORMANCE));
+
+const combinedFunnelPath = join(tempDir, 'advertising-funnel.json');
+runScript('combine-advertising-reports.mjs', [
+  '--google-ads-report',
+  versionedAdsReportPath,
+  '--ga4-report',
+  ga4ReportPath,
+  '--json',
+  '--output',
+  combinedFunnelPath,
+]);
+assert.equal(readJson(combinedFunnelPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.ADVERTISING_FUNNEL);
+
+const googleAdsReportDryRunPath = join(tempDir, 'google-ads-report-dry-run-output.json');
+runScript('report-google-ads-performance.mjs', [
+  '--dry-run',
+  '--campaign-id',
+  '987654321',
+  '--json',
+  '--output',
+  googleAdsReportDryRunPath,
+]);
+assert.equal(readJson(googleAdsReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE);
+
+const ga4ReportDryRunPath = join(tempDir, 'ga4-report-dry-run-output.json');
+runScript('report-ga4-performance.mjs', ['--dry-run', '--json', '--output', ga4ReportDryRunPath]);
+assert.equal(readJson(ga4ReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
+
+const googleAdsFetchMockPath = writeJson('mock-google-ads-fetch.mjs', {});
+writeFileSync(
+  googleAdsFetchMockPath,
+  `
+function jsonResponse(payload) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+globalThis.fetch = async function mockGoogleAdsFetch(url, options = {}) {
+  const href = String(url);
+  if (href === 'https://oauth2.googleapis.com/token') {
+    return jsonResponse({ access_token: 'mock-google-ads-token' });
+  }
+  if (!href.includes('googleads.googleapis.com')) {
+    throw new Error('Unexpected URL in Google Ads mock: ' + href);
+  }
+
+  const body = JSON.parse(String(options.body || '{}'));
+  if (body.query?.includes('WHERE campaign.id = 987654321')) {
+    return jsonResponse({
+      results: [
+        {
+          campaign: {
+            id: '987654321',
+            name: 'Atlas AI Content Ops Station',
+          },
+        },
+      ],
+    });
+  }
+  if (body.query?.includes('metrics.impressions')) {
+    return jsonResponse({
+      results: [
+        {
+          segments: { date: '2026-04-01' },
+          campaign: {
+            id: '987654321',
+            name: 'Atlas AI Content Ops Station',
+            status: 'ENABLED',
+          },
+          metrics: {
+            impressions: '10',
+            clicks: '2',
+            costMicros: '3000000',
+            conversions: '1',
+            conversionsValue: '0',
+            ctr: '0.2',
+            averageCpc: '1500000',
+          },
+        },
+      ],
+    });
+  }
+
+  throw new Error('Unexpected Google Ads query in mock: ' + body.query);
+};
+`,
+  'utf8',
+);
+const googleAdsReportLivePath = join(tempDir, 'google-ads-report-live-output.json');
+runScript(
+  'report-google-ads-performance.mjs',
+  [
+    '--campaign-id',
+    '987654321',
+    '--end-date',
+    '2026-04-07',
+    '--json',
+    '--output',
+    googleAdsReportLivePath,
+  ],
+  0,
+  {
+    env: {
+      NODE_OPTIONS: `--import=${googleAdsFetchMockPath}`,
+      GOOGLE_ADS_DEVELOPER_TOKEN: 'developer-token',
+      GOOGLE_ADS_CLIENT_ID: 'client-id',
+      GOOGLE_ADS_CLIENT_SECRET: 'client-secret',
+      GOOGLE_ADS_REFRESH_TOKEN: 'refresh-token',
+      GOOGLE_ADS_CUSTOMER_ID: '1234567890',
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: '',
+    },
+  },
+);
+assert.equal(readJson(googleAdsReportLivePath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GOOGLE_ADS_PERFORMANCE);
+
+const ga4FetchMockPath = writeJson('mock-ga4-fetch.mjs', {});
+writeFileSync(
+  ga4FetchMockPath,
+  `
+function jsonResponse(payload) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+globalThis.fetch = async function mockGa4Fetch(url, options = {}) {
+  const href = String(url);
+  if (href === 'https://oauth2.googleapis.com/token') {
+    return jsonResponse({ access_token: 'mock-ga4-token' });
+  }
+  if (!href.includes('analyticsdata.googleapis.com')) {
+    throw new Error('Unexpected URL in GA4 mock: ' + href);
+  }
+
+  const body = JSON.parse(String(options.body || '{}'));
+  const fieldName = body.dimensionFilter?.filter?.fieldName;
+  if (fieldName === 'eventName') {
+    return jsonResponse({
+      rows: [
+        {
+          dimensionValues: [{ value: '20260401' }, { value: 'google / cpc' }],
+          metricValues: [{ value: '1' }, { value: '1' }],
+        },
+      ],
+    });
+  }
+  if (fieldName === 'landingPage') {
+    return jsonResponse({
+      rows: [
+        {
+          dimensionValues: [{ value: '20260401' }, { value: 'google / cpc' }],
+          metricValues: [{ value: '2' }, { value: '2' }, { value: '4' }],
+        },
+      ],
+    });
+  }
+
+  throw new Error('Unexpected GA4 request in mock: ' + JSON.stringify(body));
+};
+`,
+  'utf8',
+);
+const ga4ReportLivePath = join(tempDir, 'ga4-report-live-output.json');
+runScript(
+  'report-ga4-performance.mjs',
+  [
+    '--end-date',
+    '2026-04-07',
+    '--json',
+    '--output',
+    ga4ReportLivePath,
+  ],
+  0,
+  {
+    env: {
+      NODE_OPTIONS: `--import=${ga4FetchMockPath}`,
+      GA4_PROPERTY_ID: '123456789',
+      GA4_CLIENT_ID: 'client-id',
+      GA4_CLIENT_SECRET: 'client-secret',
+      GA4_REFRESH_TOKEN: 'refresh-token',
+      GA4_API_VERSION: 'v1beta',
+    },
+  },
+);
+assert.equal(readJson(ga4ReportLivePath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
 
 console.log('Google Ads artifact contract tests passed.');
 cleanupTempDir();
