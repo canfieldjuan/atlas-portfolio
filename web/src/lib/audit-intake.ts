@@ -34,11 +34,15 @@ export type AuditIntakeRecord = AuditIntakePayload & {
 export type AuditIntakeDelivery = 'database' | 'webhook' | 'atlas-crm-event' | 'email' | 'file';
 
 const DEFAULT_AUDIT_FILE_PATH = '/tmp/atlas-portfolio-audit-requests.ndjson';
+// 'file' is intentionally NOT in this set: the file fallback writes to /tmp, which
+// is ephemeral on Vercel (the function dies, the file dies). Counting it as
+// persistent would mute the "no persistent sink" warning when only the file
+// fallback succeeded, giving operators a false sense the submission was durably
+// stored. The warning is the prompt to configure database/webhook/Atlas instead.
 const PERSISTENT_DELIVERIES: AuditIntakeDelivery[] = [
   'database',
   'webhook',
   'atlas-crm-event',
-  'file',
 ];
 
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
