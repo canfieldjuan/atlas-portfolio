@@ -126,8 +126,17 @@ export async function googleAdsSearch(accessToken, apiVersion, customerId, query
     }
 
     const nextPageToken = payload.nextPageToken || '';
-    if (!nextPageToken || nextPageToken === pageToken) {
+    if (!nextPageToken) {
       return aggregated;
+    }
+    if (nextPageToken === pageToken) {
+      // The API returned the same nextPageToken it just received. That is either an
+      // API quirk or a malformed response, but in both cases continuing or returning
+      // would silently truncate results. Fail closed — silent data loss is the failure
+      // mode this pagination loop exists to eliminate.
+      throw new Error(
+        `${label} returned the same nextPageToken twice in a row; refusing to risk silent truncation.`,
+      );
     }
     if (pagesFetched >= maxPages) {
       throw new Error(`${label} exceeded the ${maxPages}-page safety cap; refusing to follow more pages.`);
