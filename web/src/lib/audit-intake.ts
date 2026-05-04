@@ -1,5 +1,5 @@
 import { appendFile, mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname } from 'node:path';
 import { persistAuditIntakeRecord } from './audit-intake-database';
 
 export type AuditIntakePayload = {
@@ -52,13 +52,38 @@ function configuredAuditFilePath() {
   return process.env.AUDIT_INTAKE_FILE_PATH?.trim() || DEFAULT_AUDIT_FILE_PATH;
 }
 
+function normalizePosixPathForDurabilityCheck(path: string) {
+  const absolute = path.startsWith('/');
+  const segments: string[] = [];
+
+  for (const segment of path.split('/')) {
+    if (!segment || segment === '.') {
+      continue;
+    }
+    if (segment === '..') {
+      if (segments.length > 0 && segments[segments.length - 1] !== '..') {
+        segments.pop();
+      } else if (!absolute) {
+        segments.push(segment);
+      }
+      continue;
+    }
+    segments.push(segment);
+  }
+
+  if (absolute) {
+    return `/${segments.join('/')}`;
+  }
+  return segments.join('/') || '.';
+}
+
 function fileDeliveryIsDurable() {
   // Resolve the configured path so aliases like `/var/../tmp/audit.ndjson` are
   // collapsed to `/tmp/audit.ndjson` before the prefix check; otherwise an
   // operator could accidentally suppress the "no persistent sink" warning by
   // configuring a path that loops back into ephemeral storage.
-  const resolved = resolve(configuredAuditFilePath());
-  return resolved !== '/tmp' && !resolved.startsWith('/tmp/');
+  const normalized = normalizePosixPathForDurabilityCheck(configuredAuditFilePath());
+  return normalized !== '/tmp' && !normalized.startsWith('/tmp/');
 }
 
 function hasPersistentDelivery(deliveries: AuditIntakeDelivery[]) {
