@@ -16,15 +16,18 @@
 //   now advertise their own versions before the combiner can produce a funnel
 //   artifact. Legacy unversioned reports must be regenerated instead of silently
 //   feeding enablement readiness.
+// - GOOGLE_ADS_PERFORMANCE v2 / GA4_PERFORMANCE v2 / ADVERTISING_FUNNEL v2:
+//   reporting artifacts now require a canonical UTC ISO `generatedAt` timestamp
+//   and downstream gates reject stale artifacts by age.
 export const GOOGLE_ADS_ARTIFACT_VERSIONS = Object.freeze({
   PREFLIGHT: 2,
   CREATE_PAUSED: 3,
   STATUS: 2,
   READINESS: 2,
   ENABLE: 2,
-  GOOGLE_ADS_PERFORMANCE: 1,
-  GA4_PERFORMANCE: 1,
-  ADVERTISING_FUNNEL: 1,
+  GOOGLE_ADS_PERFORMANCE: 2,
+  GA4_PERFORMANCE: 2,
+  ADVERTISING_FUNNEL: 2,
 });
 
 export const GOOGLE_ADS_ARTIFACT_TYPES = Object.freeze(
@@ -38,6 +41,7 @@ export const GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS = Object.freeze({
 });
 
 const DEFAULT_FUTURE_SKEW_MINUTES = 5;
+const CANONICAL_UTC_ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 function versionForType(type) {
   if (!Object.prototype.hasOwnProperty.call(GOOGLE_ADS_ARTIFACT_VERSIONS, type)) {
@@ -79,9 +83,13 @@ export function validateArtifactFreshness(payload, label, type, options = {}) {
     return [`${label} must include generatedAt`];
   }
 
+  if (!CANONICAL_UTC_ISO_TIMESTAMP_PATTERN.test(generatedAt)) {
+    return [`${label} generatedAt must be a valid UTC ISO timestamp`];
+  }
+
   const generatedAtMs = Date.parse(generatedAt);
-  if (!Number.isFinite(generatedAtMs)) {
-    return [`${label} generatedAt must be a valid ISO timestamp`];
+  if (!Number.isFinite(generatedAtMs) || new Date(generatedAtMs).toISOString() !== generatedAt) {
+    return [`${label} generatedAt must be a valid UTC ISO timestamp`];
   }
 
   const nowMs = now.getTime();

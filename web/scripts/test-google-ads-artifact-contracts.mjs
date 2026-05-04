@@ -253,7 +253,16 @@ assert.deepEqual(
     GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
     { now: FIXED_NOW, maxAgeHours: 48 },
   ),
-  [artifactFreshnessError('test report', 'generatedAt must be a valid ISO timestamp')],
+  [artifactFreshnessError('test report', 'generatedAt must be a valid UTC ISO timestamp')],
+);
+assert.deepEqual(
+  validateArtifactFreshness(
+    { generatedAt: '04/07/2026' },
+    'test report',
+    GOOGLE_ADS_ARTIFACT_TYPES.GOOGLE_ADS_PERFORMANCE,
+    { now: FIXED_NOW, maxAgeHours: 48 },
+  ),
+  [artifactFreshnessError('test report', 'generatedAt must be a valid UTC ISO timestamp')],
 );
 assert.deepEqual(
   validateArtifactFreshness(
@@ -753,7 +762,7 @@ const combinerMalformedGa4Run = runScript(
 );
 assertStdoutContains(
   combinerMalformedGa4Run,
-  artifactFreshnessError('GA4 report', 'generatedAt must be a valid ISO timestamp'),
+  artifactFreshnessError('GA4 report', 'generatedAt must be a valid UTC ISO timestamp'),
 );
 
 const combinedFunnelPath = join(tempDir, 'advertising-funnel.json');
