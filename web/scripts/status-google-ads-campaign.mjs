@@ -156,13 +156,16 @@ function buildNextSteps(campaign, adGroups = [], ads = []) {
     };
   }
 
-  // A paused campaign cannot serve traffic if its ad groups or ads are also paused.
-  // Flipping campaign.status to ENABLED in that state would leave the campaign live
-  // but unable to deliver, which is the failure mode this gate must prevent.
-  const hasEnabledAdGroup = adGroups.some((adGroup) => adGroup.status === 'ENABLED');
-  const hasEnabledAd = ads.some((ad) => ad.status === 'ENABLED');
+  // A paused campaign cannot serve traffic unless at least one ENABLED ad group
+  // contains at least one ENABLED ad. Checking "any enabled ad group" and "any
+  // enabled ad" independently is insufficient — those can belong to different
+  // ad groups. The enabled ad has to live inside the enabled ad group for the
+  // hierarchy to actually serve once the campaign flips to ENABLED.
+  const enabledAdGroupNames = new Set(
+    adGroups.filter((adGroup) => adGroup.status === 'ENABLED').map((adGroup) => adGroup.name),
+  );
 
-  if (!hasEnabledAdGroup) {
+  if (enabledAdGroupNames.size === 0) {
     return {
       createPausedSafe: false,
       enableSafe: false,
@@ -170,11 +173,15 @@ function buildNextSteps(campaign, adGroups = [], ads = []) {
     };
   }
 
-  if (!hasEnabledAd) {
+  const hasServingPair = ads.some(
+    (ad) => ad.status === 'ENABLED' && enabledAdGroupNames.has(ad.adGroupName),
+  );
+
+  if (!hasServingPair) {
     return {
       createPausedSafe: false,
       enableSafe: false,
-      reason: 'no_enabled_ad',
+      reason: 'no_enabled_ad_in_enabled_ad_group',
     };
   }
 
