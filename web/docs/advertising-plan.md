@@ -119,7 +119,8 @@ Use this sequence for a real launch. Do not skip from create-paused to enablemen
 ```bash
 npm run ads:validate
 npm run ads:google:plan
-npm run ads:google:plan -- --check-env
+npm run ads:google:check-env
+npm run ads:ga4:check-env
 npm run ads:google:preflight -- --json --output /tmp/google-ads-preflight.json
 npm run ads:google:create-paused -- --dry-run --json --output /tmp/google-ads-create-paused-plan.json
 npm run ads:google:create-paused -- --preflight-result /tmp/google-ads-preflight.json --confirm-create-paused --output /tmp/google-ads-create-paused-result.json
@@ -150,7 +151,7 @@ npm run ads:google:plan
 Check local Google Ads API credentials only. This skips campaign spec validation and does not create anything:
 
 ```bash
-npm run ads:google:plan -- --check-env
+npm run ads:google:check-env
 ```
 
 Run the read-only Google Ads API preflight. This refreshes OAuth, lists accessible customers, and verifies the configured customer can be queried without creating or changing campaigns:
@@ -205,6 +206,12 @@ Preview the GA4 landing-page and conversion-event report without credentials or 
 
 ```bash
 npm run ads:ga4:report -- --dry-run
+```
+
+Check local GA4 Data API credentials only. This does not load the campaign spec, refresh OAuth, or run GA4 reports:
+
+```bash
+npm run ads:ga4:check-env
 ```
 
 Pull read-only GA4 campaign landing-page traffic and audit-request events:

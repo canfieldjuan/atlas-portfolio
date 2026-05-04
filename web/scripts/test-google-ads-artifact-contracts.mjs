@@ -802,6 +802,78 @@ runScript('report-ga4-performance.mjs', ['--dry-run', '--json', '--output', ga4R
 assert.equal(readJson(ga4ReportDryRunPath).artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.GA4_PERFORMANCE);
 assert.equal(typeof readJson(ga4ReportDryRunPath).generatedAt, 'string');
 
+const ga4MissingEnvRun = runScript(
+  'report-ga4-performance.mjs',
+  ['--check-env', '--json'],
+  1,
+  {
+    env: {
+      GA4_PROPERTY_ID: '',
+      GA4_CLIENT_ID: '',
+      GA4_CLIENT_SECRET: '',
+      GA4_REFRESH_TOKEN: '',
+      GA4_API_VERSION: '',
+    },
+  },
+);
+const ga4MissingEnvPayload = JSON.parse(ga4MissingEnvRun.stdout);
+assert.equal(ga4MissingEnvPayload.mode, 'GA4_ENV_CHECK');
+assert.equal(ga4MissingEnvPayload.apiCalls, false);
+assert.equal(ga4MissingEnvPayload.mutations, false);
+assert.equal(ga4MissingEnvPayload.env.ok, false);
+assert.deepEqual(ga4MissingEnvPayload.env.missing, [
+  'GA4_PROPERTY_ID',
+  'GA4_CLIENT_ID',
+  'GA4_CLIENT_SECRET',
+  'GA4_REFRESH_TOKEN',
+]);
+assert.deepEqual(ga4MissingEnvPayload.env.invalid, []);
+
+const ga4MalformedEnvRun = runScript(
+  'report-ga4-performance.mjs',
+  ['--check-env', '--json'],
+  1,
+  {
+    env: {
+      GA4_PROPERTY_ID: 'not-a-property-id',
+      GA4_CLIENT_ID: 'client-id',
+      GA4_CLIENT_SECRET: 'client-secret',
+      GA4_REFRESH_TOKEN: 'refresh-token',
+      GA4_API_VERSION: 'v1beta',
+    },
+  },
+);
+const ga4MalformedEnvPayload = JSON.parse(ga4MalformedEnvRun.stdout);
+assert.equal(ga4MalformedEnvPayload.mode, 'GA4_ENV_CHECK');
+assert.equal(ga4MalformedEnvPayload.env.ok, false);
+assert.deepEqual(ga4MalformedEnvPayload.env.missing, []);
+assert.deepEqual(ga4MalformedEnvPayload.env.invalid, ['GA4_PROPERTY_ID']);
+
+const ga4EnvCheckPath = join(tempDir, 'ga4-env-check-output.json');
+const ga4CompleteEnvRun = runScript(
+  'report-ga4-performance.mjs',
+  ['--check-env', '--json', '--output', ga4EnvCheckPath],
+  0,
+  {
+    env: {
+      GA4_PROPERTY_ID: '123456789',
+      GA4_CLIENT_ID: 'client-id',
+      GA4_CLIENT_SECRET: 'client-secret',
+      GA4_REFRESH_TOKEN: 'refresh-token',
+      GA4_API_VERSION: 'v1beta',
+    },
+  },
+);
+const ga4CompleteEnvPayload = JSON.parse(ga4CompleteEnvRun.stdout);
+assert.equal(ga4CompleteEnvPayload.mode, 'GA4_ENV_CHECK');
+assert.equal(ga4CompleteEnvPayload.apiCalls, false);
+assert.equal(ga4CompleteEnvPayload.mutations, false);
+assert.equal(ga4CompleteEnvPayload.env.ok, true);
+assert.deepEqual(ga4CompleteEnvPayload.env.missing, []);
+assert.deepEqual(ga4CompleteEnvPayload.env.invalid, []);
+assert.equal(readJson(ga4EnvCheckPath).mode, 'GA4_ENV_CHECK');
+assert.equal(readJson(ga4EnvCheckPath).env.ok, true);
+
 const googleAdsFetchMockPath = writeJson('mock-google-ads-fetch.mjs', {});
 writeFileSync(
   googleAdsFetchMockPath,

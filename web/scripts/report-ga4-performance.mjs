@@ -16,6 +16,7 @@ function printUsage() {
 
 Usage:
   npm run ads:ga4:report
+  npm run ads:ga4:report -- --check-env
   npm run ads:ga4:report -- --dry-run
   npm run ads:ga4:report -- --json
   npm run ads:ga4:report -- --days 14 --output /tmp/ga4-performance.json
@@ -25,13 +26,14 @@ Options:
   --event-name <name>    Conversion event to filter; default ${DEFAULT_CONVERSION_EVENT}
   --days <number>        Date window ending at --end-date or today; default ${DEFAULT_DAYS}, max ${MAX_DAYS}
   --end-date <YYYY-MM-DD>
-  --output <path>        Write the report JSON artifact
+  --output <path>        Write the report/env-check JSON artifact
   --json                 Print machine-readable JSON
+  --check-env            Check GA4 credentials without loading campaign spec or making API calls
   --dry-run              Build request payloads without API calls
   --debug-errors         Include sanitized upstream API error messages
 
 Safety:
-  This command is read-only. It only refreshes OAuth and calls GA4 Data API runReport.`);
+  This command is read-only. --check-env only inspects local env. Report mode refreshes OAuth and calls GA4 Data API runReport.`);
 }
 
 function envValue(name) {
@@ -40,11 +42,63 @@ function envValue(name) {
 
 function validateGa4Env() {
   const missing = REQUIRED_GA4_ENV.filter((name) => !envValue(name));
+  const invalid = [];
+  if (envValue('GA4_PROPERTY_ID') && !normalizePropertyId(envValue('GA4_PROPERTY_ID'))) {
+    invalid.push('GA4_PROPERTY_ID');
+  }
   return {
-    ok: missing.length === 0,
+    ok: missing.length === 0 && invalid.length === 0,
     missing,
+    invalid,
     present: [...REQUIRED_GA4_ENV, ...OPTIONAL_GA4_ENV].filter((name) => envValue(name)),
   };
+}
+
+function invalidEnvErrors(envStatus) {
+  return (envStatus.invalid || []).map((name) => `${name} must contain at least one digit.`);
+}
+
+async function printEnvCheck(envStatus, outputJson, outputPath) {
+  let payload = {
+    mode: 'GA4_ENV_CHECK',
+    apiCalls: false,
+    mutations: false,
+    env: {
+      checked: true,
+      ok: envStatus.ok,
+      present: envStatus.present,
+      missing: envStatus.missing,
+      invalid: envStatus.invalid,
+    },
+  };
+
+  if (outputPath) {
+    payload = {
+      ...payload,
+      outputPath: await writeJsonArtifact(outputPath, payload),
+    };
+  }
+
+  if (outputJson) {
+    console.log(JSON.stringify(payload, null, 2));
+    return;
+  }
+
+  console.log('GA4 environment check');
+  console.log('API calls: disabled');
+  console.log('Report generation: skipped');
+  console.log(`Env ready: ${envStatus.ok ? 'yes' : 'no'}`);
+  if (!envStatus.ok) {
+    if (envStatus.missing.length) {
+      console.log(`Missing env: ${envStatus.missing.join(', ')}`);
+    }
+    if (envStatus.invalid.length) {
+      console.log(`Invalid env: ${envStatus.invalid.join(', ')}`);
+    }
+  }
+  if (payload.outputPath) {
+    console.log(`Env check artifact: ${payload.outputPath}`);
+  }
 }
 
 function ga4ApiVersion() {
@@ -269,6 +323,7 @@ async function main() {
   const { values, flags } = parseArgs(process.argv.slice(2));
   const outputJson = flags.has('--json');
   const dryRun = flags.has('--dry-run');
+  const checkEnv = flags.has('--check-env');
   const debugErrors = flags.has('--debug-errors');
   const outputPath = values.get('--output');
 
@@ -281,6 +336,12 @@ async function main() {
   }
   if (isBareFlag({ values, flags }, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
+  }
+
+  const envStatus = validateGa4Env();
+  if (checkEnv) {
+    await printEnvCheck(envStatus, outputJson, outputPath);
+    process.exit(envStatus.ok ? 0 : 1);
   }
 
   const { campaign } = await loadCampaignSpec();
@@ -330,7 +391,6 @@ async function main() {
     return;
   }
 
-  const envStatus = validateGa4Env();
   if (!envStatus.ok) {
     fail('GA4 environment is incomplete.', outputJson, {
       mode: 'GA4_PERFORMANCE_REPORT',
@@ -338,6 +398,7 @@ async function main() {
       mutations: false,
       missing: envStatus.missing,
       present: envStatus.present,
+      errors: invalidEnvErrors(envStatus),
     });
   }
   if (!propertyId) {
