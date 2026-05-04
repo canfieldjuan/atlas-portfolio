@@ -75,6 +75,9 @@ function validateCreateResult(payload) {
   if (payload?.campaign?.status !== 'PAUSED') {
     errors.push('Created campaign must still be recorded as PAUSED');
   }
+  if (!payload?.campaign?.id || !/^\d+$/.test(String(payload.campaign.id))) {
+    errors.push('Create result must include numeric campaign.id (artifact contract v2)');
+  }
 
   const resourceTypes = requiredResourceTypes(payload?.createdResources);
   for (const type of ['campaignBudget', 'campaign', 'adGroup', 'keyword', 'negativeKeyword', 'responsiveSearchAd']) {
@@ -118,6 +121,16 @@ function validateStatusResult(payload, createResult) {
   }
   if (payload?.campaignName !== createResult?.campaign?.name) {
     errors.push('Status result campaignName must match the create-result campaign name');
+  }
+  if (!payload?.campaign?.id || !/^\d+$/.test(String(payload.campaign.id))) {
+    errors.push('Status result must include numeric campaign.id (artifact contract v2)');
+  }
+  if (
+    payload?.campaign?.id &&
+    createResult?.campaign?.id &&
+    String(payload.campaign.id) !== String(createResult.campaign.id)
+  ) {
+    errors.push('Status result campaign.id must match the create-result campaign.id (defends against name-collision substitution)');
   }
   if (payload?.targetCustomerId !== createResult?.targetCustomerId) {
     errors.push('Status result targetCustomerId must match the create-result targetCustomerId');
@@ -175,6 +188,7 @@ function buildReadinessPayload({
       apiVersion: createResult.apiVersion || '',
       targetCustomerId: createResult.targetCustomerId || '',
       targetCustomerFingerprint: createResult.targetCustomerFingerprint || '',
+      campaignId: String(createResult.campaign?.id || ''),
       campaignName: createResult.campaign?.name || '',
       campaignStatus: createResult.campaign?.status || '',
       dailyBudgetUsd: createResult.campaign?.dailyBudgetUsd ?? null,
@@ -185,6 +199,7 @@ function buildReadinessPayload({
       apiVersion: statusResult.apiVersion || '',
       targetCustomerId: statusResult.targetCustomerId || '',
       targetCustomerFingerprint: statusResult.targetCustomerFingerprint || '',
+      campaignId: String(statusResult.campaign?.id || ''),
       campaignFound: statusResult.campaignFound === true,
       campaignStatus: statusResult.campaign?.status || '',
       budgetAmountUsd: statusResult.campaign?.budget?.amountUsd ?? null,
