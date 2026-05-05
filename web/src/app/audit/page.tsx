@@ -205,10 +205,10 @@ const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCo
 const llmGatewayCopy = {
   title: 'Request Atlas LLM Gateway access.',
   intro:
-    'Send the LLM workload context I need to decide whether Atlas LLM Gateway is a fit. I review current Claude usage, async batchable traffic, BYOK readiness, expected volume, security constraints, and whether a flat-tier gateway makes sense before offering access.',
+    'Send the LLM workload context I need to decide whether Atlas LLM Gateway is a fit. I review current Claude or OpenRouter usage, repeat prompts, async batchable traffic, BYOK readiness, expected volume, security constraints, budget controls, and whether a flat-tier gateway makes sense before offering access.',
   startCta: 'Start the gateway brief',
   nextStepCopy:
-    'I review completed requests within 48 hours. If there is a fit, the next step is an Atlas LLM Gateway access conversation: BYOK setup, traffic profile, batch candidate review, and the right flat monthly tier.',
+    'I review completed requests within 48 hours. If there is a fit, the next step is an Atlas LLM Gateway access conversation: BYOK setup, traffic profile, cache and batch candidates, reconciliation needs, budget guardrails, and the right flat monthly tier.',
   noPaymentDetail:
     'This is a gateway access request. No provider key or payment is collected in this form.',
   budgetCriterion: 'A realistic monthly budget path for gateway access if there is fit',
@@ -332,9 +332,9 @@ function AuditPageContent() {
     : isLlmGatewayContext
     ? {
         bottleneckHelper:
-          'Be concrete: which LLM jobs are expensive, which ones can wait, and what you currently do for retries, usage tracking, and provider-key management.',
+          'Be concrete: which LLM jobs are expensive, which prompts repeat, which calls can wait, and what you currently do for retries, usage tracking, reconciliation, budgets, and provider-key management.',
         bottleneckPlaceholder:
-          'We run Claude for evals and enrichment jobs, but everything is synchronous and we do not have per-customer usage visibility...',
+          'We run Claude for evals and enrichment jobs, repeat similar prompts, and do not have per-customer usage visibility or budget enforcement...',
         dataSourcesHelper:
           'Name the LLM workloads and traffic types: chat, streaming, evals, enrichment, report jobs, backfills, agents, or batch content generation.',
         dataSourcesPlaceholder:
@@ -348,9 +348,9 @@ function AuditPageContent() {
         deploymentPlaceholder:
           'BYOK only, no raw prompt retention without approval, per-customer usage isolation required, streaming needed for product chat...',
         roiHelper:
-          'Optional, but useful: monthly Claude spend, percent of traffic that can be async, desired savings, or platform time you want to avoid building.',
+          'Optional, but useful: monthly LLM spend, repeated-prompt volume, percent of traffic that can be async, desired savings, or platform time you want to avoid building.',
         roiPlaceholder:
-          'e.g. $8k/month Claude spend, 40% async jobs, want batch savings without building usage/billing infra',
+          'e.g. $8k/month Claude spend, 30% repeat prompts, 40% async jobs, want cost controls without building gateway infra',
         investmentHelper: llmGatewayCopy.investmentHelper,
       }
     : {

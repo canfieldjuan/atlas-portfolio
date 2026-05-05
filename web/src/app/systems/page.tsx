@@ -93,24 +93,24 @@ const systems: SystemEntry[] = [
     href: '/systems/atlas-llm-gateway',
     hrefLabel: 'View the landing page',
     summary:
-      'A hosted BYOK gateway for teams already using Claude, built to route chat, streaming, and batch traffic through one account-scoped API surface.',
+      'A hosted BYOK gateway for teams running Claude or OpenRouter traffic, built to bundle cache, batch, reconciliation, budget guards, routing, and usage tracking behind one account-scoped API surface.',
     customerData: [
       'Anthropic provider account and BYOK API key',
-      'Async LLM workloads such as evals, enrichment, backfills, reports, or content generation',
+      'Repeat prompts and async LLM workloads such as evals, enrichment, backfills, reports, or content generation',
       'Production callers that need stable API keys instead of dashboard sessions',
       'Account, workspace, or customer boundaries for usage tracking',
     ],
     builtCore: [
-      'Chat, streaming, and Anthropic batch gateway endpoints',
+      'Chat, streaming, Anthropic batch, exact-cache, and semantic-cache gateway paths',
       'Encrypted provider-key storage and server-side key resolution',
-      'Plan gates, rate limits, idempotency, and account-scoped usage rows',
-      'Usage rollups that separate synchronous and batch-discount traffic',
+      'Plan gates, rate limits, idempotency, runtime budget guards, and account-scoped usage rows',
+      'Usage rollups that separate cache, synchronous, batch, and provider-reconciled spend',
     ],
     outputs: [
       'Hosted LLM Gateway API',
       'BYOK key management path',
-      'Batch-cost visibility',
-      'Per-account usage and plan controls',
+      'Cache and batch-cost visibility',
+      'Per-account budgets, usage, reconciliation, and plan controls',
     ],
   },
 ];

@@ -25,21 +25,23 @@ const gatewayHref = buildAuditHref({
 });
 
 const heroStats = [
-  { label: 'WEDGE', value: 'Batch-priced Claude traffic' },
+  { label: 'WEDGE', value: 'Integrated LLM cost control' },
   { label: 'MODEL', value: 'BYOK + flat monthly tier' },
-  { label: 'SURFACE', value: 'Hosted API + usage rollups' },
+  { label: 'SURFACE', value: 'Hosted API + cost rollups' },
 ];
 
 const painPoints = [
+  'skip duplicate prompts',
+  'catch semantic near-duplicates',
   'submit batch jobs',
   'poll terminal status',
-  'parse result streams',
-  'match custom IDs',
+  'reconcile provider bills',
+  'enforce runtime budgets',
+  'route between providers',
   'retry safely',
   'track per-account spend',
   'gate by plan',
   'store customer keys',
-  'explain provider bills',
   'avoid cross-tenant leakage',
 ];
 
@@ -67,7 +69,7 @@ const endpoints = [
   {
     method: 'GET',
     path: '/api/v1/llm/usage',
-    detail: 'Per-account token and cost rollups, including batch-discount visibility.',
+    detail: 'Per-account token and cost rollups across cache hits, synchronous calls, and batch traffic.',
   },
   {
     method: 'POST',
@@ -76,26 +78,31 @@ const endpoints = [
   },
 ];
 
-const savingsFlow = [
+const controlLayers = [
   {
-    title: 'Keep real-time traffic real-time',
+    title: 'Exact + semantic cache',
     detail:
-      'Chat and streaming calls still route through low-latency endpoints when the user is waiting.',
+      'Skip paid calls when the same prompt or a near-duplicate request has already been answered.',
   },
   {
-    title: 'Move async work to batch',
+    title: 'Anthropic batch',
     detail:
-      'Backfills, evals, enrichment, report jobs, and non-interactive generation can use Anthropic Message Batches.',
+      'Move async traffic like evals, enrichment, backfills, and report jobs onto lower-cost batch execution.',
   },
   {
-    title: 'Hide the batch plumbing',
+    title: 'Provider reconciliation',
     detail:
-      'Atlas handles submit, poll, terminal state, result matching, idempotency, and usage capture.',
+      'Compare the gateway ledger against actual Anthropic and OpenRouter billing instead of trusting local counters blindly.',
   },
   {
-    title: 'Show the discount in usage',
+    title: 'Runtime budget guards',
     detail:
-      'Your usage dashboard separates synchronous and batch traffic so the savings path is visible.',
+      'Block calls before they push an account or workload over its configured spend ceiling.',
+  },
+  {
+    title: 'Multi-provider routing',
+    detail:
+      'Start Claude-first, then route through Anthropic and OpenRouter as traffic and policy needs mature.',
   },
 ];
 
@@ -112,8 +119,8 @@ const substrateFeatures = [
   },
   {
     icon: <LineChart className="w-5 h-5" />,
-    title: 'Per-account usage',
-    detail: 'Token, cost, provider, and batch rollups are scoped to the account that made the call.',
+    title: 'Per-account cost ledger',
+    detail: 'Token, cost, provider, cache, and batch rollups are scoped to the account that made the call.',
   },
   {
     icon: <ShieldCheck className="w-5 h-5" />,
@@ -128,7 +135,7 @@ const substrateFeatures = [
   {
     icon: <Gauge className="w-5 h-5" />,
     title: 'Cost-control substrate',
-    detail: 'The gateway sits on routing, cache, tracing, reconciliation, and budget-guard infrastructure.',
+    detail: 'Exact cache, semantic cache, batch execution, reconciliation, budget guards, and routing live together.',
   },
 ];
 
@@ -136,21 +143,21 @@ const tierCards = [
   {
     title: 'Trial',
     label: 'VALIDATE FIT',
-    detail: 'Confirm the API shape, BYOK setup, usage visibility, and batch workflow on a limited tier.',
+    detail: 'Confirm the API shape, BYOK setup, cache behavior, usage visibility, and batch workflow on a limited tier.',
     cta: 'Request trial access',
     offer: 'llm-gateway-access',
   },
   {
     title: 'Starter',
     label: 'FIRST PRODUCTION JOBS',
-    detail: 'For small teams moving evals, enrichment, and backfills off synchronous Claude calls.',
+    detail: 'For small teams moving duplicate prompts and async jobs off full-price synchronous calls.',
     cta: 'Discuss Starter',
     offer: 'llm-gateway-starter',
   },
   {
     title: 'Growth',
     label: 'HIGHER VOLUME',
-    detail: 'For teams with steady async LLM workloads and a real need for account-level usage controls.',
+    detail: 'For teams with steady LLM traffic that need account-level usage, cache, budget, and reconciliation controls.',
     cta: 'Discuss Growth',
     offer: 'llm-gateway-growth',
     highlighted: true,
@@ -158,7 +165,7 @@ const tierCards = [
   {
     title: 'Pro',
     label: 'PLATFORM TEAM',
-    detail: 'For production teams that need higher limits, stronger review, and routing intelligence next.',
+    detail: 'For production teams that need higher limits, stronger review, and deeper provider-routing intelligence.',
     cta: 'Discuss Pro',
     offer: 'llm-gateway-pro',
   },
@@ -166,14 +173,14 @@ const tierCards = [
 
 const fit = [
   'You already use Claude or plan to use Claude in production.',
-  'Some traffic is async: evals, backfills, enrichment, scoring, report jobs, or batch content generation.',
-  'You want provider-key ownership without building key storage, usage tables, plan gates, and billing plumbing.',
-  'You need usage visibility per customer, workspace, account, or product area.',
+  'You have repeat prompts, async jobs, or provider bills large enough for cache and batch savings to matter.',
+  'You want provider-key ownership without building key storage, usage tables, budget gates, reconciliation, and billing plumbing.',
+  'You need cost visibility per customer, workspace, account, or product area.',
 ];
 
 const notFit = [
-  'Every request is user-facing and must stream immediately.',
-  'You need provider-agnostic routing across every model on day one.',
+  'Every request is unique, user-facing, and must stream immediately.',
+  'You only need a thin provider proxy without cache, reconciliation, or budget controls.',
   'You need SOC 2, custom deployment, or enterprise procurement before an MVP trial.',
   'You are trying to avoid having your own provider account or BYOK setup.',
 ];
@@ -181,11 +188,11 @@ const notFit = [
 const faqs = [
   {
     q: 'Is this a model provider?',
-    a: 'No. Atlas LLM Gateway starts as a hosted BYOK gateway. You keep your Anthropic key and provider relationship; Atlas adds the API surface, plan gates, usage tracking, and batch workflow around it.',
+    a: 'No. Atlas LLM Gateway starts as a hosted BYOK gateway. You keep your provider relationship; Atlas adds the API surface, cache, batch execution, plan gates, usage tracking, reconciliation, and budget controls around it.',
   },
   {
-    q: 'Where does the 50% savings come from?',
-    a: 'The wedge is Anthropic Message Batches. Batch traffic is priced lower than synchronous traffic, but the native batch workflow is awkward. Atlas makes that path usable without every customer rebuilding submit, poll, retry, result matching, and usage accounting.',
+    q: 'Where do the savings come from?',
+    a: 'The first visible wedge is Anthropic Message Batches for traffic that can wait. The broader savings surface also includes exact cache, semantic cache, provider-billing reconciliation, and runtime budget guards that stop spend before it drifts.',
   },
   {
     q: 'Do I have to rewrite my whole app?',
@@ -193,7 +200,7 @@ const faqs = [
   },
   {
     q: 'Is OpenRouter supported?',
-    a: 'The MVP is Claude-first with Anthropic BYOK. OpenRouter and additional routing intelligence are planned expansion surfaces after the gateway has real customer traffic flowing through it.',
+    a: 'The product is Claude-first and designed around Anthropic plus OpenRouter routing. Together, Groq, and other providers are later expansion paths when customer traffic justifies them.',
   },
   {
     q: 'How is Atlas paid if customers bring their own keys?',
@@ -243,7 +250,7 @@ function GatewayDiagram() {
           WEDGE
         </div>
         <p className="text-sm text-foreground/65 leading-relaxed">
-          Keep synchronous calls for interactive UX. Send async work through batch and make the savings visible.
+          Keep synchronous calls for interactive UX. Route the rest through cache, batch, reconciliation, and budget controls.
         </p>
       </div>
     </div>
@@ -270,14 +277,14 @@ export default function AtlasLlmGatewayPage() {
                 <span>ATLAS LLM GATEWAY</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
-                Cut the Claude bill for work that{' '}
-                <span className="gradient-text">doesn&apos;t need to be real-time.</span>
+                Stop treating LLM cost control like{' '}
+                <span className="gradient-text">five separate projects.</span>
               </h1>
               <p className="text-lg text-foreground/60 leading-relaxed mb-4">
-                Atlas LLM Gateway is a hosted BYOK API for teams already using Anthropic. Route chat, streaming, and batch traffic through one gateway, track usage per account, and use Anthropic&apos;s batch discount without building batch infrastructure yourself.
+                Atlas LLM Gateway is a hosted BYOK API for production teams that need cost-aware model access without building the platform layer themselves. Cache repeat work, route async traffic through batch, reconcile against provider billing, enforce budgets, and track usage per account.
               </p>
               <p className="text-sm text-foreground/45 leading-relaxed mb-8">
-                Start with Claude. Keep your provider key. Pay Atlas for the gateway layer: API keys, plan gates, usage visibility, idempotency, and cost-control plumbing.
+                Start with Claude. Keep your provider key. Pay Atlas for the gateway layer: API keys, plan gates, exact and semantic cache, batch execution, usage visibility, reconciliation, budget guards, and idempotency.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
@@ -322,13 +329,13 @@ export default function AtlasLlmGatewayPage() {
               THE PROBLEM
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
-              Anthropic batch can save money. Most teams never wire it up.
+              The waste is not just model price. It is missing cost-control plumbing.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
-              The obvious optimization is simple: keep real-time product calls synchronous, but move offline jobs to Anthropic Message Batches. The integration is where teams stall.
+              Production LLM teams usually discover the same backlog: cache duplicate work, move offline jobs to batch, reconcile local usage against provider invoices, stop calls before budgets blow up, and route traffic as providers change.
             </p>
             <p className="text-foreground/65 leading-relaxed mb-8">
-              Once you account for all the surrounding infrastructure, the discount stops looking like one endpoint and starts looking like a platform project:
+              Each item is solvable. The problem is that solving them one at a time turns a model integration into an internal platform project:
             </p>
             <div className="flex flex-wrap gap-2">
               {painPoints.map((point) => (
@@ -348,15 +355,15 @@ export default function AtlasLlmGatewayPage() {
                 THE WEDGE
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-                Pay less for the traffic that can wait.
+                One gateway for the five controls teams keep rebuilding.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
-                The first sale is not &quot;replace your model stack.&quot; It is sharper: you already pay Anthropic, and a meaningful slice of that traffic does not need to be real-time. Atlas makes the batch path normal enough to use.
+                The first conversation can still be simple: you are already paying Anthropic, and part of that traffic can run cheaper through batch. But the locked product wedge is bigger than batch alone: the cost controls work together instead of living in five disconnected tools.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {savingsFlow.map((step, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {controlLayers.map((step, index) => (
                 <motion.div
                   key={step.title}
                   initial={{ opacity: 0, y: 20 }}
@@ -384,7 +391,7 @@ export default function AtlasLlmGatewayPage() {
                 A small gateway surface around the calls teams already make.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
-                The MVP is Claude-first. It gives production scripts a stable Atlas API key, resolves the customer&apos;s Anthropic key server-side, writes account-scoped usage, and keeps batch retries safe.
+                The MVP is Claude-first and built for Anthropic plus OpenRouter routing. It gives production scripts a stable Atlas API key, resolves the customer&apos;s provider key server-side, writes account-scoped usage, and keeps retries safe.
               </p>
             </div>
 
@@ -426,7 +433,7 @@ export default function AtlasLlmGatewayPage() {
                 The boring infrastructure is the product.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
-                Batch savings get the conversation. The reason teams stay is that Atlas removes the infrastructure every production AI team eventually has to build.
+                Batch savings get the conversation. The reason teams stay is that cache, routing, usage, reconciliation, and budget enforcement are bundled into the same gateway.
               </p>
             </div>
 
@@ -489,7 +496,7 @@ export default function AtlasLlmGatewayPage() {
                 Flat monthly tiers, no token markup conversation.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
-                The MVP is sold as gateway access. You keep provider billing with Anthropic, then pay Atlas for the gateway layer that makes batch, usage, BYOK, and plan controls operational.
+                The MVP is sold as gateway access. You keep provider billing with Anthropic or OpenRouter, then pay Atlas for the gateway layer that makes cache, batch, usage, BYOK, reconciliation, budgets, and plan controls operational.
               </p>
             </div>
 
@@ -531,10 +538,10 @@ export default function AtlasLlmGatewayPage() {
                   WHAT COMES NEXT
                 </div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
-                  Batch is the wedge. Routing intelligence is the expansion.
+                  Batch opens the door. Cost intelligence expands the account.
                 </h2>
                 <p className="text-sm text-foreground/60 leading-relaxed">
-                  Once your LLM traffic flows through Atlas, the next layer is automatic batch-vs-sync routing, semantic caching, prompt-level observability, cost drift detection, and provider routing. The MVP starts where the ROI is easiest to prove.
+                  Once your LLM traffic flows through Atlas, the next layer is automatic batch-vs-sync arbitrage, prompt-level observability, smarter cache policies, and provider routing by cost, latency, and reliability. The MVP starts where ROI is easiest to prove, then grows into routing intelligence.
                 </p>
               </div>
               <Link
@@ -577,7 +584,7 @@ export default function AtlasLlmGatewayPage() {
             <div className="flex items-start gap-4">
               <BadgeDollarSign className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-foreground/55 leading-relaxed">
-                No provider-key markup claim is hidden here: BYOK means provider billing stays yours. Atlas charges for the gateway infrastructure that makes lower-cost batchable traffic practical.
+                No provider-key markup claim is hidden here: BYOK means provider billing stays yours. Atlas charges for the gateway infrastructure that makes cache savings, batch savings, reconciliation, budgets, and routing practical.
               </p>
             </div>
             <Link
