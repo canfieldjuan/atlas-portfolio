@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Briefcase,
   CheckCircle2,
+  Database,
   FileText,
   LayoutTemplate,
   Loader2,
@@ -13,17 +14,20 @@ import {
   Play,
   RotateCcw,
   ScrollText,
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
 
-type StageId = 'extract' | 'angles' | 'approval' | 'assets';
+type StageId = 'data' | 'extract' | 'synthesis' | 'quality' | 'approval' | 'assets';
 
 const stages: { id: StageId; label: string; detail: string }[] = [
-  { id: 'extract', label: 'Signal Extraction', detail: 'Pulling pain points, language, and themes' },
-  { id: 'angles', label: 'Reasoning + Synthesis', detail: 'Turning signals into content angles' },
-  { id: 'approval', label: 'Approval Queue', detail: 'Flagging claims for human review' },
-  { id: 'assets', label: 'Final Assets', detail: 'Rendering blogs, emails, briefs, and posts' },
+  { id: 'data', label: 'Business Data', detail: 'Normalizing CRM, reviews, docs, and call notes into one usable source' },
+  { id: 'extract', label: 'Signal Extraction', detail: 'Pulling pain points, objections, buyer language, and repeated patterns' },
+  { id: 'synthesis', label: 'Reasoning + Synthesis', detail: 'Turning raw signals into claims, angles, and recommended content paths' },
+  { id: 'quality', label: 'Quality Gates', detail: 'Checking evidence, specificity, channel fit, and risk before anything moves forward' },
+  { id: 'approval', label: 'Human Approval', detail: 'Routing sensitive claims and publish decisions to the right reviewer' },
+  { id: 'assets', label: 'Final Content Assets', detail: 'Rendering blogs, emails, briefs, landing sections, and social posts' },
 ];
 
 type Scenario = {
@@ -33,8 +37,10 @@ type Scenario = {
   summary: string;
   inputLabel: string;
   inputs: string[];
+  normalizedInputs: string[];
   signals: string[];
-  angles: string[];
+  synthesis: string[];
+  qualityGates: string[];
   approvalNotes: string[];
   assets: {
     blog: { title: string; outline: string[] };
@@ -71,20 +77,31 @@ const scenarios: Scenario[] = [
       '"Pricing jumped 40% at renewal with no new value. We had to justify that to finance and could not."',
       '"Reporting was the dealbreaker. Exec team wanted dashboards, not CSV exports."',
     ],
+    normalizedInputs: [
+      'Source groups: churn surveys, NPS comments, renewal notes',
+      'Audience tags: mid-market operators, finance approvers, executive sponsors',
+      'Reusable source of truth: permissioning, AI workflow depth, pricing friction, reporting gaps',
+    ],
     signals: [
       'Pain: scaling past 50 seats breaks permissions and audit',
       'Objection: AI features feel surface-level, not workflow-deep',
       'Pricing trigger: 40% renewal increase without value delta',
-      'Decision driver: exec dashboard requirements, not feature parity',
+      'Decision driver: executive dashboard requirements, not feature parity',
     ],
-    angles: [
-      'Comparison: scaling-team workflow tooling at 50+ seats',
-      'Education: how AI features should be embedded vs bolted on',
-      'Procurement: how to justify renewal pricing internally',
+    synthesis: [
+      'Primary narrative: teams do not churn because they hate the tool; they churn when operations outgrow it',
+      'Best assets: comparison blog, downgraded-account email sequence, sales brief, enterprise landing section',
+      'Proof needed: product evidence for audit logs, dashboard screenshots, and renewal-value claims',
+    ],
+    qualityGates: [
+      'Evidence gate: every claim maps to at least one source excerpt or approved product proof',
+      'Specificity gate: generic AI claims removed unless tied to an actual workflow example',
+      'Risk gate: pricing and competitor references flagged before public use',
     ],
     approvalNotes: [
-      'Pricing claims need finance review before publishing',
-      'Competitor names redacted in public-facing assets',
+      'Finance reviews renewal-pricing language before publishing',
+      'Product marketing confirms audit-log and dashboard claims',
+      'Competitor names stay redacted in public-facing assets',
     ],
     assets: {
       blog: {
@@ -92,7 +109,7 @@ const scenarios: Scenario[] = [
         outline: [
           'The 50-seat wall: permissions, audit, and ownership',
           'When AI sidebars stop being useful',
-          'What dashboards exec teams actually need',
+          'What dashboards executive teams actually need',
           'Three signs your renewal pricing is no longer defensible',
         ],
       },
@@ -117,9 +134,9 @@ const scenarios: Scenario[] = [
         title: 'Top 5 churn drivers and counter-positions',
         bullets: [
           'Permissioning at scale — point to seat-level audit + role inheritance',
-          'AI surface vs workflow depth — show the 4 native workflows, not the chat sidebar',
+          'AI surface vs workflow depth — show the native workflows, not the chat sidebar',
           'Renewal pricing — lead with usage-based credit toward the new tier',
-          'Reporting depth — open the exec-dashboard view in the first call',
+          'Reporting depth — open the executive-dashboard view in the first call',
           'Procurement justification — provide the ROI worksheet, not a quote',
         ],
       },
@@ -130,7 +147,7 @@ const scenarios: Scenario[] = [
       },
       social: {
         platform: 'LinkedIn thread',
-        post: 'Three months of churn survey data from a mid-market SaaS. The #1 reason teams leave is not what the product team thinks. It is the 50-seat wall: permissions, audit, and exec reporting all break at the same point. Here is the pattern we kept seeing...',
+        post: 'Three months of churn survey data from a mid-market SaaS showed the same pattern: teams hit the 50-seat wall, then permissions, audit, and executive reporting all start to break. The content angle writes itself because the source data already did the hard part.',
       },
     },
   },
@@ -147,20 +164,31 @@ const scenarios: Scenario[] = [
       '"Honest people. Showed me the failed part and explained why it failed. I just wish they offered a maintenance plan."',
       '"Quote was fair but the financing options were not clear on the website. Found them on the call."',
     ],
+    normalizedInputs: [
+      'Source groups: public reviews, dispatch notes, offer pages, technician FAQs',
+      'Audience tags: emergency repair buyers, homeowners comparing quotes, maintenance-plan prospects',
+      'Reusable source of truth: pricing transparency, dispatch expectations, technician trust, financing clarity',
+    ],
     signals: [
       'Pain: pricing opacity before the visit',
       'Pain: dispatch window too wide',
       'Praise: technician transparency about failed parts',
       'Gap: maintenance plan and financing not surfaced on web',
     ],
-    angles: [
-      'Trust: what an HVAC visit actually costs and why',
-      'Operational: how same-day service really works behind the scenes',
-      'Offer: introducing the maintenance plan customers keep asking for',
+    synthesis: [
+      'Primary narrative: trust is won before the truck arrives',
+      'Best assets: pricing explainer blog, post-service email flow, local landing section, review-driven social post',
+      'Proof needed: approved price ranges, financing terms, dispatch-window policy, maintenance-plan details',
+    ],
+    qualityGates: [
+      'Accuracy gate: service pricing ranges must match owner-approved ranges',
+      'Compliance gate: financing language must avoid unsupported rate or approval claims',
+      'Privacy gate: public social content uses anonymized review language only',
     ],
     approvalNotes: [
-      'Pricing ranges need owner sign-off before publishing on web',
-      'Customer quotes anonymized in social posts',
+      'Owner signs off on pricing ranges before website copy ships',
+      'Operations confirms dispatch-window language',
+      'Customer quotes are anonymized in social posts',
     ],
     assets: {
       blog: {
@@ -176,7 +204,7 @@ const scenarios: Scenario[] = [
         name: 'Post-service follow-up + 6-month maintenance reminder',
         touches: [
           {
-            subject: 'Quick follow-up on yesterday\'s service call',
+            subject: "Quick follow-up on yesterday's service call",
             preview: 'A short note on what we replaced, why it failed, and what to watch for next.',
           },
           {
@@ -206,7 +234,7 @@ const scenarios: Scenario[] = [
       },
       social: {
         platform: 'Instagram post',
-        post: 'A customer asked us this week why an HVAC diagnostic costs what it does. Fair question. Here is what is in that fee — and why we credit it toward the repair if you go ahead. (Carousel: 4 slides.)',
+        post: 'A customer asked why an HVAC diagnostic costs what it does. Fair question. Here is what is in that fee, why it exists, and when it gets credited toward the repair.',
       },
     },
   },
@@ -223,20 +251,31 @@ const scenarios: Scenario[] = [
       '"They went with [other vendor] because we could not commit to an EU-hosted instance in Q3."',
       '"Closed-won. The signal extraction demo flipped them — that is what they had been trying to build internally."',
     ],
+    normalizedInputs: [
+      'Source groups: closed-won notes, closed-lost notes, procurement blockers, security artifacts',
+      'Audience tags: champions, VPs, procurement teams, legal reviewers',
+      'Reusable source of truth: SOC 2, DPA, data residency, demo moments, competitive losses',
+    ],
     signals: [
       'Blocker: SOC 2 + DPA gate procurement on most enterprise deals',
       'Competitive: data residency is a deciding factor for EU-exposed buyers',
       'Win driver: live demo of signal extraction outperforms slide-based pitches',
       'Loss pattern: hosting commitments lost three deals in Q3 alone',
     ],
-    angles: [
-      'Procurement: a vendor evaluation kit for security review teams',
-      'Competitive: how data residency commitments actually work in practice',
-      'Win/loss: what flipped 22 closed-won deals last quarter',
+    synthesis: [
+      'Primary narrative: procurement speed is a sales advantage, not an afterthought',
+      'Best assets: security-review blog, procurement-blocked email sequence, competitor brief, regulated-industry landing section',
+      'Proof needed: confirmed hosting roadmap, approved DPA language, SOC 2 artifact list, CRM win/loss counts',
+    ],
+    qualityGates: [
+      'Evidence gate: win/loss numbers must match CRM before public use',
+      'Legal gate: DPA and SOC 2 language cannot imply guarantees outside approved docs',
+      'Competitive gate: competitor references are converted into neutral category language',
     ],
     approvalNotes: [
-      'Competitor names removed from any public-facing asset',
-      'Win-rate numbers verified against CRM before publishing',
+      'Legal reviews DPA and procurement language',
+      'Security confirms SOC 2 artifact list',
+      'Revenue team verifies win-rate numbers against CRM',
     ],
     assets: {
       blog: {
@@ -284,13 +323,37 @@ const scenarios: Scenario[] = [
       },
       social: {
         platform: 'LinkedIn post',
-        post: 'We pulled CRM notes from 47 deals last quarter — 22 closed-won, 25 closed-lost. The single biggest predictor of a closed-won was not feature fit. It was how fast we got through procurement. Here is what the winning deals had in common...',
+        post: 'CRM notes from 47 deals showed the same thing: the winning deals moved through procurement faster. The content opportunity is not another feature list. It is the security-review kit buyers already know they need.',
       },
     },
   },
 ];
 
 const STEP_INTERVAL_MS = 850;
+
+function StagePayload({ stageId, scenario }: { stageId: StageId; scenario: Scenario }) {
+  const payloadByStage: Partial<Record<StageId, string[]>> = {
+    data: scenario.normalizedInputs,
+    extract: scenario.signals,
+    synthesis: scenario.synthesis,
+    quality: scenario.qualityGates,
+    approval: scenario.approvalNotes,
+  };
+
+  const payload = payloadByStage[stageId];
+
+  if (!payload) return null;
+
+  return (
+    <div className="mt-3 pl-10 space-y-1">
+      {payload.map((item) => (
+        <p key={item} className="text-xs text-foreground/60 leading-relaxed">
+          — {item}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 export function ContentOpsDemo() {
   const [selectedId, setSelectedId] = useState(scenarios[0].id);
@@ -309,10 +372,7 @@ export function ContentOpsDemo() {
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      clearTimer();
     };
   }, []);
 
@@ -345,7 +405,6 @@ export function ContentOpsDemo() {
 
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
-      {/* Scenario selector — plain button group, not a full ARIA tab pattern */}
       <div role="group" aria-label="Demo scenarios" className="flex flex-col sm:flex-row border-b border-white/10">
         {scenarios.map((s) => {
           const isActive = s.id === selectedId;
@@ -370,16 +429,15 @@ export function ContentOpsDemo() {
         })}
       </div>
 
-      {/* Body */}
       <div className="p-6 md:p-8">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-white mb-2">{scenario.title}</h3>
           <p className="text-sm text-foreground/65 leading-relaxed">{scenario.summary}</p>
         </div>
 
-        {/* Input panel */}
         <div className="rounded-lg border border-white/10 bg-black/30 p-5 mb-6">
-          <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
+            <Database className="w-3.5 h-3.5" />
             INPUT — {scenario.inputLabel.toUpperCase()}
           </div>
           <div className="space-y-2">
@@ -391,7 +449,6 @@ export function ContentOpsDemo() {
           </div>
         </div>
 
-        {/* Run controls */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
           {runState === 'idle' && (
             <button
@@ -400,13 +457,13 @@ export function ContentOpsDemo() {
               className="group inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-colors text-sm"
             >
               <Play className="w-4 h-4" />
-              Run Sample Pipeline
+              Run Six-Step Pipeline
             </button>
           )}
           {runState === 'running' && (
             <div className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-white/[0.04] border border-white/10 text-sm text-foreground/70">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              Running pipeline…
+              Running controlled pipeline…
             </div>
           )}
           {runState === 'done' && (
@@ -424,7 +481,6 @@ export function ContentOpsDemo() {
           </p>
         </div>
 
-        {/* Pipeline stages */}
         <div className="space-y-2 mb-6">
           {stages.map((stage, i) => {
             const isActive = i === activeStep && runState === 'running';
@@ -456,7 +512,11 @@ export function ContentOpsDemo() {
                     {isActive ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : isComplete ? (
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      stage.id === 'quality' ? (
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                      ) : (
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      )
                     ) : (
                       <span className="text-[10px] font-mono">{String(i + 1).padStart(2, '0')}</span>
                     )}
@@ -479,51 +539,22 @@ export function ContentOpsDemo() {
                   </div>
                 </div>
 
-                {/* Mid-stage payload reveals */}
-                {isComplete && stage.id === 'extract' && (
-                  <div className="mt-3 pl-10 space-y-1">
-                    {scenario.signals.map((s) => (
-                      <p key={s} className="text-xs text-foreground/60 leading-relaxed">
-                        — {s}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                {isComplete && stage.id === 'angles' && (
-                  <div className="mt-3 pl-10 space-y-1">
-                    {scenario.angles.map((a) => (
-                      <p key={a} className="text-xs text-foreground/60 leading-relaxed">
-                        — {a}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                {isComplete && stage.id === 'approval' && (
-                  <div className="mt-3 pl-10 space-y-1">
-                    {scenario.approvalNotes.map((n) => (
-                      <p key={n} className="text-xs text-foreground/60 leading-relaxed">
-                        — {n}
-                      </p>
-                    ))}
-                  </div>
-                )}
+                {isComplete && <StagePayload stageId={stage.id} scenario={scenario} />}
               </div>
             );
           })}
         </div>
 
-        {/* Final assets */}
         {showAssets && (
           <div className="border-t border-white/10 pt-6">
             <div className="flex items-center gap-2 mb-5">
               <CheckCircle2 className="w-4 h-4 text-primary" />
               <div className="text-[10px] font-mono text-primary/80 tracking-widest">
-                FINAL ASSETS — APPROVED FOR REVIEW
+                FINAL CONTENT ASSETS — PASSED GATES + READY FOR APPROVED USE
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Blog */}
               <div className="rounded-lg border border-white/10 bg-black/30 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="w-4 h-4 text-primary" />
@@ -543,7 +574,6 @@ export function ContentOpsDemo() {
                 </ul>
               </div>
 
-              {/* Email */}
               <div className="rounded-lg border border-white/10 bg-black/30 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Mail className="w-4 h-4 text-primary" />
@@ -571,7 +601,6 @@ export function ContentOpsDemo() {
                 </div>
               </div>
 
-              {/* Sales brief */}
               <div className="rounded-lg border border-white/10 bg-black/30 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Briefcase className="w-4 h-4 text-primary" />
@@ -591,7 +620,6 @@ export function ContentOpsDemo() {
                 </ul>
               </div>
 
-              {/* Landing page section */}
               <div className="rounded-lg border border-white/10 bg-black/30 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <LayoutTemplate className="w-4 h-4 text-primary" />
@@ -610,7 +638,6 @@ export function ContentOpsDemo() {
                 </p>
               </div>
 
-              {/* Social — full width */}
               <div className="rounded-lg border border-white/10 bg-black/30 p-5 md:col-span-2">
                 <div className="flex items-center gap-2 mb-3">
                   <Megaphone className="w-4 h-4 text-primary" />
@@ -624,7 +651,6 @@ export function ContentOpsDemo() {
               </div>
             </div>
 
-            {/* Post-demo CTA */}
             <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <div className="text-sm font-semibold text-white mb-0.5">
@@ -656,7 +682,7 @@ export function ContentOpsDemo() {
         <div className="flex items-start gap-2 text-[11px] text-foreground/35 mt-6 leading-relaxed">
           <ScrollText className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>
-            Demo data is illustrative. Real engagements run on your own business data with the same pipeline shape.
+            Demo data is illustrative. Real engagements run on your own business data with the same six-step pipeline shape.
           </span>
         </div>
       </div>
