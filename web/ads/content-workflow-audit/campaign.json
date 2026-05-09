@@ -1,5 +1,5 @@
 {
-  "campaignName": "AI Content Workflow Audit - Search - US",
+  "campaignName": "AI Content Ops Discovery - Search - US",
   "channel": "SEARCH",
   "status": "PAUSED",
   "dailyBudgetUsd": 35,
@@ -10,19 +10,19 @@
   "utm": {
     "source": "google",
     "medium": "cpc",
-    "campaign": "ai_content_workflow_audit_search",
-    "content": "rsa_v1"
+    "campaign": "ai_content_ops_discovery_search",
+    "content": "rsa_v2"
   },
   "conversionGoal": "audit_request_submitted",
   "offer": {
-    "name": "AI Content Workflow Audit",
-    "priceUsd": 1500,
+    "name": "AI Content Ops Discovery Call",
+    "priceUsd": 0,
     "downstreamPilotStartsAtUsd": 7500,
     "downstreamFullSystemStartsAtUsd": 15000
   },
   "adGroups": [
     {
-      "name": "workflow-automation",
+      "name": "content-ops-workflow",
       "defaultMaxCpcUsd": 4.5,
       "keywordFile": "keywords.csv",
       "negativeKeywordFile": "negative_keywords.csv",
