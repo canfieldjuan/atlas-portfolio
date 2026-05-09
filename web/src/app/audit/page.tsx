@@ -183,6 +183,25 @@ const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCo
     };
   }
 
+  if (routeContext.sourceOffer === 'content-ops-discovery') {
+    return {
+      title: 'Book a free Content Ops discovery call.',
+      intro:
+        'Send the workflow context I need to make a 30-minute discovery call worth your time. I review your data sources, content goals, current bottlenecks, and timeline before booking.',
+      startCta: 'Start the discovery brief',
+      entryPriceLabel: 'Free 30-minute Discovery Call',
+      nextStepCopy:
+        'I review completed requests within 48 hours. If there is a fit, I will reply with a calendar link for the 30-minute call. We will walk through your data, content goals, and whether automation makes sense — no payment required.',
+      submitCopy:
+        'No payment is collected. If there is a fit, I will reply with a calendar link for the discovery call.',
+      submitButton: 'Request Discovery Call',
+      noPaymentDetail:
+        'This is a request to book a 30-minute call. There is no payment, no commitment to buy.',
+      budgetCriterion: 'An openness to discuss whether automation is worth building',
+      investmentHelper: '',
+    };
+  }
+
   return {
     title: 'Start the Content Ops Audit request.',
     intro:
@@ -257,6 +276,7 @@ function AuditPageContent() {
   const isContentOpsContext = isContentOpsAuditContext(routeContext);
   const isLlmGatewayContext = isLlmGatewayAuditContext(routeContext);
   const isLockedProductContext = isContentOpsContext || isLlmGatewayContext;
+  const isDiscovery = isContentOpsContext && routeContext.sourceOffer === 'content-ops-discovery';
   const contentOpsCopy = useMemo(() => contentOpsOfferCopy(routeContext), [routeContext]);
   const effectiveProjectInterest = isLockedProductContext
     ? routeContext.projectInterest
@@ -373,18 +393,29 @@ function AuditPageContent() {
           'Choose the range that matches what you could realistically approve if the audit shows a strong fit.',
       };
 
-  const requiredFields: Array<AuditField> = [
-    'fullName',
-    'workEmail',
-    'companyOrProjectUrl',
-    'roleAndDecisionScope',
-    'projectInterest',
-    'biggestBottleneck',
-    'automationDataSources',
-    'desiredTimeline',
-    'securityRequirement',
-    'anticipatedInvestmentRange',
-  ];
+  const requiredFields: Array<AuditField> = isDiscovery
+    ? [
+        'fullName',
+        'workEmail',
+        'companyOrProjectUrl',
+        'roleAndDecisionScope',
+        'projectInterest',
+        'biggestBottleneck',
+        'automationDataSources',
+        'desiredTimeline',
+      ]
+    : [
+        'fullName',
+        'workEmail',
+        'companyOrProjectUrl',
+        'roleAndDecisionScope',
+        'projectInterest',
+        'biggestBottleneck',
+        'automationDataSources',
+        'desiredTimeline',
+        'securityRequirement',
+        'anticipatedInvestmentRange',
+      ];
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const workEmailRef = useRef<HTMLInputElement>(null);
@@ -1075,8 +1106,8 @@ function AuditPageContent() {
           </section>
 
           <section className="space-y-6">
-            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">QUALIFICATION AND SECURITY</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">{isDiscovery ? 'TIMELINE' : 'QUALIFICATION AND SECURITY'}</h2>
+            <div className={`grid grid-cols-1 ${isDiscovery ? '' : 'md:grid-cols-2'} gap-6`}>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white/80" htmlFor="desiredTimeline">
                   Desired timeline <span className="text-primary">*</span>
@@ -1108,123 +1139,129 @@ function AuditPageContent() {
                 ) : null}
               </div>
 
+              {!isDiscovery && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/80" htmlFor="securityRequirement">
+                    Security requirement <span className="text-primary">*</span>
+                  </label>
+                  <select
+                    id="securityRequirement"
+                    ref={securityRequirementRef}
+                    value={formData.securityRequirement}
+                    onChange={handleChange('securityRequirement')}
+                    disabled={isInputDisabled}
+                    className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                      formErrors.securityRequirement ? 'border-red-400/80' : 'border-white/10'
+                    }`}
+                    required
+                    aria-invalid={!!formErrors.securityRequirement}
+                    aria-describedby={formErrors.securityRequirement ? 'securityRequirement-error' : undefined}
+                    aria-required="true"
+                  >
+                    <option value="" disabled>
+                      Select requirement...
+                    </option>
+                    <option value="none">No formal requirement</option>
+                    <option value="questionnaire">Security questionnaire / evidence package</option>
+                    <option value="soc2-type1">SOC 2 Type 1 acceptable</option>
+                    <option value="soc2-type2">SOC 2 Type 2 required before production</option>
+                    <option value="unsure">Not sure yet - need guidance</option>
+                  </select>
+                  {formErrors.securityRequirement ? (
+                    <p id="securityRequirement-error" className="text-red-400 text-sm">{formErrors.securityRequirement}</p>
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {!isDiscovery && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="securityRequirement">
-                  Security requirement <span className="text-primary">*</span>
+                <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
+                  Deployment or data-handling constraints
                 </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.deploymentHelper}
+                </p>
+                <textarea
+                  id="deploymentConstraints"
+                  ref={deploymentConstraintsRef}
+                  rows={3}
+                  value={formData.deploymentConstraints}
+                  onChange={handleChange('deploymentConstraints')}
+                  disabled={isInputDisabled}
+                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  placeholder={fieldCopy.deploymentPlaceholder}
+                />
+              </div>
+            )}
+          </section>
+
+          {!isDiscovery && (
+            <section className="space-y-6">
+              <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
+                  What does success look like? (The ROI)
+                </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.roiHelper}
+                </p>
+                <input
+                  id="roiGoal"
+                  ref={roiGoalRef}
+                  type="text"
+                  value={formData.roiGoal}
+                  onChange={handleChange('roiGoal')}
+                  disabled={isInputDisabled}
+                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  placeholder={fieldCopy.roiPlaceholder}
+                  aria-invalid={!!formErrors.roiGoal}
+                  aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
+                  Anticipated Investment Range <span className="text-primary">*</span>
+                </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.investmentHelper}
+                </p>
                 <select
-                  id="securityRequirement"
-                  ref={securityRequirementRef}
-                  value={formData.securityRequirement}
-                  onChange={handleChange('securityRequirement')}
+                  id="anticipatedInvestmentRange"
+                  ref={anticipatedInvestmentRangeRef}
+                  value={formData.anticipatedInvestmentRange}
+                  onChange={handleChange('anticipatedInvestmentRange')}
                   disabled={isInputDisabled}
                   className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                    formErrors.securityRequirement ? 'border-red-400/80' : 'border-white/10'
+                    formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-white/10'
                   }`}
                   required
-                  aria-invalid={!!formErrors.securityRequirement}
-                  aria-describedby={formErrors.securityRequirement ? 'securityRequirement-error' : undefined}
+                  aria-invalid={!!formErrors.anticipatedInvestmentRange}
+                  aria-describedby={formErrors.anticipatedInvestmentRange ? 'anticipatedInvestmentRange-error' : undefined}
                   aria-required="true"
                 >
                   <option value="" disabled>
-                    Select requirement...
+                    Select a range...
                   </option>
-                  <option value="none">No formal requirement</option>
-                  <option value="questionnaire">Security questionnaire / evidence package</option>
-                  <option value="soc2-type1">SOC 2 Type 1 acceptable</option>
-                  <option value="soc2-type2">SOC 2 Type 2 required before production</option>
-                  <option value="unsure">Not sure yet - need guidance</option>
+                  <option value="phase1">
+                    {isContentOpsContext
+                      ? contentOpsCopy.entryPriceLabel
+                      : isLlmGatewayContext
+                      ? llmGatewayCopy.entryPriceLabel
+                      : 'Phase 1 Roadmap Only ($4,500)'}
+                  </option>
+                  <option value="10k-25k">$10k – $25k</option>
+                  <option value="25k-50k">$25k – $50k</option>
+                  <option value="50k+">$50k+</option>
+                  <option value="unsure">Not sure yet — help me scope it</option>
                 </select>
-                {formErrors.securityRequirement ? (
-                  <p id="securityRequirement-error" className="text-red-400 text-sm">{formErrors.securityRequirement}</p>
-                ) : null}
+                {formErrors.anticipatedInvestmentRange ? (
+                    <p id="anticipatedInvestmentRange-error" className="text-red-400 text-sm">{formErrors.anticipatedInvestmentRange}</p>
+                  ) : null}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
-                Deployment or data-handling constraints
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.deploymentHelper}
-              </p>
-              <textarea
-                id="deploymentConstraints"
-                ref={deploymentConstraintsRef}
-                rows={3}
-                value={formData.deploymentConstraints}
-                onChange={handleChange('deploymentConstraints')}
-                disabled={isInputDisabled}
-                className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
-                placeholder={fieldCopy.deploymentPlaceholder}
-              />
-            </div>
-          </section>
-
-          <section className="space-y-6">
-            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
-                What does success look like? (The ROI)
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.roiHelper}
-              </p>
-              <input
-                id="roiGoal"
-                ref={roiGoalRef}
-                type="text"
-                value={formData.roiGoal}
-                onChange={handleChange('roiGoal')}
-                disabled={isInputDisabled}
-                className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder={fieldCopy.roiPlaceholder}
-                aria-invalid={!!formErrors.roiGoal}
-                aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
-                Anticipated Investment Range <span className="text-primary">*</span>
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.investmentHelper}
-              </p>
-              <select
-                id="anticipatedInvestmentRange"
-                ref={anticipatedInvestmentRangeRef}
-                value={formData.anticipatedInvestmentRange}
-                onChange={handleChange('anticipatedInvestmentRange')}
-                disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                  formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-white/10'
-                }`}
-                required
-                aria-invalid={!!formErrors.anticipatedInvestmentRange}
-                aria-describedby={formErrors.anticipatedInvestmentRange ? 'anticipatedInvestmentRange-error' : undefined}
-                aria-required="true"
-              >
-                <option value="" disabled>
-                  Select a range...
-                </option>
-                <option value="phase1">
-                  {isContentOpsContext
-                    ? contentOpsCopy.entryPriceLabel
-                    : isLlmGatewayContext
-                    ? llmGatewayCopy.entryPriceLabel
-                    : 'Phase 1 Roadmap Only ($4,500)'}
-                </option>
-                <option value="10k-25k">$10k – $25k</option>
-                <option value="25k-50k">$25k – $50k</option>
-                <option value="50k+">$50k+</option>
-                <option value="unsure">Not sure yet — help me scope it</option>
-              </select>
-              {formErrors.anticipatedInvestmentRange ? (
-                  <p id="anticipatedInvestmentRange-error" className="text-red-400 text-sm">{formErrors.anticipatedInvestmentRange}</p>
-                ) : null}
-            </div>
-          </section>
+            </section>
+          )}
 
           <button
             type="submit"
