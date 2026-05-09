@@ -1,4 +1,4 @@
-import { generatePageMetadata } from "@/lib/seo";
+import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
   title: "AI Content Ops Station",
@@ -21,6 +21,20 @@ export const metadata = generatePageMetadata({
   ],
 });
 
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: "Home", path: "/" },
+  { name: "Systems", path: "/systems" },
+  { name: "AI Content Ops", path: "/systems/ai-content-ops" },
+]);
+
 export default function AiContentOpsLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

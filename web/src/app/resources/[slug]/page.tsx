@@ -90,12 +90,25 @@ export default async function ResourceArticlePage({ params }: PageProps) {
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-6">
               {article.title}
             </h1>
+            <p className="text-sm text-foreground/40 mb-6">
+              By <span className="text-foreground/60">Juan Canfield</span>
+              <span className="mx-2">·</span>
+              Published{' '}
+              <time dateTime={article.publishedAt}>
+                {new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(
+                  new Date(article.publishedAt)
+                )}
+              </time>
+            </p>
             <p className="text-lg text-foreground/60 leading-relaxed">
               {article.description}
             </p>
           </header>
 
-          <section className="glass rounded-xl p-8 border border-white/10 mb-12">
+          <section
+            data-speakable
+            className="glass rounded-xl p-8 border border-white/10 mb-12"
+          >
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
               KEY TAKEAWAYS
             </div>

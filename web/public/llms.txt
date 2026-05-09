@@ -1,0 +1,41 @@
+# Juan Canfield — AI Solutions Architect & AI Automation Consultant
+
+> AI automation consultant and AI solutions architect for teams with real operational workflows. Fixed-fee AI systems roadmaps, custom AI development, productized AI Content Ops, and competitive/vendor intelligence platforms. Pricing and delivery scope are defined before build work begins.
+
+## About
+
+- [About Juan Canfield](https://juancanfield.com/about): Background, principles, and operating model for AI systems consulting engagements.
+- [AI Automation Consultant overview](https://juancanfield.com/ai-automation-consultant): Service overview, fit signals, and how engagements are structured.
+
+## Services
+
+- [Services & pricing](https://juancanfield.com/services): Phase 1 Roadmap ($4,500), Phase 2 Custom Implementation ($8k–$50k), productized systems, retainers.
+- [Engagement process](https://juancanfield.com/process): How a typical engagement runs from intake to handoff.
+- [Capabilities](https://juancanfield.com/capabilities): Technical capabilities — LLM orchestration, GraphRAG, agent workflows, voice AI, computer vision, data pipelines.
+- [Architecture overview](https://juancanfield.com/architecture): Reference system architecture diagram and component breakdown.
+- [Proof of work](https://juancanfield.com/proof): Outcome-focused case summaries from past engagements.
+
+## Productized AI Systems
+
+- [AI Content Ops Station](https://juancanfield.com/systems/ai-content-ops): Productized AI content workflow — turns CRM, reviews, sales calls, and internal docs into approval-ready blogs, emails, sales briefs, reports, and landing copy. Quality gates and human review built in.
+- [Ongoing optimization retainer](https://juancanfield.com/systems/ai-content-ops/ongoing-support): Productized monthly retainer for AI content workflow tuning. Starts at $2,500/month.
+- [Atlas LLM Gateway](https://juancanfield.com/systems/atlas-llm-gateway): Hosted BYOK API for LLM cost control — exact and semantic cache, Anthropic batch, provider-billing reconciliation, budget guards, routing.
+- [All productized systems](https://juancanfield.com/systems): Index of AI systems available as productized engagements.
+
+## Resources
+
+- [How to scope an AI automation project](https://juancanfield.com/resources/how-to-scope-ai-automation-project): Practical method for defining an AI automation project before hiring an AI automation consultant.
+- [AI automation consultant cost](https://juancanfield.com/resources/ai-automation-consultant-cost): What AI automation consulting actually costs and what changes the price.
+- [Custom AI development vs SaaS](https://juancanfield.com/resources/custom-ai-development-vs-saas): When to build custom AI versus adopt off-the-shelf SaaS.
+- [What should stay human-reviewed](https://juancanfield.com/resources/what-should-stay-human-reviewed): How to design human review gates in AI workflows.
+- [All resources](https://juancanfield.com/resources): Full index of articles.
+
+## Get started
+
+- [Audit / discovery intake](https://juancanfield.com/audit): Free 30-minute discovery call for AI Content Ops fit, or a paid Phase 1 Roadmap intake for a full systems audit.
+- [Live demo](https://juancanfield.com/demo): Demonstration of the AI Content Ops pipeline.
+
+## Contact
+
+- Email: canfieldjuan24@gmail.com
+- Site: https://juancanfield.com

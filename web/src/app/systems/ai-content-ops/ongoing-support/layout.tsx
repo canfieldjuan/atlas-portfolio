@@ -1,4 +1,4 @@
-import { generatePageMetadata } from "@/lib/seo";
+import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
   title: "Ongoing Optimization for AI Content Ops",
@@ -17,6 +17,21 @@ export const metadata = generatePageMetadata({
   ],
 });
 
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: "Home", path: "/" },
+  { name: "Systems", path: "/systems" },
+  { name: "AI Content Ops", path: "/systems/ai-content-ops" },
+  { name: "Ongoing Support", path: "/systems/ai-content-ops/ongoing-support" },
+]);
+
 export default function OngoingSupportLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

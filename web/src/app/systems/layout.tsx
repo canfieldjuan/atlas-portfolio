@@ -1,4 +1,4 @@
-import { generatePageMetadata } from "@/lib/seo";
+import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
   title: "Productized AI Systems",
@@ -17,6 +17,19 @@ export const metadata = generatePageMetadata({
   ],
 });
 
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: "Home", path: "/" },
+  { name: "Systems", path: "/systems" },
+]);
+
 export default function SystemsLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

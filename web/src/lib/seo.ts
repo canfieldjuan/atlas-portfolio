@@ -83,6 +83,7 @@ export function generatePageMetadata({
   ogDescription,
 }: PageSEO): Metadata {
   const url = `${SITE_URL}${path}`;
+  const ogImage = `${SITE_URL}/opengraph-image`;
 
   return {
     title,
@@ -98,11 +99,13 @@ export function generatePageMetadata({
       siteName: SITE_NAME,
       locale: "en_US",
       type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: SITE_NAME }],
     },
     twitter: {
       card: "summary_large_image",
       title: ogTitle ?? `${title} | ${SITE_NAME}`,
       description: ogDescription ?? description,
+      images: [ogImage],
     },
   };
 }
@@ -155,6 +158,23 @@ export const rootJsonLd = {
         "React",
         "Next.js",
       ],
+    },
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      founder: { "@id": `${SITE_URL}/#person` },
+      sameAs: [`${SITE_URL}/about`],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_TITLE,
+      description: SITE_DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      inLanguage: "en-US",
     },
     {
       "@type": "ProfessionalService",
@@ -282,6 +302,10 @@ export function generateArticleJsonLd({
       url: SITE_URL,
     },
     keywords,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "[data-speakable]"],
+    },
   };
 }
 
