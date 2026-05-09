@@ -148,17 +148,21 @@ const useCases = [
   },
 ];
 
-const infrastructurePieces = [
-  { icon: <Workflow className="w-4 h-4" />, label: 'Reasoning and synthesis workflows' },
-  { icon: <Layers className="w-4 h-4" />, label: 'Structured content generation' },
-  { icon: <ShieldCheck className="w-4 h-4" />, label: 'Human approval queues' },
-  { icon: <Database className="w-4 h-4" />, label: 'LLM batching and caching' },
-  { icon: <GitBranch className="w-4 h-4" />, label: 'Model routing' },
+const coreInfrastructure = [
+  { icon: <Layers className="w-4 h-4" />, label: 'Controlled generation pipelines' },
+  { icon: <CheckCircle2 className="w-4 h-4" />, label: 'Evidence-backed inputs' },
   { icon: <Gauge className="w-4 h-4" />, label: 'Quality gates' },
-  { icon: <ScrollText className="w-4 h-4" />, label: 'Report rendering' },
+  { icon: <ShieldCheck className="w-4 h-4" />, label: 'Approval workflows' },
   { icon: <LayoutTemplate className="w-4 h-4" />, label: 'Reusable templates' },
+  { icon: <ScrollText className="w-4 h-4" />, label: 'Report and content rendering' },
+];
+
+const optionalAtlasLayers = [
+  { icon: <Workflow className="w-4 h-4" />, label: 'Reasoning and synthesis' },
+  { icon: <GitBranch className="w-4 h-4" />, label: 'Model routing' },
+  { icon: <Database className="w-4 h-4" />, label: 'LLM batching' },
+  { icon: <Repeat className="w-4 h-4" />, label: 'Caching' },
   { icon: <Cpu className="w-4 h-4" />, label: 'Cost tracking' },
-  { icon: <CheckCircle2 className="w-4 h-4" />, label: 'Evidence-backed intelligence inputs' },
 ];
 
 type PricingTier = {
@@ -179,25 +183,25 @@ type PricingTier = {
 
 const pricingTiers: PricingTier[] = [
   {
-    id: 'audit',
+    id: 'discovery',
     badge: 'RECOMMENDED FIRST STEP',
-    title: 'Content Ops Audit',
-    price: '$1,500',
-    sla: 'Delivered in 2 business days',
+    title: 'Discovery Call',
+    price: 'Free',
+    sla: '30-minute call, booked within 48 hours',
     description:
-      'In 48 hours, you will know exactly what content your data can produce — and whether it is worth building anything at all.',
+      'In 30 minutes, you will know whether your data and content goals are a fit for an automated workflow — and what a build would look like.',
     includes: [
-      'What usable data you already have',
-      'What content it can produce',
-      'Whether automation is worth building',
-      'What a pilot would look like (scope + cost)',
+      'Walkthrough of your current content sources and workflow',
+      'Quick read on whether automation is worth building for you',
+      'Rough scope + price range if there is a fit',
+      'No-pressure: if there is no real opportunity, we say so',
     ],
-    note: "If there is no real opportunity, we will tell you — before you spend another dollar.",
-    cta: 'Book a Content Ops Audit',
+    note: "If there is no real opportunity, we will tell you — before you spend a dollar.",
+    cta: 'Book a Discovery Call',
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-ops-audit',
+      offer: 'content-ops-discovery',
     }),
     highlighted: true,
   },
@@ -218,7 +222,7 @@ const pricingTiers: PricingTier[] = [
     ],
     example:
       'Customer reviews or CRM notes → extracted pain points → content angles → blog draft + email campaign + sales brief',
-    note: 'Most pilot builds are scoped after the audit.',
+    note: 'Most pilot builds are scoped after a discovery call.',
     cta: 'Request a Pilot Build',
     href: buildAuditHref({
       interest: 'content-generation',
@@ -289,7 +293,7 @@ const replacesItems: { instead: string; youGet: string }[] = [
 const pricingFaqs: { q: string; a: string }[] = [
   {
     q: 'Do I need clean data?',
-    a: 'You do not need perfect data, but the better your source material is, the better the outputs will be. The audit identifies which data sources are usable now and which need cleanup before automation.',
+    a: 'You do not need perfect data, but the better your source material is, the better the outputs will be. The discovery call identifies which data sources are usable now and which need cleanup before automation.',
   },
   {
     q: 'Is this a SaaS subscription?',
@@ -304,8 +308,8 @@ const pricingFaqs: { q: string; a: string }[] = [
     a: 'Blogs, email campaigns, sales briefs, reports, landing page copy, social posts, internal knowledge briefs, and campaign angles.',
   },
   {
-    q: 'What happens after the audit?',
-    a: 'You receive a roadmap and build recommendation. If there is a strong fit, the next step is usually a focused pilot build starting at $7,500.',
+    q: 'What happens after the discovery call?',
+    a: 'If there is a strong fit, you receive a written recommendation and rough build scope. The next step is usually a focused pilot build starting at $7,500. If there is no real fit, we say so — no follow-up sales pressure.',
   },
 ];
 
@@ -383,11 +387,11 @@ export default function AiContentOpsPage() {
                 href={buildAuditHref({
                   interest: 'content-generation',
                   source: 'ai-content-ops',
-                  offer: 'content-ops-audit',
+                  offer: 'content-ops-discovery',
                 })}
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
-                Book a Content Ops Audit
+                Book a Free Discovery Call
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
@@ -656,11 +660,15 @@ export default function AiContentOpsPage() {
                 Powered By Production Infrastructure, Not Prompt Guesswork
               </h2>
               <p className="text-foreground/60 leading-relaxed mb-3">
-                AI Content Ops Station is powered by reusable systems built inside ATLAS. Production AI content needs more than a good prompt — it needs a controlled pipeline.
+                AI Content Ops Station runs on reusable ATLAS production infrastructure: controlled generation pipelines, evidence-backed inputs, quality gates, approval workflows, reusable templates, and report/content rendering. When you need more than prompt-only generation, it plugs into separate ATLAS layers — reasoning and synthesis, model routing, LLM batching, caching, and cost tracking — without changing the Content Ops core.
               </p>
             </div>
+
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              INSIDE AI CONTENT OPS
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {infrastructurePieces.map((piece) => (
+              {coreInfrastructure.map((piece) => (
                 <div
                   key={piece.label}
                   className="rounded-lg border border-white/10 bg-black/20 p-4 flex items-center gap-3"
@@ -669,6 +677,23 @@ export default function AiContentOpsPage() {
                     {piece.icon}
                   </div>
                   <span className="text-sm text-foreground/75">{piece.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mt-8 mb-3">
+              OPTIONAL ATLAS LAYERS &mdash; CONNECT WHEN YOU NEED THEM
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {optionalAtlasLayers.map((piece) => (
+                <div
+                  key={piece.label}
+                  className="rounded-lg border border-dashed border-white/10 bg-black/10 p-4 flex items-center gap-3"
+                >
+                  <div className="w-8 h-8 rounded-md bg-foreground/5 text-foreground/55 flex items-center justify-center shrink-0">
+                    {piece.icon}
+                  </div>
+                  <span className="text-sm text-foreground/65">{piece.label}</span>
                 </div>
               ))}
             </div>
@@ -736,7 +761,7 @@ export default function AiContentOpsPage() {
               Don&apos;t build a content system until you know it will pay off.
             </h2>
             <p className="text-foreground/65 leading-relaxed">
-              This audit shows you exactly what content your data can produce — and whether it is worth building anything at all.
+              A free discovery call shows you exactly what content your data can produce — and whether it is worth building anything at all.
             </p>
           </div>
 
@@ -774,7 +799,7 @@ export default function AiContentOpsPage() {
                 </p>
 
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
-                  {tier.id === 'audit' ? 'IN 48 HOURS, YOU WILL KNOW:' : 'INCLUDES'}
+                  {tier.id === 'discovery' ? 'IN 30 MINUTES, YOU WILL KNOW:' : 'INCLUDES'}
                 </div>
                 <ul className="space-y-2 mb-5">
                   {tier.includes.map((item) => (
@@ -917,21 +942,21 @@ export default function AiContentOpsPage() {
                 FINAL STEP
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-                Start With a Content Ops Audit
+                Start With a Free Discovery Call
               </h2>
               <p className="text-foreground/60 leading-relaxed mb-8">
-                The audit is fixed-fee, fixed-scope, and produces a real build decision — not vague advice. If there is no real opportunity, we will tell you — before you spend another dollar.
+                30 minutes. No pressure. You will leave the call with a clear read on whether automation makes sense for your team — and a rough cost if it does. If there is no real opportunity, we will say so.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href={buildAuditHref({
                     interest: 'content-generation',
                     source: 'ai-content-ops',
-                    offer: 'content-ops-audit',
+                    offer: 'content-ops-discovery',
                   })}
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
-                  Book a Content Ops Audit ($1,500)
+                  Book a Free Discovery Call
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
@@ -953,7 +978,7 @@ export default function AiContentOpsPage() {
           <div className="mt-12 rounded-xl border border-white/10 bg-white/[0.02] p-6 flex items-start gap-4">
             <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <p className="text-sm text-foreground/55 leading-relaxed">
-              AI Content Ops Station is delivered as an implemented system, not a self-serve SaaS subscription. The audit defines which workflows, sources, and outputs are worth building first.
+              AI Content Ops Station is delivered as an implemented system, not a self-serve SaaS subscription. The discovery call defines which workflows, sources, and outputs are worth building first.
             </p>
           </div>
         </div>

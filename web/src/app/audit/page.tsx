@@ -115,6 +115,10 @@ const isContentOpsAuditContext = (routeContext: AuditRouteContext) => {
   return routeContext.projectInterest === 'content-generation';
 };
 
+const isLlmGatewayAuditContext = (routeContext: AuditRouteContext) => {
+  return routeContext.projectInterest === 'llm-gateway';
+};
+
 const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCopy => {
   if (
     routeContext.sourcePage === 'ai-content-ops-ongoing-support' ||
@@ -179,6 +183,25 @@ const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCo
     };
   }
 
+  if (routeContext.sourceOffer === 'content-ops-discovery') {
+    return {
+      title: 'Book a free Content Ops discovery call.',
+      intro:
+        'Send the workflow context I need to make a 30-minute discovery call worth your time. I review your data sources, content goals, current bottlenecks, and timeline before booking.',
+      startCta: 'Start the discovery brief',
+      entryPriceLabel: 'Free 30-minute Discovery Call',
+      nextStepCopy:
+        'I review completed requests within 48 hours. If there is a fit, I will reply with a calendar link for the 30-minute call. We will walk through your data, content goals, and whether automation makes sense — no payment required.',
+      submitCopy:
+        'No payment is collected. If there is a fit, I will reply with a calendar link for the discovery call.',
+      submitButton: 'Request Discovery Call',
+      noPaymentDetail:
+        'This is a request to book a 30-minute call. There is no payment, no commitment to buy.',
+      budgetCriterion: 'An openness to discuss whether automation is worth building',
+      investmentHelper: '',
+    };
+  }
+
   return {
     title: 'Start the Content Ops Audit request.',
     intro:
@@ -196,6 +219,21 @@ const contentOpsOfferCopy = (routeContext: AuditRouteContext): ContentOpsOfferCo
     investmentHelper:
       'For this offer, the ladder is $1,500 audit, $7,500+ pilot, $15,000+ full system, or $2,500/mo+ ongoing optimization.',
   };
+};
+
+const llmGatewayCopy = {
+  title: 'Request Atlas LLM Gateway access.',
+  intro:
+    'Send the LLM workload context I need to decide whether Atlas LLM Gateway is a fit. I review current Claude or OpenRouter usage, repeat prompts, async batchable traffic, BYOK readiness, expected volume, security constraints, budget controls, and whether a flat-tier gateway makes sense before offering access.',
+  startCta: 'Start the gateway brief',
+  nextStepCopy:
+    'I review completed requests within 48 hours. If there is a fit, the next step is an Atlas LLM Gateway access conversation: BYOK setup, traffic profile, cache and batch candidates, reconciliation needs, budget guardrails, and the right flat monthly tier.',
+  noPaymentDetail:
+    'This is a gateway access request. No provider key or payment is collected in this form.',
+  budgetCriterion: 'A realistic monthly budget path for gateway access if there is fit',
+  entryPriceLabel: 'Atlas LLM Gateway access',
+  investmentHelper:
+    'Choose the range that matches what you could realistically approve for monthly gateway access or implementation support.',
 };
 
 export default function AuditPage() {
@@ -236,8 +274,11 @@ function AuditPageContent() {
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const isInputDisabled = isSubmitting || isCopying;
   const isContentOpsContext = isContentOpsAuditContext(routeContext);
+  const isLlmGatewayContext = isLlmGatewayAuditContext(routeContext);
+  const isLockedProductContext = isContentOpsContext || isLlmGatewayContext;
+  const isDiscovery = isContentOpsContext && routeContext.sourceOffer === 'content-ops-discovery';
   const contentOpsCopy = useMemo(() => contentOpsOfferCopy(routeContext), [routeContext]);
-  const effectiveProjectInterest = isContentOpsContext
+  const effectiveProjectInterest = isLockedProductContext
     ? routeContext.projectInterest
     : formData.projectInterest;
 
@@ -247,6 +288,21 @@ function AuditPageContent() {
           ? {
               ...signal,
               detail: contentOpsCopy.noPaymentDetail,
+            }
+          : signal
+      )
+    : isLlmGatewayContext
+    ? conversionSignals.map((signal) =>
+        signal.title === 'No payment here'
+          ? {
+              ...signal,
+              detail: llmGatewayCopy.noPaymentDetail,
+            }
+          : signal.title === 'No sensitive data needed'
+          ? {
+              ...signal,
+              detail:
+                'Do not paste provider keys, raw prompts, customer data, or regulated payloads. Summarize workload shape and constraints only.',
             }
           : signal
       )
@@ -260,6 +316,13 @@ function AuditPageContent() {
         'Usable source material or content data',
         'A clear publishing, review, or campaign outcome',
         contentOpsCopy.budgetCriterion,
+      ]
+    : isLlmGatewayContext
+    ? [
+        'Existing or planned Claude usage',
+        'A batchable async workload worth routing',
+        'BYOK readiness and security constraints',
+        llmGatewayCopy.budgetCriterion,
       ]
     : reviewCriteria;
   const fieldCopy = isContentOpsContext
@@ -286,6 +349,30 @@ function AuditPageContent() {
           'e.g. Publish 4 useful posts/month, repurpose reviews into campaigns, reduce content review from 2 weeks to 2 days',
         investmentHelper: contentOpsCopy.investmentHelper,
       }
+    : isLlmGatewayContext
+    ? {
+        bottleneckHelper:
+          'Be concrete: which LLM jobs are expensive, which prompts repeat, which calls can wait, and what you currently do for retries, usage tracking, reconciliation, budgets, and provider-key management.',
+        bottleneckPlaceholder:
+          'We run Claude for evals and enrichment jobs, repeat similar prompts, and do not have per-customer usage visibility or budget enforcement...',
+        dataSourcesHelper:
+          'Name the LLM workloads and traffic types: chat, streaming, evals, enrichment, report jobs, backfills, agents, or batch content generation.',
+        dataSourcesPlaceholder:
+          'Claude chat endpoint, nightly eval jobs, enrichment workers, report generation, customer-specific workspaces...',
+        techHelper:
+          'List current SDKs, model providers, backend language, queue/workflow tools, and whether calls already run server-side.',
+        techPlaceholder:
+          'Anthropic SDK, Node workers, Python batch jobs, BullMQ, Temporal, Postgres, Vercel, AWS...',
+        deploymentHelper:
+          'Do not paste provider keys. Summarize BYOK, data retention, logging, provider, tenancy, and payload-handling constraints.',
+        deploymentPlaceholder:
+          'BYOK only, no raw prompt retention without approval, per-customer usage isolation required, streaming needed for product chat...',
+        roiHelper:
+          'Optional, but useful: monthly LLM spend, repeated-prompt volume, percent of traffic that can be async, desired savings, or platform time you want to avoid building.',
+        roiPlaceholder:
+          'e.g. $8k/month Claude spend, 30% repeat prompts, 40% async jobs, want cost controls without building gateway infra',
+        investmentHelper: llmGatewayCopy.investmentHelper,
+      }
     : {
         bottleneckHelper:
           'Be concrete: who does it, how often, and what breaks when it is late or wrong.',
@@ -306,18 +393,29 @@ function AuditPageContent() {
           'Choose the range that matches what you could realistically approve if the audit shows a strong fit.',
       };
 
-  const requiredFields: Array<AuditField> = [
-    'fullName',
-    'workEmail',
-    'companyOrProjectUrl',
-    'roleAndDecisionScope',
-    'projectInterest',
-    'biggestBottleneck',
-    'automationDataSources',
-    'desiredTimeline',
-    'securityRequirement',
-    'anticipatedInvestmentRange',
-  ];
+  const requiredFields: Array<AuditField> = isDiscovery
+    ? [
+        'fullName',
+        'workEmail',
+        'companyOrProjectUrl',
+        'roleAndDecisionScope',
+        'projectInterest',
+        'biggestBottleneck',
+        'automationDataSources',
+        'desiredTimeline',
+      ]
+    : [
+        'fullName',
+        'workEmail',
+        'companyOrProjectUrl',
+        'roleAndDecisionScope',
+        'projectInterest',
+        'biggestBottleneck',
+        'automationDataSources',
+        'desiredTimeline',
+        'securityRequirement',
+        'anticipatedInvestmentRange',
+      ];
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const workEmailRef = useRef<HTMLInputElement>(null);
@@ -370,7 +468,11 @@ function AuditPageContent() {
 
   const investmentRangeLabel = (value: string) => {
     const map: Record<string, string> = {
-      phase1: isContentOpsContext ? contentOpsCopy.entryPriceLabel : 'Phase 1 Roadmap Only ($4,500)',
+      phase1: isContentOpsContext
+        ? contentOpsCopy.entryPriceLabel
+        : isLlmGatewayContext
+        ? llmGatewayCopy.entryPriceLabel
+        : 'Phase 1 Roadmap Only ($4,500)',
       '10k-25k': '$10k – $25k',
       '25k-50k': '$25k – $50k',
       '50k+': '$50k+',
@@ -409,7 +511,11 @@ function AuditPageContent() {
   ].filter((item): item is string => Boolean(item));
 
   const requestSummary = [
-    'AI Systems Audit Request',
+    isLlmGatewayContext
+      ? 'Atlas LLM Gateway Access Request'
+      : isContentOpsContext
+      ? 'AI Content Ops Request'
+      : 'AI Systems Audit Request',
     `Name: ${formData.fullName.trim() || 'Not provided'}`,
     `Work Email: ${formData.workEmail.trim() || 'Not provided'}`,
     `Company / Project URL: ${formData.companyOrProjectUrl.trim() || 'Not provided'}`,
@@ -633,11 +739,17 @@ function AuditPageContent() {
             <span>SYSTEMS AUDIT</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-4">
-            {isContentOpsContext ? contentOpsCopy.title : 'Start the AI Systems Audit.'}
+            {isContentOpsContext
+              ? contentOpsCopy.title
+              : isLlmGatewayContext
+              ? llmGatewayCopy.title
+              : 'Start the AI Systems Audit.'}
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed mb-6">
             {isContentOpsContext
               ? contentOpsCopy.intro
+              : isLlmGatewayContext
+              ? llmGatewayCopy.intro
               : 'Send the workflow context I need to decide whether a Phase 1 Roadmap is worth your time. I review for operational fit, data readiness, security constraints, timeline, and budget before recommending any paid scoping work.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
@@ -645,14 +757,28 @@ function AuditPageContent() {
               href="#audit-brief"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
-              {isContentOpsContext ? contentOpsCopy.startCta : 'Start the audit brief'}
+              {isContentOpsContext
+                ? contentOpsCopy.startCta
+                : isLlmGatewayContext
+                ? llmGatewayCopy.startCta
+                : 'Start the audit brief'}
               <ArrowRight className="w-4 h-4" />
             </a>
             <Link
-              href={isContentOpsContext ? '/systems/ai-content-ops#pricing' : '/services'}
+              href={
+                isContentOpsContext
+                  ? '/systems/ai-content-ops#pricing'
+                  : isLlmGatewayContext
+                  ? '/systems/atlas-llm-gateway#api-surface'
+                  : '/services'
+              }
               className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
             >
-              {isContentOpsContext ? 'Review Content Ops pricing' : 'Review Phase 1 pricing'}
+              {isContentOpsContext
+                ? 'Review Content Ops pricing'
+                : isLlmGatewayContext
+                ? 'Review Gateway API'
+                : 'Review Phase 1 pricing'}
             </Link>
           </div>
         </motion.div>
@@ -667,6 +793,8 @@ function AuditPageContent() {
               {routeContext.sourceOfferLabel ? `Offer context: ${routeContext.sourceOfferLabel}. ` : null}
               {isContentOpsContext
                 ? 'This request is locked to AI Content Ops Station so the intake stays aligned with the page you came from.'
+                : isLlmGatewayContext
+                ? 'This request is locked to Atlas LLM Gateway so the intake stays aligned with the page you came from.'
                 : routeContext.projectInterest
                 ? `The primary interest field is preselected as ${auditProjectInterestLabel(routeContext.projectInterest)}; change it below if another path fits better.`
                 : 'Choose the primary interest below so the request routes to the right systems starting point.'}
@@ -692,6 +820,8 @@ function AuditPageContent() {
             <p className="leading-relaxed">
               {isContentOpsContext
                 ? contentOpsCopy.nextStepCopy
+                : isLlmGatewayContext
+                ? llmGatewayCopy.nextStepCopy
                 : 'I review completed requests within 48 hours. If there is a fit, the next step is a Phase 1 Roadmap at $4,500 before any larger build is priced.'}{' '}
               Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
             </p>
@@ -841,10 +971,10 @@ function AuditPageContent() {
               <label className="text-sm font-medium text-white/80" htmlFor="projectInterest">
                 What are you most interested in? <span className="text-primary">*</span>
               </label>
-              {isContentOpsContext ? (
+              {isLockedProductContext ? (
                 <>
                   <p className="text-xs text-foreground/45">
-                    Selected from the AI Content Ops landing page. Use the general <Link href="/audit" className="text-primary hover:text-primary/80 transition-colors">Systems Audit</Link> if you need a different path.
+                    Selected from the {auditProjectInterestLabel(effectiveProjectInterest)} landing page. Use the general <Link href="/audit" className="text-primary hover:text-primary/80 transition-colors">Systems Audit</Link> if you need a different path.
                   </p>
                   <input
                     id="projectInterest"
@@ -976,8 +1106,8 @@ function AuditPageContent() {
           </section>
 
           <section className="space-y-6">
-            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">QUALIFICATION AND SECURITY</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">{isDiscovery ? 'TIMELINE' : 'QUALIFICATION AND SECURITY'}</h2>
+            <div className={`grid grid-cols-1 ${isDiscovery ? '' : 'md:grid-cols-2'} gap-6`}>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white/80" htmlFor="desiredTimeline">
                   Desired timeline <span className="text-primary">*</span>
@@ -1009,119 +1139,129 @@ function AuditPageContent() {
                 ) : null}
               </div>
 
+              {!isDiscovery && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/80" htmlFor="securityRequirement">
+                    Security requirement <span className="text-primary">*</span>
+                  </label>
+                  <select
+                    id="securityRequirement"
+                    ref={securityRequirementRef}
+                    value={formData.securityRequirement}
+                    onChange={handleChange('securityRequirement')}
+                    disabled={isInputDisabled}
+                    className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                      formErrors.securityRequirement ? 'border-red-400/80' : 'border-white/10'
+                    }`}
+                    required
+                    aria-invalid={!!formErrors.securityRequirement}
+                    aria-describedby={formErrors.securityRequirement ? 'securityRequirement-error' : undefined}
+                    aria-required="true"
+                  >
+                    <option value="" disabled>
+                      Select requirement...
+                    </option>
+                    <option value="none">No formal requirement</option>
+                    <option value="questionnaire">Security questionnaire / evidence package</option>
+                    <option value="soc2-type1">SOC 2 Type 1 acceptable</option>
+                    <option value="soc2-type2">SOC 2 Type 2 required before production</option>
+                    <option value="unsure">Not sure yet - need guidance</option>
+                  </select>
+                  {formErrors.securityRequirement ? (
+                    <p id="securityRequirement-error" className="text-red-400 text-sm">{formErrors.securityRequirement}</p>
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {!isDiscovery && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="securityRequirement">
-                  Security requirement <span className="text-primary">*</span>
+                <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
+                  Deployment or data-handling constraints
                 </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.deploymentHelper}
+                </p>
+                <textarea
+                  id="deploymentConstraints"
+                  ref={deploymentConstraintsRef}
+                  rows={3}
+                  value={formData.deploymentConstraints}
+                  onChange={handleChange('deploymentConstraints')}
+                  disabled={isInputDisabled}
+                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  placeholder={fieldCopy.deploymentPlaceholder}
+                />
+              </div>
+            )}
+          </section>
+
+          {!isDiscovery && (
+            <section className="space-y-6">
+              <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
+                  What does success look like? (The ROI)
+                </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.roiHelper}
+                </p>
+                <input
+                  id="roiGoal"
+                  ref={roiGoalRef}
+                  type="text"
+                  value={formData.roiGoal}
+                  onChange={handleChange('roiGoal')}
+                  disabled={isInputDisabled}
+                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  placeholder={fieldCopy.roiPlaceholder}
+                  aria-invalid={!!formErrors.roiGoal}
+                  aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
+                  Anticipated Investment Range <span className="text-primary">*</span>
+                </label>
+                <p className="text-xs text-foreground/45">
+                  {fieldCopy.investmentHelper}
+                </p>
                 <select
-                  id="securityRequirement"
-                  ref={securityRequirementRef}
-                  value={formData.securityRequirement}
-                  onChange={handleChange('securityRequirement')}
+                  id="anticipatedInvestmentRange"
+                  ref={anticipatedInvestmentRangeRef}
+                  value={formData.anticipatedInvestmentRange}
+                  onChange={handleChange('anticipatedInvestmentRange')}
                   disabled={isInputDisabled}
                   className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                    formErrors.securityRequirement ? 'border-red-400/80' : 'border-white/10'
+                    formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-white/10'
                   }`}
                   required
-                  aria-invalid={!!formErrors.securityRequirement}
-                  aria-describedby={formErrors.securityRequirement ? 'securityRequirement-error' : undefined}
+                  aria-invalid={!!formErrors.anticipatedInvestmentRange}
+                  aria-describedby={formErrors.anticipatedInvestmentRange ? 'anticipatedInvestmentRange-error' : undefined}
                   aria-required="true"
                 >
                   <option value="" disabled>
-                    Select requirement...
+                    Select a range...
                   </option>
-                  <option value="none">No formal requirement</option>
-                  <option value="questionnaire">Security questionnaire / evidence package</option>
-                  <option value="soc2-type1">SOC 2 Type 1 acceptable</option>
-                  <option value="soc2-type2">SOC 2 Type 2 required before production</option>
-                  <option value="unsure">Not sure yet - need guidance</option>
+                  <option value="phase1">
+                    {isContentOpsContext
+                      ? contentOpsCopy.entryPriceLabel
+                      : isLlmGatewayContext
+                      ? llmGatewayCopy.entryPriceLabel
+                      : 'Phase 1 Roadmap Only ($4,500)'}
+                  </option>
+                  <option value="10k-25k">$10k – $25k</option>
+                  <option value="25k-50k">$25k – $50k</option>
+                  <option value="50k+">$50k+</option>
+                  <option value="unsure">Not sure yet — help me scope it</option>
                 </select>
-                {formErrors.securityRequirement ? (
-                  <p id="securityRequirement-error" className="text-red-400 text-sm">{formErrors.securityRequirement}</p>
-                ) : null}
+                {formErrors.anticipatedInvestmentRange ? (
+                    <p id="anticipatedInvestmentRange-error" className="text-red-400 text-sm">{formErrors.anticipatedInvestmentRange}</p>
+                  ) : null}
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
-                Deployment or data-handling constraints
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.deploymentHelper}
-              </p>
-              <textarea
-                id="deploymentConstraints"
-                ref={deploymentConstraintsRef}
-                rows={3}
-                value={formData.deploymentConstraints}
-                onChange={handleChange('deploymentConstraints')}
-                disabled={isInputDisabled}
-                className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
-                placeholder={fieldCopy.deploymentPlaceholder}
-              />
-            </div>
-          </section>
-
-          <section className="space-y-6">
-            <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
-                What does success look like? (The ROI)
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.roiHelper}
-              </p>
-              <input
-                id="roiGoal"
-                ref={roiGoalRef}
-                type="text"
-                value={formData.roiGoal}
-                onChange={handleChange('roiGoal')}
-                disabled={isInputDisabled}
-                className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder={fieldCopy.roiPlaceholder}
-                aria-invalid={!!formErrors.roiGoal}
-                aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
-                Anticipated Investment Range <span className="text-primary">*</span>
-              </label>
-              <p className="text-xs text-foreground/45">
-                {fieldCopy.investmentHelper}
-              </p>
-              <select
-                id="anticipatedInvestmentRange"
-                ref={anticipatedInvestmentRangeRef}
-                value={formData.anticipatedInvestmentRange}
-                onChange={handleChange('anticipatedInvestmentRange')}
-                disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                  formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-white/10'
-                }`}
-                required
-                aria-invalid={!!formErrors.anticipatedInvestmentRange}
-                aria-describedby={formErrors.anticipatedInvestmentRange ? 'anticipatedInvestmentRange-error' : undefined}
-                aria-required="true"
-              >
-                <option value="" disabled>
-                  Select a range...
-                </option>
-                <option value="phase1">
-                  {isContentOpsContext ? contentOpsCopy.entryPriceLabel : 'Phase 1 Roadmap Only ($4,500)'}
-                </option>
-                <option value="10k-25k">$10k – $25k</option>
-                <option value="25k-50k">$25k – $50k</option>
-                <option value="50k+">$50k+</option>
-                <option value="unsure">Not sure yet — help me scope it</option>
-              </select>
-              {formErrors.anticipatedInvestmentRange ? (
-                  <p id="anticipatedInvestmentRange-error" className="text-red-400 text-sm">{formErrors.anticipatedInvestmentRange}</p>
-                ) : null}
-            </div>
-          </section>
+            </section>
+          )}
 
           <button
             type="submit"
@@ -1133,12 +1273,16 @@ function AuditPageContent() {
               ? 'Sending audit request...'
               : isContentOpsContext
                 ? contentOpsCopy.submitButton
+                : isLlmGatewayContext
+                  ? 'Send LLM Gateway Access Request'
                 : 'Send Systems Audit Request'}
           </button>
 
           <p className="text-center text-xs text-foreground/45">
             {isContentOpsContext
               ? contentOpsCopy.submitCopy
+              : isLlmGatewayContext
+              ? 'No payment or provider key is collected here. If there is a fit, I will reply with next steps for Atlas LLM Gateway access.'
               : 'No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.'}
           </p>
 

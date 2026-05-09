@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Database,
   FileText,
+  KeyRound,
   Radar,
   ShieldCheck,
 } from 'lucide-react';
@@ -83,6 +84,35 @@ const systems: SystemEntry[] = [
       'Operator review queue with claim notes',
     ],
   },
+  {
+    icon: <KeyRound className="w-6 h-6" />,
+    label: 'LLM INFRASTRUCTURE',
+    title: 'Atlas LLM Gateway',
+    interest: 'llm-gateway',
+    offer: 'llm-gateway-access',
+    href: '/systems/atlas-llm-gateway',
+    hrefLabel: 'View the landing page',
+    summary:
+      'A hosted BYOK gateway for teams running Claude or OpenRouter traffic, built to bundle cache, batch, reconciliation, budget guards, routing, and usage tracking behind one account-scoped API surface.',
+    customerData: [
+      'Anthropic provider account and BYOK API key',
+      'Repeat prompts and async LLM workloads such as evals, enrichment, backfills, reports, or content generation',
+      'Production callers that need stable API keys instead of dashboard sessions',
+      'Account, workspace, or customer boundaries for usage tracking',
+    ],
+    builtCore: [
+      'Chat, streaming, Anthropic batch, exact-cache, and semantic-cache gateway paths',
+      'Encrypted provider-key storage and server-side key resolution',
+      'Plan gates, rate limits, idempotency, runtime budget guards, and account-scoped usage rows',
+      'Usage rollups that separate cache, synchronous, batch, and provider-reconciled spend',
+    ],
+    outputs: [
+      'Hosted LLM Gateway API',
+      'BYOK key management path',
+      'Cache and batch-cost visibility',
+      'Per-account budgets, usage, reconciliation, and plan controls',
+    ],
+  },
 ];
 
 const implementationSteps = [
@@ -127,7 +157,7 @@ export default function SystemsPage() {
             Start from a proven system pattern, not a blank AI build.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Some business problems are common enough that the architecture should not start from scratch. Competitive intelligence and content operations already have working cores; your data, sources, approvals, and integrations make them fit your business.
+            Some business problems are common enough that the architecture should not start from scratch. Competitive intelligence, content operations, and LLM gateway infrastructure already have working cores; your data, sources, approvals, and integrations make them fit your business.
           </p>
           <p className="text-base text-foreground/50 leading-relaxed mt-4">
             Use this path when you want a faster route to a useful system without accepting a generic tool.

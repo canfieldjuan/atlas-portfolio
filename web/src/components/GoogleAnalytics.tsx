@@ -3,7 +3,7 @@
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
-import { GA_MEASUREMENT_ID, trackPageView } from '@/lib/analytics';
+import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID, trackPageView } from '@/lib/analytics';
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
@@ -25,14 +25,18 @@ export function GoogleAnalytics() {
     trackPageView(pagePath);
   }, [pagePath]);
 
-  if (!GA_MEASUREMENT_ID) {
+  if (!GA_MEASUREMENT_ID && !GOOGLE_ADS_ID) {
     return null;
   }
+
+  // gtag.js is one library; loading it with any product ID lets us add
+  // additional gtag('config', ...) calls for other product IDs (Ads, etc.).
+  const gtagLoaderId = GA_MEASUREMENT_ID || GOOGLE_ADS_ID;
 
   return (
     <>
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtagLoaderId}`}
         strategy="afterInteractive"
       />
       <Script
@@ -43,7 +47,8 @@ export function GoogleAnalytics() {
             window.dataLayer = window.dataLayer || [];
             window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
             window.gtag('js', new Date());
-            window.gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+            ${GA_MEASUREMENT_ID ? `window.gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });` : ''}
+            ${GOOGLE_ADS_ID ? `window.gtag('config', '${GOOGLE_ADS_ID}');` : ''}
           `,
         }}
       />

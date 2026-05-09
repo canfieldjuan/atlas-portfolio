@@ -12,6 +12,10 @@ export const AUDIT_PROJECT_INTERESTS = [
     label: 'AI Content Ops Station',
   },
   {
+    value: 'llm-gateway',
+    label: 'Atlas LLM Gateway',
+  },
+  {
     value: 'revenue-ops',
     label: 'Revenue operations automation',
   },
@@ -66,6 +70,7 @@ const AUDIT_SOURCE_LABELS: Record<string, string> = {
   'ai-content-ops': 'AI Content Ops Station landing page',
   'ai-content-ops-demo': 'AI Content Ops interactive demo',
   'ai-content-ops-ongoing-support': 'AI Content Ops ongoing support page',
+  'atlas-llm-gateway': 'Atlas LLM Gateway landing page',
 };
 
 const AUDIT_OFFER_LABELS: Record<string, string> = {
@@ -79,6 +84,10 @@ const AUDIT_OFFER_LABELS: Record<string, string> = {
   'custom-build': 'Custom AI system / custom build',
   'content-ops-private-demo': 'AI Content Ops private demo',
   'ongoing-support': 'Ongoing Optimization',
+  'llm-gateway-access': 'Atlas LLM Gateway access request',
+  'llm-gateway-starter': 'Atlas LLM Gateway Starter',
+  'llm-gateway-growth': 'Atlas LLM Gateway Growth',
+  'llm-gateway-pro': 'Atlas LLM Gateway Pro',
 };
 
 export function isAuditProjectInterest(value: unknown): value is AuditProjectInterest {

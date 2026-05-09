@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/systems`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/systems/ai-content-ops`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/systems/ai-content-ops/ongoing-support`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
+    { url: `${baseUrl}/systems/atlas-llm-gateway`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/proof`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/process`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
