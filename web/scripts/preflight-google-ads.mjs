@@ -90,7 +90,6 @@ async function queryTargetCustomer(accessToken, apiVersion, customerId, options 
     headers: googleAdsHeaders(accessToken, true),
     body: JSON.stringify({
       query: READ_ONLY_CUSTOMER_QUERY,
-      pageSize: 1,
     }),
   });
 

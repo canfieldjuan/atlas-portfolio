@@ -99,15 +99,16 @@ export async function refreshAccessToken(options = {}) {
   return payload.access_token;
 }
 
-// Hard upper bound on pages followed for a single googleAdsSearch call. At pageSize 1000
-// this covers up to a million rows per call, which is far above any realistic Google Ads
-// resource count for a single campaign. The cap prevents an infinite loop if the API
-// returned the same token repeatedly.
+// Hard upper bound on pages followed for a single googleAdsSearch call. v22 fixes page
+// size at 10000 server-side, so this covers up to ten million rows per call — far above
+// any realistic Google Ads resource count for a single campaign. The cap prevents an
+// infinite loop if the API returned the same token repeatedly.
 const GOOGLE_ADS_SEARCH_MAX_PAGES = 1000;
 
 export async function googleAdsSearch(accessToken, apiVersion, customerId, query, options = {}) {
   const label = options.errorLabel || 'Google Ads search';
-  const pageSize = options.pageSize || 1;
+  // v22 dropped support for the pageSize request field; page size is now fixed at 10000
+  // server-side. We accept the option for backwards compatibility but no longer send it.
   const maxPages = Math.max(1, Math.min(options.maxPages || GOOGLE_ADS_SEARCH_MAX_PAGES, GOOGLE_ADS_SEARCH_MAX_PAGES));
   const aggregated = [];
   let pageToken = '';
@@ -115,9 +116,7 @@ export async function googleAdsSearch(accessToken, apiVersion, customerId, query
 
   while (true) {
     pagesFetched += 1;
-    const requestBody = pageToken
-      ? { query, pageSize, pageToken }
-      : { query, pageSize };
+    const requestBody = pageToken ? { query, pageToken } : { query };
     const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/googleAds:search`, {
       method: 'POST',
       headers: googleAdsHeaders(accessToken, true),
