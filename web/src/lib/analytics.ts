@@ -1,5 +1,7 @@
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || '';
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() || '';
+export const GOOGLE_ADS_AUDIT_CONVERSION_LABEL =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_AUDIT_CONVERSION_LABEL?.trim() || '';
 
 type AnalyticsValue = string | number | boolean | null | undefined;
 type AnalyticsParams = Record<string, AnalyticsValue>;
@@ -66,4 +68,15 @@ export function trackAuditRequestSubmitted({
     submission_status: safeDimension(status, 'submitted'),
     delivery_path: safeDimension(delivery, 'unknown'),
   });
+
+  if (
+    GOOGLE_ADS_ID &&
+    GOOGLE_ADS_AUDIT_CONVERSION_LABEL &&
+    typeof window !== 'undefined' &&
+    typeof window.gtag === 'function'
+  ) {
+    window.gtag('event', 'conversion', {
+      send_to: `${GOOGLE_ADS_ID}/${GOOGLE_ADS_AUDIT_CONVERSION_LABEL}`,
+    });
+  }
 }
