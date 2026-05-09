@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "ads:validate": "node scripts/validate-ads-spec.mjs",
+    "ads:google:bootstrap-token": "node scripts/bootstrap-google-ads-refresh-token.mjs",
     "ads:google:plan": "node scripts/plan-google-ads-operations.mjs",
     "ads:google:check-env": "node scripts/plan-google-ads-operations.mjs --check-env",
     "ads:google:preflight": "node scripts/preflight-google-ads.mjs",
