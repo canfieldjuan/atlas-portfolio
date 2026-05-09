@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isDiscoveryFlow = optionalText(body.sourceOffer) === 'content-ops-discovery';
+
     const required = [
       'fullName',
       'workEmail',
@@ -27,8 +29,7 @@ export async function POST(request: NextRequest) {
       'biggestBottleneck',
       'automationDataSources',
       'desiredTimeline',
-      'securityRequirement',
-      'anticipatedInvestmentRange',
+      ...(isDiscoveryFlow ? [] : (['securityRequirement', 'anticipatedInvestmentRange'] as const)),
     ] as const;
 
     const missing = required.filter((field) => {
@@ -47,7 +48,11 @@ export async function POST(request: NextRequest) {
     }
 
     const validRanges = ['phase1', '10k-25k', '25k-50k', '50k+', 'unsure'] as const;
-    if (!validRanges.includes(body.anticipatedInvestmentRange as (typeof validRanges)[number])) {
+    const investmentRangeValue = optionalText(body.anticipatedInvestmentRange);
+    if (
+      !(isDiscoveryFlow && !investmentRangeValue) &&
+      !validRanges.includes(body.anticipatedInvestmentRange as (typeof validRanges)[number])
+    ) {
       return NextResponse.json(
         { ok: false, error: 'Invalid investment range.' },
         { status: 400 }
@@ -76,7 +81,9 @@ export async function POST(request: NextRequest) {
       'soc2-type2',
       'unsure',
     ] as const;
+    const securityRequirementValue = optionalText(body.securityRequirement);
     if (
+      !(isDiscoveryFlow && !securityRequirementValue) &&
       !validSecurityRequirements.includes(
         body.securityRequirement as (typeof validSecurityRequirements)[number]
       )

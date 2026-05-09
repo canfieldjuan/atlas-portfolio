@@ -213,13 +213,13 @@ function buildNotificationText(record: AuditIntakeRecord) {
     '',
     `Current Tech Ecosystem: ${record.currentTechEcosystem || 'Not provided'}`,
     `Desired Timeline: ${record.desiredTimelineLabel || record.desiredTimeline}`,
-    `Security Requirement: ${record.securityRequirementLabel || record.securityRequirement}`,
+    `Security Requirement: ${record.securityRequirementLabel || record.securityRequirement || 'Not provided'}`,
     '',
     'Deployment Constraints',
     record.deploymentConstraints || 'Not provided',
     '',
     `ROI Goal: ${record.roiGoal || 'Not provided'}`,
-    `Budget Range: ${record.anticipatedInvestmentRangeLabel || record.anticipatedInvestmentRange}`,
+    `Budget Range: ${record.anticipatedInvestmentRangeLabel || record.anticipatedInvestmentRange || 'Not provided'}`,
   ].join('\n');
 }
 
