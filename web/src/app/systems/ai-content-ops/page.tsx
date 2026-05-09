@@ -292,19 +292,19 @@ const replacesItems: { instead: string; youGet: string }[] = [
 
 const pricingFaqs: { q: string; a: string }[] = [
   {
-    q: 'Do I need clean data?',
+    q: 'Do I need clean or structured data to start AI Content Ops?',
     a: 'You do not need perfect data, but the better your source material is, the better the outputs will be. The discovery call identifies which data sources are usable now and which need cleanup before automation.',
   },
   {
-    q: 'Is this a SaaS subscription?',
+    q: 'Is AI Content Ops a SaaS subscription or a custom build?',
     a: 'Not yet. AI Content Ops Station is currently delivered as a productized implementation. That means the system is designed around your workflow instead of forcing you into a generic tool.',
   },
   {
-    q: 'Can this publish automatically?',
+    q: 'Can AI Content Ops publish content automatically without human review?',
     a: 'It can, but the recommended setup starts with human approval. This keeps quality high and prevents weak content from going live without review.',
   },
   {
-    q: 'What kind of content can it create?',
+    q: 'What types of content can AI Content Ops produce?',
     a: 'Blogs, email campaigns, sales briefs, reports, landing page copy, social posts, internal knowledge briefs, and campaign angles.',
   },
   {

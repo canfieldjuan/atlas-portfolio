@@ -115,7 +115,7 @@ const faqs = [
     a: 'I map the workflow, identify the useful automation boundary, define data and integration requirements, prove the riskiest part, and scope the implementation before build work begins.',
   },
   {
-    q: 'Is this custom AI development or consulting?',
+    q: 'Is this custom AI development or AI automation consulting?',
     a: 'Both, but in order. Phase 1 is consulting, architecture, and proof. Phase 2 is custom AI development once scope, price, and delivery risk are clear.',
   },
   {

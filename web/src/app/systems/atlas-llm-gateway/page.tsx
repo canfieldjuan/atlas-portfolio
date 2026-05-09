@@ -187,19 +187,19 @@ const notFit = [
 
 const faqs = [
   {
-    q: 'Is this a model provider?',
+    q: 'Is Atlas LLM Gateway a model provider or a wrapper around providers?',
     a: 'No. Atlas LLM Gateway starts as a hosted BYOK gateway. You keep your provider relationship; Atlas adds the API surface, cache, batch execution, plan gates, usage tracking, reconciliation, and budget controls around it.',
   },
   {
-    q: 'Where do the savings come from?',
+    q: "Where do Atlas LLM Gateway's cost savings come from?",
     a: 'The first visible wedge is Anthropic Message Batches for traffic that can wait. The broader savings surface also includes exact cache, semantic cache, provider-billing reconciliation, and runtime budget guards that stop spend before it drifts.',
   },
   {
-    q: 'Do I have to rewrite my whole app?',
+    q: 'Do I have to rewrite my whole app to use Atlas LLM Gateway?',
     a: 'No. Real-time calls can stay real-time through the chat and streaming endpoints. The biggest early win is moving non-interactive work to the batch endpoint first.',
   },
   {
-    q: 'Is OpenRouter supported?',
+    q: 'Is OpenRouter supported as a backing provider in Atlas LLM Gateway?',
     a: 'The product is Claude-first and designed around Anthropic plus OpenRouter routing. Together, Groq, and other providers are later expansion paths when customer traffic justifies them.',
   },
   {

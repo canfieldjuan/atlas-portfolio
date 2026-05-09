@@ -512,7 +512,7 @@ export default function ServicesPage() {
                 a: 'No. Every engagement is flat-fee or fixed-price. If I\'m faster than expected, you pay the same. If it takes me longer, you still pay the same.',
               },
               {
-                q: 'What about data security?',
+                q: 'How is data security handled during AI consulting engagements?',
                 a: 'The deployment model is scoped to your operational and security requirements. Cloud, local, and hybrid patterns can be evaluated per project. If you have procurement or compliance constraints, those should be defined before build work begins.',
               },
               {

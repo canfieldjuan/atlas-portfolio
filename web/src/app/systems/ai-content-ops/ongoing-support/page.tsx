@@ -120,7 +120,7 @@ const ongoingFaqs: { q: string; a: string }[] = [
     a: 'Anything that keeps the workflow aligned with the business: prompt tuning, template updates, integration fixes, new content angles, quality gate refinements, reporting. Out-of-scope work — a brand-new pipeline, a new data integration, a major rebuild — is scoped separately as a project.',
   },
   {
-    q: 'Can I pause or cancel?',
+    q: 'Can I pause or cancel the ongoing optimization retainer?',
     a: 'Yes. The retainer is month-to-month. Cancel with 30 days notice. Pausing for a month is also fine if you have a slow stretch.',
   },
   {
