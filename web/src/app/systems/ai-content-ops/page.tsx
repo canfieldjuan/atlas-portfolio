@@ -369,14 +369,11 @@ export default function AiContentOpsPage() {
               <span>AI CONTENT OPS STATION</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
-              Your content isn&apos;t converting{' '}
-              <span className="gradient-text">because it&apos;s guessing.</span>
+              Turn the customer data you already have{' '}
+              <span className="gradient-text">into the content you keep needing.</span>
             </h1>
-            <p className="text-lg text-foreground/60 leading-relaxed mb-4">
-              We use real customer data — reviews, sales calls, support tickets, CRM notes — to generate content that speaks to what buyers actually care about. Ready to publish in days, not weeks.
-            </p>
-            <p className="text-sm text-foreground/45 leading-relaxed mb-8">
-              Built for businesses that need useful content from real data — not generic AI filler.
+            <p className="text-lg text-foreground/60 leading-relaxed mb-8">
+              From CRM notes to landing pages. From customer reviews to blog posts. From sales calls to email campaigns.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
