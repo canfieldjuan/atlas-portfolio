@@ -536,7 +536,7 @@ export default function AiContentOpsPage() {
               This Is Not Another AI Writing Tool
             </h2>
             <p className="text-foreground/60 leading-relaxed mb-3">
-              Most AI writing tools generate content from prompts. AI Content Ops Station generates content from a system.
+              Most AI writing tools generate content from blank prompts. AI Content Ops Station generates content from a system.
             </p>
             <p className="text-foreground/55 leading-relaxed">
               That system includes structured inputs, reasoning layers, quality checks, approval gates, reusable templates, and cost-aware model routing.
