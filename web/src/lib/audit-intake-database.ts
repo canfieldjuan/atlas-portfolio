@@ -156,11 +156,14 @@ export async function persistAuditIntakeRecord(record: AuditIntakeRecord) {
       record.currentTechEcosystem || null,
       record.desiredTimeline,
       record.desiredTimelineLabel || null,
-      record.securityRequirement,
+      // Discovery-flow submissions don't collect security/budget fields (those
+      // columns are NOT NULL in the table schema). Default to '' so the INSERT
+      // succeeds; admin UI's label() helper renders '' as 'Not provided'.
+      record.securityRequirement || '',
       record.securityRequirementLabel || null,
       record.deploymentConstraints || null,
       record.roiGoal || null,
-      record.anticipatedInvestmentRange,
+      record.anticipatedInvestmentRange || '',
       record.anticipatedInvestmentRangeLabel || null,
       JSON.stringify(record),
     ]
