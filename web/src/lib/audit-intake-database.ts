@@ -30,9 +30,12 @@ export type AuditIntakeSummaryRow = {
 };
 
 function auditIntakeDatabaseUrl() {
+  // Vercel's Neon/Postgres integration injects POSTGRES_URL by default, so falling
+  // back to it lets persistence work on Vercel without a separate env-var alias.
   return (
     process.env.AUDIT_INTAKE_DATABASE_URL?.trim() ||
     process.env.DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
     ''
   );
 }

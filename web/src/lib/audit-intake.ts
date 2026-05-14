@@ -345,7 +345,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
 
   if (deliveries.length > 0 && !hasPersistentDelivery(deliveries)) {
     warnings.push(
-      'Audit intake notification succeeded, but no persistent intake sink is configured. Configure AUDIT_INTAKE_DATABASE_URL, AUDIT_INTAKE_WEBHOOK_URL, or AUDIT_INTAKE_ATLAS_BASE_URL to store submissions outside the inbox.'
+      'Audit intake notification succeeded, but no persistent intake sink is configured. Configure AUDIT_INTAKE_DATABASE_URL (or DATABASE_URL / POSTGRES_URL), AUDIT_INTAKE_WEBHOOK_URL, or AUDIT_INTAKE_ATLAS_BASE_URL to store submissions outside the inbox.'
     );
   }
 
