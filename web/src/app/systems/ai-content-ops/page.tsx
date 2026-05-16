@@ -470,13 +470,13 @@ export default function AiContentOpsPage() {
               THE SOLUTION
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
-              A Content Pipeline Built Around Your Actual Business Data
+              Your tickets already wrote the help center. We just have to read them.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
-              AI Content Ops Station takes structured inputs and turns them into usable content assets through a controlled workflow. Instead of generating one-off drafts from vague prompts, the system creates repeatable outputs from the same intelligence layer.
+              The pile of tickets you&apos;ve closed in the last 90 days is a ranked priority list of help docs — already there, just unsorted. Every question your customers ask multiple times is one help doc you don&apos;t have to invent the topic for.
             </p>
-            <p className="text-foreground/55 leading-relaxed">
-              That means your blogs, emails, reports, sales briefs, and landing pages can all be powered by the same source of truth.
+            <p className="text-foreground/65 leading-relaxed">
+              The Gap Report does the reading. Six steps run on your CSV: cluster the questions, rank them by how many times your customers asked, pull out the exact wording they used, and draft FAQ entries that cite their tickets. You review and publish. 48 hours to first report. Quarterly after that as your customers shift.
             </p>
           </div>
 
