@@ -36,17 +36,17 @@ const pipelineStages = [
   { label: 'Review & Publish', sub: 'You approve, edit, ship' },
 ];
 
-const trappedSources = [
-  'CRM notes',
-  'Customer reviews',
-  'Sales calls',
-  'Support tickets',
-  'Competitor research',
-  'Internal docs',
-  'Spreadsheets',
-  'Old reports',
-  'Product notes',
-  'Customer interviews',
+const ticketCategories = [
+  'Password resets',
+  'Plan changes',
+  'Refund requests',
+  'Integration setup',
+  'Feature questions',
+  'Permission errors',
+  'API limits',
+  'Bug reports',
+  'Cancellation flow',
+  'Onboarding stuck',
 ];
 
 const outputs = [
@@ -432,26 +432,34 @@ export default function AiContentOpsPage() {
             THE PROBLEM
           </div>
           <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
-            Most AI Content Still Starts From a Blank Prompt
+            Your help center froze 18 months ago. Your support tickets didn&apos;t.
           </h2>
           <p className="text-foreground/65 leading-relaxed mb-4">
-            Most teams use AI the hard way. They open a chatbot, paste in scattered context, rewrite the prompt five times, check the output manually, and still end up with content that sounds polished but thin.
+            Your team is fielding around 1,000 tickets per agent every month. Roughly 70% are variations of the same 50 questions, asked over and over. That list shifts every quarter as your product evolves and your customer mix changes.
           </p>
           <p className="text-foreground/65 leading-relaxed mb-8">
-            The bigger problem is that the best source material is usually trapped inside messy systems:
+            Meanwhile, your help center was written around topics someone thought important 18 months ago. The high-volume questions of today aren&apos;t in it. The questions in it might not even be relevant anymore.
           </p>
           <div className="flex flex-wrap gap-2 mb-8">
-            {trappedSources.map((source) => (
+            {ticketCategories.map((category) => (
               <span
-                key={source}
+                key={category}
                 className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-sm text-foreground/65"
               >
-                {source}
+                {category}
               </span>
             ))}
           </div>
+          <p className="text-foreground/65 leading-relaxed mb-3">
+            You lose three things every week to this drift:
+          </p>
+          <ul className="text-foreground/65 leading-relaxed mb-8 space-y-2 ml-5 list-disc">
+            <li>Hours of CS time on questions a doc would deflect</li>
+            <li>SEO long-tail traffic to whoever DID document those questions</li>
+            <li>Trust from new customers who Google your product and find a thin help center</li>
+          </ul>
           <p className="text-foreground/55 leading-relaxed">
-            That information is valuable, but it rarely turns into consistent content because there is no real content pipeline behind it. AI Content Ops Station fixes that.
+            Reading 30,000 tickets to find the patterns is a job no one has 40 hours to do. So the help center stays frozen.
           </p>
         </section>
 
