@@ -94,34 +94,34 @@ const comparisonRows: { basic: string; report: string }[] = [
 
 const howItWorks = [
   {
-    title: 'Connect or Upload Business Data',
+    title: 'Support Tickets',
     detail:
-      'Start with information you already have: CRM exports, customer notes, reviews, support tickets, call summaries, spreadsheets, product docs, or research files.',
+      'What you send: a CSV export of closed tickets from the last 90 days. Subject lines and ticket bodies; no PII required, no internal notes needed. Most Zendesk admins export this in under 5 minutes. Larger pulls (180+ days) are fine and recommended for the first run.',
   },
   {
-    title: 'Extract Useful Signals',
+    title: 'Cluster by Intent',
     detail:
-      'The system identifies themes, pain points, objections, buying triggers, customer language, competitor mentions, and content opportunities.',
+      'Tickets get grouped by what the customer was actually trying to do — not by tag, category, or assignee. Two tickets with different wording but the same intent ("password reset" / "can\'t log in") land in one cluster. This is where the volume math gets honest.',
   },
   {
-    title: 'Synthesize the Intelligence',
+    title: 'Rank by Volume',
     detail:
-      'Instead of dumping raw summaries into content, the system turns the signals into structured conclusions, angles, claims, and recommendations.',
+      'Clusters get sorted by how many tickets fell into each one. Top 50 surface. The long tail goes in an appendix you can browse but don\'t have to read. Volume is the only ranking signal — no opinion, no model judgment about what\'s "important."',
   },
   {
-    title: 'Generate Content Assets',
+    title: 'Extract Customer Wording',
     detail:
-      'The content engine produces blogs, emails, reports, briefs, social posts, and landing page sections from approved templates.',
+      'For the top 50, we pull the verbatim phrasing customers used most often. Not paraphrased. This is the same language they\'ll Google — which is why the SEO benefit is structural, not a side effect.',
   },
   {
-    title: 'Review Before Publishing',
+    title: 'Generate FAQ Entries',
     detail:
-      'Human approval gates keep the system controlled. Nothing has to publish automatically unless the workflow is designed that way.',
+      'Drafts produced for the top 3 gaps (questions with no existing doc). 200-400 words each. Source ticket IDs cited per claim. Tone tuned to your brand if you send a style note; defaults to plain-spoken if you don\'t.',
   },
   {
-    title: 'Reuse the Same Intelligence',
+    title: 'Review & Publish',
     detail:
-      'The same source intelligence can power multiple assets, reducing repeated research and making content more consistent across channels.',
+      'The report is yours. You read it in 10 minutes. You hand the 3 FAQ drafts to whoever writes your help docs. They edit (always something — 5 to 30 minutes per draft). You publish. No auto-publish, no integration into your help center — your team controls that.',
   },
 ];
 
@@ -763,10 +763,13 @@ export default function AiContentOpsPage() {
               HOW IT WORKS
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              How the System Works
+              What happens at each step — and what you should be watching.
             </h2>
-            <p className="text-foreground/60 leading-relaxed">
-              Six controlled steps from raw business data to approved, publishable assets.
+            <p className="text-foreground/65 leading-relaxed mb-3">
+              The pipeline above shows the six steps at a glance. This is what each one actually involves on your side and ours. Where the work is. Where the judgment calls are. What can go wrong if you skip a check.
+            </p>
+            <p className="text-foreground/65 leading-relaxed">
+              One thing worth flagging up front: the FAQ drafts come back written in <span className="text-white">your customers&apos; own words</span>, not your team&apos;s. That&apos;s the same wording they type into Google. SEO ranking on long-tail questions falls out structurally — it&apos;s not a side benefit you have to engineer for separately.
             </p>
           </div>
 
