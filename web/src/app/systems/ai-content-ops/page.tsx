@@ -256,21 +256,6 @@ const retainer = {
   href: '/systems/ai-content-ops/ongoing-support',
 };
 
-const replacesItems: { instead: string; youGet: string }[] = [
-  {
-    instead: 'Guessing what to write',
-    youGet: 'Content based on real customer signals',
-  },
-  {
-    instead: 'Relying on generic AI outputs',
-    youGet: 'Outputs tied to actual pain points',
-  },
-  {
-    instead: 'Spending weeks on content that does not convert',
-    youGet: 'Deliverables your team can use immediately',
-  },
-];
-
 const pricingFaqs: { q: string; a: string }[] = [
   {
     q: 'Do I need clean or structured data to start AI Content Ops?',
@@ -882,57 +867,6 @@ export default function AiContentOpsPage() {
                   <span className="text-sm text-foreground/75 leading-snug">{piece.label}</span>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* What This Replaces */}
-        <section className="mt-32">
-          <div className="max-w-3xl mb-10">
-            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              WHAT THIS REPLACES
-            </div>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              Most teams choose between guessing, generic AI, or agencies.
-            </h2>
-            <p className="text-foreground/65 leading-relaxed">
-              All three produce content. None of them produce content that actually converts.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-white/10 bg-black/30 p-6 md:p-7">
-              <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-5">
-                INSTEAD OF
-              </div>
-              <ul className="space-y-3">
-                {replacesItems.map((item) => (
-                  <li
-                    key={item.instead}
-                    className="flex items-start gap-3 text-sm text-foreground/55 leading-relaxed"
-                  >
-                    <X className="w-4 h-4 text-foreground/40 shrink-0 mt-0.5" />
-                    <span className="line-through decoration-foreground/30">{item.instead}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="rounded-xl border border-primary/30 bg-primary/[0.04] shadow-[0_0_40px_rgba(0,255,204,0.04)] p-6 md:p-7">
-              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
-                YOU GET
-              </div>
-              <ul className="space-y-3">
-                {replacesItems.map((item) => (
-                  <li
-                    key={item.youGet}
-                    className="flex items-start gap-3 text-sm text-white leading-relaxed"
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <span>{item.youGet}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </section>
