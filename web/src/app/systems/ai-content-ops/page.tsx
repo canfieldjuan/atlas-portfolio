@@ -234,24 +234,28 @@ const pricingTiers: PricingTier[] = [
 
 const pricingFaqs: { q: string; a: string }[] = [
   {
-    q: 'Do I need clean or structured data to start AI Content Ops?',
-    a: 'You do not need perfect data, but the better your source material is, the better the outputs will be. The discovery call identifies which data sources are usable now and which need cleanup before automation.',
+    q: 'What if my tickets are messy, or have PII?',
+    a: 'Messy is fine — we cluster by semantic intent, not by tags or labels, so inconsistent categorization does not break the math. For PII: do not send it. Subject lines and ticket bodies are enough; if your export tool can strip emails, phone numbers, and customer names, do that. If it cannot, send the CSV anyway and we drop PII in our intake step before any model sees it.',
   },
   {
-    q: 'Is AI Content Ops a SaaS subscription or a custom build?',
-    a: 'Not yet. AI Content Ops Station is currently delivered as a productized implementation. That means the system is designed around your workflow instead of forcing you into a generic tool.',
+    q: 'Where does my data go? Do you store it?',
+    a: 'Your CSV goes to a single processing pipeline on our side, runs through clustering, ranking, and drafting, and produces the report. We retain the raw CSV for 30 days for debugging if you flag a problem with the report, then delete. No third-party model fine-tuning, no training on your data, no sharing.',
   },
   {
-    q: 'Can AI Content Ops publish content automatically without human review?',
-    a: 'It can, but the recommended setup starts with human approval. This keeps quality high and prevents weak content from going live without review.',
+    q: 'How heavily do we need to edit the FAQ drafts?',
+    a: 'Plan for 5-30 minutes of tech-writer edits per draft. The drafts come back in plain-spoken customer language with cited ticket IDs. Most teams adjust tone-of-voice, add a brand-specific link or two, and ship. You are never re-writing from scratch.',
   },
   {
-    q: 'What types of content can AI Content Ops produce?',
-    a: 'Blogs, email campaigns, sales briefs, reports, landing page copy, social posts, internal knowledge briefs, and campaign angles.',
+    q: 'What if we have way more or way fewer than 2,000 tickets?',
+    a: 'More is better — 10,000 or 50,000 makes the rankings sharper. The first free report ingests whatever you send; we cap intake at 100,000 tickets per run to keep delivery under 48 hours. If you are under 2,000, hold off — the volume math gets noisy and we would rather refund the time than ship a thin report.',
   },
   {
-    q: 'What happens after the discovery call?',
-    a: 'If there is a strong fit, you receive a written recommendation and rough build scope. The next step is usually a focused pilot build starting at $7,500. If there is no real fit, we say so — no follow-up sales pressure.',
+    q: 'Why does customer wording actually rank better than what our team writes?',
+    a: 'Because customers Google what they say, not what your team says. They type "can\'t log in"; your team writes "Authentication Errors." Same problem, different vocabulary. Long-tail SEO rewards the language people actually use. Your tickets are the only source of that language for your specific product.',
+  },
+  {
+    q: 'What happens if we cancel after one quarterly report?',
+    a: 'Nothing — the quarterly subscription is cancel-any-time after the next report ships. There is no annual commitment in the quarterly tier (annual is its own prepaid tier). You can run one $1,500 quarterly report, see if it moves the needle, and stop.',
   },
 ];
 
@@ -957,10 +961,10 @@ export default function AiContentOpsPage() {
               FAQ
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              Common questions before booking.
+              Common questions before you send the CSV.
             </h2>
-            <p className="text-foreground/60 leading-relaxed">
-              Quick answers to the questions that decide whether the engagement is a fit.
+            <p className="text-foreground/65 leading-relaxed">
+              The ones that actually decide whether this is worth your time. If something here isn&apos;t answered, email us before sending data.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
