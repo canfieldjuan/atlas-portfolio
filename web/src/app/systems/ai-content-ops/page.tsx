@@ -20,8 +20,12 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
+
+// All on-page CTAs route to the focused Gap Report intake (CSV upload),
+// not the broader /audit form. Kept as a single constant so future renames
+// or per-CTA tracking params are one-edit-one-file.
+const GAP_REPORT_INTAKE_HREF = '/systems/ai-content-ops/intake';
 
 const pipelineStages = [
   { label: 'Support Tickets', sub: 'CSV • Last 90 days' },
@@ -178,11 +182,7 @@ const pricingTiers: PricingTier[] = [
     ],
     note: 'Requires ~2,000+ closed tickets so the ranking math is honest.',
     cta: 'Send us your CSV',
-    href: buildAuditHref({
-      interest: 'content-generation',
-      source: 'ai-content-ops',
-      offer: 'content-ops-discovery',
-    }),
+    href: GAP_REPORT_INTAKE_HREF,
     highlighted: true,
   },
   {
@@ -202,11 +202,7 @@ const pricingTiers: PricingTier[] = [
     ],
     note: 'Direct continuation from your free first report — no re-onboarding.',
     cta: 'Subscribe Quarterly',
-    href: buildAuditHref({
-      interest: 'content-generation',
-      source: 'ai-content-ops',
-      offer: 'content-ops-quarterly',
-    }),
+    href: GAP_REPORT_INTAKE_HREF,
   },
   {
     id: 'annual',
@@ -224,11 +220,7 @@ const pricingTiers: PricingTier[] = [
     ],
     note: 'Pays out in 4 quarterly deliveries — same cadence, less paperwork.',
     cta: 'Subscribe Annually',
-    href: buildAuditHref({
-      interest: 'content-generation',
-      source: 'ai-content-ops',
-      offer: 'content-ops-annual',
-    }),
+    href: GAP_REPORT_INTAKE_HREF,
   },
 ];
 
@@ -488,11 +480,7 @@ export default function AiContentOpsPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={buildAuditHref({
-                  interest: 'content-generation',
-                  source: 'ai-content-ops',
-                  offer: 'content-ops-discovery',
-                })}
+                href={GAP_REPORT_INTAKE_HREF}
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
                 Send us your CSV — first analysis free
@@ -1001,11 +989,7 @@ export default function AiContentOpsPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href={buildAuditHref({
-                    interest: 'content-generation',
-                    source: 'ai-content-ops',
-                    offer: 'content-ops-discovery',
-                  })}
+                  href={GAP_REPORT_INTAKE_HREF}
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
                   Send us your CSV — first analysis free

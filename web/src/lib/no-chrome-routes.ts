@@ -3,7 +3,10 @@
 // escape hatches. Per-route opt-in (not opt-out) so it's hard to accidentally
 // strip chrome from a page that needs it.
 
-export const NO_CHROME_ROUTES = ['/systems/ai-content-ops'] as const;
+export const NO_CHROME_ROUTES = [
+  '/systems/ai-content-ops',
+  '/systems/ai-content-ops/intake',
+] as const;
 
 type NoChromeRoute = (typeof NO_CHROME_ROUTES)[number];
 

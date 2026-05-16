@@ -1,0 +1,174 @@
+import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import type { GapReportSubmissionRecord } from './gap-report-intake';
+
+type GapReportSql = NeonQueryFunction<false, false>;
+
+export type GapReportSummaryRow = {
+  requestId: string;
+  submittedAt: string;
+  email: string;
+  companyName: string;
+  supportPlatform: string | null;
+  csvBlobUrl: string;
+  csvFilename: string;
+  csvSizeBytes: number | null;
+  sourcePage: string | null;
+  sourceOffer: string | null;
+  notificationStatus: string;
+  notificationError: string | null;
+};
+
+function gapReportDatabaseUrl() {
+  // Vercel's Neon/Postgres integration injects POSTGRES_URL by default, so falling
+  // back to it lets persistence work on Vercel without a separate env-var alias.
+  // Mirrors the resolution chain used by audit-intake-database.ts.
+  return (
+    process.env.GAP_REPORT_DATABASE_URL?.trim() ||
+    process.env.AUDIT_INTAKE_DATABASE_URL?.trim() ||
+    process.env.DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
+    ''
+  );
+}
+
+// Cache the Neon client per database URL across requests + Next dev HMR.
+const neonClientGlobalKey = Symbol.for('atlas-portfolio.gap-report-intake.neon-clients');
+type NeonClientCache = Map<string, unknown>;
+const globalScope = globalThis as unknown as { [neonClientGlobalKey]?: NeonClientCache };
+function neonClientCache(): NeonClientCache {
+  if (!globalScope[neonClientGlobalKey]) {
+    globalScope[neonClientGlobalKey] = new Map();
+  }
+  return globalScope[neonClientGlobalKey];
+}
+
+function getGapReportSql(): GapReportSql | null {
+  const databaseUrl = gapReportDatabaseUrl();
+  if (!databaseUrl) {
+    return null;
+  }
+
+  const cache = neonClientCache();
+  const cached = cache.get(databaseUrl);
+  if (cached) {
+    return cached as GapReportSql;
+  }
+  const client: GapReportSql = neon(databaseUrl);
+  cache.set(databaseUrl, client);
+  return client;
+}
+
+export function gapReportDatabaseConfigured() {
+  return gapReportDatabaseUrl().length > 0;
+}
+
+export async function persistGapReportSubmission(record: GapReportSubmissionRecord) {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return false;
+  }
+
+  await sql.query(
+    `
+      INSERT INTO portfolio_gap_report_submissions (
+        request_id,
+        submitted_at,
+        email,
+        company_name,
+        support_platform,
+        csv_blob_url,
+        csv_filename,
+        csv_size_bytes,
+        source_page,
+        source_offer,
+        notification_status,
+        notification_error,
+        payload
+      )
+      VALUES (
+        $1::uuid,
+        $2::timestamptz,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13::jsonb
+      )
+      ON CONFLICT (request_id) DO NOTHING
+    `,
+    [
+      record.requestId,
+      record.submittedAt,
+      record.email,
+      record.companyName,
+      record.supportPlatform || null,
+      record.csvBlobUrl,
+      record.csvFilename,
+      record.csvSizeBytes ?? null,
+      record.sourcePage || null,
+      record.sourceOffer || null,
+      record.notificationStatus,
+      record.notificationError || null,
+      JSON.stringify(record),
+    ]
+  );
+
+  return true;
+}
+
+export async function listGapReportSubmissions(limit = 50): Promise<GapReportSummaryRow[]> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return [];
+  }
+
+  const boundedLimit = Math.max(1, Math.min(limit, 100));
+  const rows = await sql.query(
+    `
+      SELECT
+        request_id::text AS request_id,
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
+        email,
+        company_name,
+        support_platform,
+        csv_blob_url,
+        csv_filename,
+        csv_size_bytes,
+        source_page,
+        source_offer,
+        notification_status,
+        notification_error
+      FROM portfolio_gap_report_submissions
+      ORDER BY submitted_at DESC
+      LIMIT $1
+    `,
+    [boundedLimit]
+  );
+
+  return rows.map((row) => ({
+    requestId: String(row.request_id),
+    submittedAt: String(row.submitted_at),
+    email: String(row.email),
+    companyName: String(row.company_name),
+    supportPlatform: typeof row.support_platform === 'string' ? row.support_platform : null,
+    csvBlobUrl: String(row.csv_blob_url),
+    csvFilename: String(row.csv_filename),
+    csvSizeBytes:
+      typeof row.csv_size_bytes === 'number'
+        ? row.csv_size_bytes
+        : row.csv_size_bytes != null
+          ? Number(row.csv_size_bytes)
+          : null,
+    sourcePage: typeof row.source_page === 'string' ? row.source_page : null,
+    sourceOffer: typeof row.source_offer === 'string' ? row.source_offer : null,
+    notificationStatus: String(row.notification_status),
+    notificationError:
+      typeof row.notification_error === 'string' ? row.notification_error : null,
+  }));
+}
