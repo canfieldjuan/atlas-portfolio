@@ -991,13 +991,13 @@ export default function AiContentOpsPage() {
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[0_0_40px_rgba(0,255,204,0.04)] text-center">
             <div className="max-w-2xl mx-auto">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-                FINAL STEP
+                START HERE
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-                Start With a Free Discovery Call
+                Send the CSV.
               </h2>
-              <p className="text-foreground/60 leading-relaxed mb-8">
-                30 minutes. No pressure. You will leave the call with a clear read on whether automation makes sense for your team — and a rough cost if it does. If there is no real opportunity, we will say so.
+              <p className="text-foreground/65 leading-relaxed mb-8">
+                Your last 90 days of closed tickets. We send back the full Gap Report in 48 hours — ranked questions, gap callouts, deflection math, and 3 publish-ready FAQ drafts. Free for the first 5 design partners. If it&apos;s useful you pay quarterly; if it&apos;s not, no follow-up.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
@@ -1008,18 +1008,14 @@ export default function AiContentOpsPage() {
                   })}
                   className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
                 >
-                  Book a Free Discovery Call
+                  Send us your CSV — first analysis free
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
-                  href={buildAuditHref({
-                    interest: 'content-generation',
-                    source: 'ai-content-ops',
-                    offer: 'content-ops-pilot',
-                  })}
+                  href="/architecture"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
-                  Ask About a Pilot Build
+                  Read the architecture first
                 </Link>
               </div>
             </div>
