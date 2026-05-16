@@ -9,16 +9,12 @@ import {
   Calculator,
   CheckCircle2,
   Clock,
-  Cpu,
   Database,
   FileText,
   Gauge,
-  GitBranch,
   HelpCircle,
   Layers,
-  LayoutTemplate,
   Repeat,
-  ScrollText,
   ShieldCheck,
   Workflow,
   X,
@@ -143,21 +139,11 @@ const useCases = [
   },
 ];
 
-const coreInfrastructure = [
-  { icon: <Layers className="w-4 h-4" />, label: 'Controlled generation pipelines' },
-  { icon: <CheckCircle2 className="w-4 h-4" />, label: 'Evidence-backed inputs' },
-  { icon: <Gauge className="w-4 h-4" />, label: 'Quality gates' },
-  { icon: <ShieldCheck className="w-4 h-4" />, label: 'Approval workflows' },
-  { icon: <LayoutTemplate className="w-4 h-4" />, label: 'Reusable templates' },
-  { icon: <ScrollText className="w-4 h-4" />, label: 'Report and content rendering' },
-];
-
-const optionalAtlasLayers = [
-  { icon: <Workflow className="w-4 h-4" />, label: 'Reasoning and synthesis' },
-  { icon: <GitBranch className="w-4 h-4" />, label: 'Model routing' },
-  { icon: <Database className="w-4 h-4" />, label: 'LLM batching' },
-  { icon: <Repeat className="w-4 h-4" />, label: 'Caching' },
-  { icon: <Cpu className="w-4 h-4" />, label: 'Cost tracking' },
+const underTheHood = [
+  { icon: <Database className="w-4 h-4" />, label: 'CSV ingest + ticket deduplication' },
+  { icon: <Layers className="w-4 h-4" />, label: 'Semantic intent clustering (not tag-based)' },
+  { icon: <Gauge className="w-4 h-4" />, label: 'Volume-ranked grouping with long tail visible' },
+  { icon: <CheckCircle2 className="w-4 h-4" />, label: 'Source-cited generation — every claim links back to tickets' },
 ];
 
 type PricingTier = {
@@ -836,21 +822,56 @@ export default function AiContentOpsPage() {
           <div className="glass rounded-xl border border-white/10 p-8 md:p-10">
             <div className="max-w-3xl mb-8">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-                SYSTEM PROOF
+                PROOF
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-                Powered By Production Infrastructure, Not Prompt Guesswork
+                The product is new. The pipeline isn&apos;t.
               </h2>
-              <p className="text-foreground/60 leading-relaxed mb-3">
-                AI Content Ops Station runs on reusable ATLAS production infrastructure: controlled generation pipelines, evidence-backed inputs, quality gates, approval workflows, reusable templates, and report/content rendering. When you need more than prompt-only generation, it plugs into separate ATLAS layers — reasoning and synthesis, model routing, LLM batching, caching, and cost tracking — without changing the Content Ops core.
+              <p className="text-foreground/65 leading-relaxed mb-3">
+                The Gap Report is a new offering with no paying customers yet. The pipeline behind it has been running for months on a different dataset — 40,000+ B2B SaaS reviews scraped from sites like G2 — producing structured battle cards, vendor profiles, and intelligence reports. Same engine. Same evidence-grounded approach. Different output, different input.
+              </p>
+              <p className="text-foreground/65 leading-relaxed">
+                You can verify this in 60 seconds. The links below open live data, real screenshots, and the 6-stage pipeline walkthrough the Gap Report runs on top of.
               </p>
             </div>
 
-            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              INSIDE AI CONTENT OPS
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <Link
+                href="/architecture"
+                className="group rounded-lg border border-white/10 bg-black/30 p-5 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <span className="text-[10px] font-mono text-primary/80 tracking-widest">
+                    6-STAGE PIPELINE WALKTHROUGH
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-primary/60 group-hover:translate-x-1 transition-transform shrink-0" />
+                </div>
+                <p className="text-sm text-foreground/65 leading-relaxed">
+                  The actual data transformations at every stage. Raw review JSON in, structured battle card JSON out. Includes the live walkthrough files at <span className="font-mono text-foreground/55">/01...06_*.json</span>.
+                </p>
+              </Link>
+
+              <Link
+                href="/proof"
+                className="group rounded-lg border border-white/10 bg-black/30 p-5 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <span className="text-[10px] font-mono text-primary/80 tracking-widest">
+                    LIVE PRODUCT SCREENSHOTS
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-primary/60 group-hover:translate-x-1 transition-transform shrink-0" />
+                </div>
+                <p className="text-sm text-foreground/65 leading-relaxed">
+                  13 screenshots from the production intelligence platform — dashboards, vendor pages, evidence vaults, reasoning traces, generated reports.
+                </p>
+              </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {coreInfrastructure.map((piece) => (
+
+            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+              WHAT RUNS UNDER THE HOOD FOR THE GAP REPORT
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {underTheHood.map((piece) => (
                 <div
                   key={piece.label}
                   className="rounded-lg border border-white/10 bg-black/20 p-4 flex items-center gap-3"
@@ -858,24 +879,7 @@ export default function AiContentOpsPage() {
                   <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     {piece.icon}
                   </div>
-                  <span className="text-sm text-foreground/75">{piece.label}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mt-8 mb-3">
-              OPTIONAL ATLAS LAYERS &mdash; CONNECT WHEN YOU NEED THEM
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {optionalAtlasLayers.map((piece) => (
-                <div
-                  key={piece.label}
-                  className="rounded-lg border border-dashed border-white/10 bg-black/10 p-4 flex items-center gap-3"
-                >
-                  <div className="w-8 h-8 rounded-md bg-foreground/5 text-foreground/55 flex items-center justify-center shrink-0">
-                    {piece.icon}
-                  </div>
-                  <span className="text-sm text-foreground/65">{piece.label}</span>
+                  <span className="text-sm text-foreground/75 leading-snug">{piece.label}</span>
                 </div>
               ))}
             </div>
