@@ -127,24 +127,19 @@ const howItWorks = [
 
 const useCases = [
   {
-    title: 'B2B SaaS Teams',
-    detail: 'Turn customer feedback, sales objections, and competitor notes into battlecards, blogs, and campaigns.',
+    title: 'Head of Customer Success / Support',
+    detail:
+      'You see ticket volume rising faster than headcount. Your team flags repeat questions in standups but no one has 40 hours to compile a real fix-it list. You want a quarterly artifact that shows the board what is getting deflected and what is costing you hours.',
   },
   {
-    title: 'Agencies',
-    detail: 'Produce client content faster using structured intake, approval gates, and reusable workflows.',
+    title: 'Head of Marketing / Growth',
+    detail:
+      'You know your help center is a long-tail SEO machine that nobody is running. Competitors are ranking for questions your customers ask you directly. You want help-doc content that is grounded in real customer language, not topic-driven blog briefs.',
   },
   {
-    title: 'Consultants',
-    detail: 'Turn research, notes, and client insights into reports, thought leadership, and sales assets.',
-  },
-  {
-    title: 'Local Service Businesses',
-    detail: 'Turn customer questions, service knowledge, and reviews into helpful website content, email reminders, and trust-building posts.',
-  },
-  {
-    title: 'Sales Teams',
-    detail: 'Create objection-handling content, follow-up emails, account briefs, and competitive positioning assets.',
+    title: 'Founder / Head of Product (under 50 employees)',
+    detail:
+      'You are the de-facto owner of "the customer experience" because everything still routes through you. You do not have time to read 30,000 tickets, but you read the executive summary of a Gap Report in 10 minutes and know exactly which 3 help docs to ship this sprint.',
   },
 ];
 
@@ -797,13 +792,13 @@ export default function AiContentOpsPage() {
         <section className="mt-32">
           <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              BEST FIT
+              WHO THIS IS FOR
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              Built For Teams Sitting On Useful Information They Are Not Fully Using
+              Three shapes of buyer. All inside one company.
             </h2>
-            <p className="text-foreground/60 leading-relaxed">
-              AI Content Ops Station is a fit if your business already has valuable knowledge, but no efficient way to turn it into content.
+            <p className="text-foreground/65 leading-relaxed">
+              The Gap Report works for B2B SaaS companies at $1M-$50M ARR with an active support function. Within that company, three roles end up benefiting — sometimes one person wears all three hats, sometimes it&apos;s three people. If you recognize yourself in any of these, the report has something for you.
             </p>
           </div>
 
@@ -818,12 +813,21 @@ export default function AiContentOpsPage() {
                 className="glass rounded-xl border border-white/10 p-6"
               >
                 <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-3">
-                  USE CASE 0{i + 1}
+                  ROLE 0{i + 1}
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{useCase.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{useCase.detail}</p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
+              NOT A FIT FOR
+            </div>
+            <p className="text-sm text-foreground/65 leading-relaxed">
+              Enterprise-only support orgs (procurement cycles too long), early-stage pre-product-market-fit teams (not enough ticket volume yet), or businesses where the support function is outsourced to a BPO (you can&apos;t access the ticket data).
+            </p>
           </div>
         </section>
 
