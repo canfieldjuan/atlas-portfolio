@@ -82,14 +82,14 @@ const reportContents = [
   },
 ];
 
-const comparisonRows: { basic: string; station: string }[] = [
-  { basic: 'Starts with a blank prompt', station: 'Starts with structured business data' },
-  { basic: 'Produces one-off drafts', station: 'Produces repeatable content assets' },
-  { basic: 'No source-of-truth layer', station: 'Uses organized intelligence inputs' },
-  { basic: 'No approval workflow', station: 'Includes human review gates' },
-  { basic: 'Hard to track quality', station: 'Uses quality checks and scoring' },
-  { basic: 'Can sound generic', station: 'Tied to real customer and business signals' },
-  { basic: 'Manual copy and paste workflow', station: 'Built as a repeatable content pipeline' },
+const comparisonRows: { basic: string; report: string }[] = [
+  { basic: 'Starts with a blank prompt', report: 'Starts with your closed support tickets' },
+  { basic: 'One draft at a time', report: 'A ranked list of every help doc you are missing, in one report' },
+  { basic: 'You pick the topic', report: 'Your customers picked the topic — by ticket volume' },
+  { basic: 'Sounds polished but generic', report: 'Reads in your customers’ own words, cited per claim' },
+  { basic: 'You guess what to publish next', report: 'The volume math tells you what to publish first' },
+  { basic: 'No proof a doc was needed', report: 'Every claim cited to source ticket IDs' },
+  { basic: 'No recurrence — fire and forget', report: 'Quarterly, as your customers shift' },
 ];
 
 const howItWorks = [
@@ -712,16 +712,16 @@ export default function AiContentOpsPage() {
         <section className="mt-32">
           <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              DIFFERENTIATOR
+              THIS VS THAT
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              This Is Not Another AI Writing Tool
+              Not another AI writer.
             </h2>
-            <p className="text-foreground/60 leading-relaxed mb-3">
-              Most AI writing tools generate content from blank prompts. AI Content Ops Station generates content from a system.
+            <p className="text-foreground/65 leading-relaxed mb-3">
+              Most AI content tools start with a blank prompt. The Gap Report starts with a stack of tickets — your customers&apos; own questions, already asked, already counted. The output isn&apos;t a draft someone hopes lands. It&apos;s a list of what&apos;s missing, ranked by who asked.
             </p>
-            <p className="text-foreground/55 leading-relaxed">
-              That system includes structured inputs, reasoning layers, quality checks, approval gates, reusable templates, and cost-aware model routing.
+            <p className="text-foreground/65 leading-relaxed">
+              The mechanism is the difference. Same model layer underneath. Different input. Different mental model.
             </p>
           </div>
 
@@ -731,13 +731,13 @@ export default function AiContentOpsPage() {
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">
                   BASIC AI WRITER
                 </div>
-                <div className="text-sm font-semibold text-foreground/80">Prompt-driven, one-off</div>
+                <div className="text-sm font-semibold text-foreground/80">Blank-prompt content</div>
               </div>
               <div className="px-6 py-4 bg-primary/[0.04]">
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-1">
-                  AI CONTENT OPS STATION
+                  THE GAP REPORT
                 </div>
-                <div className="text-sm font-semibold text-white">System-driven, repeatable</div>
+                <div className="text-sm font-semibold text-white">Ticket-grounded, ranked</div>
               </div>
             </div>
             <div className="divide-y divide-white/10 border-t border-white/10">
@@ -748,7 +748,7 @@ export default function AiContentOpsPage() {
                   </div>
                   <div className="px-6 py-4 text-sm text-white flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <span>{row.station}</span>
+                    <span>{row.report}</span>
                   </div>
                 </div>
               ))}
