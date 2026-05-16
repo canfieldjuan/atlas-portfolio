@@ -828,7 +828,7 @@ export default function AiContentOpsPage() {
                 The product is new. The pipeline isn&apos;t.
               </h2>
               <p className="text-foreground/65 leading-relaxed mb-3">
-                The Gap Report is a new offering with no paying customers yet. The pipeline behind it has been running for months on a different dataset — 40,000+ B2B SaaS reviews scraped from sites like G2 — producing structured battle cards, vendor profiles, and intelligence reports. Same engine. Same evidence-grounded approach. Different output, different input.
+                The pipeline behind the Gap Report has been running for months on a different dataset — 40,000+ B2B SaaS reviews scraped from sites like G2 — producing structured battle cards, vendor profiles, and intelligence reports. Same engine. Same evidence-grounded approach. Different output, different input.
               </p>
               <p className="text-foreground/65 leading-relaxed">
                 You can verify this in 60 seconds. The links below open live data, real screenshots, and the 6-stage pipeline walkthrough the Gap Report runs on top of.
