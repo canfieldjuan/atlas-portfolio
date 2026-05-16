@@ -37,6 +37,7 @@ Revisit open ones in any order — this isn't sequential.
 | D-021 | Tier-A output expansion order (which renderer head after FAQs) | OPEN |
 | D-022 | Problem framing — known vs unknown problem in hero | **DECIDED** |
 | D-023 | Customer-facing product name (vs internal platform name) | **DECIDED** |
+| D-024 | Every deliverable terminates in an action path | **DECIDED** |
 
 ---
 
@@ -657,3 +658,45 @@ Names input → output in two short phrases. Reinforces D-022 known-problem fram
 - Investor / partner conversations where "platform" framing matters
 - The `decisions.md` and `voice-reference.md` files (architectural framing layer)
 - NOT customer-facing landing pages, ads, cold DMs, demo materials
+
+---
+
+## D-024 — Every deliverable terminates in an action path
+
+**Status:** DECIDED (2026-05-16)
+
+**Question:** What structural rule do we apply to every deliverable we ship — reports, demos, landing pages, case studies, emails?
+
+**Decision:** **Every deliverable terminates in an action path.** No abstract "things to consider," "next steps to explore," or "key takeaways" that don't translate into a concrete next action.
+
+A deliverable without an action path is academic. A deliverable WITH an action path is operational. SMB owners (D-001) demand operational. They feel consequences directly; their abstraction tolerance is low. If payroll depends on fixing the issue, "considerations" don't help — only the next concrete step does.
+
+**What this rule rejects:**
+
+- "Here are 7 trends to watch in customer support."
+- "Key takeaways: AI is changing how teams operate."
+- "Recommendations: consider implementing a knowledge management strategy."
+- Reports that end with a summary slide and no next action
+- Pages that end with "learn more" buttons leading to other pages with no terminal action
+
+**What this rule requires:**
+
+- Every report ends with a concrete "do this" section — what to ship, when, who owns it
+- Every long-form page section terminates in a specific next click (CTA, deliverable preview, demo)
+- Every sales demo concludes with one named next step ("send us a CSV by Friday")
+- Every case study ends with "this is what our customer did next" — naming the action
+- Every email follow-up ends with one named ask
+
+**Connection to D-022 and the Operator's 5-Question Structure (`voice-reference.md` §5.4):**
+
+Question 4 of the operator framework is "Who fixes it / how?" — that's the action path. This decision elevates that question from a writing pattern to a non-negotiable framework rule. Every deliverable we ship MUST answer question 4 concretely. Other questions (1, 2, 3, 5) may be soft-pedaled in shorter deliverables; question 4 cannot.
+
+**For The Gap Report specifically:**
+
+- The deliverable PDF must end with "Ship these 3 publish-ready FAQ entries Monday" — not "consider building these 10 help docs"
+- The free-analysis email must end with "Send the next CSV in 90 days for a refreshed Gap Report" — naming the recurrence cadence (also satisfies question 5)
+- The product page CTA must be a single-step action ("Send us your CSV") — not a multi-form intake or "learn more" loop
+
+**Pitfall — honest scope over performative actionability:**
+
+Don't invent fake action paths to satisfy this rule. If a deliverable genuinely doesn't have a clear next action, that's a sign the deliverable shouldn't exist — not a sign to invent one. A piece of content that's primarily informational (e.g., an architecture diagram, a glossary) doesn't need an action path; it shouldn't pretend to have one.

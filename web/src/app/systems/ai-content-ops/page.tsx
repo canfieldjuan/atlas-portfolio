@@ -379,13 +379,13 @@ export default function AiContentOpsPage() {
               You have 30,000 closed support tickets in Zendesk and 12 help docs.
             </h1>
             <p className="text-lg text-foreground/65 leading-relaxed mb-5">
-              Your team answers the same 50 questions every week. You know your help center should be bigger. You don&apos;t have the time.
+              Your team answers the same 50 questions every week. At 15 minutes each, that&apos;s 12+ hours of CS time a help doc could deflect. You know your help center should be bigger. You don&apos;t have the time.
             </p>
             <p className="text-base text-foreground/65 leading-relaxed mb-5">
               Most teams miss this — your tickets are a ranked priority list of which help docs to build first, in your customers&apos; own words. Most help centers fail SEO because they&apos;re written by your team, not by your customers. Yours could be different.
             </p>
             <p className="text-base text-foreground/65 leading-relaxed mb-5">
-              Upload a CSV of your last 90 days of tickets. We cluster questions by intent, rank by ticket volume, extract the customer&apos;s exact wording, generate publish-ready FAQ entries with source ticket IDs cited per claim. 48 hours to first report. No integration required.
+              Upload a CSV of your last 90 days of tickets. We cluster questions by intent, rank by ticket volume, extract the customer&apos;s exact wording, generate publish-ready FAQ entries with source ticket IDs cited per claim. 48 hours to first report — then quarterly, as your product evolves and your customers change. No integration required.
             </p>
             <p className="text-sm text-foreground/55 leading-relaxed mb-3">
               New product. The pipeline isn&apos;t — it already runs on real customer-review data, producing structured battle cards, vendor profiles, and intelligence reports.{' '}

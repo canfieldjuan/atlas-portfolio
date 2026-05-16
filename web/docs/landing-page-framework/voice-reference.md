@@ -189,6 +189,43 @@ Versus the polished-tech-vendor anti-pattern:
 The Ogilvy version:
 > ✓ "We cluster your tickets by intent. Rank them by ticket volume. Extract the customer's exact wording. Identify which questions have no documentation. Generate FAQ entries citing the source ticket IDs. Deliver as PDF + interactive web view in 48 hours."
 
+### 5.4 The Operator's 5-Question Structure
+
+Good operators — SMB owners, developers, middle managers — naturally think in five questions when facing a problem. Use these as a checklist when writing any long-form section, demo script, or deliverable.
+
+1. **What's wrong?** (named specifically, recognized in 5 seconds)
+2. **Why?** (the cause / differentiating insight — our unknown hook lives here)
+3. **What does it cost?** (quantified in operator terms — hours, dollars, customers, reputation)
+4. **Who fixes it / how?** (concrete next action, ideally one step)
+5. **How do we prevent recurrence?** (cadence, monitoring, structural change)
+
+**Different operators emphasize different aspects of these:**
+
+- **Developers** think in dependencies, systems interactions, failure chains, architecture
+- **SMB owners** think in cash flow, customer pain, staffing, time, reputation
+- **Corporate middle managers** think in process, accountability, blame allocation
+
+But the cognitive pattern is identical: **detect deviation → identify cause → implement correction → monitor recurrence.**
+
+**Why this matters for our copy:**
+
+SMB owners (D-001 buyer) are often BETTER at this pattern than corporate middle managers because consequences are direct. If payroll depends on fixing the issue, abstraction tolerance drops fast. They demand every report have an action path (see D-024). A page or deliverable that misses one of these five questions feels academic — not operational.
+
+**Mapping the AI Content Ops hero against the 5 questions:**
+
+| Question | Where the hero answers it |
+|---|---|
+| What's wrong? | "30,000 closed support tickets in Zendesk and 12 help docs" |
+| Why? | "Tickets are a ranked priority list… most help centers fail SEO because they're written by your team, not your customers" |
+| What it costs? | "Same 50 questions every week. At 15 minutes each, that's 12+ hours of CS time a help doc could deflect." |
+| Who fixes it / how? | "Upload a CSV. We cluster, rank, extract, generate FAQ entries with cited ticket IDs. 48 hours." |
+| How to prevent recurrence? | "Then quarterly, as your product evolves and your customers change." |
+
+**Two pitfalls to avoid:**
+
+1. **Don't apply the 5 questions as literal section headers** ("Here's what's wrong" / "Here's why" reads bureaucratic). The pattern should *shape* content invisibly.
+2. **Not every product has a real recurrence story.** For genuinely one-shot deliverables, question 5 becomes performative. Skip it cleanly rather than inventing a fake recurrence frame.
+
 ---
 
 ## 6. Our voice in action
