@@ -1,23 +1,23 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "AI Content Ops Station",
+  title: "The Gap Report — Help Docs From Your Support Tickets",
   description:
-    "AI Content Ops Station turns structured business data — CRM notes, customer reviews, sales calls, and internal docs — into approval-ready blogs, email campaigns, sales briefs, reports, landing page copy, and social content. Reasoning, quality gates, and human review built in.",
+    "The Gap Report turns your last 90 days of support tickets into a ranked priority list of which help docs to build first — written in your customers' own words. Upload a CSV; we cluster questions by intent, rank by ticket volume, and generate publish-ready FAQ entries with source ticket IDs cited per claim. 48 hours to first report.",
   path: "/systems/ai-content-ops",
   keywords: [
+    "help docs from support tickets",
+    "Zendesk help center automation",
+    "ranked FAQ generator",
+    "help center gap analysis",
+    "support ticket deflection",
+    "AI help doc generator",
+    "customer question ranking",
+    "FAQ from tickets",
     "AI content operations",
     "AI content pipeline",
-    "AI content generation system",
-    "structured AI content workflow",
-    "AI content automation for B2B",
-    "AI sales briefs",
-    "AI email campaign generation",
-    "AI report generation",
-    "AI landing page copy",
-    "human in the loop content review",
     "evidence backed AI content",
-    "productized AI content service",
+    "structured AI content workflow",
   ],
 });
 

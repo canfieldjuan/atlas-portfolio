@@ -368,16 +368,32 @@ export default function AiContentOpsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-3">
               <Workflow className="w-3 h-3" />
-              <span>AI CONTENT OPS STATION</span>
+              <span>THE GAP REPORT</span>
             </div>
+            <p className="text-sm text-foreground/50 mb-6">
+              From your support tickets. For your help center.
+            </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
-              Turn the customer data you already have{' '}
-              <span className="gradient-text">into the content you keep needing.</span>
+              You have 30,000 closed support tickets in Zendesk and 12 help docs.
             </h1>
-            <p className="text-lg text-foreground/60 leading-relaxed mb-8">
-              From CRM notes to landing pages. From customer reviews to blog posts. From sales calls to email campaigns.
+            <p className="text-lg text-foreground/65 leading-relaxed mb-5">
+              Your team answers the same 50 questions every week. You know your help center should be bigger. You don&apos;t have the time.
+            </p>
+            <p className="text-base text-foreground/65 leading-relaxed mb-5">
+              Most teams miss this — your tickets are a ranked priority list of which help docs to build first, in your customers&apos; own words. Most help centers fail SEO because they&apos;re written by your team, not by your customers. Yours could be different.
+            </p>
+            <p className="text-base text-foreground/65 leading-relaxed mb-5">
+              Upload a CSV of your last 90 days of tickets. We cluster questions by intent, rank by ticket volume, extract the customer&apos;s exact wording, generate publish-ready FAQ entries with source ticket IDs cited per claim. 48 hours to first report. No integration required.
+            </p>
+            <p className="text-sm text-foreground/55 leading-relaxed mb-3">
+              New product. The pipeline isn&apos;t — it already runs on real customer-review data, producing structured battle cards, vendor profiles, and intelligence reports.{' '}
+              <Link href="/proof" className="text-primary/90 underline-offset-2 hover:underline">See live outputs →</Link>{' '}·{' '}
+              <Link href="/architecture" className="text-primary/90 underline-offset-2 hover:underline">System architecture →</Link>
+            </p>
+            <p className="text-sm text-foreground/70 leading-relaxed mb-8">
+              First 5 design partners only — send a CSV by Friday to skip the waitlist.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
@@ -388,14 +404,14 @@ export default function AiContentOpsPage() {
                 })}
                 className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
               >
-                Book a Free Discovery Call
+                Send us your CSV — first analysis free
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="#demo"
+                href="/proof"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
-                See What It Generates
+                See live outputs
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
