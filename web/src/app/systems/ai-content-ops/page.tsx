@@ -28,12 +28,12 @@ import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
 const pipelineStages = [
-  { label: 'Business Data', sub: 'CRM • Reviews • Docs • Calls' },
-  { label: 'Signal Extraction' },
-  { label: 'Reasoning + Synthesis' },
-  { label: 'Quality Gates' },
-  { label: 'Human Approval' },
-  { label: 'Final Content Assets' },
+  { label: 'Support Tickets', sub: 'CSV • Last 90 days' },
+  { label: 'Cluster by Intent' },
+  { label: 'Rank by Volume' },
+  { label: 'Extract Customer Wording' },
+  { label: 'Generate FAQ Entries' },
+  { label: 'Review & Publish', sub: 'You approve, edit, ship' },
 ];
 
 const trappedSources = [
@@ -321,7 +321,7 @@ function PipelineDiagram() {
   return (
     <div className="rounded-xl border border-white/10 bg-black/30 p-6 lg:p-8">
       <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
-        CONTENT OPS PIPELINE
+        FROM TICKETS TO HELP DOCS
       </div>
       <div className="space-y-2">
         {pipelineStages.map((stage, index) => (
