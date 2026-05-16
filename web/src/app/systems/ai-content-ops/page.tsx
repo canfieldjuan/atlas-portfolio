@@ -2,24 +2,25 @@
 
 import { motion } from 'framer-motion';
 import {
+  AlertTriangle,
   ArrowRight,
   ArrowDown,
+  BarChart3,
+  Calculator,
   CheckCircle2,
+  Clock,
+  Cpu,
   Database,
   FileText,
-  HelpCircle,
-  Mail,
-  Megaphone,
-  LayoutTemplate,
-  ScrollText,
-  Briefcase,
-  ShieldCheck,
-  Layers,
-  Workflow,
-  Cpu,
-  GitBranch,
   Gauge,
+  GitBranch,
+  HelpCircle,
+  Layers,
+  LayoutTemplate,
   Repeat,
+  ScrollText,
+  ShieldCheck,
+  Workflow,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -48,36 +49,36 @@ const ticketCategories = [
   'Onboarding stuck',
 ];
 
-const outputs = [
+const reportContents = [
+  {
+    icon: <BarChart3 className="w-5 h-5" />,
+    title: 'Ranked Question List',
+    desc: 'Your top 50 customer questions ordered by ticket volume. Each row shows ticket count, sample customer wording, and a doc-exists / no-doc flag.',
+  },
+  {
+    icon: <AlertTriangle className="w-5 h-5" />,
+    title: 'Gap Callout',
+    desc: 'The 10 highest-volume questions with no help doc. Ranked, with estimated CS hours lost per month sitting on top of each one.',
+  },
+  {
+    icon: <Clock className="w-5 h-5" />,
+    title: 'Stale Doc Callout',
+    desc: 'Help docs that exist but have not been updated in over a year, ranked by how much ticket volume they are still drawing.',
+  },
   {
     icon: <FileText className="w-5 h-5" />,
-    title: 'SEO Blog Posts',
-    desc: 'Turn customer pain points, market insights, and internal knowledge into structured posts designed to educate, rank, and support sales conversations.',
+    title: '3 Publish-Ready FAQ Drafts',
+    desc: 'Drafted from your top 3 gaps. Customer language, structured Q&A, no AI-voice tics. Source ticket IDs cited per claim.',
   },
   {
-    icon: <Mail className="w-5 h-5" />,
-    title: 'Email Campaigns',
-    desc: 'Generate targeted email sequences from specific customer problems, objections, buying signals, or competitor weaknesses.',
+    icon: <Calculator className="w-5 h-5" />,
+    title: 'Deflection Math',
+    desc: 'Estimated hours of CS time per month saved if you ship the top 10 FAQs. Conservative math, named assumptions, no hype.',
   },
   {
-    icon: <Briefcase className="w-5 h-5" />,
-    title: 'Sales Briefs',
-    desc: 'Create short, useful briefs that help sales teams understand buyer pain, positioning angles, objections, and recommended messaging.',
-  },
-  {
-    icon: <ScrollText className="w-5 h-5" />,
-    title: 'Reports',
-    desc: 'Produce polished internal or client-facing reports with summaries, evidence, confidence notes, and recommended actions.',
-  },
-  {
-    icon: <LayoutTemplate className="w-5 h-5" />,
-    title: 'Landing Page Copy',
-    desc: 'Turn validated business intelligence into offer sections, positioning statements, problem and solution copy, and conversion-focused messaging.',
-  },
-  {
-    icon: <Megaphone className="w-5 h-5" />,
-    title: 'Social Content',
-    desc: 'Repurpose approved insights into short-form posts, thought leadership snippets, LinkedIn updates, and campaign angles.',
+    icon: <Repeat className="w-5 h-5" />,
+    title: 'Quarterly Delta',
+    desc: 'Starting at report #2: what is new, what dropped off, what got worse. Your customer mix shifts — the report tracks it.',
   },
 ];
 
@@ -664,24 +665,24 @@ export default function AiContentOpsPage() {
           <GapReportSample />
         </section>
 
-        {/* Outputs */}
+        {/* What's in the report */}
         <section id="what-it-produces" className="mt-32 scroll-mt-24">
           <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              OUTPUTS
+              WHAT&apos;S IN THE REPORT
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              What It Can Produce
+              Six specifics, every quarter.
             </h2>
-            <p className="text-foreground/60 leading-relaxed">
-              Every asset is generated from the same intelligence layer, so blogs, emails, briefs, and reports stay consistent with how your business actually talks about itself.
+            <p className="text-foreground/65 leading-relaxed">
+              Every Gap Report has the same six pieces. You read it in ten minutes, hand four of them to your tech writer, and ship.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {outputs.map((output, i) => (
+            {reportContents.map((item, i) => (
               <motion.div
-                key={output.title}
+                key={item.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
@@ -689,12 +690,21 @@ export default function AiContentOpsPage() {
                 className="glass rounded-xl border border-white/10 p-6"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
-                  {output.icon}
+                  {item.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{output.title}</h3>
-                <p className="text-sm text-foreground/60 leading-relaxed">{output.desc}</p>
+                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
+              WHAT THIS ISN&apos;T
+            </div>
+            <p className="text-sm text-foreground/65 leading-relaxed">
+              The Gap Report isn&apos;t an AI blog writer, an email campaign tool, or a chatbot. We don&apos;t auto-publish anything. We don&apos;t replace your tech writer. We turn your tickets into a ranked priority list and ship you the highest-volume drafts — that&apos;s the whole job.
+            </p>
           </div>
         </section>
 
