@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { shouldHideChrome } from '@/lib/no-chrome-routes';
 
 const navLinks = [
   { href: '/services', label: 'Services' },
@@ -19,6 +20,12 @@ const navLinks = [
 export function Navigation() {
   const pathname = usePathname();
   const [openForPath, setOpenForPath] = useState<string | null>(null);
+
+  // Dedicated conversion pages opt out of chrome to keep the buyer on-page.
+  if (shouldHideChrome(pathname)) {
+    return null;
+  }
+
   const mobileOpen = openForPath === pathname;
   const isAuditPage = pathname === '/audit';
   const mobileMenuId = 'main-mobile-menu';

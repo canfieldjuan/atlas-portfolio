@@ -1018,6 +1018,9 @@ export default function AiContentOpsPage() {
                   Read the architecture first
                 </Link>
               </div>
+              <p className="text-xs text-foreground/45 mt-6 leading-relaxed">
+                Privacy: we delete your CSV after 30 days. No model training, no third-party sharing, no fine-tuning.
+              </p>
             </div>
           </div>
         </section>

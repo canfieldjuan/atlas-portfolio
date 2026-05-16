@@ -1,8 +1,19 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { shouldHideChrome } from '@/lib/no-chrome-routes';
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // Dedicated conversion pages opt out of chrome to keep the buyer on-page.
+  if (shouldHideChrome(pathname)) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-white/5 mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-16">
