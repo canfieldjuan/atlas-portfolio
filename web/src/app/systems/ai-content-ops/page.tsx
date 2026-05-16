@@ -23,7 +23,6 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { ContentOpsDemo } from '@/components/ContentOpsDemo';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
@@ -317,6 +316,151 @@ const faqJsonLd = generateFaqJsonLd(
   pricingFaqs.map((faq) => ({ question: faq.q, answer: faq.a })),
 );
 
+const sampleRankedQuestions: {
+  question: string;
+  count: number;
+  hasDoc: boolean;
+  docNote?: string;
+}[] = [
+  { question: 'How do I reset my password?', count: 247, hasDoc: false },
+  { question: 'Can I downgrade my plan?', count: 198, hasDoc: false },
+  {
+    question: 'Why am I getting permission errors?',
+    count: 156,
+    hasDoc: true,
+    docNote: 'Last updated 2024',
+  },
+  { question: 'Where do I find my API keys?', count: 142, hasDoc: false },
+  {
+    question: 'How do I export my data?',
+    count: 121,
+    hasDoc: true,
+    docNote: 'Last updated 2023',
+  },
+  { question: 'What does the audit log show?', count: 98, hasDoc: false },
+  { question: 'How do I add a team member?', count: 84, hasDoc: false },
+  { question: 'Why did my integration break?', count: 73, hasDoc: false },
+];
+
+const sampleFaqSourceTickets = ['#4521', '#4782', '#5103', '#5247', '#5390'];
+
+function GapReportSample() {
+  const undocumented = sampleRankedQuestions.filter((row) => !row.hasDoc).length;
+
+  return (
+    <div className="glass rounded-xl border border-white/10 overflow-hidden">
+      <div className="border-b border-white/10 px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-black/20">
+        <div className="flex items-center gap-2">
+          <Workflow className="w-4 h-4 text-primary/80" />
+          <span className="text-sm font-medium text-white">The Gap Report</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+            · Sample / Mock
+          </span>
+        </div>
+        <div className="text-[11px] font-mono text-foreground/45">
+          Range: last 90 days · 12,400 tickets ingested
+        </div>
+      </div>
+
+      <div className="p-6 md:p-8 space-y-8">
+        {/* Headline number */}
+        <div>
+          <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
+            HEADLINE FINDING
+          </div>
+          <p className="text-base text-foreground/75 leading-relaxed">
+            <span className="text-white font-medium">{undocumented} of your top 10 questions</span>{' '}
+            have no help doc. Closing these would deflect an estimated{' '}
+            <span className="text-white font-medium">~38 hours of CS time / month</span>.
+          </p>
+        </div>
+
+        {/* Ranked list */}
+        <div>
+          <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+            TOP CUSTOMER QUESTIONS — RANKED BY VOLUME
+          </div>
+          <div className="rounded-lg border border-white/10 overflow-hidden">
+            {sampleRankedQuestions.map((row, i) => (
+              <div
+                key={row.question}
+                className={`flex items-center justify-between gap-4 px-4 py-3 ${
+                  i < sampleRankedQuestions.length - 1 ? 'border-b border-white/5' : ''
+                } ${!row.hasDoc ? 'bg-white/[0.015]' : ''}`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-[10px] font-mono text-foreground/40 w-5 shrink-0">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-sm text-foreground/80 truncate">
+                    &ldquo;{row.question}&rdquo;
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <span className="text-xs font-mono text-foreground/55 hidden sm:inline">
+                    {row.count} tickets
+                  </span>
+                  {row.hasDoc ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-foreground/45">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-foreground/40" />
+                      <span className="hidden sm:inline">Doc exists</span>
+                      <span className="sm:hidden">Doc</span>
+                      {row.docNote && (
+                        <span className="text-foreground/35 hidden md:inline">
+                          · {row.docNote}
+                        </span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-primary/90">
+                      <X className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">No doc</span>
+                      <span className="sm:hidden">Gap</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Sample FAQ */}
+        <div>
+          <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+            SAMPLE FAQ DRAFT — GENERATED FROM YOUR TOP GAP
+          </div>
+          <div className="rounded-lg border border-white/10 bg-black/20 p-5">
+            <p className="text-sm font-medium text-white mb-2">
+              Q: How do I reset my password?
+            </p>
+            <p className="text-sm text-foreground/70 leading-relaxed mb-4">
+              If you&apos;ve forgotten your password, click <em>Forgot password</em> on the
+              login screen and we&apos;ll send a reset link to the email on your account.
+              The link expires in 30 minutes. If you don&apos;t see it, check spam — and
+              make sure you&apos;re looking at the inbox tied to your account, not the
+              billing address.
+            </p>
+            <p className="text-[11px] font-mono text-foreground/45">
+              Sources:{' '}
+              {sampleFaqSourceTickets.map((id, i) => (
+                <span key={id}>
+                  {i > 0 && <span className="text-foreground/30"> · </span>}
+                  <span className="text-foreground/55">Ticket {id}</span>
+                </span>
+              ))}
+            </p>
+          </div>
+        </div>
+
+        <p className="text-xs text-foreground/45 leading-relaxed border-t border-white/5 pt-4">
+          Mock data shown. Your version is built from your actual tickets — same
+          structure, your customer questions, your wording, your source IDs.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function PipelineDiagram() {
   return (
     <div className="rounded-xl border border-white/10 bg-black/30 p-6 lg:p-8">
@@ -504,20 +648,20 @@ export default function AiContentOpsPage() {
           </div>
         </section>
 
-        {/* Demo */}
+        {/* Demo / Sample report */}
         <section id="demo" className="mt-32 scroll-mt-24">
           <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              DEMO
+              WHAT YOU GET
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              See exactly what it generates.
+              This is the Gap Report.
             </h2>
-            <p className="text-foreground/60 leading-relaxed">
-              Pick a scenario and watch real customer data turn into a blog outline, an email sequence, a sales brief, a landing page section, and a social post — generated from the same intelligence layer. Demo runs on preloaded scenarios; no live model calls, no user input accepted.
+            <p className="text-foreground/65 leading-relaxed">
+              Here&apos;s what 90 days of support tickets look like after we read them: a ranked priority list of help docs your customers are asking for, the ones already documented marked off, and the highest-volume gap drafted as a publish-ready FAQ. The version you&apos;ll get is built from your actual tickets, not these mock ones.
             </p>
           </div>
-          <ContentOpsDemo />
+          <GapReportSample />
         </section>
 
         {/* Outputs */}
