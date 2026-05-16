@@ -28,7 +28,7 @@ Revisit open ones in any order — this isn't sequential.
 | D-012 | Page types — direct-offer vs lead-magnet | OPEN |
 | D-013 | Input data is the moat, not the output renderer | OPEN (frame) |
 | D-014 | Lead-with-one vs portfolio positioning | OPEN |
-| D-015 | Offer shape — trial vs paid pilot vs subscription vs done-for-you | OPEN |
+| D-015 | Offer shape — trial vs paid pilot vs subscription vs done-for-you | **DECIDED** |
 | D-016 | Integration scope for v1 (which support platforms) | OPEN |
 | D-017 | Fulfillment model — self-serve product vs managed service | **DECIDED** |
 | D-018 | "Magic moment" — what buyer sees in first 24 hours | OPEN |
@@ -398,21 +398,48 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 ## D-015 — Offer shape
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-16)
 
 **Question:** What does the actual purchase look like?
 
-**Options:**
+**Decision:** Three-tier offer ladder, shipped on `/systems/ai-content-ops`:
 
-- **Free trial** (14d, full product, no card) — fast scale, but SMBs frequently never convert
-- **Free analysis / sample report** (we generate 10 FAQ drafts from a sample of their tickets, free) — high-friction-to-deliver but converts engaged buyers
-- **Paid pilot** ($500-1500 one-time for first 30 days, then optional subscription) — qualifies buyer, recoups cost
-- **Subscription only** (no trial, monthly $) — clean billing but high conversion friction
-- **Done-for-you** ($2-5k/mo retainer, we run the workflow) — services revenue, slow scale
+| # | Tier | Price | Cadence | Purpose |
+|---|---|---|---|---|
+| 1 | **First Gap Report** | Free | One-time | First-5 design-partner offer per D-019; D-018 magic moment delivered for verification |
+| 2 | **Quarterly Gap Report** | $1,500 | Every 90 days | Recurring deliverable; matches operator Q5 + D-022 recurrence framing |
+| 3 | **Annual (4 reports)** | $4,800 | Prepaid yearly | 20% discount vs quarterly; cash-flow anchor; ops-budget-friendly |
 
-**Recommendation:** Free *analysis* (we generate first 10 FAQ drafts from a sample) → $500 paid pilot for full 30 days → monthly subscription.
+**Qualifier:** Free first report requires ~2,000+ closed tickets so the ranking math is honest. Below that, the report fails to surface a real signal.
 
-**Decision:** _pending_
+**No retainer.** Previous `/systems/ai-content-ops/ongoing-support` retainer offer ($2,500/mo) is dropped from this product's pricing — the quarterly cadence subsumes ongoing optimization. The retainer page itself can stay live for non-Gap-Report engagements but is no longer linked from this product's pricing section.
+
+**What's not included** (named in the pricing section, per D-002 #6):
+- No integration into the buyer's help center — they publish from their CMS
+- No real-time alerts — quarterly cadence, not per-ticket
+- No copywriting beyond the top 3 FAQ drafts — we hand them the framework, their tech writer scales
+
+**Reasoning:**
+
+- **Free first analysis** matches D-019's design-partner motion. Cold buyer → CSV upload → report in 48 hours → become customer #1-5. No card, no contract, qualifies via deliverable value not pricing-page commitment.
+- **$1,500/quarter** sits at the LOW end of D-017's founder-led pricing band ($1,500-3,000/mo while UI matures). Reasoning: first product, no customers yet, drop friction. Raise to $2,500 after 5 paying customers validate value.
+- **$4,800/year (saves $1,200)** = 20% annual discount. Direct-response standard anchor — cash flow for us, locked rate for them.
+- **Quarterly cadence** turns "one-time data report" into "operational discipline" — same trick that makes Gainsight / ChurnZero / monthly intelligence reports work.
+
+**What this rejects:**
+
+- **14-day free trial** — SMB free trials convert at <2% and consume support time
+- **$500 paid pilot** (from original recommendation) — too low to qualify buyer intent; either free or quarterly-priced is sharper
+- **Done-for-you retainer at $2-5k/mo** — wrong-shaped product; we sell a deliverable, not capacity
+- **Subscription-only with no free tier** — no proof artifact = no first conversion
+
+**Connections to other decisions:**
+
+- D-017 founder-led product → $1,500/quarter sits in the pricing band that supports manual fulfillment
+- D-018 magic moment → free first report IS the magic moment, productized as the entry tier
+- D-019 first-5-customers → free tier IS the LinkedIn outbound offer ("send us a CSV")
+- D-022 known-problem framing → "Free first analysis. Paid quarterly after." is two beats matching the known→action structure
+- D-024 action path → every tier terminates in a single concrete next step (Send CSV / Subscribe Quarterly / Subscribe Annually)
 
 ---
 

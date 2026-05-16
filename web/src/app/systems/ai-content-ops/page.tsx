@@ -155,7 +155,6 @@ type PricingTier = {
   sla?: string;
   description: string;
   includes: string[];
-  example?: string;
   note: string;
   cta: string;
   href: string;
@@ -164,21 +163,21 @@ type PricingTier = {
 
 const pricingTiers: PricingTier[] = [
   {
-    id: 'discovery',
-    badge: 'RECOMMENDED FIRST STEP',
-    title: 'Discovery Call',
+    id: 'first-report',
+    badge: 'FIRST 5 DESIGN PARTNERS',
+    title: 'First Gap Report',
     price: 'Free',
-    sla: '30-minute call, booked within 48 hours',
+    sla: 'Delivered in 48 hours after CSV upload',
     description:
-      'In 30 minutes, you will know whether your data and content goals are a fit for an automated workflow — and what a build would look like.',
+      'Send a CSV of your last 90 days of closed tickets. We send back the full Gap Report — ranked questions, gap callouts, deflection math, and 3 publish-ready FAQ drafts.',
     includes: [
-      'Walkthrough of your current content sources and workflow',
-      'Quick read on whether automation is worth building for you',
-      'Rough scope + price range if there is a fit',
-      'No-pressure: if there is no real opportunity, we say so',
+      'Full report (all 6 pieces)',
+      '3 publish-ready FAQ drafts',
+      'No card required, no contract',
+      'No follow-up if the report is not useful',
     ],
-    note: "If there is no real opportunity, we will tell you — before you spend a dollar.",
-    cta: 'Book a Discovery Call',
+    note: 'Requires ~2,000+ closed tickets so the ranking math is honest.',
+    cta: 'Send us your CSV',
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
@@ -187,74 +186,51 @@ const pricingTiers: PricingTier[] = [
     highlighted: true,
   },
   {
-    id: 'pilot',
-    title: 'Pilot Build',
-    price: 'Starts at $7,500',
+    id: 'quarterly',
+    badge: 'MOST POPULAR',
+    title: 'Quarterly Gap Report',
+    price: '$1,500',
+    priceDetail: '/ quarter',
     description:
-      'Test one real content workflow using your data — and prove it works before scaling.',
+      'Same deliverable, every 90 days. Tracks how your customer mix shifts — what is new, what dropped off, what got worse. Cancel any time after the next report ships.',
     includes: [
-      '1 data source',
-      '1 content workflow',
-      '2–3 output types',
-      'Reusable templates',
-      'Quality checks',
-      'Human approval step',
-      'Export or delivery workflow',
+      'Full Gap Report every 90 days',
+      '3 publish-ready FAQ drafts per report',
+      'Quarterly delta tracking (starting report #2)',
+      'Source ticket IDs cited per claim',
+      'Cancel any time after the next report',
     ],
-    example:
-      'Customer reviews or CRM notes → extracted pain points → content angles → blog draft + email campaign + sales brief',
-    note: 'Most pilot builds are scoped after a discovery call.',
-    cta: 'Request a Pilot Build',
+    note: 'Direct continuation from your free first report — no re-onboarding.',
+    cta: 'Subscribe Quarterly',
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-ops-pilot',
+      offer: 'content-ops-quarterly',
     }),
   },
   {
-    id: 'full',
-    title: 'Full Content Ops System',
-    price: 'Starts at $15,000',
+    id: 'annual',
+    title: 'Annual (4 reports)',
+    price: '$4,800',
+    priceDetail: '/ year',
     description:
-      'Best for businesses that want a repeatable content engine connected to multiple sources and workflows.',
+      'Same as quarterly, prepaid. Locks the price, simplifies your ops budget, and saves $1,200 per year vs paying quarter-by-quarter.',
     includes: [
-      'Multiple data sources',
-      'Multiple content workflows',
-      'Approval queue',
-      'Content generation station',
-      'Reusable intelligence layer',
-      'Reports and briefs',
-      'Content calendar support',
-      'Cost-aware model routing',
-      'System documentation',
+      '4 Gap Reports per year',
+      'All quarterly inclusions',
+      'Locked rate for 12 months',
+      'Save $1,200 vs quarterly billing',
+      'Best for ops budget planning',
     ],
-    note: 'Full builds are scoped based on data sources, integrations, output types, and approval requirements.',
-    cta: 'Discuss a Full Build',
+    note: 'Pays out in 4 quarterly deliveries — same cadence, less paperwork.',
+    cta: 'Subscribe Annually',
     href: buildAuditHref({
       interest: 'content-generation',
       source: 'ai-content-ops',
-      offer: 'content-ops-full-build',
+      offer: 'content-ops-annual',
     }),
   },
 ];
-
-const retainer = {
-  title: 'Ongoing Optimization',
-  price: 'Starts at $2,500/month',
-  description:
-    'Once the system is live, ongoing optimization keeps outputs relevant as your data, offers, and campaigns evolve.',
-  includes: [
-    'New content templates',
-    'Prompt and workflow tuning',
-    'Monthly performance review',
-    'Integration updates',
-    'Campaign expansion',
-    'Quality gate improvements',
-    'Reporting and support',
-  ],
-  cta: 'Ask About Ongoing Support',
-  href: '/systems/ai-content-ops/ongoing-support',
-};
 
 const pricingFaqs: { q: string; a: string }[] = [
   {
@@ -875,13 +851,13 @@ export default function AiContentOpsPage() {
         <section id="pricing" className="mt-32 scroll-mt-24">
           <div className="max-w-3xl mb-12">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              PRICING / ENGAGEMENT PATH
+              PRICING
             </div>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
-              Don&apos;t build a content system until you know it will pay off.
+              Free first analysis. Paid quarterly after.
             </h2>
             <p className="text-foreground/65 leading-relaxed">
-              A free discovery call shows you exactly what content your data can produce — and whether it is worth building anything at all.
+              Send a CSV. The first Gap Report is free if your data clears 2,000 closed tickets — enough to make the rankings honest. If the report is useful, you pay for the next one. If it&apos;s not, no follow-up.
             </p>
           </div>
 
@@ -919,7 +895,7 @@ export default function AiContentOpsPage() {
                 </p>
 
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
-                  {tier.id === 'discovery' ? 'IN 30 MINUTES, YOU WILL KNOW:' : 'INCLUDES'}
+                  INCLUDES
                 </div>
                 <ul className="space-y-2 mb-5">
                   {tier.includes.map((item) => (
@@ -932,25 +908,6 @@ export default function AiContentOpsPage() {
                     </li>
                   ))}
                 </ul>
-
-                {tier.example && (
-                  <div className="rounded-lg border border-primary/30 bg-primary/[0.06] p-4 mb-5">
-                    <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
-                      EXAMPLE WORKFLOW
-                    </div>
-                    <div className="text-sm text-foreground/80 leading-relaxed">
-                      Customer reviews or CRM notes
-                      <span className="text-primary mx-1.5">→</span>
-                      extracted pain points
-                      <span className="text-primary mx-1.5">→</span>
-                      content angles
-                    </div>
-                    <div className="mt-2 text-sm font-semibold text-white leading-relaxed">
-                      Blog draft + email campaign + sales brief
-                      <span className="text-foreground/50 font-normal ml-2">(ready to ship)</span>
-                    </div>
-                  </div>
-                )}
 
                 <p className="text-xs text-foreground/45 leading-relaxed mb-5 italic flex-1">
                   {tier.note}
@@ -971,55 +928,26 @@ export default function AiContentOpsPage() {
             ))}
           </div>
 
-          {/* Retainer strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="rounded-xl border border-white/10 bg-black/20 p-6 md:p-7"
-          >
-            <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-10">
-              <div className="lg:w-1/3 shrink-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <Repeat className="w-3.5 h-3.5 text-primary" />
-                  <div className="text-[10px] font-mono text-primary/70 tracking-widest">
-                    ONGOING SUPPORT
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{retainer.title}</h3>
-                <div className="text-2xl font-bold text-white mb-3">{retainer.price}</div>
-                <p className="text-sm text-foreground/65 leading-relaxed">
-                  {retainer.description}
-                </p>
-              </div>
-              <div className="lg:flex-1">
-                <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
-                  CAN INCLUDE
-                </div>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mb-5 lg:mb-0">
-                  {retainer.includes.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-start gap-2 text-sm text-foreground/65 leading-snug"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="lg:self-center shrink-0">
-                <Link
-                  href={retainer.href}
-                  className="group inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 hover:bg-white/5 transition-colors rounded-md text-sm text-white whitespace-nowrap"
-                >
-                  {retainer.cta}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
+          {/* What's not included */}
+          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+            <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
+              WHAT&apos;S NOT INCLUDED
             </div>
-          </motion.div>
+            <ul className="space-y-2 text-sm text-foreground/65 leading-relaxed">
+              <li className="flex items-start gap-2">
+                <X className="w-3.5 h-3.5 text-foreground/40 shrink-0 mt-1" />
+                <span>No integration into your help center — you publish from your CMS.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <X className="w-3.5 h-3.5 text-foreground/40 shrink-0 mt-1" />
+                <span>No real-time alerts — the report runs quarterly, not on every new ticket.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <X className="w-3.5 h-3.5 text-foreground/40 shrink-0 mt-1" />
+                <span>No copywriting beyond the top 3 FAQ drafts — we hand you the framework; your tech writer scales it.</span>
+              </li>
+            </ul>
+          </div>
         </section>
 
         {/* FAQ */}
