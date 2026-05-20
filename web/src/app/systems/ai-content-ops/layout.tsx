@@ -1,9 +1,9 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "The Gap Report — Help Docs From Your Support Tickets",
+  title: "The FAQ Report — Help Docs From Your Support Tickets",
   description:
-    "The Gap Report turns your last 90 days of support tickets into a ranked priority list of which help docs to build first — written in your customers' own words. Upload a CSV; we cluster questions by intent, rank by ticket volume, and generate publish-ready FAQ entries with source ticket IDs cited per claim. 48 hours to first report.",
+    "The FAQ Report turns your last 90 days of support tickets into repeat questions, customer wording, and FAQ entries your team can review and publish. Upload your CSV and get the first report in 24 hours.",
   path: "/systems/ai-content-ops",
   keywords: [
     "help docs from support tickets",

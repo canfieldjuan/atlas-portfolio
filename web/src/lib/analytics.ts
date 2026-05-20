@@ -1,4 +1,7 @@
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || '';
+const LIVE_GA_MEASUREMENT_ID = 'G-RYN3S1R1RK';
+
+export const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || LIVE_GA_MEASUREMENT_ID;
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() || '';
 
 type AnalyticsValue = string | number | boolean | null | undefined;
@@ -65,5 +68,24 @@ export function trackAuditRequestSubmitted({
     source_offer: safeDimension(sourceOffer, 'none'),
     submission_status: safeDimension(status, 'submitted'),
     delivery_path: safeDimension(delivery, 'unknown'),
+  });
+}
+
+export function trackFaqReportCsvSubmitted({
+  supportPlatform,
+  sourcePage,
+  sourceOffer,
+  status,
+}: {
+  supportPlatform?: string;
+  sourcePage?: string;
+  sourceOffer?: string;
+  status?: string;
+}) {
+  trackEvent('faq_report_csv_submitted', {
+    support_platform: safeDimension(supportPlatform, 'unknown'),
+    source_page: safeDimension(sourcePage, 'direct'),
+    source_offer: safeDimension(sourceOffer, 'none'),
+    submission_status: safeDimension(status, 'submitted'),
   });
 }
