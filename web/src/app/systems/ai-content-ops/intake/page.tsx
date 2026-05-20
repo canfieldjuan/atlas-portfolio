@@ -201,6 +201,13 @@ export default function GapReportIntakePage() {
     const confirmationWarning = submission.warnings.some((warning) =>
       warning.toLowerCase().includes('customer confirmation')
     );
+    // Surface any backend warnings that are NOT about the customer confirmation
+    // email (e.g. internal notification email failed, DB persistence failed).
+    // These are silent in the current filter but can mean the team won't receive
+    // the submission — user should get a fallback contact path in that case.
+    const hasInternalWarning = submission.warnings.some(
+      (warning) => !warning.toLowerCase().includes('customer confirmation')
+    );
 
     return (
       <>
@@ -243,6 +250,24 @@ export default function GapReportIntakePage() {
                   <p className="text-xs text-foreground/65 leading-relaxed">
                     Your CSV was received, but the confirmation email may not have sent. The
                     snapshot will still go to the email above.
+                  </p>
+                </div>
+              )}
+              {hasInternalWarning && (
+                <div className="mt-6 rounded-lg border border-yellow-500/30 bg-yellow-500/[0.04] p-4">
+                  <div className="text-[10px] font-mono text-yellow-500/80 tracking-widest mb-2">
+                    PROCESSING NOTE
+                  </div>
+                  <p className="text-xs text-foreground/65 leading-relaxed">
+                    Your CSV was received, but something went wrong on our end during processing.
+                    If you don&apos;t hear back within 24 hours, email us directly at{' '}
+                    <a
+                      href="mailto:juan@juancanfield.com"
+                      className="text-primary underline underline-offset-2"
+                    >
+                      juan@juancanfield.com
+                    </a>{' '}
+                    and reference your upload.
                   </p>
                 </div>
               )}
