@@ -13,7 +13,7 @@
     "campaign": "ai_content_ops_discovery_search",
     "content": "rsa_v2"
   },
-  "conversionGoal": "audit_request_submitted",
+  "conversionGoal": "faq_report_csv_submitted",
   "offer": {
     "name": "AI Content Ops Discovery Call",
     "priceUsd": 0,
