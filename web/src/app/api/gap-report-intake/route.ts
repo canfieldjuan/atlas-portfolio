@@ -34,11 +34,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const name = requiredText(formData.get('name'));
   const email = requiredText(formData.get('email'));
   const companyName = requiredText(formData.get('companyName'));
-  const supportPlatformRaw = optionalText(formData.get('supportPlatform'));
+  const supportPlatformRaw = requiredText(formData.get('supportPlatform'));
   const supportPlatform = isSupportPlatform(supportPlatformRaw) ? supportPlatformRaw : undefined;
   const csvEntry = formData.get('csv');
+
+  if (!name) {
+    return NextResponse.json(
+      { ok: false, error: 'Your name is required.' },
+      { status: 400 }
+    );
+  }
 
   if (!email || !EMAIL_RE.test(email)) {
     return NextResponse.json(
@@ -50,6 +58,13 @@ export async function POST(request: NextRequest) {
   if (!companyName) {
     return NextResponse.json(
       { ok: false, error: 'Company name is required.' },
+      { status: 400 }
+    );
+  }
+
+  if (!supportPlatform) {
+    return NextResponse.json(
+      { ok: false, error: 'Support platform is required.' },
       { status: 400 }
     );
   }
@@ -96,11 +111,9 @@ export async function POST(request: NextRequest) {
   const sourcePage = optionalText(formData.get('sourcePage'));
   const sourceOffer = optionalText(formData.get('sourceOffer'));
 
-  // Upload to Vercel Blob. The pathname includes a random segment so URLs are
-  // unguessable; access is 'public' (the only mode currently) which in practice
-  // means "anyone with the URL can read." We never expose the URL publicly —
-  // it lives in the DB row and the notification email. 30-day retention is
-  // enforced by a separate cleanup job (TODO: implement when traffic warrants).
+  // Upload to Vercel Blob. Public blob URLs are unguessable, but anyone with the
+  // URL can download the file until the cleanup job deletes it. Keep the cache
+  // short because these are customer support exports, not public assets.
   const safeCompanySlug = companyName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -114,6 +127,8 @@ export async function POST(request: NextRequest) {
     const blob = await put(blobPath, csvFile, {
       access: 'public',
       addRandomSuffix: true,
+      cacheControlMaxAge: 60,
+      contentType: 'text/csv',
     });
     blobUrl = blob.url;
   } catch (error) {
@@ -129,6 +144,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await recordGapReportSubmission({
+      name,
       email,
       companyName,
       supportPlatform,
@@ -144,7 +160,7 @@ export async function POST(request: NextRequest) {
       requestId: result.requestId,
       status: result.status,
       warnings: result.warnings,
-      estimatedResponseHours: 48,
+      estimatedResponseHours: 24,
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

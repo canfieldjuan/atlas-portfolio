@@ -4,6 +4,10 @@ const MAX_HEADLINE_LENGTH = 30;
 const MAX_DESCRIPTION_LENGTH = 90;
 const REQUIRED_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
 const ALLOWED_MATCH_TYPES = new Set(['exact', 'phrase']);
+const ALLOWED_CONVERSION_GOALS = new Set([
+  'audit_request_submitted',
+  'faq_report_csv_submitted',
+]);
 const REQUIRED_NEGATIVES = ['free', 'template', 'jobs', 'course', 'blog generator', 'essay'];
 
 function fail(errors, message) {
@@ -52,8 +56,8 @@ function validateCampaign(campaign, errors) {
     }
   }
 
-  if (campaign.conversionGoal !== 'audit_request_submitted') {
-    fail(errors, 'Campaign conversionGoal must be audit_request_submitted.');
+  if (!ALLOWED_CONVERSION_GOALS.has(campaign.conversionGoal)) {
+    fail(errors, `Campaign conversionGoal must be one of: ${[...ALLOWED_CONVERSION_GOALS].join(', ')}.`);
   }
 }
 

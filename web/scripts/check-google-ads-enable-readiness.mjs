@@ -20,7 +20,7 @@ const REQUIRED_CONFIRMATIONS = [
   {
     flag: '--confirm-conversion-tracking-reviewed',
     key: 'conversionTrackingReviewed',
-    label: 'GA4 / audit_request_submitted conversion tracking was reviewed',
+    label: 'GA4 conversion tracking was reviewed',
   },
   {
     flag: '--confirm-negative-keywords-reviewed',

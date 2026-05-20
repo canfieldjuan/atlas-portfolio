@@ -128,19 +128,26 @@ Submit one test `/audit` request and confirm the selected delivery path receives
 
 ## Analytics
 
-Google Analytics 4 is optional and disabled unless this public environment variable is configured:
+Google Analytics 4 uses the live site measurement ID by default. Set this public environment variable to override it:
 
 ```text
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-When enabled, the site tracks page views and one safe conversion event after a successful audit submission:
+Google Ads tagging is optional and enabled when this public environment variable is configured:
+
+```text
+NEXT_PUBLIC_GOOGLE_ADS_ID=AW-XXXXXXXXXX
+```
+
+When enabled, the site tracks page views and safe conversion events after successful form submissions:
 
 ```text
 audit_request_submitted
+faq_report_csv_submitted
 ```
 
-The event includes only routing metadata such as project interest, source page, source offer, submission status, and delivery path. It does not include names, emails, company URLs, free-text form answers, or request IDs.
+The events include only routing metadata and non-personal operational dimensions such as source page, source offer, submission status, delivery path, or support platform. They do not include names, emails, company URLs, free-text form answers, CSV filenames, or request IDs.
 
 ## Private Audit Intake Viewer
 

@@ -31,6 +31,7 @@ export const SUPPORT_PLATFORM_OPTIONS: { value: SupportPlatform; label: string }
 ];
 
 export type GapReportSubmissionInput = {
+  name?: string;
   email: string;
   companyName: string;
   supportPlatform?: SupportPlatform;
@@ -46,6 +47,8 @@ export type GapReportSubmissionRecord = GapReportSubmissionInput & {
   submittedAt: string;
   notificationStatus: 'pending' | 'sent' | 'failed';
   notificationError?: string;
+  confirmationStatus?: 'pending' | 'sent' | 'failed';
+  confirmationError?: string;
 };
 
 export type GapReportSubmissionResult = {
@@ -70,11 +73,12 @@ function formatBytes(bytes: number | undefined) {
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
   return [
-    'New Gap Report CSV submission',
+    'New FAQ Report CSV submission',
     '',
     `Request ID: ${record.requestId}`,
     `Submitted: ${record.submittedAt}`,
     '',
+    `Name: ${record.name || 'Not provided'}`,
     `Company: ${record.companyName}`,
     `Email: ${record.email}`,
     `Support platform: ${record.supportPlatform ? SUPPORT_PLATFORM_LABEL[record.supportPlatform] : 'Not specified'}`,
@@ -85,11 +89,34 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
     `Size: ${formatBytes(record.csvSizeBytes)}`,
     `Download: ${record.csvBlobUrl}`,
     '',
-    '— Atlas Portfolio (Gap Report intake)',
+    '— Atlas Portfolio (FAQ Report intake)',
   ].join('\n');
 }
 
-async function sendNotificationEmail(record: GapReportSubmissionRecord) {
+function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
+  const firstName = record.name?.trim().split(/\s+/)[0] || '';
+
+  return [
+    firstName ? `Hi ${firstName},` : 'Hi,',
+    '',
+    `We received your CSV for ${record.companyName}.`,
+    '',
+    'What happens next:',
+    '1. We review the support tickets you uploaded.',
+    '2. We look for repeat questions and the words customers use when they get stuck.',
+    '3. We send your free FAQ Snapshot to this email within 24 hours.',
+    '',
+    'No next step is needed from you right now.',
+    '',
+    `Reference ID: ${record.requestId}`,
+    '',
+    'Privacy: we delete the uploaded CSV and submission record after 30 days. No model training, no third-party sharing, no fine-tuning.',
+    '',
+    '— Atlas Portfolio',
+  ].join('\n');
+}
+
+function emailConfig() {
   const resendApiKey =
     process.env.GAP_REPORT_NOTIFICATION_RESEND_API_KEY?.trim() ||
     process.env.AUDIT_NOTIFICATION_RESEND_API_KEY?.trim() ||
@@ -99,6 +126,12 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
     process.env.AUDIT_NOTIFICATION_FROM_EMAIL?.trim() ||
     process.env.ATLAS_CAMPAIGN_SEQ_RESEND_FROM_EMAIL?.trim() ||
     process.env.ATLAS_EMAIL_DEFAULT_FROM?.trim();
+
+  return { resendApiKey, fromEmail };
+}
+
+async function sendNotificationEmail(record: GapReportSubmissionRecord) {
+  const { resendApiKey, fromEmail } = emailConfig();
   const toRecipients = parseRecipientList(
     process.env.GAP_REPORT_NOTIFICATION_TO_EMAIL?.trim() ||
       process.env.AUDIT_NOTIFICATION_TO_EMAIL?.trim()
@@ -118,7 +151,7 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
       from: fromEmail,
       to: toRecipients,
       reply_to: record.email,
-      subject: `New Gap Report CSV: ${record.companyName} (${record.email})`,
+      subject: `New FAQ Report CSV: ${record.companyName} (${record.email})`,
       text: buildNotificationText(record),
     }),
     cache: 'no-store',
@@ -134,6 +167,38 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
   }
 }
 
+async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) {
+  const { resendApiKey, fromEmail } = emailConfig();
+
+  if (!resendApiKey || !fromEmail) {
+    throw new Error('Gap Report customer confirmation email is not fully configured.');
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [record.email],
+      subject: 'We received your FAQ Report CSV',
+      text: buildCustomerConfirmationText(record),
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(
+      detail
+        ? `Gap Report customer confirmation email failed: ${detail.slice(0, 240)}`
+        : 'Gap Report customer confirmation email failed.'
+    );
+  }
+}
+
 export async function recordGapReportSubmission(
   input: GapReportSubmissionInput
 ): Promise<GapReportSubmissionResult> {
@@ -143,19 +208,33 @@ export async function recordGapReportSubmission(
 
   let notificationStatus: 'sent' | 'failed' | 'pending' = 'pending';
   let notificationError: string | undefined;
+  let confirmationStatus: 'sent' | 'failed' | 'pending' = 'pending';
+  let confirmationError: string | undefined;
+
+  const pendingRecord: GapReportSubmissionRecord = {
+    ...input,
+    requestId,
+    submittedAt,
+    notificationStatus: 'pending',
+    confirmationStatus: 'pending',
+  };
 
   try {
-    await sendNotificationEmail({
-      ...input,
-      requestId,
-      submittedAt,
-      notificationStatus: 'pending',
-    });
+    await sendNotificationEmail(pendingRecord);
     notificationStatus = 'sent';
   } catch (error) {
     notificationStatus = 'failed';
     notificationError = error instanceof Error ? error.message : String(error);
     warnings.push('Gap Report notification email failed.');
+  }
+
+  try {
+    await sendCustomerConfirmationEmail(pendingRecord);
+    confirmationStatus = 'sent';
+  } catch (error) {
+    confirmationStatus = 'failed';
+    confirmationError = error instanceof Error ? error.message : String(error);
+    warnings.push('Gap Report customer confirmation email failed.');
   }
 
   const record: GapReportSubmissionRecord = {
@@ -164,6 +243,8 @@ export async function recordGapReportSubmission(
     submittedAt,
     notificationStatus,
     notificationError,
+    confirmationStatus,
+    confirmationError,
   };
 
   try {
