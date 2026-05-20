@@ -32,7 +32,7 @@ function label(primary: string | null | undefined, fallback: string | null | und
 
 function DetailBlock({ title, body }: { title: string; body: string | null }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+    <div className="rounded-lg border border-border bg-surface p-4">
       <div className="mb-2 text-[10px] font-mono tracking-[0.2em] text-foreground/35 uppercase">
         {title}
       </div>
@@ -46,7 +46,7 @@ function DetailBlock({ title, body }: { title: string; body: string | null }) {
 function LoginPanel({ invalid }: { invalid: boolean }) {
   return (
     <main className="min-h-screen px-6 pb-20 pt-32">
-      <section className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-black/40 p-8">
+      <section className="mx-auto max-w-xl rounded-2xl border border-border bg-surface p-8">
         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Lock className="h-5 w-5" />
         </div>
@@ -70,7 +70,7 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
                 name="token"
                 type="password"
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-foreground/30 focus:border-primary/60"
+                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-foreground/30 focus:border-primary/60"
                 placeholder="Paste admin token"
                 required
               />
@@ -90,7 +90,7 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
 
 function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-black/30 p-6">
+    <article className="rounded-2xl border border-border bg-surface p-6">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="mb-2 text-[10px] font-mono tracking-[0.2em] text-primary uppercase">
@@ -98,18 +98,18 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
           </p>
           <h2 className="text-2xl font-semibold tracking-tight text-white">{row.fullName}</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-foreground/55">
-            <span className="rounded-full border border-white/10 px-3 py-1">
+            <span className="rounded-full border border-border px-3 py-1">
               {label(row.projectInterestLabel, row.projectInterest)}
             </span>
-            <span className="rounded-full border border-white/10 px-3 py-1">
+            <span className="rounded-full border border-border px-3 py-1">
               {label(row.sourcePageLabel, row.sourcePage)}
             </span>
-            <span className="rounded-full border border-white/10 px-3 py-1">
+            <span className="rounded-full border border-border px-3 py-1">
               {label(row.sourceOfferLabel, row.sourceOffer)}
             </span>
           </div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-sm text-foreground/65 lg:min-w-72">
+        <div className="rounded-xl border border-border bg-surface p-4 text-sm text-foreground/65 lg:min-w-72">
           <div className="mb-2 flex items-center gap-2 text-white">
             <Mail className="h-4 w-4 text-primary" />
             <a href={`mailto:${row.workEmail}`} className="hover:text-primary">
@@ -127,7 +127,7 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
         <DetailBlock title="Current ecosystem" body={row.currentTechEcosystem} />
         <DetailBlock title="Deployment constraints" body={row.deploymentConstraints} />
         <DetailBlock title="ROI goal" body={row.roiGoal} />
-        <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+        <div className="rounded-lg border border-border bg-surface p-4">
           <div className="mb-2 text-[10px] font-mono tracking-[0.2em] text-foreground/35 uppercase">
             Fit signals
           </div>
@@ -180,7 +180,7 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
             </p>
           </div>
           <form action="/admin/intake/logout" method="post">
-            <button className="inline-flex items-center gap-2 rounded-md border border-white/10 px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-white/20 hover:text-white">
+            <button className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-border hover:text-white">
               <LogOut className="h-4 w-4" />
               Sign out
             </button>
@@ -193,7 +193,7 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
             using the intake database.
           </div>
         ) : rows.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-black/30 p-8 text-sm text-foreground/60">
+          <div className="rounded-xl border border-border bg-surface p-8 text-sm text-foreground/60">
             No audit requests have been persisted yet.
           </div>
         ) : (

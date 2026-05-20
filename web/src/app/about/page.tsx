@@ -95,7 +95,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.08 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8">
             <div>
@@ -131,7 +131,7 @@ export default function AboutPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 + index * 0.06 }}
-              className="glass rounded-xl p-8 border border-white/10"
+              className="glass rounded-xl p-8 border border-border"
             >
               <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                 {principle.icon}
@@ -148,7 +148,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6, delay: 0.28 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12"
         >
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">HOW IT RUNS</div>
             <h2 className="text-xl font-semibold text-white mb-6">A small, explicit engagement path</h2>
             <div className="space-y-5">
@@ -166,13 +166,13 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">BOUNDARIES</div>
             <h2 className="text-xl font-semibold text-white mb-6">What I intentionally avoid</h2>
             <div className="space-y-3">
               {boundaries.map((item) => (
                 <div key={item} className="flex items-start gap-3">
-                  <div className="w-4 h-4 rounded-full border border-white/20 shrink-0 mt-0.5" />
+                  <div className="w-4 h-4 rounded-full border border-border shrink-0 mt-0.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
                 </div>
               ))}
@@ -184,7 +184,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.34 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
@@ -196,21 +196,21 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/proof"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Proof
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/process"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Process
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/privacy"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Privacy
                 <ArrowRight className="w-4 h-4" />
@@ -223,7 +223,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Think your workflow is concrete enough to scope?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">

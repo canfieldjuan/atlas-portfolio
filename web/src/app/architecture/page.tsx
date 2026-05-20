@@ -30,7 +30,7 @@ export default function ArchitecturePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <h2 className="text-lg font-semibold text-white mb-3">What this page is for</h2>
           <p className="text-sm text-foreground/60 leading-relaxed mb-4">
@@ -46,24 +46,24 @@ export default function ArchitecturePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="flex items-center gap-4 mb-8">
             <Cpu className="text-primary w-6 h-6" />
             <h2 className="text-2xl font-medium">A representative pipeline blueprint</h2>
           </div>
 
-          <div className="mb-12 border border-white/10 rounded-lg overflow-hidden relative aspect-video">
+          <div className="mb-12 border border-border rounded-lg overflow-hidden relative aspect-video">
             <Image
               src="/screenshot-pipeline-review.png"
               alt="Representative pipeline review dashboard"
               fill
               className="object-cover opacity-80 hover:opacity-100 transition-opacity"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent pointer-events-none" />
           </div>
 
-          <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-[19px] before:w-[2px] before:bg-white/10">
+          <div className="space-y-6 relative before:absolute before:inset-y-0 before:left-[19px] before:w-[2px] before:bg-surface">
             {[
               {
                 title: "1. Controlled data ingestion",
@@ -97,7 +97,7 @@ export default function ArchitecturePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <h2 className="text-lg font-semibold text-white mb-3">What changes per project</h2>
           <p className="text-sm text-foreground/60 leading-relaxed mb-4">
@@ -106,14 +106,14 @@ export default function ArchitecturePage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/process"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
             >
               Review Process
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/security"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
             >
               Review Security
               <ArrowRight className="w-4 h-4" />
@@ -125,13 +125,13 @@ export default function ArchitecturePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center bg-white/5 border border-white/10 rounded-xl p-10"
+          className="text-center bg-surface border border-border rounded-xl p-10"
         >
           <h2 className="text-2xl font-medium mb-4">Need architecture that fits your actual operating constraints?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
             Start with the Systems Audit. That is where architecture, risk boundaries, deployment constraints, and proof-of-concept scope get defined before build work begins.
           </p>
-          <Link href={buildAuditHref({ source: 'architecture' })} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all">
+          <Link href={buildAuditHref({ source: 'architecture' })} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all">
             Start Systems Audit
             <ArrowRight className="w-4 h-4" />
           </Link>

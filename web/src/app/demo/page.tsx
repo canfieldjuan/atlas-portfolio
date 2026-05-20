@@ -213,7 +213,7 @@ export default function DemoPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-14"
+          className="glass rounded-xl p-8 border border-border mb-14"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
@@ -241,7 +241,7 @@ export default function DemoPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.14 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-14"
+          className="glass rounded-xl p-8 border border-border mb-14"
         >
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
             <div className="max-w-2xl">
@@ -276,7 +276,7 @@ export default function DemoPage() {
                   className={`min-h-20 rounded-lg border p-4 text-left transition-colors ${
                     isActive
                       ? 'border-primary/50 bg-primary/10 text-white'
-                      : 'border-white/10 bg-black/20 text-foreground/60 hover:border-white/20 hover:text-foreground'
+                      : 'border-border bg-surface text-foreground/60 hover:border-border hover:text-foreground'
                   }`}
                 >
                   <div className={`mb-2 ${isActive ? 'text-primary' : 'text-foreground/45'}`}>
@@ -289,7 +289,7 @@ export default function DemoPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-6">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-6">
+            <div className="rounded-xl border border-border bg-surface p-6">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 {activeWorkbench.label.toUpperCase()}
               </div>
@@ -301,7 +301,7 @@ export default function DemoPage() {
                   <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">INPUTS</div>
                   <div className="space-y-2">
                     {activeWorkbench.inputs.map((item) => (
-                      <div key={item} className="rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-foreground/70">
+                      <div key={item} className="rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground/70">
                         {item}
                       </div>
                     ))}
@@ -338,17 +338,17 @@ export default function DemoPage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-white/10 bg-[#080808] p-5 flex flex-col">
+                <div className="rounded-lg border border-border bg-surface p-5 flex flex-col">
                   <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">OUTPUT PREVIEW</div>
                   <h4 className="text-lg font-semibold text-white mb-4">{activeWorkbench.outputTitle}</h4>
                   <div className="space-y-3 flex-1">
                     {activeWorkbench.output.map((line) => (
-                      <div key={line} className="font-mono text-sm text-primary/90 border-b border-white/5 pb-2">
+                      <div key={line} className="font-mono text-sm text-primary/90 border-b border-border pb-2">
                         {line}
                       </div>
                     ))}
                   </div>
-                  <div className="mt-5 rounded-md border border-white/10 bg-white/[0.03] p-3 text-xs text-foreground/50 leading-relaxed">
+                  <div className="mt-5 rounded-md border border-border bg-surface p-3 text-xs text-foreground/50 leading-relaxed">
                     In Phase 1, this becomes a narrow working proof with real sample data, reviewed outputs, and explicit build risks.
                   </div>
                 </div>
@@ -361,7 +361,7 @@ export default function DemoPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-14"
+          className="glass rounded-xl p-8 border border-border mb-14"
           aria-labelledby="live-integrations-heading"
         >
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
@@ -408,7 +408,7 @@ export default function DemoPage() {
               <Link
                 key={demo.id}
                 href={`#${demo.id}`}
-                className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-left hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                className="rounded-lg border border-border bg-surface p-4 text-left hover:border-primary/30 hover:bg-primary/5 transition-colors"
               >
                 <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-2">
                   {demo.label}
@@ -427,7 +427,7 @@ export default function DemoPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 + index * 0.06 }}
-              className="glass rounded-xl p-8 border border-white/10 hover:bg-white/[0.02] transition-colors scroll-mt-24"
+              className="glass rounded-xl p-8 border border-border hover:bg-surface-hover transition-colors scroll-mt-24"
             >
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3 shrink-0">
@@ -445,11 +445,11 @@ export default function DemoPage() {
                     <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-2">INPUT</div>
                     <p className="text-sm text-foreground/65 leading-relaxed">{demo.input}</p>
                   </div>
-                  <div className="md:border-l md:border-white/10 md:pl-6">
+                  <div className="md:border-l md:border-border md:pl-6">
                     <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-2">SYSTEM</div>
                     <p className="text-sm text-foreground/65 leading-relaxed">{demo.system}</p>
                   </div>
-                  <div className="md:border-l md:border-white/10 md:pl-6">
+                  <div className="md:border-l md:border-border md:pl-6">
                     <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-2">OUTPUT</div>
                     <p className="text-sm text-foreground/65 leading-relaxed">{demo.output}</p>
                   </div>
@@ -469,7 +469,7 @@ export default function DemoPage() {
             className="space-y-12"
           >
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground/50 text-xs font-mono tracking-wide mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 CONCRETE EXAMPLE
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
@@ -488,7 +488,7 @@ export default function DemoPage() {
               <p className="text-foreground/60 leading-relaxed">
                 The workflow starts with source material such as reviews, support tickets, CRM notes, call transcripts, documents, or public web data.
               </p>
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4 font-mono text-sm text-foreground/80 overflow-x-auto">
+              <div className="bg-surface border border-border rounded-lg p-4 font-mono text-sm text-foreground/80 overflow-x-auto">
                 <pre>{`{
   "source": "G2",
   "content": "The UI is clunky and we are paying too much for seats we do not use. Looking at alternatives."
@@ -504,7 +504,7 @@ export default function DemoPage() {
               <p className="text-foreground/60 leading-relaxed">
                 Instead of a loose summary, the system produces fields that can be inspected, scored, filtered, audited, and routed through business logic.
               </p>
-              <div className="bg-[#0a0a0a] border border-primary/30 rounded-lg p-4 font-mono text-sm text-primary overflow-x-auto shadow-[0_0_15px_rgba(0,255,204,0.05)]">
+              <div className="bg-surface border border-primary/30 rounded-lg p-4 font-mono text-sm text-primary overflow-x-auto shadow-[var(--primary-glow-tight)]">
                 <pre>{`{
   "churn_intent_score": 0.85,
   "pain_points": ["Cost", "UX"],
@@ -532,8 +532,8 @@ export default function DemoPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="sticky top-32"
           >
-            <div className="glass rounded-xl p-2 border border-white/10 overflow-hidden">
-              <div className="bg-[#111] rounded-lg overflow-hidden relative aspect-[4/3] flex items-center justify-center">
+            <div className="glass rounded-xl p-2 border border-border overflow-hidden">
+              <div className="bg-surface rounded-lg overflow-hidden relative aspect-[4/3] flex items-center justify-center">
                 <Image
                   src="/evidence-explorer-demo.gif"
                   alt="Representative evidence explorer demo"
@@ -541,7 +541,7 @@ export default function DemoPage() {
                   className="object-cover"
                   unoptimized
                 />
-                <div className="absolute top-4 left-4 bg-black/80 px-3 py-1 rounded border border-white/10 text-xs font-mono text-white/80">
+                <div className="absolute top-4 left-4 bg-surface px-3 py-1 rounded border border-border text-xs font-mono text-foreground/80">
                   EVIDENCE EXPLORER
                 </div>
               </div>
@@ -560,7 +560,7 @@ export default function DemoPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.32 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between">
             <div className="max-w-2xl">
@@ -587,7 +587,7 @@ export default function DemoPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.38 }}
-          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Want to know which workflow fits your environment?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
@@ -598,7 +598,7 @@ export default function DemoPage() {
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/capabilities" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+            <Link href="/capabilities" className="inline-flex items-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Capabilities
             </Link>
           </div>

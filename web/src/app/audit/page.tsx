@@ -248,7 +248,7 @@ function AuditPageFallback() {
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-5xl mx-auto">
-        <div className="rounded-xl border border-white/10 bg-black/20 p-8 text-sm text-foreground/60">
+        <div className="rounded-xl border border-border bg-surface p-8 text-sm text-foreground/60">
           Loading Systems Audit...
         </div>
       </div>
@@ -772,7 +772,7 @@ function AuditPageContent() {
                   ? '/systems/atlas-llm-gateway#api-surface'
                   : '/services'
               }
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
             >
               {isContentOpsContext
                 ? 'Review Content Ops pricing'
@@ -804,7 +804,7 @@ function AuditPageContent() {
 
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
           {pageConversionSignals.map((signal) => (
-            <div key={signal.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
+            <div key={signal.title} className="rounded-lg border border-border bg-surface p-5">
               <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
                 {signal.icon}
               </div>
@@ -826,7 +826,7 @@ function AuditPageContent() {
               Review <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">privacy and data handling</Link> before sharing sensitive project context.
             </p>
           </div>
-          <div className="rounded-lg border border-white/10 bg-black/20 p-5">
+          <div className="rounded-lg border border-border bg-surface p-5">
             <h2 className="text-sm font-semibold text-white mb-4">What I am checking for</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {pageReviewCriteria.map((item) => (
@@ -840,12 +840,12 @@ function AuditPageContent() {
         </div>
 
         <div className="mb-8 flex flex-wrap items-center gap-3 text-xs text-foreground/50">
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">
+          <span className="px-3 py-1 rounded-full bg-surface border border-border">
             Step 1: Contact + context
           </span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 2: Workflow details</span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 3: Security + timing</span>
-          <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10">Step 4: Outcome and budget</span>
+          <span className="px-3 py-1 rounded-full bg-surface border border-border">Step 2: Workflow details</span>
+          <span className="px-3 py-1 rounded-full bg-surface border border-border">Step 3: Security + timing</span>
+          <span className="px-3 py-1 rounded-full bg-surface border border-border">Step 4: Outcome and budget</span>
         </div>
         <p className="text-xs text-foreground/50 mb-8">Required fields are marked with an asterisk. One or two specific sentences per field is enough for a first review.</p>
 
@@ -862,7 +862,7 @@ function AuditPageContent() {
             <h2 className="text-xs font-mono text-foreground/40 tracking-widest">CONTACT AND CONTEXT</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="fullName">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="fullName">
                   Full Name <span className="text-primary">*</span>
                 </label>
               <input
@@ -873,7 +873,7 @@ function AuditPageContent() {
                 onChange={handleChange('fullName')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
-                  formErrors.fullName ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.fullName ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="John Doe"
                 required
@@ -887,7 +887,7 @@ function AuditPageContent() {
                 ) : null}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="workEmail">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="workEmail">
                   Work Email <span className="text-primary">*</span>
                 </label>
               <input
@@ -898,7 +898,7 @@ function AuditPageContent() {
                 onChange={handleChange('workEmail')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
-                  formErrors.workEmail ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.workEmail ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="john@company.com"
                 required
@@ -913,7 +913,7 @@ function AuditPageContent() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="companyOrProjectUrl">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="companyOrProjectUrl">
                 Company / Project (name or URL) <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
@@ -927,7 +927,7 @@ function AuditPageContent() {
                 onChange={handleChange('companyOrProjectUrl')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
-                  formErrors.companyOrProjectUrl ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.companyOrProjectUrl ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="Acme Inc. or https://acme.com"
                 required
@@ -941,7 +941,7 @@ function AuditPageContent() {
                 ) : null}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="roleAndDecisionScope">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="roleAndDecisionScope">
                 Your role and buying authority <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
@@ -955,7 +955,7 @@ function AuditPageContent() {
                 onChange={handleChange('roleAndDecisionScope')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
-                  formErrors.roleAndDecisionScope ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.roleAndDecisionScope ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="Founder, Ops lead, IT owner, evaluator, final approver..."
                 required
@@ -968,7 +968,7 @@ function AuditPageContent() {
               ) : null}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="projectInterest">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="projectInterest">
                 What are you most interested in? <span className="text-primary">*</span>
               </label>
               {isLockedProductContext ? (
@@ -982,7 +982,7 @@ function AuditPageContent() {
                     value={auditProjectInterestLabel(effectiveProjectInterest)}
                     readOnly
                     disabled={isInputDisabled}
-                    className={`w-full bg-white/[0.03] border rounded-md px-4 py-3 text-white/80 focus:outline-none ${
+                    className={`w-full bg-surface border rounded-md px-4 py-3 text-foreground/80 focus:outline-none ${
                       formErrors.projectInterest ? 'border-red-400/80' : 'border-primary/20'
                     }`}
                     aria-invalid={!!formErrors.projectInterest}
@@ -1002,7 +1002,7 @@ function AuditPageContent() {
                     onChange={handleChange('projectInterest')}
                     disabled={isInputDisabled}
                     className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                      formErrors.projectInterest ? 'border-red-400/80' : 'border-white/10'
+                      formErrors.projectInterest ? 'border-red-400/80' : 'border-border'
                     }`}
                     required
                     aria-invalid={!!formErrors.projectInterest}
@@ -1029,7 +1029,7 @@ function AuditPageContent() {
           <section className="space-y-6">
             <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OPERATIONAL DETAILS</h2>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="biggestBottleneck">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="biggestBottleneck">
                 What is the biggest manual bottleneck in your operations right now? <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
@@ -1043,7 +1043,7 @@ function AuditPageContent() {
                 onChange={handleChange('biggestBottleneck')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
-                  formErrors.biggestBottleneck ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.biggestBottleneck ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder={fieldCopy.bottleneckPlaceholder}
                 required
@@ -1057,7 +1057,7 @@ function AuditPageContent() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="automationDataSources">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="automationDataSources">
                 What data sources are you trying to automate? <span className="text-primary">*</span>
               </label>
               <p className="text-xs text-foreground/45">
@@ -1071,7 +1071,7 @@ function AuditPageContent() {
                 onChange={handleChange('automationDataSources')}
                 disabled={isInputDisabled}
                 className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
-                  formErrors.automationDataSources ? 'border-red-400/80' : 'border-white/10'
+                  formErrors.automationDataSources ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder={fieldCopy.dataSourcesPlaceholder}
                 required
@@ -1085,7 +1085,7 @@ function AuditPageContent() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80" htmlFor="currentTechEcosystem">
+              <label className="text-sm font-medium text-foreground/80" htmlFor="currentTechEcosystem">
                 Current Tech Ecosystem
               </label>
               <p className="text-xs text-foreground/45">
@@ -1098,7 +1098,7 @@ function AuditPageContent() {
                 value={formData.currentTechEcosystem}
                 onChange={handleChange('currentTechEcosystem')}
                 disabled={isInputDisabled}
-                className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                 placeholder={fieldCopy.techPlaceholder}
                 aria-describedby={formErrors.currentTechEcosystem ? 'currentTechEcosystem-error' : undefined}
               />
@@ -1109,7 +1109,7 @@ function AuditPageContent() {
             <h2 className="text-xs font-mono text-foreground/40 tracking-widest">{isDiscovery ? 'TIMELINE' : 'QUALIFICATION AND SECURITY'}</h2>
             <div className={`grid grid-cols-1 ${isDiscovery ? '' : 'md:grid-cols-2'} gap-6`}>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="desiredTimeline">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="desiredTimeline">
                   Desired timeline <span className="text-primary">*</span>
                 </label>
                 <select
@@ -1119,7 +1119,7 @@ function AuditPageContent() {
                   onChange={handleChange('desiredTimeline')}
                   disabled={isInputDisabled}
                   className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                    formErrors.desiredTimeline ? 'border-red-400/80' : 'border-white/10'
+                    formErrors.desiredTimeline ? 'border-red-400/80' : 'border-border'
                   }`}
                   required
                   aria-invalid={!!formErrors.desiredTimeline}
@@ -1141,7 +1141,7 @@ function AuditPageContent() {
 
               {!isDiscovery && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/80" htmlFor="securityRequirement">
+                  <label className="text-sm font-medium text-foreground/80" htmlFor="securityRequirement">
                     Security requirement <span className="text-primary">*</span>
                   </label>
                   <select
@@ -1151,7 +1151,7 @@ function AuditPageContent() {
                     onChange={handleChange('securityRequirement')}
                     disabled={isInputDisabled}
                     className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                      formErrors.securityRequirement ? 'border-red-400/80' : 'border-white/10'
+                      formErrors.securityRequirement ? 'border-red-400/80' : 'border-border'
                     }`}
                     required
                     aria-invalid={!!formErrors.securityRequirement}
@@ -1176,7 +1176,7 @@ function AuditPageContent() {
 
             {!isDiscovery && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="deploymentConstraints">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="deploymentConstraints">
                   Deployment or data-handling constraints
                 </label>
                 <p className="text-xs text-foreground/45">
@@ -1189,7 +1189,7 @@ function AuditPageContent() {
                   value={formData.deploymentConstraints}
                   onChange={handleChange('deploymentConstraints')}
                   disabled={isInputDisabled}
-                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
                   placeholder={fieldCopy.deploymentPlaceholder}
                 />
               </div>
@@ -1200,7 +1200,7 @@ function AuditPageContent() {
             <section className="space-y-6">
               <h2 className="text-xs font-mono text-foreground/40 tracking-widest">OUTCOMES AND BUDGET</h2>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="roiGoal">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="roiGoal">
                   What does success look like? (The ROI)
                 </label>
                 <p className="text-xs text-foreground/45">
@@ -1213,7 +1213,7 @@ function AuditPageContent() {
                   value={formData.roiGoal}
                   onChange={handleChange('roiGoal')}
                   disabled={isInputDisabled}
-                  className="w-full bg-background border border-white/10 rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder={fieldCopy.roiPlaceholder}
                   aria-invalid={!!formErrors.roiGoal}
                   aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
@@ -1221,7 +1221,7 @@ function AuditPageContent() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/80" htmlFor="anticipatedInvestmentRange">
+                <label className="text-sm font-medium text-foreground/80" htmlFor="anticipatedInvestmentRange">
                   Anticipated Investment Range <span className="text-primary">*</span>
                 </label>
                 <p className="text-xs text-foreground/45">
@@ -1234,7 +1234,7 @@ function AuditPageContent() {
                   onChange={handleChange('anticipatedInvestmentRange')}
                   disabled={isInputDisabled}
                   className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
-                    formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-white/10'
+                    formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-border'
                   }`}
                   required
                   aria-invalid={!!formErrors.anticipatedInvestmentRange}
@@ -1286,7 +1286,7 @@ function AuditPageContent() {
               : 'No payment is collected here. If there is a fit, I will reply with next steps for the Phase 1 Roadmap.'}
           </p>
 
-          <div className="rounded-lg border border-white/10 bg-black/20 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="rounded-lg border border-border bg-surface p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <p className="text-sm text-foreground/60 leading-relaxed">
               Manual backup: copy the filled summary if the form fails or you need to send the request through an existing email thread.
             </p>
@@ -1294,7 +1294,7 @@ function AuditPageContent() {
               type="button"
               onClick={copySummary}
               disabled={isCopying || isSubmitting}
-              className="inline-flex items-center justify-center gap-2 text-sm px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors disabled:opacity-70 disabled:cursor-not-allowed shrink-0"
+              className="inline-flex items-center justify-center gap-2 text-sm px-4 py-2 border border-border rounded-md hover:bg-surface-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed shrink-0"
             >
               <Copy className="w-4 h-4" />
               {isCopying
@@ -1357,7 +1357,7 @@ function AuditPageContent() {
                       type="button"
                       onClick={copySummary}
                       disabled={isCopying}
-                      className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors"
+                      className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-border rounded-md hover:bg-surface-hover transition-colors"
                     >
                       <Copy className="w-4 h-4" />
                       {isCopying
@@ -1382,7 +1382,7 @@ function AuditPageContent() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-white/10 rounded-md hover:bg-white/5 transition-colors"
+                    className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-border rounded-md hover:bg-surface-hover transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
                     Clear and restart

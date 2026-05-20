@@ -404,8 +404,8 @@ export function ContentOpsDemo() {
   const showAssets = runState === 'done';
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/20 overflow-hidden">
-      <div role="group" aria-label="Demo scenarios" className="flex flex-col sm:flex-row border-b border-white/10">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden">
+      <div role="group" aria-label="Demo scenarios" className="flex flex-col sm:flex-row border-b border-border">
         {scenarios.map((s) => {
           const isActive = s.id === selectedId;
           return (
@@ -414,10 +414,10 @@ export function ContentOpsDemo() {
               type="button"
               aria-current={isActive ? 'true' : undefined}
               onClick={() => handleScenarioChange(s.id)}
-              className={`flex-1 px-5 py-4 text-left text-sm transition-colors border-b sm:border-b-0 sm:border-r border-white/10 last:border-r-0 last:border-b-0 ${
+              className={`flex-1 px-5 py-4 text-left text-sm transition-colors border-b sm:border-b-0 sm:border-r border-border last:border-r-0 last:border-b-0 ${
                 isActive
                   ? 'bg-primary/[0.06] text-white'
-                  : 'text-foreground/60 hover:bg-white/[0.02] hover:text-foreground/80'
+                  : 'text-foreground/60 hover:bg-surface-hover hover:text-foreground/80'
               }`}
             >
               <div className="text-[10px] font-mono tracking-widest mb-1 text-primary/70">
@@ -435,7 +435,7 @@ export function ContentOpsDemo() {
           <p className="text-sm text-foreground/65 leading-relaxed">{scenario.summary}</p>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-black/30 p-5 mb-6">
+        <div className="rounded-lg border border-border bg-surface p-5 mb-6">
           <div className="flex items-center gap-2 text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
             <Database className="w-3.5 h-3.5" />
             INPUT — {scenario.inputLabel.toUpperCase()}
@@ -461,7 +461,7 @@ export function ContentOpsDemo() {
             </button>
           )}
           {runState === 'running' && (
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-white/[0.04] border border-white/10 text-sm text-foreground/70">
+            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-surface border border-border text-sm text-foreground/70">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
               Running controlled pipeline…
             </div>
@@ -470,7 +470,7 @@ export function ContentOpsDemo() {
             <button
               type="button"
               onClick={runPipeline}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 hover:bg-white/5 transition-colors rounded-md text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border hover:bg-surface-hover transition-colors rounded-md text-sm text-foreground/80"
             >
               <RotateCcw className="w-4 h-4" />
               Run again
@@ -495,8 +495,8 @@ export function ContentOpsDemo() {
                   isActive
                     ? 'border-primary/40 bg-primary/[0.06]'
                     : isComplete
-                    ? 'border-white/10 bg-white/[0.03]'
-                    : 'border-white/5 bg-black/20'
+                    ? 'border-border bg-surface'
+                    : 'border-border bg-surface'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -506,7 +506,7 @@ export function ContentOpsDemo() {
                         ? 'bg-primary/20 text-primary'
                         : isComplete
                         ? 'bg-primary/10 text-primary'
-                        : 'bg-white/5 text-foreground/35'
+                        : 'bg-surface text-foreground/35'
                     }`}
                   >
                     {isActive ? (
@@ -546,7 +546,7 @@ export function ContentOpsDemo() {
         </div>
 
         {showAssets && (
-          <div className="border-t border-white/10 pt-6">
+          <div className="border-t border-border pt-6">
             <div className="flex items-center gap-2 mb-5">
               <CheckCircle2 className="w-4 h-4 text-primary" />
               <div className="text-[10px] font-mono text-primary/80 tracking-widest">
@@ -555,7 +555,7 @@ export function ContentOpsDemo() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-white/10 bg-black/30 p-5">
+              <div className="rounded-lg border border-border bg-surface p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="w-4 h-4 text-primary" />
                   <div className="text-[10px] font-mono text-foreground/45 tracking-widest">
@@ -574,7 +574,7 @@ export function ContentOpsDemo() {
                 </ul>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 p-5">
+              <div className="rounded-lg border border-border bg-surface p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Mail className="w-4 h-4 text-primary" />
                   <div className="text-[10px] font-mono text-foreground/45 tracking-widest">
@@ -586,7 +586,7 @@ export function ContentOpsDemo() {
                 </h4>
                 <div className="space-y-2.5">
                   {scenario.assets.email.touches.map((t, i) => (
-                    <div key={t.subject} className="border-l border-white/10 pl-3">
+                    <div key={t.subject} className="border-l border-border pl-3">
                       <div className="text-[10px] font-mono text-foreground/40 mb-0.5">
                         TOUCH {i + 1}
                       </div>
@@ -601,7 +601,7 @@ export function ContentOpsDemo() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 p-5">
+              <div className="rounded-lg border border-border bg-surface p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Briefcase className="w-4 h-4 text-primary" />
                   <div className="text-[10px] font-mono text-foreground/45 tracking-widest">
@@ -620,7 +620,7 @@ export function ContentOpsDemo() {
                 </ul>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 p-5">
+              <div className="rounded-lg border border-border bg-surface p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <LayoutTemplate className="w-4 h-4 text-primary" />
                   <div className="text-[10px] font-mono text-foreground/45 tracking-widest">
@@ -638,7 +638,7 @@ export function ContentOpsDemo() {
                 </p>
               </div>
 
-              <div className="rounded-lg border border-white/10 bg-black/30 p-5 md:col-span-2">
+              <div className="rounded-lg border border-border bg-surface p-5 md:col-span-2">
                 <div className="flex items-center gap-2 mb-3">
                   <Megaphone className="w-4 h-4 text-primary" />
                   <div className="text-[10px] font-mono text-foreground/45 tracking-widest">
@@ -670,7 +670,7 @@ export function ContentOpsDemo() {
                 </Link>
                 <Link
                   href={privateDemoHref}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 hover:bg-white/5 transition-colors rounded-md text-sm text-foreground/80"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border hover:bg-surface-hover transition-colors rounded-md text-sm text-foreground/80"
                 >
                   Request a Private Demo
                 </Link>

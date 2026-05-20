@@ -39,12 +39,12 @@ export function Navigation() {
   };
 
   return (
-    <nav aria-label="Main navigation" className="fixed top-0 left-0 right-0 z-50 glass border-b-0 border-white/5">
+    <nav aria-label="Main navigation" className="fixed top-0 left-0 right-0 z-50 glass border-b-0 border-border">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
           <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
           <span className="font-mono text-sm tracking-wider uppercase text-foreground/80">
-            Juan Canfield <span className="hidden sm:inline"><span className="text-white/30">|</span> Architect</span>
+            Juan Canfield <span className="hidden sm:inline"><span className="text-foreground/30">|</span> Architect</span>
           </span>
         </Link>
 
@@ -70,7 +70,7 @@ export function Navigation() {
             className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
               isAuditPage
                 ? 'bg-primary text-black'
-                : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                : 'bg-surface hover:bg-surface-hover border border-border text-white'
             }`}
           >
             Start Systems Audit
@@ -82,7 +82,7 @@ export function Navigation() {
           <Link
             href={buildAuditHref({ source: 'navigation' })}
             aria-current={isAuditPage ? 'page' : undefined}
-            className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors text-white"
+            className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border rounded-md transition-colors text-white"
             onClick={closeMobileMenu}
           >
             Audit
@@ -108,9 +108,9 @@ export function Navigation() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden overflow-hidden border-t border-white/5"
+            className="lg:hidden overflow-hidden border-t border-border"
           >
-            <div className="px-6 py-4 space-y-1 bg-[#0a0a0a]">
+            <div className="px-6 py-4 space-y-1 bg-surface shadow-[var(--card-shadow)]">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

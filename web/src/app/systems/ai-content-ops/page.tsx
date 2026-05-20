@@ -245,8 +245,8 @@ function FAQReportSample() {
   const undocumented = sampleRankedQuestions.filter((row) => !row.hasDoc).length;
 
   return (
-    <div className="glass rounded-xl border border-white/10 overflow-hidden">
-      <div className="border-b border-white/10 px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-black/20">
+    <div className="glass rounded-xl border border-border overflow-hidden">
+      <div className="border-b border-border px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-surface">
         <div className="flex items-center gap-2">
           <Workflow className="w-4 h-4 text-primary/80" />
           <span className="text-sm font-medium text-white">The FAQ Report</span>
@@ -277,13 +277,13 @@ function FAQReportSample() {
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
             REPEAT CUSTOMER QUESTIONS — RANKED BY VOLUME
           </div>
-          <div className="rounded-lg border border-white/10 overflow-hidden">
+          <div className="rounded-lg border border-border overflow-hidden">
             {sampleRankedQuestions.map((row, i) => (
               <div
                 key={row.question}
                 className={`flex items-center justify-between gap-4 px-4 py-3 ${
-                  i < sampleRankedQuestions.length - 1 ? 'border-b border-white/5' : ''
-                } ${!row.hasDoc ? 'bg-white/[0.015]' : ''}`}
+                  i < sampleRankedQuestions.length - 1 ? 'border-b border-border' : ''
+                } ${!row.hasDoc ? 'bg-surface' : ''}`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-[10px] font-mono text-foreground/40 w-5 shrink-0">
@@ -326,11 +326,11 @@ function FAQReportSample() {
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
             SAMPLE FAQ ENTRIES — 3 OUTPUT EXAMPLES
           </div>
-          <div className="rounded-lg border border-white/10 bg-black/20 overflow-hidden">
+          <div className="rounded-lg border border-border bg-surface overflow-hidden">
             {sampleFaqExamples.map((example, exampleIndex) => (
               <div
                 key={example.question}
-                className={`p-5 ${exampleIndex > 0 ? 'border-t border-white/10' : ''}`}
+                className={`p-5 ${exampleIndex > 0 ? 'border-t border-border' : ''}`}
               >
                 <p className="text-sm font-medium text-white mb-2">
                   Q: {example.question}
@@ -352,7 +352,7 @@ function FAQReportSample() {
           </div>
         </div>
 
-        <p className="text-xs text-foreground/45 leading-relaxed border-t border-white/5 pt-4">
+        <p className="text-xs text-foreground/45 leading-relaxed border-t border-border pt-4">
           Mock data shown. Your version is built from your actual tickets — same
           structure, your repeat questions, your customer wording, your source IDs.
         </p>
@@ -368,87 +368,7 @@ export default function AiContentOpsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <style>{`
-        .faq-report-light {
-          --background: #f4f7f2;
-          --foreground: #17231f;
-          --color-background: #f4f7f2;
-          --color-foreground: #17231f;
-          --color-primary: #3c6f8f;
-          background:
-            radial-gradient(circle at top left, rgba(60, 111, 143, 0.14), transparent 34rem),
-            linear-gradient(180deg, #fbfcf8 0%, #f2f6ef 52%, #edf3ea 100%);
-          color: var(--foreground);
-        }
-
-        .faq-report-light .glass,
-        .faq-report-light [class*="bg-black/"],
-        .faq-report-light [class*="bg-white/["] {
-          background: rgba(255, 255, 255, 0.72) !important;
-          box-shadow: 0 18px 50px rgba(31, 45, 39, 0.08);
-        }
-
-        .faq-report-light [class*="border-white/"],
-        .faq-report-light [class*="border-primary/20"],
-        .faq-report-light [class*="border-primary/30"] {
-          border-color: rgba(23, 35, 31, 0.12) !important;
-        }
-
-        .faq-report-light .text-white {
-          color: #11231f !important;
-        }
-
-        .faq-report-light .text-black {
-          color: #041310 !important;
-        }
-
-        .faq-report-light [class*="text-foreground/"] {
-          color: rgba(23, 35, 31, 0.68) !important;
-        }
-
-        .faq-report-light [class*="text-primary/"],
-        .faq-report-light .text-primary {
-          color: #315f7b !important;
-        }
-
-        .faq-report-light [class*="bg-primary/"] {
-          background-color: rgba(60, 111, 143, 0.1) !important;
-        }
-
-        .faq-report-light .bg-primary {
-          background-color: #3c6f8f !important;
-        }
-
-        .faq-report-light .bg-primary.text-black,
-        .faq-report-light .bg-primary .text-black {
-          color: #ffffff !important;
-        }
-
-        .faq-report-light .section-band {
-          margin-left: calc(50% - 50vw);
-          margin-right: calc(50% - 50vw);
-          padding-left: max(1.5rem, calc((100vw - 72rem) / 2 + 1.5rem));
-          padding-right: max(1.5rem, calc((100vw - 72rem) / 2 + 1.5rem));
-          padding-top: 6rem;
-          padding-bottom: 6rem;
-        }
-
-        .faq-report-light .section-band-muted {
-          background: rgba(255, 255, 255, 0.42);
-        }
-
-        .faq-report-light .section-band-blue {
-          background: rgba(60, 111, 143, 0.055);
-        }
-
-        @media (min-width: 768px) {
-          .faq-report-light .section-band {
-            padding-top: 8rem;
-            padding-bottom: 8rem;
-          }
-        }
-      `}</style>
-      <main className="faq-report-light min-h-screen pt-32 pb-20 px-6 relative z-10">
+      <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
 
         {/* Hero */}
@@ -505,7 +425,7 @@ export default function AiContentOpsPage() {
             <p>
               At first, they look small:
             </p>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 md:p-6">
+            <div className="rounded-xl border border-border bg-surface p-5 md:p-6">
               <div className="grid gap-5 md:grid-cols-[1fr_auto_1fr] md:items-center">
                 <div>
                   <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
@@ -522,7 +442,7 @@ export default function AiContentOpsPage() {
                 <div className="hidden md:flex h-full items-center justify-center px-2">
                   <ArrowRight className="w-5 h-5 text-primary/60" />
                 </div>
-                <div className="border-t border-white/10 pt-5 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+                <div className="border-t border-border pt-5 md:border-l md:border-t-0 md:pl-5 md:pt-0">
                   <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     THEN IT BUILDS
                   </p>
@@ -548,7 +468,7 @@ export default function AiContentOpsPage() {
             <p>
               Maybe the answer is not written yet. Maybe it is buried in an old doc. Maybe it is written in words your team uses, not words your customers use.
             </p>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-5 md:p-6">
+            <div className="rounded-xl border border-border bg-surface p-5 md:p-6">
               <div className="space-y-5 text-sm text-foreground/65 leading-relaxed">
                 <div>
                   <p className="text-foreground/45 mb-1">A customer looks for:</p>
@@ -556,13 +476,13 @@ export default function AiContentOpsPage() {
                   <p className="text-foreground/45 mt-2 mb-1">Your help center says:</p>
                   <p className="text-white">&ldquo;account cancellation flow&rdquo;</p>
                 </div>
-                <div className="border-t border-white/10 pt-5">
+                <div className="border-t border-border pt-5">
                   <p className="text-foreground/45 mb-1">A customer looks for:</p>
                   <p className="text-white">&ldquo;why was I charged twice?&rdquo;</p>
                   <p className="text-foreground/45 mt-2 mb-1">Your help center says:</p>
                   <p className="text-white">&ldquo;billing reconciliation&rdquo;</p>
                 </div>
-                <div className="border-t border-white/10 pt-5">
+                <div className="border-t border-border pt-5">
                   <p className="text-foreground/45 mb-1">A customer looks for:</p>
                   <p className="text-white">&ldquo;how do I add another person?&rdquo;</p>
                   <p className="text-foreground/45 mt-2 mb-1">Your product calls it:</p>
@@ -632,11 +552,11 @@ export default function AiContentOpsPage() {
             </p>
           </div>
 
-          <div className="glass rounded-xl border border-white/10 p-6 md:p-8">
+          <div className="glass rounded-xl border border-border p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
               {pipelineStages.map((stage, index) => (
                 <div key={stage.label} className="relative">
-                  <div className="rounded-lg border border-white/10 bg-black/30 p-4 h-full">
+                  <div className="rounded-lg border border-border bg-surface p-4 h-full">
                     <div className="text-[10px] font-mono text-primary/70 mb-2">
                       STEP {String(index + 1).padStart(2, '0')}
                     </div>
@@ -696,7 +616,7 @@ export default function AiContentOpsPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: 0.05 * i }}
-                className="glass rounded-xl border border-white/10 p-6"
+                className="glass rounded-xl border border-border p-6"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                   {item.icon}
@@ -707,7 +627,7 @@ export default function AiContentOpsPage() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+          <div className="mt-8 rounded-xl border border-border bg-surface p-6 max-w-3xl">
             <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
               WHAT THIS ISN&apos;T
             </div>
@@ -739,7 +659,7 @@ export default function AiContentOpsPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: 0.05 * i }}
-                className="glass rounded-xl border border-white/10 p-6"
+                className="glass rounded-xl border border-border p-6"
               >
                 <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-3">
                   GOOD FIT 0{i + 1}
@@ -750,7 +670,7 @@ export default function AiContentOpsPage() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+          <div className="mt-8 rounded-xl border border-border bg-surface p-6 max-w-3xl">
             <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
               NOT A FIT FOR
             </div>
@@ -784,8 +704,8 @@ export default function AiContentOpsPage() {
                 transition={{ duration: 0.4, delay: 0.05 * i }}
                 className={`relative rounded-xl p-6 md:p-7 flex flex-col ${
                   tier.highlighted
-                    ? 'border border-primary/30 bg-primary/[0.04] shadow-[0_0_40px_rgba(0,255,204,0.04)]'
-                    : 'glass border border-white/10'
+                    ? 'border border-primary/30 bg-primary/[0.04] shadow-[var(--primary-glow)]'
+                    : 'glass border border-border'
                 }`}
               >
                 {tier.badge && (
@@ -831,7 +751,7 @@ export default function AiContentOpsPage() {
                   className={`group inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md font-medium transition-colors text-sm ${
                     tier.highlighted
                       ? 'bg-primary text-black hover:bg-primary/90'
-                      : 'border border-white/10 text-white hover:bg-white/5'
+                      : 'border border-border text-white hover:bg-surface-hover'
                   }`}
                 >
                   {tier.cta}
@@ -842,7 +762,7 @@ export default function AiContentOpsPage() {
           </div>
 
           {/* What's not included */}
-          <div className="mt-8 rounded-xl border border-white/10 bg-black/20 p-6 max-w-3xl">
+          <div className="mt-8 rounded-xl border border-border bg-surface p-6 max-w-3xl">
             <div className="text-[10px] font-mono text-foreground/45 tracking-widest mb-3">
               WHAT&apos;S NOT INCLUDED
             </div>
@@ -865,7 +785,7 @@ export default function AiContentOpsPage() {
 
         {/* Final CTA */}
         <section className="section-band section-band-blue">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[0_0_40px_rgba(0,255,204,0.04)] text-center">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[var(--primary-glow)] text-center">
             <div className="max-w-2xl mx-auto">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 START HERE

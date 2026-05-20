@@ -170,7 +170,7 @@ export default function AiAutomationConsultantPage() {
               </Link>
               <Link
                 href="/services"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
                 Review Pricing
               </Link>
@@ -179,7 +179,7 @@ export default function AiAutomationConsultantPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-20">
             {heroFacts.map((fact) => (
-              <div key={fact.label} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div key={fact.label} className="rounded-lg border border-border bg-surface p-5">
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">
                   {fact.label}
                 </div>
@@ -202,7 +202,7 @@ export default function AiAutomationConsultantPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {automationAreas.map((area) => (
-                <div key={area.title} className="glass rounded-xl p-7 border border-white/10">
+                <div key={area.title} className="glass rounded-xl p-7 border border-border">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {area.icon}
                   </div>
@@ -214,7 +214,7 @@ export default function AiAutomationConsultantPage() {
           </section>
 
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-20">
-            <div className="glass rounded-xl p-8 border border-white/10">
+            <div className="glass rounded-xl p-8 border border-border">
               <h2 className="text-xl font-semibold text-white mb-5">Good fit when</h2>
               <div className="space-y-4">
                 {fitSignals.good.map((item) => (
@@ -225,12 +225,12 @@ export default function AiAutomationConsultantPage() {
                 ))}
               </div>
             </div>
-            <div className="glass rounded-xl p-8 border border-white/10">
+            <div className="glass rounded-xl p-8 border border-border">
               <h2 className="text-xl font-semibold text-white mb-5">Probably not the right fit when</h2>
               <div className="space-y-4">
                 {fitSignals.poor.map((item) => (
                   <div key={item} className="flex items-start gap-3">
-                    <div className="w-4 h-4 rounded-full border border-white/20 shrink-0 mt-0.5" />
+                    <div className="w-4 h-4 rounded-full border border-border shrink-0 mt-0.5" />
                     <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
                   </div>
                 ))}
@@ -252,7 +252,7 @@ export default function AiAutomationConsultantPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {roadmapSteps.map((step) => (
-                <div key={step.step} className="glass rounded-xl p-7 border border-white/10">
+                <div key={step.step} className="glass rounded-xl p-7 border border-border">
                   <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
                     <span className="font-mono text-primary text-base font-bold">{step.step}</span>
                   </div>
@@ -263,7 +263,7 @@ export default function AiAutomationConsultantPage() {
             </div>
           </section>
 
-          <section className="glass rounded-xl p-8 border border-white/10 mb-20">
+          <section className="glass rounded-xl p-8 border border-border mb-20">
             <div className="flex items-center gap-3 mb-8">
               <HelpCircle className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold text-white">Common questions</h2>
@@ -278,7 +278,7 @@ export default function AiAutomationConsultantPage() {
             </div>
           </section>
 
-          <section className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]">
+          <section className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]">
             <h2 className="text-2xl font-semibold text-white mb-3">
               Have a workflow worth scoping?
             </h2>
@@ -299,7 +299,7 @@ export default function AiAutomationConsultantPage() {
               </Link>
               <Link
                 href="/resources/how-to-scope-ai-automation-project"
-                className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
                 Read Scoping Guide
               </Link>
