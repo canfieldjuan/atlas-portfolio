@@ -44,6 +44,156 @@ We don't imitate any one writer. We blend their layers. Tight trio — no others
 
 ---
 
+
+## 2.5 FAQ Report voice overlay — Sackheim diagnostic direct response
+
+Use this overlay when writing the FAQ Report / support-ticket-to-help-answer page and related intake, ads, emails, or follow-up copy. It does not replace the global voice trio above. It narrows the voice for this specific offer.
+
+**Reference:** Maxwell Sackheim, especially the diagnostic frame behind “Do You Make These Mistakes in English?”
+
+**What we take:**
+
+- Make the reader recognize a hidden problem they already suspect.
+- Show the mistake hiding in plain sight.
+- Use simple examples before explaining the mechanism.
+- Use loss as motivation, but stay calm.
+- Keep the fix concrete and doable.
+
+**What we do not take:**
+
+- Loud urgency.
+- Fake scarcity.
+- Mystery-box copy.
+- Big personality.
+- Claims that we can diagnose exact churn reasons from support tickets alone.
+
+**Voice label:** plain-spoken diagnostic direct response.
+
+**Reader:** founder, owner, support lead, or small-team operator at a 10-50 person company. They are close enough to the inbox to know repeat questions are a problem. They do not need enterprise language. They need the issue named clearly and the next step made easy.
+
+### Core Argument
+
+If customers keep asking the same question, that means the answer is not where customers are looking.
+
+That line is the operating thesis for this page. Keep coming back to it. The product does not “create content” in the abstract. It turns repeated support questions into help-center answers customers can actually find and use.
+
+### Reader-Guiding Language
+
+Do not over-compress the copy. Some words that look unnecessary to a writer make the logic easier for a normal reader to follow. Use them when they help the reader move from pain to reason to fix.
+
+Use phrases like:
+
+- “That means…”
+- “Because…”
+- “Here is why that matters.”
+- “At first, this looks small.”
+- “But over time…”
+- “The issue is…”
+- “That is where the FAQ Report comes in.”
+- “The fix may already be sitting in your old tickets.”
+
+Bad compression:
+
+```text
+If customers keep asking the same question, the answer is not where they need it.
+```
+
+Better for this offer:
+
+```text
+If customers keep asking the same question, that means the answer is not where customers are looking.
+```
+
+Why it is better:
+
+- “That means” tells the reader how to interpret the sentence.
+- Repeating “customers” keeps the subject clear.
+- “Where customers are looking” is more visual than “where they need it.”
+- It sounds like a person explaining the issue, not a copywriter compressing a line.
+
+### Use “Because” To Make Claims Believable
+
+“Because” is a bridge. It tells the reader why a claim is true instead of making them connect the logic themselves.
+
+Examples for this offer:
+
+```text
+The FAQ Report saves your team time because it turns repeat questions into answers customers can find on their own.
+```
+
+```text
+It works because your support tickets already contain the words customers use when they are stuck.
+```
+
+```text
+This matters because customers do not search your help center using your internal product language.
+```
+
+```text
+Repeat questions are dangerous because they look small until they start costing you time, trust, and customers.
+```
+
+```text
+You do not need a big support project because the first useful answers are already hiding in your old tickets.
+```
+
+### Customer-Language Mismatch
+
+This is a core sales point, not a footnote. Customers may have trouble finding answers because the help-center language is written by the company, not by the customer.
+
+Use examples like:
+
+```text
+They search for “how do I cancel my account.”
+Your help center says “account cancellation flow.”
+```
+
+```text
+They search for “why was I charged twice?”
+Your doc says “billing reconciliation.”
+```
+
+```text
+They search for “how do I add my teammate?”
+Your product calls it “seat management.”
+```
+
+This mismatch creates support tickets. The FAQ Report pulls the words customers actually use from tickets, then uses that language in the answers the team reviews and publishes.
+
+### Tone Boundaries
+
+Do say:
+
+- “Customers do not always complain. Sometimes they just leave.”
+- “Support problems do not stay support problems.”
+- “The same questions keep coming back because the answer is not where customers are looking.”
+- “Send the CSV. We turn the repeat questions into help-center answers.”
+
+Do not say:
+
+- “We diagnose churn.”
+- “We find the exact reason customers cancel.”
+- “Prevent churn automatically.”
+- “Transform your support operations.”
+- “Leverage AI to optimize customer success workflows.”
+
+### Session Handoff Note
+
+The original FAQ Report intake implementation came from a different session. Treat the older intake baseline as existing work; its first implementation details should be visible in older merged PRs.
+
+This later pass changed the offer and intake language for a specific reason:
+
+- The page moved away from “The Gap Report” as the visible offer name and toward “The FAQ Report.”
+- The CTA moved from “send us your CSV” to “upload your CSV” because the intake form already allows users to upload their own CSV. That lowers friction and should stay reflected in the copy.
+- The free offer changed from a full report to a limited “FAQ Snapshot” so the free version proves value without giving away the paid report.
+- The paid offer is the full FAQ Report for the first 90-day batch, with quarterly refreshes positioned as optional follow-up.
+- The intake form now asks for name, work email, company name, support platform, and CSV. Support platform is required because we want to learn which tools are most common and interpret exports faster.
+- The page and intake were lightened with route-scoped styling only. Do not move those colors into global CSS unless the broader site is intentionally being redesigned.
+
+If another session returns to this work, it should continue from this positioning instead of assuming the old Gap Report / full-free-report version is still current.
+
+---
+
 ## 3. Curated examples — annotated
 
 Each example is a real paragraph from one of our reference writers, with margin notes calling out the specific moves. Build the library here as we find more.
