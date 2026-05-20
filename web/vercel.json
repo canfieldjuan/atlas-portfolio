@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/gap-report-cleanup",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}

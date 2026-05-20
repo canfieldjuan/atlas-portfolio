@@ -18,6 +18,12 @@ export type GapReportSummaryRow = {
   notificationError: string | null;
 };
 
+export type GapReportCleanupCandidate = {
+  requestId: string;
+  submittedAt: string;
+  csvBlobUrl: string;
+};
+
 function gapReportDatabaseUrl() {
   // Vercel's Neon/Postgres integration injects POSTGRES_URL by default, so falling
   // back to it lets persistence work on Vercel without a separate env-var alias.
@@ -171,4 +177,53 @@ export async function listGapReportSubmissions(limit = 50): Promise<GapReportSum
     notificationError:
       typeof row.notification_error === 'string' ? row.notification_error : null,
   }));
+}
+
+export async function listExpiredGapReportSubmissions(
+  cutoffIso: string,
+  limit = 100
+): Promise<GapReportCleanupCandidate[]> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return [];
+  }
+
+  const boundedLimit = Math.max(1, Math.min(limit, 500));
+  const rows = await sql.query(
+    `
+      SELECT
+        request_id::text AS request_id,
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
+        csv_blob_url
+      FROM portfolio_gap_report_submissions
+      WHERE submitted_at < $1::timestamptz
+      ORDER BY submitted_at ASC
+      LIMIT $2
+    `,
+    [cutoffIso, boundedLimit]
+  );
+
+  return rows.map((row) => ({
+    requestId: String(row.request_id),
+    submittedAt: String(row.submitted_at),
+    csvBlobUrl: String(row.csv_blob_url),
+  }));
+}
+
+export async function deleteGapReportSubmissions(requestIds: string[]) {
+  const sql = getGapReportSql();
+  if (!sql || requestIds.length === 0) {
+    return 0;
+  }
+
+  const rows = await sql.query(
+    `
+      DELETE FROM portfolio_gap_report_submissions
+      WHERE request_id = ANY($1::uuid[])
+      RETURNING request_id
+    `,
+    [requestIds]
+  );
+
+  return rows.length;
 }
