@@ -34,26 +34,47 @@ async function deleteBlob(url: string) {
 
 async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
   const errors: string[] = [];
-  const expired = await listExpiredGapReportSubmissions(cutoffIso, limit);
-  const deletedRequestIds: string[] = [];
+  let expiredDatabaseRows = 0;
   let deletedTrackedBlobs = 0;
+  let deletedDatabaseRows = 0;
 
-  for (const submission of expired) {
-    try {
-      await deleteBlob(submission.csvBlobUrl);
-      deletedTrackedBlobs += 1;
-      deletedRequestIds.push(submission.requestId);
-    } catch (error) {
-      errors.push(
-        `Failed to delete blob for request ${submission.requestId}: ${errorMessage(error)}`
-      );
+  // Paginate until no more expired records exist. listExpiredGapReportSubmissions
+  // returns at most `limit` rows per call ordered by submitted_at ASC; without a
+  // loop, any backlog larger than `limit` rows would only be partially cleared per
+  // cron run, leaving older records past the 30-day retention window indefinitely.
+  //
+  // Guard: if an entire batch produces zero successful blob deletions (all blob
+  // deletes failed), break rather than retrying the same rows infinitely.
+  let hasMore = true;
+  while (hasMore) {
+    const expired = await listExpiredGapReportSubmissions(cutoffIso, limit);
+    if (expired.length === 0) break;
+
+    expiredDatabaseRows += expired.length;
+    const deletedRequestIds: string[] = [];
+
+    for (const submission of expired) {
+      try {
+        await deleteBlob(submission.csvBlobUrl);
+        deletedTrackedBlobs += 1;
+        deletedRequestIds.push(submission.requestId);
+      } catch (error) {
+        errors.push(
+          `Failed to delete blob for request ${submission.requestId}: ${errorMessage(error)}`
+        );
+      }
     }
+
+    const batchDeleted = await deleteGapReportSubmissions(deletedRequestIds);
+    deletedDatabaseRows += batchDeleted;
+
+    // Continue only if we got a full page (more may exist) AND made forward
+    // progress (at least one blob + DB row was deleted this iteration).
+    hasMore = expired.length === limit && deletedRequestIds.length > 0;
   }
 
-  const deletedDatabaseRows = await deleteGapReportSubmissions(deletedRequestIds);
-
   return {
-    expiredDatabaseRows: expired.length,
+    expiredDatabaseRows,
     deletedDatabaseRows,
     deletedTrackedBlobs,
     errors,
