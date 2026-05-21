@@ -5,12 +5,10 @@ import {
   ArrowRight,
   BarChart3,
   Calculator,
-  CheckCircle2,
   Clock,
   FileText,
   Repeat,
   Workflow,
-  X,
 } from 'lucide-react';
 import {
   DiagnosticReportLandingPage,
@@ -182,54 +180,81 @@ const faqJsonLd = generateFaqJsonLd(
 );
 
 const sampleRankedQuestions: {
+  issue: string;
   question: string;
   count: number;
-  hasDoc: boolean;
-  docNote?: string;
+  sourceType: string;
 }[] = [
-  { question: `How do I reset my password?`, count: 247, hasDoc: false },
-  { question: `Can I downgrade my plan?`, count: 198, hasDoc: false },
   {
-    question: `Why am I getting permission errors?`,
-    count: 156,
-    hasDoc: true,
-    docNote: `Last updated 2024`,
+    issue: `Credit report disputes`,
+    question: `How can I dispute credit report information that keeps reappearing or has not been corrected?`,
+    count: 28,
+    sourceType: `CFPB complaint narratives`,
   },
-  { question: `Where do I find my API keys?`, count: 142, hasDoc: false },
   {
-    question: `How do I export my data?`,
-    count: 121,
-    hasDoc: true,
-    docNote: `Last updated 2023`,
+    issue: `Mortgage servicing issues`,
+    question: `What should I do when a mortgage servicer says I am behind or mishandles escrow, payments, or loss mitigation?`,
+    count: 12,
+    sourceType: `CFPB complaint narratives`,
   },
-  { question: `What does the audit log show?`, count: 98, hasDoc: false },
-  { question: `How do I add a team member?`, count: 84, hasDoc: false },
-  { question: `Why did my integration break?`, count: 73, hasDoc: false },
+  {
+    issue: `Debt collection disputes`,
+    question: `How do I respond when a collector contacts me about a debt I do not recognize or says I still owe?`,
+    count: 6,
+    sourceType: `CFPB complaint narratives`,
+  },
 ];
 
 const sampleFaqExamples = [
   {
-    question: `How do I reset my password?`,
-    answer:
-      `If you have forgotten your password, click Forgot password on the login screen. We will send a reset link to the email on your account. The link expires in 30 minutes. If you do not see it, check spam and make sure you are looking at the inbox tied to your account, not the billing address.`,
-    sources: [`#4521`, `#4782`, `#5103`, `#5247`, `#5390`],
+    issue: `Credit report disputes`,
+    question: `How can I dispute credit report information that keeps reappearing or has not been corrected?`,
+    summary:
+      `Consumers repeatedly described disputed credit report information that was not corrected, was verified without enough explanation, or returned after earlier disputes.`,
+    steps: [
+      `Collect the report section, account name, dates, and any letters or screenshots that show what is wrong.`,
+      `File the dispute with each credit reporting company that shows the information, and keep the confirmation number.`,
+      `Attach supporting records instead of relying only on a short written explanation.`,
+      `Track the response date and compare the updated report against the exact item you disputed.`,
+    ],
+    supportGuidance:
+      `Contact support or the reporting company again if the same item returns, the response does not explain what was verified, or the correction appears on one report but not another.`,
+    sources: [`CFPB #1885409`, `CFPB #1973120`, `CFPB #2209426`, `CFPB #2591415`, `CFPB #3138626`],
   },
   {
-    question: `Can I downgrade my plan?`,
-    answer:
-      `Yes. Go to Billing, choose Manage plan, and select the plan you want to move to. The change starts on your next billing cycle. If you do not see the downgrade option, your account may have an open invoice or a feature that only exists on your current plan.`,
-    sources: [`#4618`, `#4874`, `#4933`, `#5188`],
+    issue: `Mortgage servicing issues`,
+    question: `What should I do when a mortgage servicer says I am behind or mishandles escrow, payments, or loss mitigation?`,
+    summary:
+      `The repeated pattern was not one isolated payment question. Consumers described servicer records that did not match their own, escrow changes that were hard to reconcile, or loss-mitigation steps that stalled without clear status.`,
+    steps: [
+      `Download your payment history, escrow statements, notices, and any loss-mitigation letters before calling.`,
+      `Ask the servicer to identify the exact month, fee, escrow line, or document causing the issue.`,
+      `Send missing documents through a trackable channel and keep the upload or delivery confirmation.`,
+      `Request a written explanation when the servicer says the account is delinquent or incomplete.`,
+    ],
+    supportGuidance:
+      `Contact support again if the servicer cannot point to the specific missing item, applies payments differently than your records show, or gives conflicting status updates across calls and letters.`,
+    sources: [`CFPB #2326114`, `CFPB #2619048`, `CFPB #2885301`, `CFPB #3377106`],
   },
   {
-    question: `Where do I find my API keys?`,
-    answer:
-      `Open Settings, then choose API keys. Admins can create, copy, or revoke keys from that page. If you cannot see API keys, ask an admin to check your role because some accounts hide developer settings from non-admin users.`,
-    sources: [`#4699`, `#5012`, `#5220`, `#5411`],
+    issue: `Debt collection disputes`,
+    question: `How do I respond when a collector contacts me about a debt I do not recognize or says I still owe?`,
+    summary:
+      `Consumers often reported collection attempts for debts they did not recognize, debts they believed were already paid, or accounts where the collector had not provided enough validation detail.`,
+    steps: [
+      `Do not rely on a phone call alone. Ask for the collector name, account number, original creditor, amount, and written validation.`,
+      `Compare the validation notice with your own records, credit reports, and payment history.`,
+      `If the debt is not yours or the amount is wrong, send a written dispute and keep a copy.`,
+      `Document every contact attempt, including dates, phone numbers, letters, and any payment demands.`,
+    ],
+    supportGuidance:
+      `Contact support, the collector, or the relevant regulator if collection continues without validation, the collector reports disputed debt as undisputed, or you receive threats or contact patterns that seem improper.`,
+    sources: [`CFPB #1678934`, `CFPB #2047189`, `CFPB #2755042`, `CFPB #3446907`],
   },
 ];
 
 function FAQReportSample() {
-  const undocumented = sampleRankedQuestions.filter((row) => !row.hasDoc).length;
+  const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
 
   return (
     <div className="glass rounded-xl border border-border overflow-hidden">
@@ -238,11 +263,11 @@ function FAQReportSample() {
           <Workflow className="w-4 h-4 text-primary/80" />
           <span className="text-sm font-medium text-white">The FAQ Report</span>
           <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
-            · Sample / Mock
+            · Live Demo / Public Dataset
           </span>
         </div>
         <div className="text-[11px] font-mono text-foreground/45">
-          Range: last 90 days · 12,400 tickets ingested
+          Source: public complaint archive · 46 rows sampled
         </div>
       </div>
 
@@ -253,55 +278,45 @@ function FAQReportSample() {
             HEADLINE FINDING
           </div>
           <p className="text-base text-foreground/75 leading-relaxed">
-            <span className="text-white font-medium">{undocumented} of your top 10 repeat questions</span>{' '}
-            do not have a clear answer customers can find. Turning those into FAQs could save an estimated{' '}
-            <span className="text-white font-medium">~38 hours of support time / month</span>.
+            A local CFPB public complaint archive contains{' '}
+            <span className="text-white font-medium">1,282,355 rows</span>, including{' '}
+            <span className="text-white font-medium">383,564 rows with consumer narratives</span>.
+            This static demo samples <span className="text-white font-medium">{totalSources} narrative rows</span>{' '}
+            and turns repeat support-ticket-style issues into FAQ entries with source IDs.
           </p>
         </div>
 
         {/* Ranked list */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            REPEAT CUSTOMER QUESTIONS — RANKED BY VOLUME
+            REPEAT PUBLIC COMPLAINT ISSUES — RANKED BY SOURCE ROWS
           </div>
           <div className="rounded-lg border border-border overflow-hidden">
             {sampleRankedQuestions.map((row, i) => (
               <div
-                key={row.question}
-                className={`flex items-center justify-between gap-4 px-4 py-3 ${
+                key={row.issue}
+                className={`flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${
                   i < sampleRankedQuestions.length - 1 ? 'border-b border-border' : ''
-                } ${!row.hasDoc ? 'bg-surface' : ''}`}
+                } bg-surface`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-[10px] font-mono text-foreground/40 w-5 shrink-0">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <span className="text-sm text-foreground/80 truncate">
-                    &ldquo;{row.question}&rdquo;
-                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm text-white font-medium truncate">{row.issue}</p>
+                    <p className="text-xs text-foreground/55 leading-snug mt-1">
+                      &ldquo;{row.question}&rdquo;
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-xs font-mono text-foreground/55 hidden sm:inline">
-                    {row.count} tickets
+                <div className="flex items-center gap-4 shrink-0 pl-8 sm:pl-0">
+                  <span className="text-xs font-mono text-foreground/55">
+                    {row.count} sources
                   </span>
-                  {row.hasDoc ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-foreground/45">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-foreground/40" />
-                      <span className="hidden sm:inline">Answer exists</span>
-                      <span className="sm:hidden">Doc</span>
-                      {row.docNote && (
-                        <span className="text-foreground/35 hidden md:inline">
-                          · {row.docNote}
-                        </span>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-primary/90">
-                      <X className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">No answer</span>
-                      <span className="sm:hidden">No answer</span>
-                    </span>
-                  )}
+                  <span className="hidden md:inline text-xs text-foreground/40">
+                    {row.sourceType}
+                  </span>
                 </div>
               </div>
             ))}
@@ -311,26 +326,43 @@ function FAQReportSample() {
         {/* Sample FAQs */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            SAMPLE FAQ ENTRIES — 3 OUTPUT EXAMPLES
+            GENERATED FAQ OUTPUT EXCERPTS — 3 ISSUE GROUPS
           </div>
           <div className="rounded-lg border border-border bg-surface overflow-hidden">
             {sampleFaqExamples.map((example, exampleIndex) => (
               <div
-                key={example.question}
+                key={example.issue}
                 className={`p-5 ${exampleIndex > 0 ? 'border-t border-border' : ''}`}
               >
-                <p className="text-sm font-medium text-white mb-2">
+                <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
+                  {example.issue.toUpperCase()}
+                </p>
+                <p className="text-sm font-medium text-white mb-3">
                   Q: {example.question}
                 </p>
                 <p className="text-sm text-foreground/70 leading-relaxed mb-4">
-                  {example.answer}
+                  {example.summary}
+                </p>
+                <div className="mb-4">
+                  <p className="text-[11px] font-mono text-foreground/45 tracking-widest mb-2">
+                    ACTION STEPS
+                  </p>
+                  <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/70 leading-relaxed">
+                    {example.steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+                <p className="text-sm text-foreground/65 leading-relaxed mb-4">
+                  <span className="text-white font-medium">When to contact support: </span>
+                  {example.supportGuidance}
                 </p>
                 <p className="text-[11px] font-mono text-foreground/45">
                   Sources:{' '}
                   {example.sources.map((id, i) => (
                     <span key={id}>
                       {i > 0 && <span className="text-foreground/30"> · </span>}
-                      <span className="text-foreground/55">Ticket {id}</span>
+                      <span className="text-foreground/55">{id}</span>
                     </span>
                   ))}
                 </p>
@@ -340,8 +372,15 @@ function FAQReportSample() {
         </div>
 
         <p className="text-xs text-foreground/45 leading-relaxed border-t border-border pt-4">
-          Mock data shown. Your version is built from your actual tickets — same
-          structure, your repeat questions, your customer wording, your source IDs.
+          Demo generated from a public complaint dataset. Customer reports use your uploaded CSV and your support data.
+          {' '}
+          <a
+            href="/systems/ai-content-ops/public-support-ticket-faq-demo.md"
+            className="text-primary/90 hover:text-primary underline underline-offset-4"
+          >
+            View the static Markdown demo
+          </a>
+          .
         </p>
       </div>
     </div>
@@ -488,9 +527,9 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   sample: {
     id: 'demo',
     label: 'WHAT YOU GET',
-    title: 'A FAQ Report built from your last 90 days of support tickets.',
+    title: 'A real FAQ Report demo, built from a public support-ticket-style dataset.',
     description:
-      'The report shows the questions customers keep asking, which answers are missing or hard to find, and the exact words customers use when they get stuck. It also includes FAQ entries your team can review, edit, and publish, so you are not starting from a blank page or guessing which help-center answer to fix first.',
+      'This sample uses public CFPB complaint narratives to show the report shape without exposing customer data. Your report uses your uploaded CSV: the questions your customers keep asking, the words they use, and FAQ entries your team can review, edit, and publish.',
     artifact: <FAQReportSample />,
   },
   deliverables: {
