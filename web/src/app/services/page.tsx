@@ -184,7 +184,7 @@ export default function ServicesPage() {
           className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-16"
         >
           {solutionOutcomes.map((outcome) => (
-            <div key={outcome.title} className="glass rounded-xl p-6 border border-white/10">
+            <div key={outcome.title} className="glass rounded-xl p-6 border border-border">
               <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
               <h2 className="text-base font-semibold text-white mb-3">{outcome.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{outcome.detail}</p>
@@ -200,7 +200,7 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="glass rounded-xl p-8 border border-white/10 flex flex-col"
+            className="glass rounded-xl p-8 border border-border flex flex-col"
           >
             <div className="text-xs font-mono text-foreground/40 tracking-widest mb-4">PHASE 1</div>
             <div className="flex items-center gap-3 mb-4">
@@ -230,7 +230,7 @@ export default function ServicesPage() {
                 </div>
               ))}
             </div>
-            <div className="text-xs font-mono text-foreground/40 border-t border-white/5 pt-4 mb-6">
+            <div className="text-xs font-mono text-foreground/40 border-t border-border pt-4 mb-6">
               TIMELINE: 2 WEEKS
             </div>
             <Link
@@ -247,7 +247,7 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative glass rounded-xl p-8 border border-primary/30 bg-primary/5 shadow-[0_0_40px_rgba(0,255,204,0.05)] flex flex-col"
+            className="relative glass rounded-xl p-8 border border-primary/30 bg-primary/5 shadow-[var(--primary-glow)] flex flex-col"
           >
             <div className="absolute -top-3 left-8 bg-primary text-black text-xs font-bold px-3 py-1 rounded-full tracking-wider">
               THE BUILD
@@ -282,12 +282,12 @@ export default function ServicesPage() {
                 </div>
               ))}
             </div>
-            <div className="text-xs font-mono text-foreground/40 border-t border-white/5 pt-4 mb-6">
+            <div className="text-xs font-mono text-foreground/40 border-t border-border pt-4 mb-6">
               TIMELINE: DEFINED IN PHASE 1 BLUEPRINT
             </div>
             <Link
               href="/capabilities"
-              className="group w-full py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-all text-sm bg-white/5 text-white hover:bg-white/10 border border-white/10"
+              className="group w-full py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-all text-sm bg-surface text-white hover:bg-surface-hover border border-border"
             >
               See What I Can Build
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -299,7 +299,7 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
             <div className="max-w-2xl">
@@ -324,7 +324,7 @@ export default function ServicesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {productizedSystems.map((system) => (
-              <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+              <div key={system.title} className="rounded-lg border border-border bg-surface p-6">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
                   {system.icon}
                 </div>
@@ -339,7 +339,7 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.22 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="max-w-2xl mb-8">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
@@ -355,7 +355,7 @@ export default function ServicesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {phaseOneDeliverables.map((item) => (
-              <div key={item.title} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div key={item.title} className="rounded-lg border border-border bg-surface p-5">
                 <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
                 <h3 className="text-sm font-semibold text-white mb-2">{item.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
@@ -370,7 +370,7 @@ export default function ServicesPage() {
           transition={{ duration: 0.6, delay: 0.24 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
         >
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Best fit for</h2>
             <div className="space-y-3">
               {fitSummary.bestFor.map((item, index) => (
@@ -382,12 +382,12 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Probably not ideal for</h2>
             <div className="space-y-3">
               {fitSummary.notIdeal.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <div className="w-4 h-4 rounded-full border border-white/20 shrink-0 mt-0.5" />
+                  <div className="w-4 h-4 rounded-full border border-border shrink-0 mt-0.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
                 </div>
               ))}
@@ -399,7 +399,7 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.26 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="max-w-2xl mb-8">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
@@ -415,7 +415,7 @@ export default function ServicesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {buyerLanguage.map((item) => (
-              <div key={item.term} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div key={item.term} className="rounded-lg border border-border bg-surface p-5">
                 <h3 className="text-sm font-semibold text-white mb-2">{item.term}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
               </div>
@@ -427,7 +427,7 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.28 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
@@ -439,21 +439,21 @@ export default function ServicesPage() {
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <Link
                 href="/process"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Process
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/security"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Security
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/resources"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Read Resources
                 <ArrowRight className="w-4 h-4" />
@@ -467,7 +467,7 @@ export default function ServicesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="glass rounded-xl p-8 border border-white/10"
+          className="glass rounded-xl p-8 border border-border"
         >
           <div className="flex items-center gap-3 mb-8">
             <HelpCircle className="w-5 h-5 text-primary" />

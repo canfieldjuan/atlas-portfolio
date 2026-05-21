@@ -15,7 +15,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-white/5 mt-auto">
+    <footer className="border-t border-border mt-auto">
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
 
@@ -78,7 +78,7 @@ export function Footer() {
 
         </div>
 
-        <div className="border-t border-white/5 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-foreground/30">
             © {new Date().getFullYear()} Juan Canfield. All rights reserved.
           </p>

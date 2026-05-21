@@ -129,7 +129,7 @@ export default function CapabilitiesPage() {
           transition={{ duration: 0.6, delay: 0.08 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12"
         >
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Best fit for</h2>
             <div className="space-y-3">
               {capabilitySignals.bestFor.map((item, index) => (
@@ -141,12 +141,12 @@ export default function CapabilitiesPage() {
             </div>
           </div>
 
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Probably not ideal for</h2>
             <div className="space-y-3">
               {capabilitySignals.notIdeal.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/30 shrink-0 mt-1.5" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-surface shrink-0 mt-1.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
                 </div>
               ))}
@@ -183,7 +183,7 @@ export default function CapabilitiesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {productizedSystems.map((system) => (
-              <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+              <div key={system.title} className="rounded-lg border border-border bg-surface p-6">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                   {system.icon}
                 </div>
@@ -202,7 +202,7 @@ export default function CapabilitiesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.08 * i }}
-              className="glass rounded-xl p-8 hover:bg-white/[0.02] transition-colors group"
+              className="glass rounded-xl p-8 hover:bg-surface-hover transition-colors group"
             >
               <div className="flex flex-col md:flex-row gap-8">
                 {/* Left: Title & Description */}
@@ -215,7 +215,7 @@ export default function CapabilitiesPage() {
                 </div>
 
                 {/* Right: Examples */}
-                <div className="md:w-3/5 md:border-l md:border-white/5 md:pl-8">
+                <div className="md:w-3/5 md:border-l md:border-border md:pl-8">
                   <div className="text-xs font-mono text-foreground/30 tracking-widest mb-4">WHAT THE SYSTEM CAN SHIP</div>
                   <div className="space-y-3">
                     {domain.examples.map((ex, j) => (
@@ -235,7 +235,7 @@ export default function CapabilitiesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.42 }}
-          className="mt-12 glass rounded-xl p-8 border border-white/10"
+          className="mt-12 glass rounded-xl p-8 border border-border"
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
@@ -247,14 +247,14 @@ export default function CapabilitiesPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/services"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Pricing
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/process"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
               >
                 Review Process
                 <ArrowRight className="w-4 h-4" />
@@ -268,7 +268,7 @@ export default function CapabilitiesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-16 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="mt-16 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">See something that fits your problem?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
@@ -279,7 +279,7 @@ export default function CapabilitiesPage() {
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/services" className="px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+            <Link href="/services" className="px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Services & Pricing
             </Link>
           </div>

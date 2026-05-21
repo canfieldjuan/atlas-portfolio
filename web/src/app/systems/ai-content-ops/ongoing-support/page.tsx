@@ -183,7 +183,7 @@ export default function OngoingSupportPage() {
               </Link>
               <Link
                 href="#monthly-scope"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
               >
                 See What&apos;s Included
               </Link>
@@ -231,7 +231,7 @@ export default function OngoingSupportPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: 0.04 * i }}
-                  className="glass rounded-xl border border-white/10 p-6"
+                  className="glass rounded-xl border border-border p-6"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {item.icon}
@@ -265,7 +265,7 @@ export default function OngoingSupportPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: 0.05 * i }}
-                  className="rounded-xl border border-white/10 bg-black/20 p-6"
+                  className="rounded-xl border border-border bg-surface p-6"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full border border-primary/30 bg-primary/10 text-primary flex items-center justify-center font-mono text-xs">
@@ -308,7 +308,7 @@ export default function OngoingSupportPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: 0.05 * i }}
-                  className="glass rounded-xl border border-white/10 p-6"
+                  className="glass rounded-xl border border-border p-6"
                 >
                   <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-3">
                     AUDIENCE 0{i + 1}
@@ -335,7 +335,7 @@ export default function OngoingSupportPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
-              <div className="rounded-xl border border-primary/30 bg-primary/[0.04] shadow-[0_0_40px_rgba(0,255,204,0.04)] p-6 md:p-8">
+              <div className="rounded-xl border border-primary/30 bg-primary/[0.04] shadow-[var(--primary-glow)] p-6 md:p-8">
                 <h3 className="text-lg font-semibold text-white mb-3">Ongoing Optimization</h3>
                 <div className="mb-2 flex items-baseline gap-2 flex-wrap">
                   <span className="text-3xl font-bold text-white">Starts at $2,500</span>
@@ -375,7 +375,7 @@ export default function OngoingSupportPage() {
                 </Link>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-6 md:p-8">
+              <div className="rounded-xl border border-border bg-surface p-6 md:p-8">
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-4">
                   ENGAGEMENT TERMS
                 </div>
@@ -428,7 +428,7 @@ export default function OngoingSupportPage() {
 
           {/* Final CTA */}
           <section className="mt-32">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[0_0_40px_rgba(0,255,204,0.04)] text-center">
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[var(--primary-glow)] text-center">
               <div className="max-w-2xl mx-auto">
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                   NEXT STEP
@@ -451,7 +451,7 @@ export default function OngoingSupportPage() {
           </section>
 
           {/* Footnote */}
-          <div className="mt-12 rounded-xl border border-white/10 bg-white/[0.02] p-6 flex items-start gap-4">
+          <div className="mt-12 rounded-xl border border-border bg-surface p-6 flex items-start gap-4">
             <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <p className="text-sm text-foreground/55 leading-relaxed">
               Ongoing Optimization is delivered as a productized retainer, not a self-serve subscription. The first conversation defines what is in scope each month so neither side gets surprised.

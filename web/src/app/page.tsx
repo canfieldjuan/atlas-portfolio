@@ -123,18 +123,18 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
-              <Link href={buildAuditHref({ source: 'home-hero' })} className="group px-6 py-3 bg-white text-black font-medium rounded-md hover:bg-white/90 transition-all flex items-center gap-2">
+              <Link href={buildAuditHref({ source: 'home-hero' })} className="group px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all flex items-center gap-2">
                 Start Systems Audit
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/services" className="px-6 py-3 glass hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium border border-white/10">
+              <Link href="/services" className="px-6 py-3 glass hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium border border-border">
                 Review Services & Pricing
               </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 w-full max-w-3xl">
               {heroFacts.map((fact) => (
-                <div key={fact.label} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                <div key={fact.label} className="rounded-lg border border-border bg-surface p-4">
                   <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">{fact.label}</div>
                   <div className="text-sm font-medium text-white">{fact.value}</div>
                 </div>
@@ -166,7 +166,7 @@ export default function Home() {
               {trappedSources.map((source) => (
                 <span
                   key={source}
-                  className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-sm text-foreground/65"
+                  className="px-3 py-1.5 rounded-full border border-border bg-surface text-sm text-foreground/65"
                 >
                   {source}
                 </span>
@@ -185,7 +185,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 + (i * 0.1) }}
-                className="glass p-8 rounded-xl hover:bg-white/[0.02] transition-colors group cursor-default"
+                className="glass p-8 rounded-xl hover:bg-surface-hover transition-colors group cursor-default"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   {feature.icon}
@@ -222,7 +222,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {productizedSystems.map((system) => (
-                <div key={system.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+                <div key={system.title} className="rounded-lg border border-border bg-surface p-6">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
                     {system.icon}
                   </div>
@@ -246,7 +246,7 @@ export default function Home() {
 
           <div className="mt-32">
             <div className="max-w-3xl mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground/50 text-xs font-mono tracking-wide mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 WORKFLOW PATTERNS
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
@@ -264,7 +264,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.18 + i * 0.08 }}
-                  className="glass rounded-xl p-8 border border-white/10"
+                  className="glass rounded-xl p-8 border border-border"
                 >
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {pattern.label}
@@ -286,7 +286,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-20 rounded-xl border border-white/10 bg-white/[0.02] p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+          <div className="mt-20 rounded-xl border border-border bg-surface p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 text-[10px] font-mono text-primary/80 tracking-widest mb-4">
                 <BookOpen className="w-4 h-4" />
@@ -320,7 +320,7 @@ export default function Home() {
           {/* How It Works Section */}
           <div className="mt-40">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-foreground/50 text-xs font-mono tracking-wide mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 THE PROCESS
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
@@ -380,7 +380,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+              className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[var(--primary-glow)]"
             >
               <div>
                 <h3 className="text-2xl font-semibold text-white mb-2">Ready to qualify the fit?</h3>
@@ -396,7 +396,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href={buildAuditHref({ source: 'home-bottom', offer: 'phase-1-roadmap' })}
-                  className="px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+                  className="px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
                   Start Systems Audit
                 </Link>

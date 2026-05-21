@@ -24,7 +24,7 @@ export default function ResourcesPage() {
             <Link
               key={article.slug}
               href={`/resources/${article.slug}`}
-              className="group glass rounded-xl p-8 border border-white/10 hover:border-primary/30 hover:bg-white/[0.03] transition-all"
+              className="group glass rounded-xl p-8 border border-border hover:border-primary/30 hover:bg-surface-hover transition-all"
             >
               <div className="flex flex-wrap items-center gap-3 mb-5">
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/15 px-3 py-1 text-[10px] font-mono tracking-widest text-primary/90">

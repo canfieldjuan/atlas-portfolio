@@ -222,14 +222,14 @@ function GatewayDiagram() {
   ];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-6 lg:p-8">
+    <div className="rounded-xl border border-border bg-surface p-6 lg:p-8">
       <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
         REQUEST PATH
       </div>
       <div className="space-y-2">
         {stages.map((stage, index) => (
           <div key={stage}>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+            <div className="rounded-lg border border-border bg-surface px-4 py-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm font-medium text-white">{stage}</div>
                 <div className="text-[10px] font-mono text-foreground/35">
@@ -296,7 +296,7 @@ export default function AtlasLlmGatewayPage() {
                 </Link>
                 <Link
                   href="#api-surface"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
                 >
                   See the API surface
                   <ArrowRight className="w-4 h-4" />
@@ -305,7 +305,7 @@ export default function AtlasLlmGatewayPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
                 {heroStats.map((fact) => (
-                  <div key={fact.label} className="rounded-lg border border-white/10 bg-black/20 p-4">
+                  <div key={fact.label} className="rounded-lg border border-border bg-surface p-4">
                     <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">
                       {fact.label}
                     </div>
@@ -341,7 +341,7 @@ export default function AtlasLlmGatewayPage() {
               {painPoints.map((point) => (
                 <span
                   key={point}
-                  className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-sm text-foreground/65"
+                  className="px-3 py-1.5 rounded-full border border-border bg-surface text-sm text-foreground/65"
                 >
                   {point}
                 </span>
@@ -370,7 +370,7 @@ export default function AtlasLlmGatewayPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="rounded-xl border border-white/10 bg-black/20 p-6"
+                  className="rounded-xl border border-border bg-surface p-6"
                 >
                   <div className="w-9 h-9 rounded-full border border-primary/30 bg-primary/10 text-primary flex items-center justify-center font-mono text-xs mb-5">
                     {String(index + 1).padStart(2, '0')}
@@ -395,28 +395,28 @@ export default function AtlasLlmGatewayPage() {
               </p>
             </div>
 
-            <div className="glass rounded-xl border border-white/10 overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-[160px_1fr_1.4fr] border-b border-white/10 bg-white/[0.02]">
+            <div className="glass rounded-xl border border-border overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-[160px_1fr_1.4fr] border-b border-border bg-surface">
                 <div className="px-5 py-4 text-[10px] font-mono text-foreground/40 tracking-widest">
                   METHOD
                 </div>
-                <div className="px-5 py-4 text-[10px] font-mono text-foreground/40 tracking-widest border-t md:border-t-0 md:border-l border-white/10">
+                <div className="px-5 py-4 text-[10px] font-mono text-foreground/40 tracking-widest border-t md:border-t-0 md:border-l border-border">
                   PATH
                 </div>
-                <div className="px-5 py-4 text-[10px] font-mono text-foreground/40 tracking-widest border-t md:border-t-0 md:border-l border-white/10">
+                <div className="px-5 py-4 text-[10px] font-mono text-foreground/40 tracking-widest border-t md:border-t-0 md:border-l border-border">
                   PURPOSE
                 </div>
               </div>
               {endpoints.map((endpoint) => (
                 <div
                   key={endpoint.path}
-                  className="grid grid-cols-1 md:grid-cols-[160px_1fr_1.4fr] border-b border-white/10 last:border-b-0"
+                  className="grid grid-cols-1 md:grid-cols-[160px_1fr_1.4fr] border-b border-border last:border-b-0"
                 >
                   <div className="px-5 py-4 text-xs font-mono text-primary">{endpoint.method}</div>
-                  <div className="px-5 py-4 text-sm font-mono text-white md:border-l border-white/10">
+                  <div className="px-5 py-4 text-sm font-mono text-white md:border-l border-border">
                     {endpoint.path}
                   </div>
-                  <div className="px-5 py-4 text-sm text-foreground/60 leading-relaxed md:border-l border-white/10">
+                  <div className="px-5 py-4 text-sm text-foreground/60 leading-relaxed md:border-l border-border">
                     {endpoint.detail}
                   </div>
                 </div>
@@ -445,7 +445,7 @@ export default function AtlasLlmGatewayPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="glass rounded-xl border border-white/10 p-6"
+                  className="glass rounded-xl border border-border p-6"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {feature.icon}
@@ -458,7 +458,7 @@ export default function AtlasLlmGatewayPage() {
           </section>
 
           <section className="mt-32 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass rounded-xl border border-white/10 p-8">
+            <div className="glass rounded-xl border border-border p-8">
               <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
@@ -472,8 +472,8 @@ export default function AtlasLlmGatewayPage() {
                 ))}
               </div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-8">
-              <div className="w-11 h-11 rounded-lg bg-white/[0.04] text-foreground/50 flex items-center justify-center mb-6">
+            <div className="rounded-xl border border-border bg-surface p-8">
+              <div className="w-11 h-11 rounded-lg bg-surface text-foreground/50 flex items-center justify-center mb-6">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h2 className="text-2xl font-semibold text-white mb-5">Not the first wedge</h2>
@@ -506,8 +506,8 @@ export default function AtlasLlmGatewayPage() {
                   key={tier.title}
                   className={`rounded-xl border p-6 ${
                     tier.highlighted
-                      ? 'border-primary/30 bg-primary/[0.06] shadow-[0_0_40px_rgba(0,255,204,0.05)]'
-                      : 'border-white/10 bg-black/20'
+                      ? 'border-primary/30 bg-primary/[0.06] shadow-[var(--primary-glow)]'
+                      : 'border-border bg-surface'
                   }`}
                 >
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
@@ -571,7 +571,7 @@ export default function AtlasLlmGatewayPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ duration: 0.4, delay: index * 0.04 }}
-                  className="rounded-xl border border-white/10 bg-black/20 p-6"
+                  className="rounded-xl border border-border bg-surface p-6"
                 >
                   <h3 className="text-base font-semibold text-white mb-3">{faq.q}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{faq.a}</p>
@@ -580,7 +580,7 @@ export default function AtlasLlmGatewayPage() {
             </div>
           </section>
 
-          <section className="mt-20 rounded-xl border border-white/10 bg-black/20 p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+          <section className="mt-20 rounded-xl border border-border bg-surface p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
             <div className="flex items-start gap-4">
               <BadgeDollarSign className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <p className="text-sm text-foreground/55 leading-relaxed">

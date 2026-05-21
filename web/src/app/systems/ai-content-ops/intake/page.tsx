@@ -23,71 +23,6 @@ type FormErrors = Partial<{
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 4;
 
-const lightThemeStyles = `
-  .faq-report-light {
-    --background: #f4f7f2;
-    --foreground: #17231f;
-    --color-background: #f4f7f2;
-    --color-foreground: #17231f;
-    --color-primary: #3c6f8f;
-    background:
-      radial-gradient(circle at top left, rgba(60, 111, 143, 0.14), transparent 34rem),
-      linear-gradient(180deg, #fbfcf8 0%, #f2f6ef 52%, #edf3ea 100%);
-    color: var(--foreground);
-  }
-
-  .faq-report-light [class*="bg-black/"],
-  .faq-report-light [class*="bg-white/["] {
-    background-color: rgba(255, 255, 255, 0.76) !important;
-    box-shadow: 0 18px 50px rgba(31, 45, 39, 0.08);
-  }
-
-  .faq-report-light input,
-  .faq-report-light select {
-    background-color: rgba(255, 255, 255, 0.82) !important;
-    color: #11231f !important;
-  }
-
-  .faq-report-light option {
-    color: #11231f;
-  }
-
-  .faq-report-light [class*="border-white/"],
-  .faq-report-light [class*="border-primary/30"] {
-    border-color: rgba(23, 35, 31, 0.14) !important;
-  }
-
-  .faq-report-light .text-white {
-    color: #11231f !important;
-  }
-
-  .faq-report-light .text-black {
-    color: #041310 !important;
-  }
-
-  .faq-report-light [class*="text-foreground/"] {
-    color: rgba(23, 35, 31, 0.68) !important;
-  }
-
-  .faq-report-light [class*="text-primary/"],
-  .faq-report-light .text-primary {
-    color: #315f7b !important;
-  }
-
-  .faq-report-light [class*="bg-primary/"] {
-    background-color: rgba(60, 111, 143, 0.1) !important;
-  }
-
-  .faq-report-light .bg-primary {
-    background-color: #3c6f8f !important;
-  }
-
-  .faq-report-light .bg-primary.text-black,
-  .faq-report-light .bg-primary .text-black {
-    color: #ffffff !important;
-  }
-`;
-
 export default function GapReportIntakePage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -211,8 +146,7 @@ export default function GapReportIntakePage() {
 
     return (
       <>
-        <style>{lightThemeStyles}</style>
-        <main className="faq-report-light min-h-screen pt-20 pb-20 px-6 relative z-10">
+        <main className="min-h-screen pt-20 pb-20 px-6 relative z-10">
           <div className="max-w-2xl mx-auto">
             <Link
               href="/systems/ai-content-ops"
@@ -222,7 +156,7 @@ export default function GapReportIntakePage() {
               Back to FAQ Report
             </Link>
 
-            <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[0_0_40px_rgba(0,255,204,0.04)]">
+            <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[var(--primary-glow)]">
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
@@ -286,8 +220,7 @@ export default function GapReportIntakePage() {
 
   return (
     <>
-    <style>{lightThemeStyles}</style>
-    <main className="faq-report-light min-h-screen pt-20 pb-20 px-6 relative z-10">
+      <main className="min-h-screen pt-20 pb-20 px-6 relative z-10">
       <div className="max-w-2xl mx-auto">
         <Link
           href="/systems/ai-content-ops"
@@ -328,7 +261,7 @@ export default function GapReportIntakePage() {
                 if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Your name"
               aria-invalid={Boolean(errors.name)}
               aria-describedby={errors.name ? 'name-error' : undefined}
@@ -356,7 +289,7 @@ export default function GapReportIntakePage() {
                 if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="you@yourcompany.com"
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? 'email-error' : undefined}
@@ -385,7 +318,7 @@ export default function GapReportIntakePage() {
                   setErrors((prev) => ({ ...prev, companyName: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-white/15 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Acme Inc."
               aria-invalid={Boolean(errors.companyName)}
               aria-describedby={errors.companyName ? 'companyName-error' : undefined}
@@ -415,7 +348,7 @@ export default function GapReportIntakePage() {
                   setErrors((prev) => ({ ...prev, supportPlatform: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-white/15 bg-black/30 px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/60 disabled:opacity-50"
               aria-invalid={Boolean(errors.supportPlatform)}
               aria-describedby={
                 errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
@@ -512,7 +445,7 @@ export default function GapReportIntakePage() {
           </div>
         </form>
       </div>
-    </main>
+      </main>
     </>
   );
 }

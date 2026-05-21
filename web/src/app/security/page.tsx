@@ -49,7 +49,7 @@ const complianceOptions = [
       'Prioritize fast-close buyers who accept strong security controls and review evidence without requiring immediate SOC 2 attestation.',
     fit: 'Best when speed and near-term revenue are higher priority than enterprise procurement access.',
     icon: <Rocket className="w-4 h-4 text-primary" />,
-    border: 'border-white/10',
+    border: 'border-border',
   },
   {
     title: 'Option B: Bridge with security package + questionnaires',
@@ -57,7 +57,7 @@ const complianceOptions = [
       'Use a structured security package (architecture, controls summary, questionnaire responses) to satisfy buyers that do not require immediate formal attestation.',
     fit: 'Best when many deals need assurance depth but can tolerate staged compliance.',
     icon: <ClipboardList className="w-4 h-4 text-primary" />,
-    border: 'border-white/10',
+    border: 'border-border',
   },
   {
     title: 'Option C: Start staged SOC 2 pathway',
@@ -117,7 +117,7 @@ export default function SecurityPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <div className="flex items-center gap-3 mb-6">
             <ShieldCheck className="w-5 h-5 text-primary" />
@@ -125,7 +125,7 @@ export default function SecurityPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {currentStatus.map((item, index) => (
-              <div key={index} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div key={index} className="rounded-lg border border-border bg-surface p-5">
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
                   {item.icon}
                 </div>
@@ -168,7 +168,7 @@ export default function SecurityPage() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12"
         >
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <div className="inline-flex items-center gap-2 mb-4 text-xs font-mono text-foreground/40 tracking-widest">
               <Rocket className="w-4 h-4 text-primary" />
               FAST-CLOSE LANE
@@ -205,7 +205,7 @@ export default function SecurityPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-12"
+          className="glass rounded-xl p-8 border border-border mb-12"
         >
           <div className="flex items-center gap-3 mb-6">
             <Waypoints className="w-5 h-5 text-primary" />
@@ -216,14 +216,14 @@ export default function SecurityPage() {
           </p>
           <div className="space-y-4">
             {checklist.map((item, index) => (
-              <div key={index} className="rounded-lg border border-white/10 bg-black/20 p-5">
+              <div key={index} className="rounded-lg border border-border bg-surface p-5">
                 <h3 className="text-sm font-semibold text-white mb-3">{item.question}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-md bg-primary/10 border border-primary/20 p-3">
                     <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-1">IF YES</p>
                     <p className="text-sm text-foreground/75">{item.yes}</p>
                   </div>
-                  <div className="rounded-md bg-white/5 border border-white/10 p-3">
+                  <div className="rounded-md bg-surface border border-border p-3">
                     <p className="text-[10px] font-mono text-foreground/50 tracking-widest mb-1">IF NO</p>
                     <p className="text-sm text-foreground/75">{item.no}</p>
                   </div>
@@ -251,7 +251,7 @@ export default function SecurityPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Need a security-first engagement plan?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
@@ -267,7 +267,7 @@ export default function SecurityPage() {
             </Link>
             <Link
               href="/services"
-              className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
             >
               Review Services & Pricing
             </Link>

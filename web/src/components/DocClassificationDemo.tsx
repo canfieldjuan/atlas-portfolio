@@ -156,7 +156,7 @@ export function DocClassificationDemo() {
   const currentStageIndex = STAGE_INDEX[stage];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-6">
+    <div className="rounded-xl border border-border bg-surface p-6">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
@@ -171,7 +171,7 @@ export function DocClassificationDemo() {
           <button
             type="button"
             onClick={reset}
-            className="px-3 py-1.5 rounded-md border border-white/10 bg-white/[0.02] text-xs font-mono text-foreground/60 hover:border-white/20 hover:text-foreground/80 transition-colors self-start lg:self-end"
+            className="px-3 py-1.5 rounded-md border border-border bg-surface text-xs font-mono text-foreground/60 hover:border-border hover:text-foreground/80 transition-colors self-start lg:self-end"
           >
             Reset
           </button>
@@ -179,7 +179,7 @@ export function DocClassificationDemo() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-4">
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <div className="rounded-lg border border-border bg-surface p-5">
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">
             SAMPLE DOCUMENTS
           </div>
@@ -196,13 +196,13 @@ export function DocClassificationDemo() {
                   className={`w-full text-left rounded-md border p-3 transition-colors ${
                     isActive
                       ? 'border-primary/50 bg-primary/10'
-                      : 'border-white/10 bg-black/20 hover:border-white/20'
+                      : 'border-border bg-surface hover:border-border'
                   } ${isProcessing && !isActive ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
-                        isActive ? 'bg-primary/20 text-primary' : 'bg-white/5 text-foreground/60'
+                        isActive ? 'bg-primary/20 text-primary' : 'bg-surface text-foreground/60'
                       }`}
                     >
                       {doc.icon}
@@ -224,7 +224,7 @@ export function DocClassificationDemo() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <div className="rounded-lg border border-border bg-surface p-5">
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-4">
             PIPELINE
           </div>
@@ -240,7 +240,7 @@ export function DocClassificationDemo() {
                         ? 'border-primary/50 bg-primary/20 text-primary'
                         : isCurrent
                         ? 'border-primary/60 bg-primary/10 text-primary'
-                        : 'border-white/10 bg-black/30 text-foreground/30'
+                        : 'border-border bg-surface text-foreground/30'
                     }`}
                   >
                     {isComplete ? (
@@ -270,7 +270,7 @@ export function DocClassificationDemo() {
           )}
 
           {!error && stage === 'idle' && (
-            <div className="rounded-md border border-white/5 bg-black/30 p-4 text-sm text-foreground/45 leading-relaxed">
+            <div className="rounded-md border border-border bg-surface p-4 text-sm text-foreground/45 leading-relaxed">
               Pick a sample document to see the parse, classify, and route pipeline run end-to-end.
             </div>
           )}
@@ -302,7 +302,7 @@ export function DocClassificationDemo() {
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">
                 EXTRACTED FIELDS
               </div>
-              <div className="rounded-md border border-white/10 bg-[#080808] p-3 mb-4 space-y-1.5">
+              <div className="rounded-md border border-border bg-surface p-3 mb-4 space-y-1.5">
                 {result.extracted.map((field) => (
                   <div key={field.label} className="flex items-baseline justify-between gap-3 text-xs font-mono">
                     <span className="text-foreground/45 shrink-0">{field.label}</span>
@@ -321,7 +321,7 @@ export function DocClassificationDemo() {
                   {result.flags.map((flag) => (
                     <span
                       key={flag}
-                      className="text-[11px] font-mono px-2 py-1 rounded border border-white/10 bg-white/[0.04] text-foreground/65"
+                      className="text-[11px] font-mono px-2 py-1 rounded border border-border bg-surface text-foreground/65"
                     >
                       {flag}
                     </span>

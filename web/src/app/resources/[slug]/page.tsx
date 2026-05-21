@@ -107,7 +107,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
 
           <section
             data-speakable
-            className="glass rounded-xl p-8 border border-white/10 mb-12"
+            className="glass rounded-xl p-8 border border-border mb-12"
           >
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
               KEY TAKEAWAYS
@@ -138,7 +138,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
           </div>
 
           {article.relatedLinks && article.relatedLinks.length > 0 ? (
-            <section className="mt-14 glass rounded-xl p-8 border border-white/10">
+            <section className="mt-14 glass rounded-xl p-8 border border-border">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-5">
                 RELATED NEXT STEP
               </div>
@@ -147,7 +147,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
                   <Link
                     key={related.href}
                     href={related.href}
-                    className="block rounded-lg border border-white/10 bg-black/20 p-5 hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                    className="block rounded-lg border border-border bg-surface p-5 hover:border-primary/30 hover:bg-primary/5 transition-colors"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div>

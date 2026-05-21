@@ -198,17 +198,17 @@ export default function ProcessPage() {
             <h2 className="text-lg font-semibold text-white">Phase 1 at a glance</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-lg bg-black/30 border border-white/10 p-5">
+            <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">FIXED FEE</div>
               <div className="text-2xl font-semibold text-white mb-1">$4,500</div>
               <p className="text-sm text-foreground/60">Roadmap engagement before any build work begins.</p>
             </div>
-            <div className="rounded-lg bg-black/30 border border-white/10 p-5">
+            <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">TIMELINE</div>
               <div className="text-2xl font-semibold text-white mb-1">2 weeks</div>
               <p className="text-sm text-foreground/60">Discovery, audit, prototype, and blueprint delivery.</p>
             </div>
-            <div className="rounded-lg bg-black/30 border border-white/10 p-5">
+            <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">OUTPUT</div>
               <div className="text-base font-semibold text-white mb-1">Blueprint + proof of concept</div>
               <p className="text-sm text-foreground/60">Enough evidence to build, reduce scope, pause, or choose a simpler tool.</p>
@@ -224,7 +224,7 @@ export default function ProcessPage() {
             </Link>
             <Link
               href="/services"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
             >
               Review Services & Pricing
             </Link>
@@ -237,7 +237,7 @@ export default function ProcessPage() {
           transition={{ duration: 0.6, delay: 0.12 }}
           className="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Good fit</h2>
             <div className="space-y-3">
               {fitSignals.good.map((item, index) => (
@@ -249,12 +249,12 @@ export default function ProcessPage() {
             </div>
           </div>
 
-          <div className="glass rounded-xl p-8 border border-white/10">
+          <div className="glass rounded-xl p-8 border border-border">
             <h2 className="text-lg font-semibold text-white mb-4">Probably not a fit</h2>
             <div className="space-y-3">
               {fitSignals.bad.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <div className="w-4 h-4 rounded-full border border-white/20 shrink-0 mt-0.5" />
+                  <div className="w-4 h-4 rounded-full border border-border shrink-0 mt-0.5" />
                   <p className="text-sm text-foreground/65 leading-relaxed">{item}</p>
                 </div>
               ))}
@@ -265,7 +265,7 @@ export default function ProcessPage() {
         {/* Timeline */}
         <div className="relative">
           {/* Vertical line */}
-          <div className="absolute left-[23px] top-0 bottom-0 w-px bg-white/10 hidden md:block" />
+          <div className="absolute left-[23px] top-0 bottom-0 w-px bg-surface hidden md:block" />
 
           <div className="space-y-4">
             {steps.map((step, i) => {
@@ -286,7 +286,7 @@ export default function ProcessPage() {
                       ? 'bg-primary/10 border-primary/30 text-primary'
                       : isPhase2
                         ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                        : 'bg-white/5 border-white/10 text-foreground/50'
+                        : 'bg-surface border-border text-foreground/50'
                   }`}>
                     {step.icon}
                   </div>
@@ -296,7 +296,7 @@ export default function ProcessPage() {
                       ? 'border-primary/15'
                       : isPhase2
                         ? 'border-blue-500/15'
-                        : 'border-white/10'
+                        : 'border-border'
                   }`}>
                     {/* Label */}
                     <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -327,7 +327,7 @@ export default function ProcessPage() {
                     </p>
 
                     {/* What actually happens */}
-                    <div className="bg-black/30 rounded-lg p-5 mb-5">
+                    <div className="bg-surface rounded-lg p-5 mb-5">
                       <div className="text-[10px] font-mono text-foreground/30 tracking-widest mb-3">WHAT HAPPENS</div>
                       {Array.isArray(step.whatHappens) ? (
                         <div className="space-y-2">
@@ -360,7 +360,7 @@ export default function ProcessPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.45 }}
-          className="mt-16 glass rounded-xl p-8 border border-white/10"
+          className="mt-16 glass rounded-xl p-8 border border-border"
         >
           <div className="flex items-center gap-3 mb-2">
             <ShieldCheck className="w-5 h-5 text-primary" />
@@ -375,7 +375,7 @@ export default function ProcessPage() {
               </div>
             ))}
           </div>
-          <div className="mt-8 pt-6 border-t border-white/10">
+          <div className="mt-8 pt-6 border-t border-border">
             <Link
               href="/security"
               className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80"
@@ -390,7 +390,7 @@ export default function ProcessPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.48 }}
-          className="mt-6 glass rounded-xl p-8 border border-white/10"
+          className="mt-6 glass rounded-xl p-8 border border-border"
         >
           <h2 className="text-lg font-semibold text-white mb-2">Decision gates</h2>
           <p className="text-sm text-foreground/60 mb-6">
@@ -398,7 +398,7 @@ export default function ProcessPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {decisionGates.map((gate, index) => (
-              <div key={index} className="rounded-lg bg-black/30 border border-white/10 p-5">
+              <div key={index} className="rounded-lg bg-surface border border-border p-5">
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">CHECKPOINT {index + 1}</div>
                 <h3 className="text-sm font-medium text-white mb-2">{gate.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{gate.detail}</p>
@@ -412,13 +412,13 @@ export default function ProcessPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-6 glass rounded-xl p-8 border border-white/10"
+          className="mt-6 glass rounded-xl p-8 border border-border"
         >
           <h2 className="text-lg font-semibold text-white mb-2">How long does Phase 2 take?</h2>
           <p className="text-sm text-foreground/60 mb-6">It depends on the complexity defined in your Phase 1 blueprint. Here are typical ranges:</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {timelineEstimates.map((est, i) => (
-              <div key={i} className="bg-black/30 rounded-lg p-5">
+              <div key={i} className="bg-surface rounded-lg p-5">
                 <div className="text-primary font-mono text-xl font-bold mb-1">{est.time}</div>
                 <div className="text-white text-sm font-medium mb-2">{est.complexity} Complexity</div>
                 <p className="text-foreground/50 text-xs leading-relaxed">{est.example}</p>
@@ -432,7 +432,7 @@ export default function ProcessPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Ready to start at Step 1?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">

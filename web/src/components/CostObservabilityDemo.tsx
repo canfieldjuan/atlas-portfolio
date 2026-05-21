@@ -87,7 +87,7 @@ export function CostObservabilityDemo() {
   const maxShare = summary ? Math.max(...summary.rows.map((row) => row.share)) : 0;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-6">
+    <div className="rounded-xl border border-border bg-surface p-6">
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
@@ -108,7 +108,7 @@ export function CostObservabilityDemo() {
               className={`px-3 py-1.5 rounded-md border text-xs font-mono tracking-widest transition-colors ${
                 range === r.id
                   ? 'border-primary/50 bg-primary/10 text-primary'
-                  : 'border-white/10 bg-white/[0.02] text-foreground/60 hover:border-white/20'
+                  : 'border-border bg-surface text-foreground/60 hover:border-border'
               }`}
             >
               {r.label}
@@ -139,7 +139,7 @@ export function CostObservabilityDemo() {
           )}
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 md:col-span-2">
+        <div className="rounded-lg border border-border bg-surface p-4 md:col-span-2">
           <div className="flex flex-wrap gap-2 mb-3">
             {VIEWS.map((v) => (
               <button
@@ -150,7 +150,7 @@ export function CostObservabilityDemo() {
                 className={`px-3 py-1.5 rounded-md border text-xs transition-colors ${
                   view === v.id
                     ? 'border-primary/50 bg-primary/10 text-primary'
-                    : 'border-white/10 bg-white/[0.02] text-foreground/60 hover:border-white/20'
+                    : 'border-border bg-surface text-foreground/60 hover:border-border'
                 }`}
               >
                 {v.label}
@@ -165,7 +165,7 @@ export function CostObservabilityDemo() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <div className="rounded-lg border border-border bg-surface p-5">
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-4">
             BREAKDOWN
           </div>
@@ -203,7 +203,7 @@ export function CostObservabilityDemo() {
                         <span className="text-foreground/40 ml-2">{(row.share * 100).toFixed(1)}%</span>
                       </div>
                     </div>
-                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-2 rounded-full bg-surface overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           row.alert === 'high'
@@ -225,7 +225,7 @@ export function CostObservabilityDemo() {
           )}
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <div className="rounded-lg border border-border bg-surface p-5">
           <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-4">
             ACTIVE ALERTS
           </div>

@@ -132,7 +132,7 @@ export default function ProofPage() {
           className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-16"
         >
           {proofRules.map((rule) => (
-            <div key={rule.title} className="glass rounded-xl p-6 border border-white/10">
+            <div key={rule.title} className="glass rounded-xl p-6 border border-border">
               <h2 className="text-base font-semibold text-white mb-3">{rule.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{rule.detail}</p>
             </div>
@@ -146,7 +146,7 @@ export default function ProofPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 + index * 0.06 }}
-              className="glass rounded-xl p-8 border border-white/10"
+              className="glass rounded-xl p-8 border border-border"
             >
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3 shrink-0">
@@ -170,7 +170,7 @@ export default function ProofPage() {
                         ))}
                       </div>
                     </div>
-                    <div className="md:border-l md:border-white/10 md:pl-6">
+                    <div className="md:border-l md:border-border md:pl-6">
                       <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">SYSTEM</div>
                       <div className="space-y-2">
                         {example.system.map((item) => (
@@ -178,7 +178,7 @@ export default function ProofPage() {
                         ))}
                       </div>
                     </div>
-                    <div className="md:border-l md:border-white/10 md:pl-6">
+                    <div className="md:border-l md:border-border md:pl-6">
                       <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">OUTPUTS</div>
                       <div className="space-y-2">
                         {example.outputs.map((item) => (
@@ -193,7 +193,7 @@ export default function ProofPage() {
                       <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">PHASE 1 PROVES</div>
                       <p className="text-sm text-foreground/70 leading-relaxed">{example.phase1}</p>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-black/20 p-5">
+                    <div className="rounded-lg border border-border bg-surface p-5">
                       <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">PHASE 2 BUILDS</div>
                       <p className="text-sm text-foreground/65 leading-relaxed">{example.phase2}</p>
                     </div>
@@ -208,7 +208,7 @@ export default function ProofPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35 }}
-          className="mt-16 glass rounded-xl p-8 border border-white/10"
+          className="mt-16 glass rounded-xl p-8 border border-border"
         >
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
             <div className="max-w-2xl">
@@ -242,7 +242,7 @@ export default function ProofPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.42 }}
-          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <h2 className="text-2xl font-semibold text-white mb-3">Have a workflow that looks like one of these?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
@@ -253,10 +253,10 @@ export default function ProofPage() {
               Start Systems Audit
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/services" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+            <Link href="/services" className="inline-flex items-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Services
             </Link>
-            <Link href="/demo" className="inline-flex items-center gap-2 px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm">
+            <Link href="/demo" className="inline-flex items-center gap-2 px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm">
               Review Workflow Demo
             </Link>
           </div>

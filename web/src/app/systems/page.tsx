@@ -172,7 +172,7 @@ export default function SystemsPage() {
             </Link>
             <Link
               href="/demo"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/10 rounded-md hover:bg-white/5 transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
             >
               View demos
               <ArrowRight className="w-4 h-4" />
@@ -187,7 +187,7 @@ export default function SystemsPage() {
           className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-16"
         >
           {fitNotes.map((note) => (
-            <div key={note} className="glass rounded-xl p-6 border border-white/10">
+            <div key={note} className="glass rounded-xl p-6 border border-border">
               <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
               <p className="text-sm text-foreground/65 leading-relaxed">{note}</p>
             </div>
@@ -201,7 +201,7 @@ export default function SystemsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.12 + index * 0.08 }}
-              className="glass rounded-xl p-8 border border-white/10"
+              className="glass rounded-xl p-8 border border-border"
             >
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3 shrink-0">
@@ -248,7 +248,7 @@ export default function SystemsPage() {
                       ))}
                     </div>
                   </div>
-                  <div className="md:border-l md:border-white/10 md:pl-6">
+                  <div className="md:border-l md:border-border md:pl-6">
                     <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">
                       BUILT CORE
                     </div>
@@ -258,7 +258,7 @@ export default function SystemsPage() {
                       ))}
                     </div>
                   </div>
-                  <div className="md:border-l md:border-white/10 md:pl-6">
+                  <div className="md:border-l md:border-border md:pl-6">
                     <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">
                       OUTPUTS
                     </div>
@@ -278,7 +278,7 @@ export default function SystemsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.26 }}
-          className="glass rounded-xl p-8 border border-white/10 mb-16"
+          className="glass rounded-xl p-8 border border-border mb-16"
         >
           <div className="max-w-2xl mb-8">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
@@ -294,7 +294,7 @@ export default function SystemsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {implementationSteps.map((step, index) => (
-              <div key={step.title} className="rounded-lg border border-white/10 bg-black/20 p-6">
+              <div key={step.title} className="rounded-lg border border-border bg-surface p-6">
                 <div className="w-8 h-8 rounded-full border border-primary/30 bg-primary/10 text-primary flex items-center justify-center font-mono text-xs mb-5">
                   0{index + 1}
                 </div>
@@ -309,7 +309,7 @@ export default function SystemsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.34 }}
-          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[0_0_40px_rgba(0,255,204,0.04)]"
+          className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <BarChart3 className="w-8 h-8 text-primary mx-auto mb-5" />
           <h2 className="text-2xl font-semibold text-white mb-3">
@@ -328,7 +328,7 @@ export default function SystemsPage() {
             </Link>
             <Link
               href="/services"
-              className="px-6 py-3 glass border border-white/10 hover:bg-white/5 transition-all rounded-md text-foreground/80 font-medium text-sm"
+              className="px-6 py-3 glass border border-border hover:bg-surface-hover transition-all rounded-md text-foreground/80 font-medium text-sm"
             >
               Review Services & Pricing
             </Link>
@@ -339,7 +339,7 @@ export default function SystemsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.38 }}
-          className="mt-10 rounded-xl border border-white/10 bg-white/[0.02] p-6 flex items-start gap-4"
+          className="mt-10 rounded-xl border border-border bg-surface p-6 flex items-start gap-4"
         >
           <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <p className="text-sm text-foreground/55 leading-relaxed">
