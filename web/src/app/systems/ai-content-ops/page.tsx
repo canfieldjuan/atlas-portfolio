@@ -256,7 +256,7 @@ const sampleFaqExamples = [
 const demoScaleStats = [
   { value: `1.28M`, label: `public archive rows` },
   { value: `383k`, label: `rows with narratives` },
-  { value: `500-1,000+`, label: `ticket CSV batches` },
+  { value: `1,000`, label: `rows validated` },
   { value: `46`, label: `rows shown in excerpt` },
 ];
 
@@ -274,7 +274,7 @@ function FAQReportSample() {
           </span>
         </div>
         <div className="text-[11px] font-mono text-foreground/45">
-          Source: 1.28M-row public archive · excerpt shown below
+          Source: 1.28M-row public archive · 1,000-row run validated
         </div>
       </div>
 
@@ -299,8 +299,11 @@ function FAQReportSample() {
             A local CFPB public complaint archive contains{' '}
             <span className="text-white font-medium">1,282,355 rows</span>, including{' '}
             <span className="text-white font-medium">383,564 rows with consumer narratives</span>.
-            Customer reports are built for full uploaded CSV batches, including{' '}
-            <span className="text-white font-medium">500 or 1,000+ support tickets</span>.
+            The FAQ generator was validated on{' '}
+            <span className="text-white font-medium">1,000 public complaint narratives</span>
+            {' '}with fail-closed output checks before this page leaned on the scale claim.
+            Customer reports are built for full uploaded CSV batches, including common{' '}
+            <span className="text-white font-medium">500-1,000+ ticket exports</span>.
             The <span className="text-white font-medium">{totalSources}-row excerpt below</span>{' '}
             is kept short so visitors can inspect grounded output without reading a full report.
           </p>
@@ -392,8 +395,9 @@ function FAQReportSample() {
         </div>
 
         <p className="text-xs text-foreground/45 leading-relaxed border-t border-border pt-4">
-          Demo generated from a public complaint dataset. The on-page excerpt is intentionally compact;
-          customer reports use your uploaded CSV and analyze your full support batch.
+          Demo generated from a public complaint dataset. The generator passed a 1,000-row
+          validation run; the on-page excerpt is intentionally compact. Customer reports use
+          your uploaded CSV and analyze your full support batch.
           {' '}
           <a
             href="/systems/ai-content-ops/public-support-ticket-faq-demo.md"

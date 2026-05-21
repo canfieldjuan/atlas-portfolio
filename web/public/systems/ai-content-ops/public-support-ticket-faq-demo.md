@@ -6,10 +6,11 @@ Local archive facts:
 
 - 1,282,355 total complaint rows
 - 383,564 rows with consumer narratives
+- 1,000 public complaint narrative rows validated through the FAQ generator with fail-closed output checks
 - 46 narrative rows shown in this readable excerpt
-- Customer FAQ Reports are intended for full uploaded CSV batches, including 500-1,000+ ticket exports
+- Customer FAQ Reports are intended for full uploaded CSV batches, including common 500-1,000+ ticket exports
 
-This is a public-dataset demonstration of the FAQ Report format. The excerpt is intentionally short so the source IDs and generated FAQ shape are easy to inspect. Customer reports use the customer's uploaded CSV and support data, then analyze the full support batch rather than only the rows shown here.
+This is a public-dataset demonstration of the FAQ Report format. The generator was validated on 1,000 public complaint narratives before this demo leaned on the scale claim. The excerpt is intentionally short so the source IDs and generated FAQ shape are easy to inspect. Customer reports use the customer's uploaded CSV and support data, then analyze the full support batch rather than only the rows shown here.
 
 ## Ranked Issue Groups
 
