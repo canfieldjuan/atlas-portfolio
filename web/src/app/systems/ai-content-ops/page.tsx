@@ -253,6 +253,13 @@ const sampleFaqExamples = [
   },
 ];
 
+const demoScaleStats = [
+  { value: `1.28M`, label: `public archive rows` },
+  { value: `383k`, label: `rows with narratives` },
+  { value: `1,000`, label: `rows validated` },
+  { value: `46`, label: `rows shown in excerpt` },
+];
+
 function FAQReportSample() {
   const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
 
@@ -267,11 +274,22 @@ function FAQReportSample() {
           </span>
         </div>
         <div className="text-[11px] font-mono text-foreground/45">
-          Source: public complaint archive · 46 rows sampled
+          Source: 1.28M-row public archive · 1,000-row run validated
         </div>
       </div>
 
       <div className="p-6 md:p-8 space-y-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {demoScaleStats.map((stat) => (
+            <div key={stat.label} className="rounded-lg border border-border bg-surface px-3 py-3">
+              <p className="text-lg font-semibold text-white">{stat.value}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
         {/* Headline number */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
@@ -281,15 +299,20 @@ function FAQReportSample() {
             A local CFPB public complaint archive contains{' '}
             <span className="text-white font-medium">1,282,355 rows</span>, including{' '}
             <span className="text-white font-medium">383,564 rows with consumer narratives</span>.
-            This static demo samples <span className="text-white font-medium">{totalSources} narrative rows</span>{' '}
-            and turns repeat support-ticket-style issues into FAQ entries with source IDs.
+            The FAQ generator was validated on{' '}
+            <span className="text-white font-medium">1,000 public complaint narratives</span>
+            {' '}with fail-closed output checks before this page leaned on the scale claim.
+            Customer reports are built for full uploaded CSV batches, including common{' '}
+            <span className="text-white font-medium">500-1,000+ ticket exports</span>.
+            The <span className="text-white font-medium">{totalSources}-row excerpt below</span>{' '}
+            is kept short so visitors can inspect grounded output without reading a full report.
           </p>
         </div>
 
         {/* Ranked list */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            REPEAT PUBLIC COMPLAINT ISSUES — RANKED BY SOURCE ROWS
+            REPEAT PUBLIC COMPLAINT ISSUES — EXCERPT RANKING
           </div>
           <div className="rounded-lg border border-border overflow-hidden">
             {sampleRankedQuestions.map((row, i) => (
@@ -312,7 +335,7 @@ function FAQReportSample() {
                 </div>
                 <div className="flex items-center gap-4 shrink-0 pl-8 sm:pl-0">
                   <span className="text-xs font-mono text-foreground/55">
-                    {row.count} sources
+                    {row.count} excerpt sources
                   </span>
                   <span className="hidden md:inline text-xs text-foreground/40">
                     {row.sourceType}
@@ -372,7 +395,9 @@ function FAQReportSample() {
         </div>
 
         <p className="text-xs text-foreground/45 leading-relaxed border-t border-border pt-4">
-          Demo generated from a public complaint dataset. Customer reports use your uploaded CSV and your support data.
+          Demo generated from a public complaint dataset. The generator passed a 1,000-row
+          validation run; the on-page excerpt is intentionally compact. Customer reports use
+          your uploaded CSV and analyze your full support batch.
           {' '}
           <a
             href="/systems/ai-content-ops/public-support-ticket-faq-demo.md"
