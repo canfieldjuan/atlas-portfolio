@@ -12,6 +12,8 @@ Local archive facts:
 
 This is a public-dataset demonstration of the FAQ Report format. The generator was validated on 1,000 public complaint narratives before this demo leaned on the scale claim. The excerpt is intentionally short so the source IDs and generated FAQ shape are easy to inspect. Customer reports use the customer's uploaded CSV and support data, then analyze the full support batch rather than only the rows shown here.
 
+Full validation artifact: `/systems/ai-content-ops/public-support-ticket-faq-1000-row-validated.md`
+
 ## Ranked Issue Groups
 
 | Rank | Issue group | Excerpt source rows |

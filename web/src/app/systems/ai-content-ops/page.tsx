@@ -403,7 +403,15 @@ function FAQReportSample() {
             href="/systems/ai-content-ops/public-support-ticket-faq-demo.md"
             className="text-primary/90 hover:text-primary underline underline-offset-4"
           >
-            View the static Markdown demo
+            View the compact Markdown demo
+          </a>
+          {' '}
+          or{' '}
+          <a
+            href="/systems/ai-content-ops/public-support-ticket-faq-1000-row-validated.md"
+            className="text-primary/90 hover:text-primary underline underline-offset-4"
+          >
+            inspect the 1,000-row validation output
           </a>
           .
         </p>
