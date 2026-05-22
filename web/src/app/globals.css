@@ -34,9 +34,39 @@
   --card-shadow: 0 18px 50px rgba(31, 45, 39, 0.08);
   --primary-glow: 0 18px 50px rgba(60, 111, 143, 0.1);
   --primary-glow-tight: 0 0 15px rgba(60, 111, 143, 0.12);
+  --artifact-dark: #13231d;
+  --artifact-dark-muted: #0f1b17;
+  --artifact-dark-border: #274237;
+  --artifact-dark-border-muted: #2f4b3f;
+  --artifact-paper: #f8fbf4;
+  --artifact-paper-text: #13231d;
+  --artifact-paper-muted: #5c7168;
+  --artifact-inverse: #f6fbf3;
+  --artifact-inverse-muted: #9fb1a7;
+  --artifact-success: #2f6b42;
+  --artifact-success-muted: #3f6f52;
+  --artifact-success-text: #8dd3a5;
+  --artifact-success-text-border: rgba(141, 211, 165, 0.4);
+  --artifact-success-text-surface: rgba(141, 211, 165, 0.1);
+  --artifact-success-text-strong: #bdf0cc;
+  --artifact-success-surface: #dff5e7;
+  --artifact-success-panel: #f3fbf5;
+  --artifact-success-border: #98d9ac;
+  --artifact-success-border-muted: #bce7c8;
+  --artifact-success-border-strong: #6fbf86;
+  --artifact-success-border-veil: rgba(111, 191, 134, 0.4);
+  --artifact-danger: #9f341b;
+  --artifact-danger-surface: #fff7f2;
+  --artifact-danger-tint: #fee8dc;
+  --artifact-danger-border: #e4b4a4;
+  --artifact-danger-border-muted: #f0c7b8;
+  --artifact-danger-muted: #77584c;
+  --artifact-body: #40594d;
+  --artifact-shadow: 0 24px 70px rgba(19, 35, 29, 0.22);
 }
 
-html {
+html,
+body {
   overflow-x: clip;
 }
 
@@ -44,7 +74,6 @@ body {
   background: var(--page-background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
 }
 
 .glass {

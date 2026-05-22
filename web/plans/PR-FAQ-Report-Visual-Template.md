@@ -6,6 +6,8 @@ The `/systems/ai-content-ops` page already has the right diagnostic sales-page c
 
 This slice keeps the existing `DiagnosticReportLandingPage` template instead of forking a second sales-page template. It also corrects the naming contract: "Gap Report" is a wedge pattern, not the permanent product brand. Each future page can name the report for its wedge, while this support-ticket page stays branded as the FAQ Report.
 
+The diff is near the 400-addition soft cap because the slice includes both the reusable template slots and the first production artifact implementation those slots were created for. Splitting them would leave an unused template seam in one PR and the actual landing-page proof in another.
+
 ## Scope (this PR)
 
 1. Lock the contract decisions for one diagnostic template, modern long-copy, and wedge-specific report naming.
@@ -25,7 +27,7 @@ This slice keeps the existing `DiagnosticReportLandingPage` template instead of 
 
 ## Mechanism
 
-`DiagnosticReportLandingPageConfig` gains optional `hero.artifact` and `comparison` fields. The template renders them only when supplied, so existing diagnostic pages keep their current shape.
+`DiagnosticReportLandingPageConfig` gains optional `hero.artifact` and `comparison` fields. `comparison.id` is required when the section is supplied so the scroll-anchor contract matches the required `sample.id` shape. The template renders both visual slots only when supplied, so existing diagnostic pages keep their current shape.
 
 The AI Content Ops route provides two local React artifacts:
 
@@ -41,6 +43,7 @@ The route owns the data, naming, and copy. The template owns the section rhythm 
 - No imported JSX/HTML from `FAQs-Demos/`. Those files are visual references, not production dependencies.
 - No new npm dependencies. The existing Next, Tailwind, lucide, and framer-motion stack is sufficient.
 - No rank, churn-prevention, or SEO/GEO/AEO guarantee language. Copy stays inside the verified FAQ Report claim set.
+- The artifact palette is tokenized in CSS custom properties. The components use report-artifact tokens, not repeated hardcoded hex classes.
 
 ## Deferred
 
@@ -58,7 +61,8 @@ Completed:
 - Browser check at `http://127.0.0.1:3100/systems/ai-content-ops`: first-viewport artifact visible, comparison section visible, no global nav/footer chrome, all main CTAs route to `/systems/ai-content-ops/intake`, and horizontal overflow is `0`.
 - Mobile browser check at 390px width: first-viewport artifact and comparison section present, horizontal overflow is `0`.
 - Intake route check at `http://127.0.0.1:3100/systems/ai-content-ops/intake`: route returns 200, no global nav/footer chrome, and horizontal overflow is `0`.
+- Spot-check after root overflow consolidation: `/`, `/systems`, `/services`, `/resources`, and `/systems/atlas-llm-gateway` all report horizontal overflow `0`.
 
 ## Estimated diff size
 
-6 files, approximately +357 / -40 lines. This is under the 400 LOC soft cap.
+6 files, approximately +391 / -41 lines. Additions remain under the 400 LOC soft cap; total churn is 432 lines after the review-requested artifact tokenization and overflow consolidation.

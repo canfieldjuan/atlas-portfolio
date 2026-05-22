@@ -72,7 +72,7 @@ export type DiagnosticReportLandingPageConfig = {
     stages: DiagnosticPipelineStage[];
   };
   comparison?: {
-    id?: string;
+    id: string;
     label: string;
     title: string;
     description: string;

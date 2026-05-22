@@ -298,18 +298,18 @@ const comparisonRows = [
 
 function FAQReportHeroArtifact() {
   return (
-    <div className="overflow-hidden rounded-xl border border-[#274237] bg-[#13231d] shadow-[0_24px_70px_rgba(19,35,29,0.22)]">
-      <div className="border-b border-[#2f4b3f] px-5 py-4">
+    <div className="overflow-hidden rounded-xl border border-[var(--artifact-dark-border)] bg-[var(--artifact-dark)] shadow-[var(--artifact-shadow)]">
+      <div className="border-b border-[var(--artifact-dark-border-muted)] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[#8dd3a5]">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
               The FAQ Report
             </p>
-            <p className="mt-1 text-sm font-medium text-[#f6fbf3]">
+            <p className="mt-1 text-sm font-medium text-[var(--artifact-inverse)]">
               24-hour snapshot preview
             </p>
           </div>
-          <div className="rounded-full border border-[#8dd3a5]/40 bg-[#8dd3a5]/10 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[#bdf0cc]">
+          <div className="rounded-full border border-[var(--artifact-success-text-border)] bg-[var(--artifact-success-text-surface)] px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text-strong)]">
             CSV uploaded
           </div>
         </div>
@@ -322,45 +322,45 @@ function FAQReportHeroArtifact() {
             [`Top 25`, `questions ranked`],
             [`5 drafts`, `ready to review`],
           ].map(([value, label]) => (
-            <div key={label} className="rounded-lg border border-[#2f4b3f] bg-[#f8fbf4] px-3 py-3">
-              <p className="text-lg font-semibold text-[#13231d]">{value}</p>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-[#5c7168]">
+            <div key={label} className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-paper)] px-3 py-3">
+              <p className="text-lg font-semibold text-[var(--artifact-paper-text)]">{value}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-paper-muted)]">
                 {label}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="rounded-lg border border-[#2f4b3f] bg-[#0f1b17] p-4">
+        <div className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-dark-muted)] p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[#8dd3a5]">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
               Repeat questions found
             </p>
-            <p className="text-[10px] font-mono text-[#9fb1a7]">ranked by volume</p>
+            <p className="text-[10px] font-mono text-[var(--artifact-inverse-muted)]">ranked by volume</p>
           </div>
           <div className="space-y-2">
             {heroReportRows.map((row, index) => (
-              <div key={row.issue} className="rounded-md bg-[#f8fbf4] px-3 py-2">
+              <div key={row.issue} className="rounded-md bg-[var(--artifact-paper)] px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-[#13231d]">
+                  <p className="text-sm font-medium text-[var(--artifact-paper-text)]">
                     {String(index + 1).padStart(2, '0')} · {row.issue}
                   </p>
-                  <p className="shrink-0 text-[11px] font-mono text-[#3f6f52]">{row.count}</p>
+                  <p className="shrink-0 text-[11px] font-mono text-[var(--artifact-success-muted)]">{row.count}</p>
                 </div>
-                <p className="mt-1 text-xs text-[#5c7168]">Customer phrase: &ldquo;{row.phrase}&rdquo;</p>
+                <p className="mt-1 text-xs text-[var(--artifact-paper-muted)]">Customer phrase: &ldquo;{row.phrase}&rdquo;</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-lg border border-[#6fbf86]/40 bg-[#dff5e7] p-4">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-[#2f6b42]">
+        <div className="rounded-lg border border-[var(--artifact-success-border-veil)] bg-[var(--artifact-success-surface)] p-4">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
             Draft answer your team reviews
           </p>
-          <p className="mt-2 text-sm font-semibold text-[#13231d]">
+          <p className="mt-2 text-sm font-semibold text-[var(--artifact-paper-text)]">
             Why do I see two charges after changing my plan?
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-[#40594d]">
+          <p className="mt-2 text-sm leading-relaxed text-[var(--artifact-body)]">
             Most duplicate-looking charges come from a plan change, renewal timing, or a pending authorization. Check your billing page for the invoice date first. If both charges posted, send support the two invoice IDs so they can confirm the adjustment.
           </p>
         </div>
@@ -372,52 +372,52 @@ function FAQReportHeroArtifact() {
 function HelpCenterComparison() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <div className="rounded-xl border border-[#e4b4a4] bg-[#fff7f2] p-5 shadow-[var(--card-shadow)]">
+      <div className="rounded-xl border border-[var(--artifact-danger-border)] bg-[var(--artifact-danger-surface)] p-5 shadow-[var(--card-shadow)]">
         <div className="mb-5 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fee8dc] text-[#9f341b]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-danger-tint)] text-[var(--artifact-danger)]">
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[#9f341b]">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-danger)]">
               Traditional help center
             </p>
-            <h3 className="text-lg font-semibold text-[#13231d]">Answers written in company language</h3>
+            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers written in company language</h3>
           </div>
         </div>
         <div className="space-y-3">
           {comparisonRows.map((row) => (
-            <div key={row.traditional} className="rounded-lg border border-[#f0c7b8] bg-white px-4 py-3">
-              <p className="text-[11px] text-[#9f341b]">Customer searches: &ldquo;{row.customer}&rdquo;</p>
-              <p className="mt-1 text-sm font-medium text-[#13231d]">{row.traditional}</p>
+            <div key={row.traditional} className="rounded-lg border border-[var(--artifact-danger-border-muted)] bg-white px-4 py-3">
+              <p className="text-[11px] text-[var(--artifact-danger)]">Customer searches: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.traditional}</p>
             </div>
           ))}
         </div>
-        <p className="mt-5 border-t border-[#f0c7b8] pt-4 text-sm leading-relaxed text-[#77584c]">
+        <p className="mt-5 border-t border-[var(--artifact-danger-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-danger-muted)]">
           The answer may exist, but the title and wording do not match how customers describe the problem when they are stuck.
         </p>
       </div>
 
-      <div className="rounded-xl border border-[#98d9ac] bg-[#f3fbf5] p-5 shadow-[var(--card-shadow)]">
+      <div className="rounded-xl border border-[var(--artifact-success-border)] bg-[var(--artifact-success-panel)] p-5 shadow-[var(--card-shadow)]">
         <div className="mb-5 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#dff5e7] text-[#2f6b42]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-success-surface)] text-[var(--artifact-success)]">
             <FileText className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[#2f6b42]">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
               FAQ Report answer layer
             </p>
-            <h3 className="text-lg font-semibold text-[#13231d]">Answers drafted from customer wording</h3>
+            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers drafted from customer wording</h3>
           </div>
         </div>
         <div className="space-y-3">
           {comparisonRows.map((row) => (
-            <div key={row.faq} className="rounded-lg border border-[#bce7c8] bg-white px-4 py-3">
-              <p className="text-[11px] text-[#2f6b42]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
-              <p className="mt-1 text-sm font-medium text-[#13231d]">{row.faq}</p>
+            <div key={row.faq} className="rounded-lg border border-[var(--artifact-success-border-muted)] bg-white px-4 py-3">
+              <p className="text-[11px] text-[var(--artifact-success)]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.faq}</p>
             </div>
           ))}
         </div>
-        <p className="mt-5 border-t border-[#bce7c8] pt-4 text-sm leading-relaxed text-[#40594d]">
+        <p className="mt-5 border-t border-[var(--artifact-success-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-body)]">
           Your team still reviews the answer. The difference is that the first draft starts from the way customers actually ask.
         </p>
       </div>
