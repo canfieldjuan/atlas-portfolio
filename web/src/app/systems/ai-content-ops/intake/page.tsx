@@ -153,7 +153,7 @@ export default function GapReportIntakePage() {
               className="inline-flex items-center gap-2 text-sm text-foreground/55 hover:text-foreground transition-colors mb-10"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to FAQ Report
+              Back to Deflection Report
             </Link>
 
             <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[var(--primary-glow)]">
@@ -165,7 +165,7 @@ export default function GapReportIntakePage() {
               </h1>
               <p className="text-foreground/70 leading-relaxed mb-3">
                 We have your file. Your confirmation email is on the way to{' '}
-                <span className="text-white">{email}</span>, and the free FAQ Snapshot will be
+                <span className="text-white">{email}</span>, and the free Deflection Snapshot will be
                 sent there within 24 hours.
               </p>
               <p className="text-foreground/65 leading-relaxed mb-6">
@@ -227,7 +227,7 @@ export default function GapReportIntakePage() {
           className="inline-flex items-center gap-2 text-sm text-foreground/55 hover:text-foreground transition-colors mb-10"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to FAQ Report
+          Back to Deflection Report
         </Link>
 
         <div className="mb-10">
@@ -239,8 +239,8 @@ export default function GapReportIntakePage() {
           </h1>
           <p className="text-foreground/65 leading-relaxed">
             Upload a CSV export of the last 90 days of your closed support tickets. We send
-            back a free FAQ Snapshot: the repeat questions we can see, customer wording
-            examples, and one sample FAQ entry.
+            back a free Deflection Snapshot: the repeat questions we can see, customer wording
+            examples, and one sample self-service answer.
           </p>
         </div>
 
@@ -433,7 +433,7 @@ export default function GapReportIntakePage() {
                 </>
               ) : (
                 <>
-                  Upload CSV — get your free FAQ Snapshot
+                  Upload CSV — get your free Deflection Snapshot
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}

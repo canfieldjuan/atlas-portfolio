@@ -240,7 +240,7 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 **Decision:** **Use one diagnostic landing-page template for now.** Extend `DiagnosticReportLandingPage` with typed visual slots when a page has a real structural need, but do not create a separate long-copy template yet.
 
-**Why:** The current FAQ Report page already needs modern long-copy, a report artifact, pricing, fit/not-fit, and FAQ. Those are diagnostic-template behaviors, not a separate page type. A second template would add maintenance before we have traffic-source data proving that the shared template is limiting conversion.
+**Why:** The current Support Ticket Deflection Report page already needs modern long-copy, a report artifact, pricing, fit/not-fit, and FAQ. Those are diagnostic-template behaviors, not a separate page type. A second template would add maintenance before we have traffic-source data proving that the shared template is limiting conversion.
 
 **Current implementation rule:** Add optional slots for first-viewport proof and before/after comparison. The route owns offer-specific copy, report naming, and artifacts; the template owns repeated layout rhythm.
 
@@ -535,7 +535,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 **Decision:** **The magic moment is a wedge-specific report preview: ranked repeat issues, customer-language examples, highest-volume gaps, and the first draft outputs your team can review.**
 
-For the FAQ Report page, this shows up twice:
+For the Support Ticket Deflection Report page, this shows up twice:
 
 - In the first viewport as a compact artifact preview so the buyer immediately understands what comes back.
 - In the main sample section as the fuller public-dataset report artifact with source counts and grounded FAQ excerpts.
@@ -670,24 +670,24 @@ If no customer asks within 90 days of FAQ launch, default to **sales objection m
 **The naming distinction:**
 
 - **AI Content Ops Station** = internal platform / engine family name. Not the visible offer name on focused product pages.
-- **FAQ Report** = the current support-ticket wedge: support tickets to help-center answers.
+- **Support Ticket Deflection Report** = the current support-ticket wedge: support tickets to self-service answers that reduce avoidable repeat tickets.
 - **Future report names** should fit their wedge: Sales Objection Report, Feature Request Report, Onboarding Friction Report, Local SEO Report, or another specific deliverable name.
 
 This keeps the useful "gap" instinct without forcing every future page into the same brand. The buyer should understand the report from the page title alone.
 
 **Why this supersedes the earlier Gap Report framing:**
 
-- **Wedges need their own language.** A support leader understands FAQ Report faster than a generic Gap Report. A sales leader may understand Sales Objection Report faster than Gap Report.
+- **Wedges need their own language.** A support leader understands Support Ticket Deflection Report faster than a generic Gap Report. A sales leader may understand Sales Objection Report faster than Gap Report.
 - **Names the deliverable, not the technology.** Matches D-013 frame: the input data and action path are the moat, not the model.
 - **Preserves expansion.** The shared pattern can produce many reports while each page feels specific to its buyer and traffic source.
 - **Avoids premature brand lock-in.** We do not yet have enough market evidence to make Gap Report the umbrella product brand.
 
-**Tagline rule:** Name input and output in one short phrase. For the FAQ Report: *"From your support tickets. For your help center."*
+**Tagline rule:** Name input and output in one short phrase. For the Support Ticket Deflection Report: *"From your support tickets. For your self-service layer."*
 
 **SEO + URL implications:**
 
 - Page URL stays `/systems/ai-content-ops` for now because it is already indexed and submitted.
-- Page metadata should use the wedge name that buyers understand. The current support-ticket wedge uses "The FAQ Report." Future wedge pages can choose their own URL once the product exists.
+- Page metadata should use the wedge name that buyers understand. The current support-ticket wedge uses "Support Ticket Deflection Report." Future wedge pages can choose their own URL once the product exists.
 
 **What the platform name is used for going forward:**
 
@@ -729,8 +729,8 @@ Question 4 of the operator framework is "Who fixes it / how?" — that's the act
 
 **For report-style wedges:**
 
-- The FAQ Report deliverable must end with "Ship these 3 publish-ready FAQ entries Monday" — not "consider building these 10 help docs"
-- The free-analysis email must end with "Send the next CSV in 90 days for a refreshed FAQ Report" — naming the recurrence cadence (also satisfies question 5)
+- The Support Ticket Deflection Report deliverable must end with "Ship these 3 self-service answers Monday" — not "consider building these 10 help docs"
+- The free-analysis email must end with "Send the next CSV in 90 days for a refreshed Deflection Report" — naming the recurrence cadence (also satisfies question 5)
 - The product page CTA must be a single-step action ("Send us your CSV") — not a multi-form intake or "learn more" loop
 
 **Pitfall — honest scope over performative actionability:**
