@@ -17,7 +17,7 @@ import {
 } from '@/components/landing/DiagnosticReportLandingPage';
 import { generateFaqJsonLd } from '@/lib/seo';
 
-// All on-page CTAs route to the focused FAQ Report intake (CSV upload),
+// All on-page CTAs route to the focused deflection report intake (CSV upload),
 // not the broader /audit form. Kept as a single constant so future renames
 // or per-CTA tracking params are one-edit-one-file.
 const GAP_REPORT_INTAKE_HREF = '/systems/ai-content-ops/intake';
@@ -27,20 +27,20 @@ const pipelineStages = [
   { label: 'Cluster by Intent' },
   { label: 'Rank by Volume' },
   { label: 'Extract Customer Wording' },
-  { label: 'Generate FAQ Entries' },
+  { label: 'Draft Self-Service Answers' },
   { label: 'Review & Publish', sub: 'You approve, edit, ship' },
 ];
 
 const reportContents = [
   {
     icon: <BarChart3 className="w-5 h-5" />,
-    title: 'Questions Ranked by Volume',
-    desc: 'The questions customers keep asking, sorted by how often they show up. That way you can see which answers should get fixed first.',
+    title: 'Repeat Tickets Ranked by Volume',
+    desc: 'The questions customers keep asking, sorted by how often they hit the inbox. That way you can see which answers can reduce avoidable support work first.',
   },
   {
     icon: <AlertTriangle className="w-5 h-5" />,
-    title: 'Missing or Hard-to-Find Answers',
-    desc: 'The repeat questions that do not have a clear answer yet, or where the answer exists but customers still cannot find it.',
+    title: 'Deflectable Ticket Opportunities',
+    desc: 'The repeat questions that should not need another human reply because the answer can be turned into a clear self-service path.',
   },
   {
     icon: <Clock className="w-5 h-5" />,
@@ -49,18 +49,18 @@ const reportContents = [
   },
   {
     icon: <FileText className="w-5 h-5" />,
-    title: 'FAQ Entries to Review',
-    desc: 'Plain-spoken help-center answers for the repeat questions your team should handle first. Review, edit, and publish.',
+    title: 'Self-Service Answers to Review',
+    desc: 'Plain-spoken self-service answers for the repeat questions your team should stop answering one ticket at a time. Review, edit, and publish.',
   },
   {
     icon: <Calculator className="w-5 h-5" />,
-    title: 'Why This Answer Matters',
-    desc: 'Short notes that explain why the answer is worth fixing now, based on repeat volume and the confusion showing up in the tickets.',
+    title: 'Cost-Cutter Notes',
+    desc: 'Short notes that explain why the answer is worth fixing now, based on repeat volume and the support work showing up in the tickets.',
   },
   {
     icon: <Repeat className="w-5 h-5" />,
     title: 'What Changed Next Time',
-    desc: 'If you run it again, the next report shows which questions are still coming back, what changed, and what your help center should handle next.',
+    desc: 'If you run it again, the next report shows which repeat questions are still reaching the inbox and what your self-service layer should handle next.',
   },
 ];
 
@@ -68,17 +68,17 @@ const useCases = [
   {
     title: `Founder or owner still close to support`,
     detail:
-      `You still see the customer emails, Slack pings, and support replies because the team is small. You know the same questions keep coming back, but no one has had time to turn them into answers customers can find.`,
+      `You still see the customer emails, Slack pings, and support replies because the team is small. You know the same questions keep coming back, and every repeat answer is time the team does not get back.`,
   },
   {
-    title: `Support lead answering the same questions`,
+    title: `Head of Support trying to cut ticket volume`,
     detail:
-      `You can feel the repeat work every week. The problem is that the inbox is too busy to stop and sort 90 days of tickets by hand. You need a short list of what customers keep asking and which answers should get fixed first.`,
+      `Your KPI is not “write more FAQs.” It is fewer avoidable tickets. The problem is that the inbox is too busy to stop and sort 90 days of tickets by hand.`,
   },
   {
     title: `Small team without a full-time docs person`,
     detail:
-      `You have enough customers to need better help docs, but not enough people to keep the help center current. You need the first answers written so someone on the team can review, edit, and publish.`,
+      `You have enough customers to need self-service, but not enough people to keep the help center current. You need the first answers written so someone on the team can review, edit, and publish.`,
   },
 ];
 
@@ -86,15 +86,15 @@ const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `snapshot`,
     badge: `FIRST 5 DESIGN PARTNERS`,
-    title: `FAQ Snapshot`,
+    title: `Deflection Snapshot`,
     price: `Free`,
     sla: `Delivered in 24 hours after CSV upload`,
     description:
-      `Upload your last 90 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one FAQ entry so you can see if the full report is worth doing.`,
+      `Upload your last 90 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
     includes: [
       `Top 5-10 repeat questions`,
       `Customer wording examples`,
-      `1 sample FAQ entry`,
+      `1 sample self-service answer`,
       `No card required, no contract`,
     ],
     note: `The free snapshot proves whether the pattern is there. It is not the full report.`,
@@ -105,15 +105,15 @@ const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `full-report`,
     badge: `FULL REPORT`,
-    title: `Full FAQ Report`,
+    title: `Full Deflection Report`,
     price: `$1,500`,
     description:
-      `For the first 90-day batch. We turn the repeat questions into a full FAQ Report your team can use to decide what to fix and publish first.`,
+      `For the first 90-day batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
       `Top 25-50 repeat questions`,
       `Customer wording clusters`,
       `Missing or hard-to-find answer list`,
-      `3-5 FAQ entries to review and publish`,
+      `3-5 self-service answers to review and publish`,
       `Priority notes and source ticket IDs`,
     ],
     note: `This is the paid version of the work: enough detail to actually update the help center.`,
@@ -128,10 +128,10 @@ const pricingTiers: DiagnosticPricingTier[] = [
     description:
       `Run the report every 90 days so your help center keeps up as customer questions change. Good for teams that keep seeing new repeat issues.`,
     includes: [
-      `Full FAQ Report every 90 days`,
+      `Full Deflection Report every 90 days`,
       `What changed since the last report`,
       `Questions that are still coming back`,
-      `New FAQ entries to review and publish`,
+      `New self-service answers to review and publish`,
       `Cancel any time after the next report`,
     ],
     note: `Best after the first full report proves the work is useful.`,
@@ -143,11 +143,11 @@ const pricingTiers: DiagnosticPricingTier[] = [
 const pricingFaqs: { q: string; a: string }[] = [
   {
     q: `What do I get in the free snapshot?`,
-    a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample FAQ entry. It is enough to show whether your old tickets are worth turning into a full FAQ Report. It is not the full report.`,
+    a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
   },
   {
-    q: `What do I get in the full FAQ Report?`,
-    a: `The full report gives you the bigger working list: 25-50 repeat questions, customer wording clusters, missing or hard-to-find answers, 3-5 FAQ entries, priority notes, and source ticket IDs.`,
+    q: `What do I get in the full Deflection Report?`,
+    a: `The full report gives you the bigger working list: 25-50 repeat questions, customer wording clusters, missing or hard-to-find answers, 3-5 self-service answers, priority notes, and source ticket IDs.`,
   },
   {
     q: `What if my tickets are messy?`,
@@ -162,7 +162,7 @@ const pricingFaqs: { q: string; a: string }[] = [
     a: `Because customers search for the problem in their own words. If they ask support one way and your help center says it another way, the answer can exist and still be hard to find.`,
   },
   {
-    q: `How much editing will the FAQ entries need?`,
+    q: `How much editing will the answers need?`,
     a: `Plan on light editing. Most teams adjust tone, add a product link, confirm the exact steps, and publish. The point is that you are not starting from a blank page.`,
   },
   {
@@ -171,7 +171,7 @@ const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `Do we have to sign up for quarterly reports?`,
-    a: `No. Start with the free snapshot. If the snapshot is useful, you can pay for the full FAQ Report. Quarterly refreshes are only for teams that want to keep the help center updated as new repeat questions show up.`,
+    a: `No. Start with the free snapshot. If the snapshot is useful, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep the help center updated as new repeat questions show up.`,
   },
 ];
 
@@ -282,28 +282,28 @@ const comparisonRows = [
   {
     customer: `how do I add another person?`,
     traditional: `Seat management permissions`,
-    faq: `How do I invite a teammate without giving them billing access?`,
+    answer: `How do I invite a teammate without giving them billing access?`,
   },
   {
     customer: `why was I charged twice?`,
     traditional: `Billing reconciliation policy`,
-    faq: `Why do I see two charges after changing my plan?`,
+    answer: `Why do I see two charges after changing my plan?`,
   },
   {
     customer: `can I cancel before renewal?`,
     traditional: `Account lifecycle changes`,
-    faq: `How do I cancel before my renewal date?`,
+    answer: `How do I cancel before my renewal date?`,
   },
 ];
 
-function FAQReportHeroArtifact() {
+function DeflectionReportHeroArtifact() {
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--artifact-dark-border)] bg-[var(--artifact-dark)] shadow-[var(--artifact-shadow)]">
       <div className="border-b border-[var(--artifact-dark-border-muted)] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
-              The FAQ Report
+              Support Ticket Deflection Report
             </p>
             <p className="mt-1 text-sm font-medium text-[var(--artifact-inverse)]">
               24-hour snapshot preview
@@ -320,7 +320,7 @@ function FAQReportHeroArtifact() {
           {[
             [`90 days`, `ticket window`],
             [`Top 25`, `questions ranked`],
-            [`5 drafts`, `ready to review`],
+            [`5 answers`, `ready to review`],
           ].map(([value, label]) => (
             <div key={label} className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-paper)] px-3 py-3">
               <p className="text-lg font-semibold text-[var(--artifact-paper-text)]">{value}</p>
@@ -355,7 +355,7 @@ function FAQReportHeroArtifact() {
 
         <div className="rounded-lg border border-[var(--artifact-success-border-veil)] bg-[var(--artifact-success-surface)] p-4">
           <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
-            Draft answer your team reviews
+            Self-service answer your team reviews
           </p>
           <p className="mt-2 text-sm font-semibold text-[var(--artifact-paper-text)]">
             Why do I see two charges after changing my plan?
@@ -404,16 +404,16 @@ function HelpCenterComparison() {
           </div>
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
-              FAQ Report answer layer
+              Deflection answer layer
             </p>
             <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers drafted from customer wording</h3>
           </div>
         </div>
         <div className="space-y-3">
           {comparisonRows.map((row) => (
-            <div key={row.faq} className="rounded-lg border border-[var(--artifact-success-border-muted)] bg-white px-4 py-3">
+            <div key={row.answer} className="rounded-lg border border-[var(--artifact-success-border-muted)] bg-white px-4 py-3">
               <p className="text-[11px] text-[var(--artifact-success)]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
-              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.faq}</p>
+              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.answer}</p>
             </div>
           ))}
         </div>
@@ -425,7 +425,7 @@ function HelpCenterComparison() {
   );
 }
 
-function FAQReportSample() {
+function DeflectionReportSample() {
   const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
 
   return (
@@ -433,7 +433,7 @@ function FAQReportSample() {
       <div className="border-b border-border px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-surface">
         <div className="flex items-center gap-2">
           <Workflow className="w-4 h-4 text-primary/80" />
-          <span className="text-sm font-medium text-white">The FAQ Report</span>
+          <span className="text-sm font-medium text-white">Support Ticket Deflection Report</span>
           <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             · Live Demo / Public Dataset
           </span>
@@ -464,7 +464,7 @@ function FAQReportSample() {
             A local CFPB public complaint archive contains{' '}
             <span className="text-white font-medium">1,282,355 rows</span>, including{' '}
             <span className="text-white font-medium">383,564 rows with consumer narratives</span>.
-            The FAQ generator was validated on{' '}
+            The answer generator was validated on{' '}
             <span className="text-white font-medium">1,000 public complaint narratives</span>
             {' '}with fail-closed output checks before this page leaned on the scale claim.
             Customer reports are built for full uploaded CSV batches, including common{' '}
@@ -511,10 +511,10 @@ function FAQReportSample() {
           </div>
         </div>
 
-        {/* Sample FAQs */}
+        {/* Sample answers */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            GENERATED FAQ OUTPUT EXCERPTS — 3 ISSUE GROUPS
+            GENERATED SELF-SERVICE ANSWER EXCERPTS — 3 ISSUE GROUPS
           </div>
           <div className="rounded-lg border border-border bg-surface overflow-hidden">
             {sampleFaqExamples.map((example, exampleIndex) => (
@@ -586,7 +586,7 @@ function FAQReportSample() {
 }
 
 const sharedCta = {
-  label: 'Upload your CSV — free FAQ Snapshot',
+  label: 'Upload your CSV — free Deflection Snapshot',
   href: GAP_REPORT_INTAKE_HREF,
 };
 
@@ -596,26 +596,26 @@ const privacyCopy =
 const landingPageConfig: DiagnosticReportLandingPageConfig = {
   structuredData: faqJsonLd,
   hero: {
-    eyebrow: 'THE FAQ REPORT',
+    eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="w-3 h-3" />,
-    kicker: 'Built from the support questions your customers already asked.',
+    kicker: 'An automated cost cutter built from the tickets your customers already opened.',
     title:
-      'In 24 hours, we’ll turn the support questions customers keep asking into clear help-center answers they can actually use.',
-    intro: 'Stop making your small team answer the same questions one ticket at a time.',
+      'Stop paying your team to answer the same handful of questions over and over.',
+    intro: 'Drop in your Zendesk history. We find the repeat tickets and turn them into a self-service layer built to keep avoidable questions out of the inbox.',
     body:
-      'Upload a CSV of your last 90 days of support tickets. We’ll group the repeat questions, show you which ones come up most, pull out the words customers actually use, and turn the biggest gaps into help-center answers your team can review and publish. No integration. No extra data project. Just the answers your customers keep needing.',
+      'Upload a CSV of your last 90 days of support tickets. We group the repeat questions, show which ones cost the most support time, pull out the words customers actually use, and draft the self-service answers your team can review and publish. No integration. No extra data project. Just the repeat-ticket cost hiding in your inbox.',
     cta: sharedCta,
-    artifact: <FAQReportHeroArtifact />,
+    artifact: <DeflectionReportHeroArtifact />,
   },
   problem: {
     label: 'YOUR PROBLEM',
-    title: 'Support problems don\'t stay support problems. They become cancellations.',
+    title: 'Repeat tickets are a support-cost problem before they are a content problem.',
     content: (
       <div className="space-y-4 text-foreground/65 leading-relaxed">
         <p>
           When customers can’t find answers, they don’t always complain. Sometimes they just leave.
         </p>
-        <p>That is what makes repeat support questions dangerous.</p>
+        <p>That is what makes repeat support questions expensive.</p>
         <p>At first, they look small:</p>
         <div className="rounded-xl border border-border bg-surface p-5 md:p-6">
           <div className="grid gap-5 md:grid-cols-[1fr_auto_1fr] md:items-center">
@@ -636,14 +636,14 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
             </div>
             <div className="border-t border-border pt-5 md:border-l md:border-t-0 md:pl-5 md:pt-0">
               <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-                THEN IT BUILDS
+                THEN YOU PAY FOR IT
               </p>
               <ul className="space-y-2 text-sm text-foreground/65 leading-relaxed">
                 <li>One answer becomes ten replies.</li>
                 <li>Ten replies become a support habit.</li>
-                <li>The help center stays behind.</li>
+                <li>The inbox keeps filling up.</li>
+                <li>Agents spend paid time on preventable replies.</li>
                 <li>Customers wait for answers they should be able to find.</li>
-                <li>Some stop asking.</li>
               </ul>
             </div>
           </div>
@@ -652,7 +652,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
           You answer one. Then your support person answers another. Then a manager answers the same thing again next week.
         </p>
         <p>
-          After a while, everyone knows these questions are annoying, but nobody has time to stop and fix the real problem.
+          After a while, everyone knows these questions are expensive, but nobody has time to stop and fix the real problem.
         </p>
         <p>
           Because if the same question keeps showing up, that usually means the answer is not where customers are looking.
@@ -691,7 +691,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
         <p>
           Some email support. Some get annoyed. Some stop using the product. Some cancel and never tell you the real reason.
         </p>
-        <p>The frustrating part is that the fix may already be sitting in your old tickets.</p>
+        <p>The frustrating part is that the cost cutter may already be sitting in your old tickets.</p>
         <p>
           Your customers have already told you where they are getting stuck. You just have not turned those repeat questions into answers they can find.
         </p>
@@ -700,13 +700,13 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   },
   solution: {
     label: 'YOUR SOLUTION',
-    title: 'Your customers have already shown you what needs to be answered.',
+    title: 'Your customers have already shown you which tickets should stop reaching support.',
     content: (
       <div className="space-y-4 text-foreground/65 leading-relaxed">
         <p>The hard part is that their questions are spread across months of old tickets.</p>
-        <p>That is where the FAQ Report comes in.</p>
+        <p>That is where the Support Ticket Deflection Report comes in.</p>
         <p>
-          Upload your last 90 days of support tickets. We group the repeat questions, rank the ones customers ask most, pull out the words customers actually use, and turn the biggest gaps into clear help-center answers.
+          Upload your last 90 days of support tickets. We group the repeat questions, rank the ones customers ask most, pull out the words customers actually use, and turn the biggest gaps into clear self-service answers.
         </p>
         <p>It works because your tickets show the problem in the customer’s language.</p>
         <p>
@@ -714,13 +714,13 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
         </p>
         <p>The words customers use when they are stuck.</p>
         <p>
-          That means the answers you publish are easier for customers to recognize, search for, and use.
+          That means the answers you publish are easier for customers to recognize, search for, and use before they open another ticket.
         </p>
       </div>
     ),
-    processTitle: 'Here’s how the FAQ Report works.',
+    processTitle: 'Here’s how the Deflection Report works.',
     processDescription:
-      'You do not need to connect a new tool or clean up months of tickets by hand. Upload the CSV, and we turn it into a simple report your team can use to decide which answers to publish first.',
+      'You do not need to connect a new tool or clean up months of tickets by hand. Upload the CSV, and we turn it into a simple report your team can use to decide which repeat tickets to deflect first.',
     stages: pipelineStages,
   },
   comparison: {
@@ -728,36 +728,36 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     label: 'THE WEDGE',
     title: 'The answer can exist and still be invisible.',
     description:
-      'Most help-center problems are not only missing-answer problems. They are language mismatch problems. The FAQ Report compares what customers ask against how your help center names the answer, then drafts the bridge your team can review and publish.',
+      'Most ticket-deflection problems are not only missing-answer problems. They are language mismatch problems. The Deflection Report compares what customers ask against how your help center names the answer, then drafts the bridge your team can review and publish.',
     artifact: <HelpCenterComparison />,
   },
   sample: {
     id: 'demo',
     label: 'WHAT YOU GET',
-    title: 'A real FAQ Report demo, built from a public support-ticket-style dataset.',
+    title: 'A real Deflection Report demo, built from a public support-ticket-style dataset.',
     description:
-      'This sample uses public CFPB complaint narratives to show the report shape without exposing customer data. Your report uses your uploaded CSV: the questions your customers keep asking, the words they use, and FAQ entries your team can review, edit, and publish.',
-    artifact: <FAQReportSample />,
+      'This sample uses public CFPB complaint narratives to show the report shape without exposing customer data. Your report uses your uploaded CSV: the questions your customers keep asking, the words they use, and self-service answers your team can review, edit, and publish.',
+    artifact: <DeflectionReportSample />,
   },
   deliverables: {
     id: 'what-it-produces',
     label: 'WHAT\'S IN THE REPORT',
     title: 'After you upload, here\'s what comes back.',
     description:
-      'You get a clear look at the questions customers keep asking, the answers they cannot find, and the FAQ entries your team can review and publish first.',
+      'You get a clear look at the repeat tickets customers keep opening, the answers they cannot find, and the self-service answers your team can review and publish first.',
     items: reportContents,
     constraintLabel: 'WHAT THIS ISN\'T',
     constraint: (
       <p className="text-sm text-foreground/65 leading-relaxed">
-        This is not another tool your team has to set up. It is not a chatbot, and it does not publish anything without you. You get the repeat questions, the missing answers, and the first FAQ entries to review. Your team decides what gets edited, approved, and published.
+        This is not another tool your team has to set up. It is not a chatbot, and it does not publish anything without you. You get the repeat questions, the missing answers, and the first self-service answers to review. Your team decides what gets edited, approved, and published.
       </p>
     ),
   },
   audience: {
     label: 'WHO THIS IS FOR',
-    title: 'For small teams that feel every repeat ticket.',
+    title: 'For support teams that feel every repeat ticket.',
     description:
-      'This fits a 10-50 person company where customers keep asking the same questions, the help center is behind, and the people closest to the business still feel the support load.',
+      'This fits a 10-50 person company where customers keep asking the same questions, the help center is behind, and every avoidable ticket either costs agent time or slows down the team.',
     items: useCases,
     constraintLabel: 'NOT A FIT FOR',
     constraint: (
@@ -771,22 +771,22 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     label: 'PRICING',
     title: 'Start with a free snapshot. Pay when you want the full report.',
     description:
-      'The free snapshot gives you enough to see whether your old tickets are hiding useful FAQ work. If the pattern is there, the full FAQ Report turns that first 90-day batch into answers your team can actually review and publish.',
+      'The free snapshot gives you enough to see whether your old tickets are hiding deflectable support work. If the pattern is there, the full Deflection Report turns that first 90-day batch into answers your team can actually review and publish.',
     tiers: pricingTiers,
     constraintLabel: 'WHAT\'S NOT INCLUDED',
     exclusions: [
       'No help-center integration — your team publishes from the tool you already use.',
       'No auto-publishing — you decide what gets edited, approved, and shipped.',
-      'No full help-center rebuild — the report starts with the highest-priority answers first.',
+      'No guaranteed deflection percentage — the report identifies the highest-priority deflection opportunities first.',
     ],
   },
   finalCta: {
     label: 'START HERE',
     title:
-      'Send us your last 90 days of support tickets, and we’ll turn the repeat questions into answers your customers can use before they email, complain, or cancel',
+      'Send us your last 90 days of support tickets, and we’ll show which repeat questions should stop hitting your inbox',
     body: [
-      'Upload your last 90 days of tickets. We turn the repeat questions into FAQ entries your team can review and publish.',
-      'The questions that keep coming back slow down when customers can actually find the answer.',
+      'Upload your last 90 days of tickets. We turn the repeat questions into self-service answers your team can review and publish.',
+      'The questions that keep coming back can slow down when customers can actually find the answer before they open another ticket.',
     ],
     cta: sharedCta,
     privacy: privacyCopy,

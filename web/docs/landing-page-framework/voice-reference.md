@@ -45,9 +45,9 @@ We don't imitate any one writer. We blend their layers. Tight trio — no others
 ---
 
 
-## 2.5 FAQ Report voice overlay — Sackheim diagnostic direct response
+## 2.5 Support Ticket Deflection voice overlay — Sackheim diagnostic direct response
 
-Use this overlay when writing the FAQ Report / support-ticket-to-help-answer page and related intake, ads, emails, or follow-up copy. It does not replace the global voice trio above. It narrows the voice for this specific offer.
+Use this overlay when writing the Support Ticket Deflection Report page and related intake, ads, emails, or follow-up copy. It does not replace the global voice trio above. It narrows the voice for this specific offer.
 
 **Reference:** Maxwell Sackheim, especially the diagnostic frame behind “Do You Make These Mistakes in English?”
 
@@ -75,7 +75,7 @@ Use this overlay when writing the FAQ Report / support-ticket-to-help-answer pag
 
 If customers keep asking the same question, that means the answer is not where customers are looking.
 
-That line is the operating thesis for this page. Keep coming back to it. The product does not “create content” in the abstract. It turns repeated support questions into help-center answers customers can actually find and use.
+That line is the operating thesis for this page. Keep coming back to it. The product does not “create content” in the abstract. It turns repeated support questions into self-service answers customers can actually find and use before they open another ticket.
 
 ### Reader-Guiding Language
 
@@ -89,7 +89,7 @@ Use phrases like:
 - “At first, this looks small.”
 - “But over time…”
 - “The issue is…”
-- “That is where the FAQ Report comes in.”
+- “That is where the Support Ticket Deflection Report comes in.”
 - “The fix may already be sitting in your old tickets.”
 
 Bad compression:
@@ -118,7 +118,7 @@ Why it is better:
 Examples for this offer:
 
 ```text
-The FAQ Report saves your team time because it turns repeat questions into answers customers can find on their own.
+The Support Ticket Deflection Report saves your team time because it turns repeat questions into answers customers can find on their own.
 ```
 
 ```text
@@ -158,7 +158,7 @@ They search for “how do I add my teammate?”
 Your product calls it “seat management.”
 ```
 
-This mismatch creates support tickets. The FAQ Report pulls the words customers actually use from tickets, then uses that language in the answers the team reviews and publishes.
+This mismatch creates support tickets. The Support Ticket Deflection Report pulls the words customers actually use from tickets, then uses that language in the answers the team reviews and publishes.
 
 ### Tone Boundaries
 
@@ -167,7 +167,7 @@ Do say:
 - “Customers do not always complain. Sometimes they just leave.”
 - “Support problems do not stay support problems.”
 - “The same questions keep coming back because the answer is not where customers are looking.”
-- “Send the CSV. We turn the repeat questions into help-center answers.”
+- “Send the CSV. We turn the repeat questions into self-service answers.”
 
 Do not say:
 
@@ -183,10 +183,10 @@ The original FAQ Report intake implementation came from a different session. Tre
 
 This later pass changed the offer and intake language for a specific reason:
 
-- The page moved away from “The Gap Report” as the visible offer name and toward “The FAQ Report.”
+- The page moved away from “The Gap Report” as the visible offer name, then from “The FAQ Report” toward “Support Ticket Deflection Report.”
 - The CTA moved from “send us your CSV” to “upload your CSV” because the intake form already allows users to upload their own CSV. That lowers friction and should stay reflected in the copy.
-- The free offer changed from a full report to a limited “FAQ Snapshot” so the free version proves value without giving away the paid report.
-- The paid offer is the full FAQ Report for the first 90-day batch, with quarterly refreshes positioned as optional follow-up.
+- The free offer is a limited “Deflection Snapshot” so the free version proves value without giving away the paid report.
+- The paid offer is the full Support Ticket Deflection Report for the first 90-day batch, with quarterly refreshes positioned as optional follow-up.
 - The intake form now asks for name, work email, company name, support platform, and CSV. Support platform is required because we want to learn which tools are most common and interpret exports faster.
 - The page and intake were lightened with route-scoped styling only. Do not move those colors into global CSS unless the broader site is intentionally being redesigned.
 

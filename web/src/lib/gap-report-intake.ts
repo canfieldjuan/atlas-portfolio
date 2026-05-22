@@ -73,7 +73,7 @@ function formatBytes(bytes: number | undefined) {
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
   return [
-    'New FAQ Report CSV submission',
+    'New Support Ticket Deflection Report CSV submission',
     '',
     `Request ID: ${record.requestId}`,
     `Submitted: ${record.submittedAt}`,
@@ -89,7 +89,7 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
     `Size: ${formatBytes(record.csvSizeBytes)}`,
     `Download: ${record.csvBlobUrl}`,
     '',
-    '— Atlas Portfolio (FAQ Report intake)',
+    '— Atlas Portfolio (Support Ticket Deflection Report intake)',
   ].join('\n');
 }
 
@@ -104,7 +104,7 @@ function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
     'What happens next:',
     '1. We review the support tickets you uploaded.',
     '2. We look for repeat questions and the words customers use when they get stuck.',
-    '3. We send your free FAQ Snapshot to this email within 24 hours.',
+    '3. We send your free Deflection Snapshot to this email within 24 hours.',
     '',
     'No next step is needed from you right now.',
     '',
@@ -151,7 +151,7 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
       from: fromEmail,
       to: toRecipients,
       reply_to: record.email,
-      subject: `New FAQ Report CSV: ${record.companyName} (${record.email})`,
+      subject: `New Deflection Report CSV: ${record.companyName} (${record.email})`,
       text: buildNotificationText(record),
     }),
     cache: 'no-store',
@@ -183,7 +183,7 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
     body: JSON.stringify({
       from: fromEmail,
       to: [record.email],
-      subject: 'We received your FAQ Report CSV',
+      subject: 'We received your Deflection Report CSV',
       text: buildCustomerConfirmationText(record),
     }),
     cache: 'no-store',

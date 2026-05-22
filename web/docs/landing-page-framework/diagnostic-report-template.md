@@ -44,7 +44,7 @@ Do not fork the template for small copy differences. Add typed config fields onl
 
 "Gap Report" is a reusable wedge pattern, not the permanent customer-facing product brand. Name each report for the wedge the page sells:
 
-- Support tickets to help-center answers: FAQ Report.
+- Support tickets to self-service deflection: Support Ticket Deflection Report.
 - Sales calls or tickets to objections: Sales Objection Report.
 - Product feedback to roadmap input: Feature Request Report.
 - Local search inputs to pages: Local SEO Report.

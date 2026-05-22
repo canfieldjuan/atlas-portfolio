@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { generatePageMetadata } from '@/lib/seo';
 
 const baseMetadata = generatePageMetadata({
-  title: 'Upload Your CSV — FAQ Snapshot Intake',
+  title: 'Upload Your CSV — Deflection Snapshot Intake',
   description:
-    'Upload a CSV export of your last 90 days of closed support tickets. We will send back a free FAQ Snapshot in 24 hours: repeat questions, customer wording, and one sample FAQ entry.',
+    'Upload a CSV export of your last 90 days of closed support tickets. We will send back a free Deflection Snapshot in 24 hours: repeat questions, customer wording, and one sample self-service answer.',
   path: '/systems/ai-content-ops/intake',
   keywords: [
-    'FAQ Snapshot intake',
+    'Deflection Snapshot intake',
     'support ticket CSV upload',
-    'AI help doc generator intake',
+    'support ticket deflection intake',
     'Zendesk CSV analysis',
-    'help center gap analysis intake',
+    'support ticket deflection snapshot',
   ],
 });
 

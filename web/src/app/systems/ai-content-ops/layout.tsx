@@ -1,19 +1,22 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "The FAQ Report — Help Docs From Your Support Tickets",
+  title: "Support Ticket Deflection Report — Cut Repeat Support Tickets",
   description:
-    "The FAQ Report turns your last 90 days of support tickets into repeat questions, customer wording, and FAQ entries your team can review and publish. Upload your CSV and get the first report in 24 hours.",
+    "The Support Ticket Deflection Report turns your last 90 days of support tickets into repeat-ticket rankings, customer wording, and self-service answers your team can review and publish.",
   path: "/systems/ai-content-ops",
   keywords: [
+    "support ticket deflection",
+    "reduce support ticket volume",
+    "Zendesk ticket deflection",
+    "support cost reduction",
     "help docs from support tickets",
     "Zendesk help center automation",
-    "ranked FAQ generator",
-    "help center gap analysis",
-    "support ticket deflection",
+    "ranked support ticket analysis",
+    "support ticket self service",
     "AI help doc generator",
     "customer question ranking",
-    "FAQ from tickets",
+    "self service support answers",
     "AI content operations",
     "AI content pipeline",
     "evidence backed AI content",
