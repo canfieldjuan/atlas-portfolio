@@ -260,6 +260,171 @@ const demoScaleStats = [
   { value: `46`, label: `rows shown in excerpt` },
 ];
 
+const heroReportRows = [
+  {
+    issue: `Billing confusion`,
+    count: `41 tickets`,
+    phrase: `why was I charged twice?`,
+  },
+  {
+    issue: `Team access`,
+    count: `29 tickets`,
+    phrase: `how do I add another person?`,
+  },
+  {
+    issue: `Cancellation steps`,
+    count: `18 tickets`,
+    phrase: `how do I cancel my account?`,
+  },
+];
+
+const comparisonRows = [
+  {
+    customer: `how do I add another person?`,
+    traditional: `Seat management permissions`,
+    faq: `How do I invite a teammate without giving them billing access?`,
+  },
+  {
+    customer: `why was I charged twice?`,
+    traditional: `Billing reconciliation policy`,
+    faq: `Why do I see two charges after changing my plan?`,
+  },
+  {
+    customer: `can I cancel before renewal?`,
+    traditional: `Account lifecycle changes`,
+    faq: `How do I cancel before my renewal date?`,
+  },
+];
+
+function FAQReportHeroArtifact() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#274237] bg-[#13231d] shadow-[0_24px_70px_rgba(19,35,29,0.22)]">
+      <div className="border-b border-[#2f4b3f] px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[#8dd3a5]">
+              The FAQ Report
+            </p>
+            <p className="mt-1 text-sm font-medium text-[#f6fbf3]">
+              24-hour snapshot preview
+            </p>
+          </div>
+          <div className="rounded-full border border-[#8dd3a5]/40 bg-[#8dd3a5]/10 px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[#bdf0cc]">
+            CSV uploaded
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-5 p-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            [`90 days`, `ticket window`],
+            [`Top 25`, `questions ranked`],
+            [`5 drafts`, `ready to review`],
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-lg border border-[#2f4b3f] bg-[#f8fbf4] px-3 py-3">
+              <p className="text-lg font-semibold text-[#13231d]">{value}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[#5c7168]">
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg border border-[#2f4b3f] bg-[#0f1b17] p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[#8dd3a5]">
+              Repeat questions found
+            </p>
+            <p className="text-[10px] font-mono text-[#9fb1a7]">ranked by volume</p>
+          </div>
+          <div className="space-y-2">
+            {heroReportRows.map((row, index) => (
+              <div key={row.issue} className="rounded-md bg-[#f8fbf4] px-3 py-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-[#13231d]">
+                    {String(index + 1).padStart(2, '0')} · {row.issue}
+                  </p>
+                  <p className="shrink-0 text-[11px] font-mono text-[#3f6f52]">{row.count}</p>
+                </div>
+                <p className="mt-1 text-xs text-[#5c7168]">Customer phrase: &ldquo;{row.phrase}&rdquo;</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-[#6fbf86]/40 bg-[#dff5e7] p-4">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-[#2f6b42]">
+            Draft answer your team reviews
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[#13231d]">
+            Why do I see two charges after changing my plan?
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-[#40594d]">
+            Most duplicate-looking charges come from a plan change, renewal timing, or a pending authorization. Check your billing page for the invoice date first. If both charges posted, send support the two invoice IDs so they can confirm the adjustment.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HelpCenterComparison() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div className="rounded-xl border border-[#e4b4a4] bg-[#fff7f2] p-5 shadow-[var(--card-shadow)]">
+        <div className="mb-5 flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fee8dc] text-[#9f341b]">
+            <AlertTriangle className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[#9f341b]">
+              Traditional help center
+            </p>
+            <h3 className="text-lg font-semibold text-[#13231d]">Answers written in company language</h3>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {comparisonRows.map((row) => (
+            <div key={row.traditional} className="rounded-lg border border-[#f0c7b8] bg-white px-4 py-3">
+              <p className="text-[11px] text-[#9f341b]">Customer searches: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[#13231d]">{row.traditional}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 border-t border-[#f0c7b8] pt-4 text-sm leading-relaxed text-[#77584c]">
+          The answer may exist, but the title and wording do not match how customers describe the problem when they are stuck.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-[#98d9ac] bg-[#f3fbf5] p-5 shadow-[var(--card-shadow)]">
+        <div className="mb-5 flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#dff5e7] text-[#2f6b42]">
+            <FileText className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[#2f6b42]">
+              FAQ Report answer layer
+            </p>
+            <h3 className="text-lg font-semibold text-[#13231d]">Answers drafted from customer wording</h3>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {comparisonRows.map((row) => (
+            <div key={row.faq} className="rounded-lg border border-[#bce7c8] bg-white px-4 py-3">
+              <p className="text-[11px] text-[#2f6b42]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[#13231d]">{row.faq}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 border-t border-[#bce7c8] pt-4 text-sm leading-relaxed text-[#40594d]">
+          Your team still reviews the answer. The difference is that the first draft starts from the way customers actually ask.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function FAQReportSample() {
   const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
 
@@ -440,6 +605,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     body:
       'Upload a CSV of your last 90 days of support tickets. We’ll group the repeat questions, show you which ones come up most, pull out the words customers actually use, and turn the biggest gaps into help-center answers your team can review and publish. No integration. No extra data project. Just the answers your customers keep needing.',
     cta: sharedCta,
+    artifact: <FAQReportHeroArtifact />,
   },
   problem: {
     label: 'YOUR PROBLEM',
@@ -556,6 +722,14 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     processDescription:
       'You do not need to connect a new tool or clean up months of tickets by hand. Upload the CSV, and we turn it into a simple report your team can use to decide which answers to publish first.',
     stages: pipelineStages,
+  },
+  comparison: {
+    id: 'comparison',
+    label: 'THE WEDGE',
+    title: 'The answer can exist and still be invisible.',
+    description:
+      'Most help-center problems are not only missing-answer problems. They are language mismatch problems. The FAQ Report compares what customers ask against how your help center names the answer, then drafts the bridge your team can review and publish.',
+    artifact: <HelpCenterComparison />,
   },
   sample: {
     id: 'demo',

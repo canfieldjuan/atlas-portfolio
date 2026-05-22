@@ -36,6 +36,10 @@
   --primary-glow-tight: 0 0 15px rgba(60, 111, 143, 0.12);
 }
 
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--page-background);
   color: var(--foreground);
