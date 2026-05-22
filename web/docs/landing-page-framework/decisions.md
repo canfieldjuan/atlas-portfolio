@@ -686,8 +686,9 @@ This keeps the useful "gap" instinct without forcing every future page into the 
 
 **SEO + URL implications:**
 
-- Page URL stays `/systems/ai-content-ops` for now because it is already indexed and submitted.
-- Page metadata should use the wedge name that buyers understand. The current support-ticket wedge uses "Support Ticket Deflection Report." Future wedge pages can choose their own URL once the product exists.
+- AI Content Ops stays at `/systems/ai-content-ops` as the broader content-operations system page.
+- The support-ticket wedge lives at `/systems/support-ticket-deflection` so the focused offer does not overwrite the platform page.
+- Page metadata should use the wedge name that buyers understand. The current support-ticket wedge uses "Support Ticket Deflection Report." Future wedge pages should get their own focused URLs once the product exists.
 
 **What the platform name is used for going forward:**
 
