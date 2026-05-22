@@ -437,7 +437,7 @@ It shows:
 - one self-service answer your team can review
 - which answer I would ship first
 
-No sales call required. If the report's useful, we talk. If not,
+No sales call required. If the snapshot's useful, we talk. If not,
 no follow-up.
 
 Worth a CSV?
@@ -451,7 +451,7 @@ Worth a CSV?
 - Names the offer specifically in 3 lines (mechanism + deliverable + timing)
 - Keeps the safe claim boundary: no guaranteed deflection percentage, cost reduction, or rank claim
 - "No sales call required" — names what it isn't (D-002 #6)
-- "If the report's useful, we talk. If not, no follow-up." — risk reversal in 9 words (Hormozi offer-structure, voice still ours)
+- "If the snapshot's useful, we talk. If not, no follow-up." — risk reversal in 9 words (Hormozi offer-structure, voice still ours)
 - "Worth a CSV?" — direct ask, no "I'd love to chat" filler
 
 Full outbound, delivery, follow-up, and permission copy lives at
