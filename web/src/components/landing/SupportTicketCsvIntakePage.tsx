@@ -170,12 +170,12 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 CSV received.
               </h1>
               <p className="text-foreground/70 leading-relaxed mb-3">
                 We have your file. Your confirmation email is on the way to{' '}
-                <span className="text-white">{email}</span>, and the free {copy.snapshotName} will be
+                <span className="text-foreground">{email}</span>, and the free {copy.snapshotName} will be
                 sent there within 24 hours.
               </p>
               <p className="text-foreground/65 leading-relaxed mb-6">
@@ -244,7 +244,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
             UPLOAD YOUR CSV
           </div>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
             One file. Five fields. 24 hours.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
@@ -257,7 +257,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
               Your name <span className="text-primary">*</span>
             </label>
             <input
@@ -271,7 +271,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Your name"
               aria-invalid={Boolean(errors.name)}
               aria-describedby={errors.name ? 'name-error' : undefined}
@@ -285,7 +285,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Work email <span className="text-primary">*</span>
             </label>
             <input
@@ -299,7 +299,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="you@yourcompany.com"
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? 'email-error' : undefined}
@@ -313,7 +313,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
           {/* Company */}
           <div>
-            <label htmlFor="companyName" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="companyName" className="block text-sm font-medium text-foreground mb-2">
               Company name <span className="text-primary">*</span>
             </label>
             <input
@@ -328,7 +328,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                   setErrors((prev) => ({ ...prev, companyName: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Acme Inc."
               aria-invalid={Boolean(errors.companyName)}
               aria-describedby={errors.companyName ? 'companyName-error' : undefined}
@@ -344,7 +344,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           <div>
             <label
               htmlFor="supportPlatform"
-              className="block text-sm font-medium text-white mb-2"
+              className="block text-sm font-medium text-foreground mb-2"
             >
               Support platform <span className="text-primary">*</span>
             </label>
@@ -358,7 +358,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                   setErrors((prev) => ({ ...prev, supportPlatform: undefined }));
               }}
               disabled={submitting}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/60 disabled:opacity-50"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/60 disabled:opacity-50"
               aria-invalid={Boolean(errors.supportPlatform)}
               aria-describedby={
                 errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
@@ -384,7 +384,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
           {/* CSV file */}
           <div>
-            <label htmlFor="csv" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="csv" className="block text-sm font-medium text-foreground mb-2">
               CSV file <span className="text-primary">*</span>
             </label>
             <div className="relative">
