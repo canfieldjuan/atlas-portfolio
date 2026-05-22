@@ -15,7 +15,6 @@ The diff is near the 400-addition soft cap because the slice includes both the r
 3. Wire `/systems/ai-content-ops` to those slots with GLM-inspired page rhythm, not a wholesale demo import.
 4. Preserve the current intake route, CTA destinations, pricing tiers, FAQ data, public demo artifact links, and no-chrome route behavior.
 5. Fix the shared full-bleed section overflow at the root layout level so landing bands do not create horizontal scroll range.
-6. Pin the Vercel build/runtime Node major to the same supported major used for local verification.
 
 ### Files touched
 
@@ -24,8 +23,6 @@ The diff is near the 400-addition soft cap because the slice includes both the r
 - `src/components/landing/DiagnosticReportLandingPage.tsx`
 - `src/app/systems/ai-content-ops/page.tsx`
 - `src/app/globals.css`
-- `package.json`
-- `package-lock.json`
 - `plans/PR-FAQ-Report-Visual-Template.md`
 
 ## Mechanism
@@ -39,8 +36,6 @@ The AI Content Ops route provides two local React artifacts:
 
 The route owns the data, naming, and copy. The template owns the section rhythm and keeps CTA, pricing, FAQ, and sample artifact wiring unchanged.
 
-The app now declares `engines.node: 20.x` in `package.json`. Vercel's project setting was using Node 24.x while local verification runs on Node 20.20.0; pinning the supported major in source keeps local and preview deployment builds on the same Node line.
-
 ## Intentional
 
 - No new long-copy template yet. The decisions log now treats one template as the default until a measured conversion gap proves a fork is needed.
@@ -49,7 +44,6 @@ The app now declares `engines.node: 20.x` in `package.json`. Vercel's project se
 - No new npm dependencies. The existing Next, Tailwind, lucide, and framer-motion stack is sufficient.
 - No rank, churn-prevention, or SEO/GEO/AEO guarantee language. Copy stays inside the verified FAQ Report claim set.
 - The artifact palette is tokenized in CSS custom properties. The components use report-artifact tokens, not repeated hardcoded hex classes.
-- The Node 20 pin is a deployment contract, not a workaround in the build command. It uses Vercel's documented `package.json` override path instead of adding a custom Vercel-only script.
 
 ## Deferred
 
@@ -68,8 +62,8 @@ Completed:
 - Mobile browser check at 390px width: first-viewport artifact and comparison section present, horizontal overflow is `0`.
 - Intake route check at `http://127.0.0.1:3100/systems/ai-content-ops/intake`: route returns 200, no global nav/footer chrome, and horizontal overflow is `0`.
 - Spot-check after root overflow consolidation: `/`, `/systems`, `/services`, `/resources`, and `/systems/atlas-llm-gateway` all report horizontal overflow `0`.
-- Vercel failed twice on Node 24.x inside the Next adapter `modifyConfig` hook before compilation. Node 20.20.0 local verification still passes; the source-controlled engine pin was added so preview builds use the same supported Node major.
+- Vercel preview deployment passed after disabling the optional project-level Preview Feedback toolbar. The failed adapter branch was Vercel toolbar injection calling Next 16.2.4 `modifyConfig` with `ctx.projectDir` unavailable.
 
 ## Estimated diff size
 
-8 files, approximately +405 / -41 lines. The final additions exceed the 400 LOC soft cap by a small amount because review follow-up added artifact tokenization, overflow consolidation, and a source-controlled Vercel Node version contract required to get CI back onto the same supported major as local verification.
+6 files, approximately +392 / -41 lines. Additions remain under the 400 LOC soft cap; total churn is 433 lines after the review-requested artifact tokenization and overflow consolidation.
