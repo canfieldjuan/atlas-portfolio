@@ -32,8 +32,8 @@ Revisit open ones in any order — this isn't sequential.
 | D-016 | Integration scope for v1 (which support platforms) | OPEN |
 | D-017 | Fulfillment model — self-serve product vs managed service | **DECIDED** |
 | D-018 | "Magic moment" — what buyer sees in first 24 hours | **DECIDED** |
-| D-019 | First-5-customers acquisition motion | OPEN |
-| D-020 | Build product first vs run workflow manually | OPEN |
+| D-019 | First-5-customers acquisition motion | **DECIDED** |
+| D-020 | Build product first vs run workflow manually | **DECIDED** |
 | D-021 | Tier-A output expansion order (which renderer head after FAQs) | OPEN |
 | D-022 | Problem framing — known vs unknown problem in hero | **DECIDED** |
 | D-023 | Customer-facing product name (vs internal platform name) | **DECIDED** |
@@ -548,7 +548,7 @@ Do not claim the report guarantees ranking, prevents churn automatically, or ful
 
 ## D-019 — First-5-customers acquisition motion
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-22)
 
 **Question:** How do we get the first 5 paying customers?
 
@@ -562,13 +562,24 @@ Do not claim the report guarantees ranking, prevents churn automatically, or ful
 
 **Recommendation:** Stack 3 channels — do **10 free analyses** to companies in your network (or strangers via LinkedIn) + post the most striking results publicly + cold LinkedIn outbound to similar-shaped companies referencing the published results.
 
-**Decision:** _pending_
+**Decision:** **Run 10 free Deflection Snapshots to earn the first 5 serious conversations.** Start with warm network and founder-led LinkedIn outreach to support-heavy B2B SaaS teams, then publish anonymized patterns only after review.
+
+**Operating rule:** The first ask is not "buy software." It is "send a CSV of the last 90 days of closed tickets and we will show the repeat questions worth deflecting first." The conversion event is a reply with a CSV or a scheduled data-export call.
+
+**Target account shape:**
+
+- B2B SaaS, marketplace, or productized service business.
+- Uses Zendesk, Intercom, Freshdesk, HelpScout, or a support inbox that can export CSV.
+- Has enough support volume that repeat questions are visible, but not enough documentation ownership to keep up.
+- Buyer feels ticket-volume pressure directly: founder, Head of Support, CS lead, or operator responsible for support cost.
+
+**Proof rule:** Do not publish company names, screenshots, ticket excerpts, volume counts, or before/after numbers without explicit permission. Until measured customer outcomes exist, public proof can say what the snapshot found, not what it guaranteed.
 
 ---
 
 ## D-020 — Build product first vs run workflow manually
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-22)
 
 **Question:** To deliver the first free analyses (per D-019), do we:
 
@@ -586,7 +597,23 @@ Do not claim the report guarantees ranking, prevents churn automatically, or ful
 
 **Recommendation:** (C) Hybrid. First 3 analyses run manually using existing Atlas pipeline + manual prompts; from #4 onward the productized version takes over.
 
-**Decision:** _pending_
+**Decision:** **Use the hybrid path.** Run the first 3 Deflection Snapshots manually with existing tools and documented review gates. Productize only the stable parts that repeat across those first analyses.
+
+**Why:** The landing page promise is already narrow enough to deliver manually: rank repeat tickets, extract customer wording, draft a small number of self-service answers, and name the next action. Building automation before the first customer CSVs would hide the messy parts we need to learn from.
+
+**Manual floor for the first 3 snapshots:**
+
+- Intake: CSV upload or direct export handoff.
+- Normalize: remove obvious PII and discard unusable rows.
+- Cluster: group repeat questions by intent.
+- Rank: sort by visible ticket volume and severity clues.
+- Draft: write one free sample self-service answer for the snapshot.
+- Review: human check before sending anything back.
+- Action path: name the first answers to publish or revise.
+
+**Productization trigger:** Start automating a step only after it repeats across at least 3 customer CSVs with the same input shape, review criteria, and deliverable language. Do not automate edge-case cleanup first.
+
+**Playbook:** `docs/landing-page-framework/support-deflection-first-analysis.md`.
 
 ---
 
