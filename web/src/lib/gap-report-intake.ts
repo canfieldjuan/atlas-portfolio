@@ -57,6 +57,38 @@ export type GapReportSubmissionResult = {
   warnings: string[];
 };
 
+type IntakeOfferCopy = {
+  notificationHeading: string;
+  notificationFooter: string;
+  notificationSubjectPrefix: string;
+  customerSubject: string;
+  snapshotName: string;
+};
+
+const FAQ_REPORT_OFFER_COPY: IntakeOfferCopy = {
+  notificationHeading: 'New FAQ Report CSV submission',
+  notificationFooter: '— Atlas Portfolio (FAQ Report intake)',
+  notificationSubjectPrefix: 'New FAQ Report CSV',
+  customerSubject: 'We received your FAQ Report CSV',
+  snapshotName: 'FAQ Snapshot',
+};
+
+const SUPPORT_DEFLECTION_OFFER_COPY: IntakeOfferCopy = {
+  notificationHeading: 'New Support Ticket Deflection Report CSV submission',
+  notificationFooter: '— Atlas Portfolio (Support Ticket Deflection Report intake)',
+  notificationSubjectPrefix: 'New Deflection Report CSV',
+  customerSubject: 'We received your Deflection Report CSV',
+  snapshotName: 'Deflection Snapshot',
+};
+
+function intakeOfferCopy(sourceOffer: string | undefined): IntakeOfferCopy {
+  if (sourceOffer === 'support-ticket-deflection-intake') {
+    return SUPPORT_DEFLECTION_OFFER_COPY;
+  }
+
+  return FAQ_REPORT_OFFER_COPY;
+}
+
 function parseRecipientList(value: string | undefined) {
   return (value || '')
     .split(',')
@@ -72,8 +104,10 @@ function formatBytes(bytes: number | undefined) {
 }
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
+  const offer = intakeOfferCopy(record.sourceOffer);
+
   return [
-    'New Support Ticket Deflection Report CSV submission',
+    offer.notificationHeading,
     '',
     `Request ID: ${record.requestId}`,
     `Submitted: ${record.submittedAt}`,
@@ -89,12 +123,13 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
     `Size: ${formatBytes(record.csvSizeBytes)}`,
     `Download: ${record.csvBlobUrl}`,
     '',
-    '— Atlas Portfolio (Support Ticket Deflection Report intake)',
+    offer.notificationFooter,
   ].join('\n');
 }
 
 function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
+  const offer = intakeOfferCopy(record.sourceOffer);
 
   return [
     firstName ? `Hi ${firstName},` : 'Hi,',
@@ -104,7 +139,7 @@ function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
     'What happens next:',
     '1. We review the support tickets you uploaded.',
     '2. We look for repeat questions and the words customers use when they get stuck.',
-    '3. We send your free Deflection Snapshot to this email within 24 hours.',
+    `3. We send your free ${offer.snapshotName} to this email within 24 hours.`,
     '',
     'No next step is needed from you right now.',
     '',
@@ -151,7 +186,7 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
       from: fromEmail,
       to: toRecipients,
       reply_to: record.email,
-      subject: `New Deflection Report CSV: ${record.companyName} (${record.email})`,
+      subject: `${intakeOfferCopy(record.sourceOffer).notificationSubjectPrefix}: ${record.companyName} (${record.email})`,
       text: buildNotificationText(record),
     }),
     cache: 'no-store',
@@ -183,7 +218,7 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
     body: JSON.stringify({
       from: fromEmail,
       to: [record.email],
-      subject: 'We received your Deflection Report CSV',
+      subject: intakeOfferCopy(record.sourceOffer).customerSubject,
       text: buildCustomerConfirmationText(record),
     }),
     cache: 'no-store',
