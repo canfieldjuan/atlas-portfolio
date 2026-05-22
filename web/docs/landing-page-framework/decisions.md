@@ -20,7 +20,7 @@ Revisit open ones in any order — this isn't sequential.
 | D-004 | Tone scale (dry vs warm) | **DECIDED** |
 | D-005 | Acquisition channels / where we reach SMBs | OPEN |
 | D-006 | Products that get the framework first | **DECIDED** |
-| D-007 | Template count (one vs multiple) | OPEN |
+| D-007 | Template count (one vs multiple) | **DECIDED** |
 | D-008 | Proof-type strategy (B2B math vs visual) | OPEN |
 | D-009 | SMB sub-segments (which verticals) | OPEN |
 | D-010 | Buyer awareness stage we write to | **DECIDED** |
@@ -31,7 +31,7 @@ Revisit open ones in any order — this isn't sequential.
 | D-015 | Offer shape — trial vs paid pilot vs subscription vs done-for-you | **DECIDED** |
 | D-016 | Integration scope for v1 (which support platforms) | OPEN |
 | D-017 | Fulfillment model — self-serve product vs managed service | **DECIDED** |
-| D-018 | "Magic moment" — what buyer sees in first 24 hours | OPEN |
+| D-018 | "Magic moment" — what buyer sees in first 24 hours | **DECIDED** |
 | D-019 | First-5-customers acquisition motion | OPEN |
 | D-020 | Build product first vs run workflow manually | OPEN |
 | D-021 | Tier-A output expansion order (which renderer head after FAQs) | OPEN |
@@ -230,7 +230,7 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 ## D-007 — Template count
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-22)
 
 **Question:** Do we standardize on one template or maintain 2+ (e.g., "direct-offer" page + "lead-magnet" page + "long-form sales letter")?
 
@@ -238,7 +238,11 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 **Recommendation:** Start with one. Fork to a second only when we measure a real conversion gap on a specific traffic source.
 
-**Decision:** _pending_
+**Decision:** **Use one diagnostic landing-page template for now.** Extend `DiagnosticReportLandingPage` with typed visual slots when a page has a real structural need, but do not create a separate long-copy template yet.
+
+**Why:** The current FAQ Report page already needs modern long-copy, a report artifact, pricing, fit/not-fit, and FAQ. Those are diagnostic-template behaviors, not a separate page type. A second template would add maintenance before we have traffic-source data proving that the shared template is limiting conversion.
+
+**Current implementation rule:** Add optional slots for first-viewport proof and before/after comparison. The route owns offer-specific copy, report naming, and artifacts; the template owns repeated layout rhythm.
 
 ---
 
@@ -406,8 +410,8 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 | # | Tier | Price | Cadence | Purpose |
 |---|---|---|---|---|
-| 1 | **First Gap Report** | Free | One-time | First-5 design-partner offer per D-019; D-018 magic moment delivered for verification |
-| 2 | **Quarterly Gap Report** | $1,500 | Every 90 days | Recurring deliverable; matches operator Q5 + D-022 recurrence framing |
+| 1 | **First wedge report** | Free | One-time | First-5 design-partner offer per D-019; D-018 magic moment delivered for verification |
+| 2 | **Quarterly wedge report** | $1,500 | Every 90 days | Recurring deliverable; matches operator Q5 + D-022 recurrence framing |
 | 3 | **Annual (4 reports)** | $4,800 | Prepaid yearly | 20% discount vs quarterly; cash-flow anchor; ops-budget-friendly |
 
 **Qualifier:** Free first report requires ~2,000+ closed tickets so the ranking math is honest. Below that, the report fails to surface a real signal.
@@ -517,7 +521,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 ## D-018 — "Magic moment" — what the buyer sees in first 24 hours
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-22)
 
 **Question:** What's the visceral, demonstrable outcome that hooks the buyer in their first 24 hours?
 
@@ -529,7 +533,16 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 **Recommendation:** Combine — show **the ranked list + top 5 ready-to-publish FAQs + the 10 highest-volume gaps** in one report. That's the "wow."
 
-**Decision:** _pending_
+**Decision:** **The magic moment is a wedge-specific report preview: ranked repeat issues, customer-language examples, highest-volume gaps, and the first draft outputs your team can review.**
+
+For the FAQ Report page, this shows up twice:
+
+- In the first viewport as a compact artifact preview so the buyer immediately understands what comes back.
+- In the main sample section as the fuller public-dataset report artifact with source counts and grounded FAQ excerpts.
+
+Future wedges should keep the same magic-moment shape but rename the artifact for the wedge, such as Sales Objection Report, Feature Request Report, or Local SEO Report. Do not make "Gap Report" the permanent customer-facing brand.
+
+Do not claim the report guarantees ranking, prevents churn automatically, or fully optimizes SEO/GEO/AEO. The safe promise is that it turns repeat source data into clear draft outputs the team can review, edit, and ship.
 
 ---
 
@@ -652,39 +665,35 @@ If no customer asks within 90 days of FAQ launch, default to **sales objection m
 
 **Question:** What is the public, customer-facing name of our first product?
 
-**Decision:** **The Gap Report.** Used broadly as a product line; each instance targets a specific operational gap.
+**Decision:** **Use wedge-specific report names.** "Gap Report" describes the pattern, not the permanent customer-facing product brand.
 
 **The naming distinction:**
 
-- **AI Content Ops Station** = internal platform / engine family name (the moat per D-013). Not customer-facing.
-- **The Gap Report** = customer-facing product line. The first product targets the help-center gap; future Gap Reports could target sales-playbook gaps, feature-request gaps, onboarding-friction gaps — same engine, different gap.
+- **AI Content Ops Station** = internal platform / engine family name. Not the visible offer name on focused product pages.
+- **FAQ Report** = the current support-ticket wedge: support tickets to help-center answers.
+- **Future report names** should fit their wedge: Sales Objection Report, Feature Request Report, Onboarding Friction Report, Local SEO Report, or another specific deliverable name.
 
-This is the standard "platform vs product" naming pattern (Adobe Creative Cloud → Photoshop, Microsoft 365 → Word). Matches D-014's lead-with-one-externally-portfolio-internally framing.
+This keeps the useful "gap" instinct without forcing every future page into the same brand. The buyer should understand the report from the page title alone.
 
-**Why this name (validated by user response):**
+**Why this supersedes the earlier Gap Report framing:**
 
-- **"Gap" triggers operator instinct.** When the user heard the name, their unprompted reaction was: "when i hear gap my antenas go up. Where the gap we need to fill it!" That's the exact mental state we want every actively-seeking SMB buyer (D-001) to land in. Gap = something missing = something I need to fix.
-- **Names the deliverable, not the technology.** Matches D-013 frame (input data is the moat, not the model).
-- **Names the magic moment (D-018).** Buyer's first deliverable IS a Gap Report. Product name = deliverable name = zero cognitive load.
-- **How buyers would describe it to their boss:** "We get a quarterly gap report on our help center based on our support tickets." Natural buyer language.
-- **Extends as a portfolio.** Sales Gap Report, Feature Gap Report, Onboarding Gap Report — each a new product, same brand, same architecture.
+- **Wedges need their own language.** A support leader understands FAQ Report faster than a generic Gap Report. A sales leader may understand Sales Objection Report faster than Gap Report.
+- **Names the deliverable, not the technology.** Matches D-013 frame: the input data and action path are the moat, not the model.
+- **Preserves expansion.** The shared pattern can produce many reports while each page feels specific to its buyer and traffic source.
+- **Avoids premature brand lock-in.** We do not yet have enough market evidence to make Gap Report the umbrella product brand.
 
-**Tagline (first instance):** *"From your support tickets. For your help center."*
+**Tagline rule:** Name input and output in one short phrase. For the FAQ Report: *"From your support tickets. For your help center."*
 
-Names input → output in two short phrases. Reinforces D-022 known-problem framing (their tickets, their help center).
+**SEO + URL implications:**
 
-**SEO + URL implications (logged for follow-up, not changed in this commit):**
+- Page URL stays `/systems/ai-content-ops` for now because it is already indexed and submitted.
+- Page metadata should use the wedge name that buyers understand. The current support-ticket wedge uses "The FAQ Report." Future wedge pages can choose their own URL once the product exists.
 
-- Page URL stays `/systems/ai-content-ops` for now — already indexed by Google, sitemap submitted. Changing the URL forfeits SEO continuity. Revisit when we have organic traffic on the existing URL to compare.
-- Page `<title>` updated to include "The Gap Report" alongside existing keywords so search results show the new brand without losing the old indexed terms.
-- Future Gap Report products may get their own URLs (`/systems/sales-gap-report`, etc.) when they exist.
-
-**What the platform name (AI Content Ops Station) is used for going forward:**
+**What the platform name is used for going forward:**
 
 - Internal documentation, architecture diagrams, code module names
-- Investor / partner conversations where "platform" framing matters
-- The `decisions.md` and `voice-reference.md` files (architectural framing layer)
-- NOT customer-facing landing pages, ads, cold DMs, demo materials
+- Investor / partner conversations where platform framing matters
+- NOT customer-facing landing pages, ads, cold DMs, or demo materials for wedge-specific pages
 
 ---
 
@@ -718,10 +727,10 @@ A deliverable without an action path is academic. A deliverable WITH an action p
 
 Question 4 of the operator framework is "Who fixes it / how?" — that's the action path. This decision elevates that question from a writing pattern to a non-negotiable framework rule. Every deliverable we ship MUST answer question 4 concretely. Other questions (1, 2, 3, 5) may be soft-pedaled in shorter deliverables; question 4 cannot.
 
-**For The Gap Report specifically:**
+**For report-style wedges:**
 
-- The deliverable PDF must end with "Ship these 3 publish-ready FAQ entries Monday" — not "consider building these 10 help docs"
-- The free-analysis email must end with "Send the next CSV in 90 days for a refreshed Gap Report" — naming the recurrence cadence (also satisfies question 5)
+- The FAQ Report deliverable must end with "Ship these 3 publish-ready FAQ entries Monday" — not "consider building these 10 help docs"
+- The free-analysis email must end with "Send the next CSV in 90 days for a refreshed FAQ Report" — naming the recurrence cadence (also satisfies question 5)
 - The product page CTA must be a single-step action ("Send us your CSV") — not a multi-form intake or "learn more" loop
 
 **Pitfall — honest scope over performative actionability:**

@@ -260,6 +260,171 @@ const demoScaleStats = [
   { value: `46`, label: `rows shown in excerpt` },
 ];
 
+const heroReportRows = [
+  {
+    issue: `Billing confusion`,
+    count: `41 tickets`,
+    phrase: `why was I charged twice?`,
+  },
+  {
+    issue: `Team access`,
+    count: `29 tickets`,
+    phrase: `how do I add another person?`,
+  },
+  {
+    issue: `Cancellation steps`,
+    count: `18 tickets`,
+    phrase: `how do I cancel my account?`,
+  },
+];
+
+const comparisonRows = [
+  {
+    customer: `how do I add another person?`,
+    traditional: `Seat management permissions`,
+    faq: `How do I invite a teammate without giving them billing access?`,
+  },
+  {
+    customer: `why was I charged twice?`,
+    traditional: `Billing reconciliation policy`,
+    faq: `Why do I see two charges after changing my plan?`,
+  },
+  {
+    customer: `can I cancel before renewal?`,
+    traditional: `Account lifecycle changes`,
+    faq: `How do I cancel before my renewal date?`,
+  },
+];
+
+function FAQReportHeroArtifact() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[var(--artifact-dark-border)] bg-[var(--artifact-dark)] shadow-[var(--artifact-shadow)]">
+      <div className="border-b border-[var(--artifact-dark-border-muted)] px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
+              The FAQ Report
+            </p>
+            <p className="mt-1 text-sm font-medium text-[var(--artifact-inverse)]">
+              24-hour snapshot preview
+            </p>
+          </div>
+          <div className="rounded-full border border-[var(--artifact-success-text-border)] bg-[var(--artifact-success-text-surface)] px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text-strong)]">
+            CSV uploaded
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-5 p-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            [`90 days`, `ticket window`],
+            [`Top 25`, `questions ranked`],
+            [`5 drafts`, `ready to review`],
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-paper)] px-3 py-3">
+              <p className="text-lg font-semibold text-[var(--artifact-paper-text)]">{value}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-paper-muted)]">
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-dark-muted)] p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
+              Repeat questions found
+            </p>
+            <p className="text-[10px] font-mono text-[var(--artifact-inverse-muted)]">ranked by volume</p>
+          </div>
+          <div className="space-y-2">
+            {heroReportRows.map((row, index) => (
+              <div key={row.issue} className="rounded-md bg-[var(--artifact-paper)] px-3 py-2">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-[var(--artifact-paper-text)]">
+                    {String(index + 1).padStart(2, '0')} · {row.issue}
+                  </p>
+                  <p className="shrink-0 text-[11px] font-mono text-[var(--artifact-success-muted)]">{row.count}</p>
+                </div>
+                <p className="mt-1 text-xs text-[var(--artifact-paper-muted)]">Customer phrase: &ldquo;{row.phrase}&rdquo;</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-[var(--artifact-success-border-veil)] bg-[var(--artifact-success-surface)] p-4">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
+            Draft answer your team reviews
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[var(--artifact-paper-text)]">
+            Why do I see two charges after changing my plan?
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--artifact-body)]">
+            Most duplicate-looking charges come from a plan change, renewal timing, or a pending authorization. Check your billing page for the invoice date first. If both charges posted, send support the two invoice IDs so they can confirm the adjustment.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HelpCenterComparison() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div className="rounded-xl border border-[var(--artifact-danger-border)] bg-[var(--artifact-danger-surface)] p-5 shadow-[var(--card-shadow)]">
+        <div className="mb-5 flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-danger-tint)] text-[var(--artifact-danger)]">
+            <AlertTriangle className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-danger)]">
+              Traditional help center
+            </p>
+            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers written in company language</h3>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {comparisonRows.map((row) => (
+            <div key={row.traditional} className="rounded-lg border border-[var(--artifact-danger-border-muted)] bg-white px-4 py-3">
+              <p className="text-[11px] text-[var(--artifact-danger)]">Customer searches: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.traditional}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 border-t border-[var(--artifact-danger-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-danger-muted)]">
+          The answer may exist, but the title and wording do not match how customers describe the problem when they are stuck.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-[var(--artifact-success-border)] bg-[var(--artifact-success-panel)] p-5 shadow-[var(--card-shadow)]">
+        <div className="mb-5 flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-success-surface)] text-[var(--artifact-success)]">
+            <FileText className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
+              FAQ Report answer layer
+            </p>
+            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers drafted from customer wording</h3>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {comparisonRows.map((row) => (
+            <div key={row.faq} className="rounded-lg border border-[var(--artifact-success-border-muted)] bg-white px-4 py-3">
+              <p className="text-[11px] text-[var(--artifact-success)]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
+              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.faq}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 border-t border-[var(--artifact-success-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-body)]">
+          Your team still reviews the answer. The difference is that the first draft starts from the way customers actually ask.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function FAQReportSample() {
   const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
 
@@ -440,6 +605,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     body:
       'Upload a CSV of your last 90 days of support tickets. We’ll group the repeat questions, show you which ones come up most, pull out the words customers actually use, and turn the biggest gaps into help-center answers your team can review and publish. No integration. No extra data project. Just the answers your customers keep needing.',
     cta: sharedCta,
+    artifact: <FAQReportHeroArtifact />,
   },
   problem: {
     label: 'YOUR PROBLEM',
@@ -556,6 +722,14 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     processDescription:
       'You do not need to connect a new tool or clean up months of tickets by hand. Upload the CSV, and we turn it into a simple report your team can use to decide which answers to publish first.',
     stages: pipelineStages,
+  },
+  comparison: {
+    id: 'comparison',
+    label: 'THE WEDGE',
+    title: 'The answer can exist and still be invisible.',
+    description:
+      'Most help-center problems are not only missing-answer problems. They are language mismatch problems. The FAQ Report compares what customers ask against how your help center names the answer, then drafts the bridge your team can review and publish.',
+    artifact: <HelpCenterComparison />,
   },
   sample: {
     id: 'demo',

@@ -56,6 +56,7 @@ export type DiagnosticReportLandingPageConfig = {
     intro: string;
     body: string;
     cta: DiagnosticLandingCta;
+    artifact?: ReactNode;
   };
   problem: {
     label: string;
@@ -69,6 +70,13 @@ export type DiagnosticReportLandingPageConfig = {
     processTitle: string;
     processDescription: string;
     stages: DiagnosticPipelineStage[];
+  };
+  comparison?: {
+    id: string;
+    label: string;
+    title: string;
+    description: string;
+    artifact: ReactNode;
   };
   sample: {
     id: string;
@@ -281,7 +289,13 @@ export function DiagnosticReportLandingPage({
       )}
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <section className="max-w-4xl">
+          <section
+            className={
+              config.hero.artifact
+                ? 'grid gap-10 lg:grid-cols-[minmax(0,0.52fr)_minmax(0,0.48fr)] lg:items-center'
+                : 'max-w-4xl'
+            }
+          >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -301,6 +315,17 @@ export function DiagnosticReportLandingPage({
                 <PrimaryCta cta={config.hero.cta} />
               </div>
             </motion.div>
+
+            {config.hero.artifact && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12 }}
+                className="min-w-0"
+              >
+                {config.hero.artifact}
+              </motion.div>
+            )}
           </section>
 
           <section className="section-band section-band-muted mt-32">
@@ -333,6 +358,26 @@ export function DiagnosticReportLandingPage({
 
             <Pipeline stages={config.solution.stages} />
           </section>
+
+          {config.comparison && (
+            <section
+              id={config.comparison.id}
+              className="section-band section-band-muted scroll-mt-24"
+            >
+              <div className="grid gap-10 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] lg:items-start">
+                <div className="max-w-3xl lg:sticky lg:top-24">
+                  <SectionLabel>{config.comparison.label}</SectionLabel>
+                  <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                    {config.comparison.title}
+                  </h2>
+                  <p className="text-foreground/65 leading-relaxed">
+                    {config.comparison.description}
+                  </p>
+                </div>
+                {config.comparison.artifact}
+              </div>
+            </section>
+          )}
 
           <section id={config.sample.id} className="section-band section-band-blue scroll-mt-24">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-start">
