@@ -414,7 +414,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 | 2 | **Quarterly wedge report** | $1,500 | Every 90 days | Recurring deliverable; matches operator Q5 + D-022 recurrence framing |
 | 3 | **Annual (4 reports)** | $4,800 | Prepaid yearly | 20% discount vs quarterly; cash-flow anchor; ops-budget-friendly |
 
-**Qualifier:** Free first report requires ~2,000+ closed tickets so the ranking math is honest. Below that, the report fails to surface a real signal.
+**Qualifier:** The free Deflection Snapshot can run on a few hundred closed tickets when repeat questions are visible. The full paid report works best with ~2,000+ closed tickets so the 25-50 item ranking math is honest. Below a few hundred tickets, the snapshot should fail closed or ask for a wider export window.
 
 **No retainer.** Previous `/systems/ai-content-ops/ongoing-support` retainer offer ($2,500/mo) is dropped from this product's pricing — the quarterly cadence subsumes ongoing optimization. The retainer page itself can stay live for non-Gap-Report engagements but is no longer linked from this product's pricing section.
 
@@ -440,7 +440,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 **Connections to other decisions:**
 
 - D-017 founder-led product → $1,500/quarter sits in the pricing band that supports manual fulfillment
-- D-018 magic moment → free first report IS the magic moment, productized as the entry tier
+- D-018 magic moment → free Deflection Snapshot IS the magic moment, productized as the entry tier
 - D-019 first-5-customers → free tier IS the LinkedIn outbound offer ("send us a CSV")
 - D-022 known-problem framing → "Free first analysis. Paid quarterly after." is two beats matching the known→action structure
 - D-024 action path → every tier terminates in a single concrete next step (Send CSV / Subscribe Quarterly / Subscribe Annually)

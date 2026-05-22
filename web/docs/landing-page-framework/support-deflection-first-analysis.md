@@ -26,6 +26,7 @@ Good-fit account:
 
 - B2B SaaS, marketplace, productized service, or support-heavy software-enabled business.
 - Has at least a few hundred closed tickets in the last 90 days.
+- Has closer to 2,000+ closed tickets if they want the full paid report to rank 25-50 repeat question clusters honestly.
 - Uses Zendesk, Intercom, Freshdesk, HelpScout, or a support inbox that exports CSV.
 - Has a help center, saved replies, onboarding docs, or product docs that are not keeping up.
 
