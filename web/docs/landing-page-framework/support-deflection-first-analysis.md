@@ -2,6 +2,8 @@
 
 This playbook is the operating contract behind the Support Ticket Deflection Report landing page. It defines how the first free Deflection Snapshots are delivered before the workflow is fully productized.
 
+Outbound, delivery, paid follow-up, and proof-permission copy lives in `docs/landing-page-framework/support-deflection-acquisition-pack.md`.
+
 ## Goal
 
 Use 10 free Deflection Snapshots to create the first 5 serious customer conversations for the paid Support Ticket Deflection Report.

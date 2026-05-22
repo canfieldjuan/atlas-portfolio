@@ -423,18 +423,21 @@ deflectable in week one.
 - First-person ("we cluster… we deliver") — D-002 #1 ✓
 - Conversational not chummy (D-002 #9 ✓ — "You know your help center should be bigger. You don't have the time." is direct, not pally)
 
-### 6.2 Cold LinkedIn DM (first draft, for D-019)
+### 6.2 Cold LinkedIn DM (current support-deflection version, for D-019)
 
 ```
 Hey [first name] —
 
-Quick test offer. I'm building a tool that turns Zendesk ticket
-exports into ranked help-doc gaps. Free analysis: send a CSV of
-your last 90 days of tickets, I send back a report in 48 hours
-with the 10 highest-volume customer questions you have no
-documentation for, plus 3 publish-ready FAQ drafts.
+Quick test offer. If you can export the last 90 days of closed
+support tickets, I will send back a free Deflection Snapshot.
 
-No sales call required. If the report's useful, we talk. If not,
+It shows:
+- the top repeat question clusters
+- the customer wording your help center may not match
+- one self-service answer your team can review
+- which answer I would ship first
+
+No sales call required. If the snapshot's useful, we talk. If not,
 no follow-up.
 
 Worth a CSV?
@@ -446,9 +449,13 @@ Worth a CSV?
 - Opens with "Hey [name]" — warm but not chummy (D-004 / D-002 #9)
 - "Quick test offer" — sets expectation, no buildup
 - Names the offer specifically in 3 lines (mechanism + deliverable + timing)
+- Keeps the safe claim boundary: no guaranteed deflection percentage, cost reduction, or rank claim
 - "No sales call required" — names what it isn't (D-002 #6)
-- "If the report's useful, we talk. If not, no follow-up." — risk reversal in 9 words (Hormozi offer-structure, voice still ours)
+- "If the snapshot's useful, we talk. If not, no follow-up." — risk reversal in 9 words (Hormozi offer-structure, voice still ours)
 - "Worth a CSV?" — direct ask, no "I'd love to chat" filler
+
+Full outbound, delivery, follow-up, and permission copy lives at
+`docs/landing-page-framework/support-deflection-acquisition-pack.md`.
 
 ---
 
