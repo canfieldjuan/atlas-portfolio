@@ -13,7 +13,7 @@ export const metadata = generatePageMetadata({
     "help docs from support tickets",
     "Zendesk help center automation",
     "ranked support ticket analysis",
-    "help center gap analysis",
+    "support ticket self service",
     "AI help doc generator",
     "customer question ranking",
     "self service support answers",

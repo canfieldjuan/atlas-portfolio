@@ -600,7 +600,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     eyebrowIcon: <Workflow className="w-3 h-3" />,
     kicker: 'An automated cost cutter built from the tickets your customers already opened.',
     title:
-      'Stop paying your team to answer the same 15 questions over and over.',
+      'Stop paying your team to answer the same handful of questions over and over.',
     intro: 'Drop in your Zendesk history. We find the repeat tickets and turn them into a self-service layer built to keep avoidable questions out of the inbox.',
     body:
       'Upload a CSV of your last 90 days of support tickets. We group the repeat questions, show which ones cost the most support time, pull out the words customers actually use, and draft the self-service answers your team can review and publish. No integration. No extra data project. Just the repeat-ticket cost hiding in your inbox.',

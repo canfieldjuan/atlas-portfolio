@@ -11,7 +11,7 @@ const baseMetadata = generatePageMetadata({
     'support ticket CSV upload',
     'support ticket deflection intake',
     'Zendesk CSV analysis',
-    'help center gap analysis intake',
+    'support ticket deflection snapshot',
   ],
 });
 
