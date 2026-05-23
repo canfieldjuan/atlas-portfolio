@@ -146,7 +146,7 @@ export default function AiAutomationConsultantPage() {
               <Map className="w-3 h-3" />
               <span>AI AUTOMATION CONSULTING</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground mb-6">
               AI automation consulting for real operational workflows.
             </h1>
             <p className="text-lg md:text-xl text-foreground/60 leading-relaxed max-w-3xl mb-5">
@@ -183,7 +183,7 @@ export default function AiAutomationConsultantPage() {
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">
                   {fact.label}
                 </div>
-                <div className="text-base font-medium text-white">{fact.value}</div>
+                <div className="text-base font-medium text-foreground">{fact.value}</div>
               </div>
             ))}
           </div>
@@ -193,7 +193,7 @@ export default function AiAutomationConsultantPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 WHAT THIS CAN COVER
               </div>
-              <h2 className="text-3xl font-semibold text-white mb-4">
+              <h2 className="text-3xl font-semibold text-foreground mb-4">
                 AI automation should map to an operating system, not a loose demo.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -206,7 +206,7 @@ export default function AiAutomationConsultantPage() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {area.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{area.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{area.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{area.detail}</p>
                 </div>
               ))}
@@ -215,7 +215,7 @@ export default function AiAutomationConsultantPage() {
 
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-20">
             <div className="glass rounded-xl p-8 border border-border">
-              <h2 className="text-xl font-semibold text-white mb-5">Good fit when</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-5">Good fit when</h2>
               <div className="space-y-4">
                 {fitSignals.good.map((item) => (
                   <div key={item} className="flex items-start gap-3">
@@ -226,7 +226,7 @@ export default function AiAutomationConsultantPage() {
               </div>
             </div>
             <div className="glass rounded-xl p-8 border border-border">
-              <h2 className="text-xl font-semibold text-white mb-5">Probably not the right fit when</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-5">Probably not the right fit when</h2>
               <div className="space-y-4">
                 {fitSignals.poor.map((item) => (
                   <div key={item} className="flex items-start gap-3">
@@ -243,7 +243,7 @@ export default function AiAutomationConsultantPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 THE ROADMAP
               </div>
-              <h2 className="text-3xl font-semibold text-white mb-4">
+              <h2 className="text-3xl font-semibold text-foreground mb-4">
                 A fixed-fee first step before custom implementation.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -256,7 +256,7 @@ export default function AiAutomationConsultantPage() {
                   <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
                     <span className="font-mono text-primary text-base font-bold">{step.step}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{step.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{step.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{step.detail}</p>
                 </div>
               ))}
@@ -266,12 +266,12 @@ export default function AiAutomationConsultantPage() {
           <section className="glass rounded-xl p-8 border border-border mb-20">
             <div className="flex items-center gap-3 mb-8">
               <HelpCircle className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold text-white">Common questions</h2>
+              <h2 className="text-xl font-semibold text-foreground">Common questions</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {faqs.map((faq) => (
                 <div key={faq.q}>
-                  <h3 className="text-sm font-medium text-white mb-2">{faq.q}</h3>
+                  <h3 className="text-sm font-medium text-foreground mb-2">{faq.q}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{faq.a}</p>
                 </div>
               ))}
@@ -279,7 +279,7 @@ export default function AiAutomationConsultantPage() {
           </section>
 
           <section className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]">
-            <h2 className="text-2xl font-semibold text-white mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Have a workflow worth scoping?
             </h2>
             <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">

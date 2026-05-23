@@ -100,7 +100,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8">
             <div>
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">THE OPERATING MODEL</div>
-              <h2 className="text-2xl font-semibold text-white mb-4">
+              <h2 className="text-2xl font-semibold text-foreground mb-4">
                 Useful AI work is not the prompt. It is the system around it.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed mb-4">
@@ -136,7 +136,7 @@ export default function AboutPage() {
               <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                 {principle.icon}
               </div>
-              <h2 className="text-lg font-semibold text-white mb-3">{principle.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{principle.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{principle.detail}</p>
             </motion.div>
           ))}
@@ -150,7 +150,7 @@ export default function AboutPage() {
         >
           <div className="glass rounded-xl p-8 border border-border">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">HOW IT RUNS</div>
-            <h2 className="text-xl font-semibold text-white mb-6">A small, explicit engagement path</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-6">A small, explicit engagement path</h2>
             <div className="space-y-5">
               {deliveryShape.map((step, index) => (
                 <div key={step.title} className="flex gap-4">
@@ -158,7 +158,7 @@ export default function AboutPage() {
                     0{index + 1}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-white mb-1">{step.title}</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">{step.title}</h3>
                     <p className="text-sm text-foreground/60 leading-relaxed">{step.detail}</p>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function AboutPage() {
 
           <div className="glass rounded-xl p-8 border border-border">
             <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-3">BOUNDARIES</div>
-            <h2 className="text-xl font-semibold text-white mb-6">What I intentionally avoid</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-6">What I intentionally avoid</h2>
             <div className="space-y-3">
               {boundaries.map((item) => (
                 <div key={item} className="flex items-start gap-3">
@@ -188,7 +188,7 @@ export default function AboutPage() {
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-lg font-semibold text-white mb-2">Want to see the work shape before contacting me?</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-2">Want to see the work shape before contacting me?</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 The proof page shows representative build patterns. The process page explains how a Systems Audit becomes a roadmap and then a fixed-scope implementation. For data boundaries, review privacy and security before sharing sensitive context.
               </p>
@@ -225,7 +225,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Think your workflow is concrete enough to scope?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Think your workflow is concrete enough to scope?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Start with the Systems Audit. I review whether there is enough workflow clarity, data access, ownership, and budget path to justify a Phase 1 Roadmap.
           </p>

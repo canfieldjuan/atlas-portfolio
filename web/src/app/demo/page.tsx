@@ -248,7 +248,7 @@ export default function DemoPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 INTERACTIVE WORKBENCH
               </div>
-              <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
                 Pick a capability and see the operating shape.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -275,7 +275,7 @@ export default function DemoPage() {
                   aria-pressed={isActive}
                   className={`min-h-20 rounded-lg border p-4 text-left transition-colors ${
                     isActive
-                      ? 'border-primary/50 bg-primary/10 text-white'
+                      ? 'border-primary/50 bg-primary/10 text-foreground'
                       : 'border-border bg-surface text-foreground/60 hover:border-border hover:text-foreground'
                   }`}
                 >
@@ -293,7 +293,7 @@ export default function DemoPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 {activeWorkbench.label.toUpperCase()}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">{activeWorkbench.title}</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3">{activeWorkbench.title}</h3>
               <p className="text-sm text-foreground/60 leading-relaxed mb-6">{activeWorkbench.trigger}</p>
 
               <div className="space-y-5">
@@ -340,7 +340,7 @@ export default function DemoPage() {
 
                 <div className="rounded-lg border border-border bg-surface p-5 flex flex-col">
                   <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-3">OUTPUT PREVIEW</div>
-                  <h4 className="text-lg font-semibold text-white mb-4">{activeWorkbench.outputTitle}</h4>
+                  <h4 className="text-lg font-semibold text-foreground mb-4">{activeWorkbench.outputTitle}</h4>
                   <div className="space-y-3 flex-1">
                     {activeWorkbench.output.map((line) => (
                       <div key={line} className="font-mono text-sm text-primary/90 border-b border-border pb-2">
@@ -371,7 +371,7 @@ export default function DemoPage() {
               </div>
               <h2
                 id="live-integrations-heading"
-                className="text-2xl md:text-3xl font-semibold text-white mb-3"
+                className="text-2xl md:text-3xl font-semibold text-foreground mb-3"
               >
                 Two server-backed patterns you can inspect.
               </h2>
@@ -413,7 +413,7 @@ export default function DemoPage() {
                 <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-2">
                   {demo.label}
                 </div>
-                <div className="text-sm font-medium text-white leading-snug">{demo.title}</div>
+                <div className="text-sm font-medium text-foreground leading-snug">{demo.title}</div>
               </Link>
             ))}
           </div>
@@ -437,7 +437,7 @@ export default function DemoPage() {
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {demo.label}
                   </div>
-                  <h2 className="text-xl font-semibold text-white mb-3">{demo.title}</h2>
+                  <h2 className="text-xl font-semibold text-foreground mb-3">{demo.title}</h2>
                 </div>
 
                 <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -472,7 +472,7 @@ export default function DemoPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 CONCRETE EXAMPLE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Evidence-backed intelligence is one possible build
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -481,7 +481,7 @@ export default function DemoPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-white font-medium text-xl">
+              <div className="flex items-center gap-3 text-foreground font-medium text-xl">
                 <Database className="text-primary w-6 h-6" />
                 <h3>1. Unstructured signal in</h3>
               </div>
@@ -497,7 +497,7 @@ export default function DemoPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-white font-medium text-xl">
+              <div className="flex items-center gap-3 text-foreground font-medium text-xl">
                 <ShieldAlert className="text-primary w-6 h-6" />
                 <h3>2. Structured reasoning layer</h3>
               </div>
@@ -515,7 +515,7 @@ export default function DemoPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-white font-medium text-xl">
+              <div className="flex items-center gap-3 text-foreground font-medium text-xl">
                 <Zap className="text-primary w-6 h-6" />
                 <h3>3. Controlled downstream action</h3>
               </div>
@@ -546,7 +546,7 @@ export default function DemoPage() {
                 </div>
               </div>
               <div className="p-6">
-                <h4 className="text-white font-medium mb-2">The operating model matters more than the screen</h4>
+                <h4 className="text-foreground font-medium mb-2">The operating model matters more than the screen</h4>
                 <p className="text-foreground/60 text-sm leading-relaxed">
                   A production workflow needs traceable evidence, inspectable outputs, and a clear point where a human can review or override what the system is doing.
                 </p>
@@ -565,7 +565,7 @@ export default function DemoPage() {
           <div className="flex flex-col lg:flex-row gap-8 lg:items-start lg:justify-between">
             <div className="max-w-2xl">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">WHAT PHASE 1 DECIDES</div>
-              <h2 className="text-2xl font-semibold text-white mb-3">
+              <h2 className="text-2xl font-semibold text-foreground mb-3">
                 The roadmap selects the right workflow, not the flashiest one.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -589,7 +589,7 @@ export default function DemoPage() {
           transition={{ duration: 0.6, delay: 0.38 }}
           className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Want to know which workflow fits your environment?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Want to know which workflow fits your environment?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Start with a Systems Audit. That is where I decide whether the right next step is revenue automation, a knowledge engine, an agent workflow, a data pipeline, or something narrower.
           </p>

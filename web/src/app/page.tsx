@@ -136,7 +136,7 @@ export default function Home() {
               {heroFacts.map((fact) => (
                 <div key={fact.label} className="rounded-lg border border-border bg-surface p-4">
                   <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">{fact.label}</div>
-                  <div className="text-sm font-medium text-white">{fact.value}</div>
+                  <div className="text-sm font-medium text-foreground">{fact.value}</div>
                 </div>
               ))}
             </div>
@@ -153,7 +153,7 @@ export default function Home() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               THE PROBLEM
             </div>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
               Most teams do not have an AI problem. They have an operating-system problem.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
@@ -190,7 +190,7 @@ export default function Home() {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-medium text-white mb-3">{feature.title}</h3>
+                <h3 className="text-xl font-medium text-foreground mb-3">{feature.title}</h3>
                 <p className="text-foreground/60 leading-relaxed text-sm">
                   {feature.desc}
                 </p>
@@ -204,7 +204,7 @@ export default function Home() {
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                   PRODUCTIZED SYSTEMS
                 </div>
-                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+                <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
                   Two common needs already have systems behind them.
                 </h2>
                 <p className="text-sm text-foreground/60 leading-relaxed">
@@ -226,7 +226,7 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
                     {system.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{system.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{system.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{system.desc}</p>
                   <Link
                     href={buildAuditHref({
@@ -249,7 +249,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 WORKFLOW PATTERNS
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 What this looks like inside a real operation.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -269,7 +269,7 @@ export default function Home() {
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {pattern.label}
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{pattern.title}</h3>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">{pattern.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{pattern.detail}</p>
                 </motion.div>
               ))}
@@ -292,7 +292,7 @@ export default function Home() {
                 <BookOpen className="w-4 h-4" />
                 FIELD NOTES
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-3">
+              <h2 className="text-2xl font-semibold text-foreground mb-3">
                 The buyer-side research before the conversation.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -323,7 +323,7 @@ export default function Home() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-foreground/50 text-xs font-mono tracking-wide mb-4">
                 THE PROCESS
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 How every engagement works
               </h2>
               <p className="text-foreground/60 max-w-xl mx-auto">
@@ -362,7 +362,7 @@ export default function Home() {
                   <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6">
                     <span className="font-mono text-primary text-lg font-bold">{step.step}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{step.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{step.title}</h3>
                   <p className="text-foreground/60 text-sm leading-relaxed">{step.desc}</p>
                 </motion.div>
               ))}
@@ -383,7 +383,7 @@ export default function Home() {
               className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[var(--primary-glow)]"
             >
               <div>
-                <h3 className="text-2xl font-semibold text-white mb-2">Ready to qualify the fit?</h3>
+                <h3 className="text-2xl font-semibold text-foreground mb-2">Ready to qualify the fit?</h3>
                 <p className="text-foreground/60">Start with pricing and process, then submit the audit only if the engagement model makes sense for your team.</p>
               </div>
               <div className="flex items-center gap-4 shrink-0">

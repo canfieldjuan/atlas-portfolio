@@ -162,7 +162,7 @@ export function DocClassificationDemo() {
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
             DOCUMENT INTAKE
           </div>
-          <h3 className="text-xl font-semibold text-white">Upload, parse, classify, route</h3>
+          <h3 className="text-xl font-semibold text-foreground">Upload, parse, classify, route</h3>
           <p className="text-xs text-foreground/50 mt-1">
             Server-backed demo route: <code className="text-foreground/70">/api/demo/classify-doc</code>. Pick a sample to run the deterministic pipeline.
           </p>
@@ -209,7 +209,7 @@ export function DocClassificationDemo() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline justify-between gap-3">
-                        <div className="text-sm text-white truncate">{doc.fileName}</div>
+                        <div className="text-sm text-foreground truncate">{doc.fileName}</div>
                         <div className="text-[11px] font-mono text-foreground/40 shrink-0">{doc.fileSize}</div>
                       </div>
                       <div className="text-xs text-foreground/50 mt-1">{doc.description}</div>
@@ -253,7 +253,7 @@ export function DocClassificationDemo() {
                   </div>
                   <span
                     className={`text-sm ${
-                      isComplete || isCurrent ? 'text-white' : 'text-foreground/45'
+                      isComplete || isCurrent ? 'text-foreground' : 'text-foreground/45'
                     }`}
                   >
                     {s.label}
@@ -279,7 +279,7 @@ export function DocClassificationDemo() {
             <div className="rounded-md border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <FileText className="w-4 h-4 text-primary" />
-                <div className="text-sm font-medium text-white truncate">{result.fileName}</div>
+                <div className="text-sm font-medium text-foreground truncate">{result.fileName}</div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
@@ -287,7 +287,7 @@ export function DocClassificationDemo() {
                   <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">
                     CLASSIFICATION
                   </div>
-                  <div className="text-sm text-white">{result.classification}</div>
+                  <div className="text-sm text-foreground">{result.classification}</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">
@@ -314,7 +314,7 @@ export function DocClassificationDemo() {
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">
                 ROUTING DECISION
               </div>
-              <div className="text-sm text-white mb-3">{result.routing}</div>
+              <div className="text-sm text-foreground mb-3">{result.routing}</div>
 
               {result.flags.length > 0 && (
                 <div className="flex flex-wrap gap-2">

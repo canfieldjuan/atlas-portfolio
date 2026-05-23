@@ -133,7 +133,7 @@ export default function ProofPage() {
         >
           {proofRules.map((rule) => (
             <div key={rule.title} className="glass rounded-xl p-6 border border-border">
-              <h2 className="text-base font-semibold text-white mb-3">{rule.title}</h2>
+              <h2 className="text-base font-semibold text-foreground mb-3">{rule.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{rule.detail}</p>
             </div>
           ))}
@@ -156,7 +156,7 @@ export default function ProofPage() {
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {example.label}
                   </div>
-                  <h2 className="text-2xl font-semibold text-white mb-4">{example.title}</h2>
+                  <h2 className="text-2xl font-semibold text-foreground mb-4">{example.title}</h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">{example.buyer}</p>
                 </div>
 
@@ -213,7 +213,7 @@ export default function ProofPage() {
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
             <div className="max-w-2xl">
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">WHAT YOU RECEIVE</div>
-              <h2 className="text-2xl font-semibold text-white mb-3">
+              <h2 className="text-2xl font-semibold text-foreground mb-3">
                 Phase 1 turns proof into a build decision.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -244,7 +244,7 @@ export default function ProofPage() {
           transition={{ duration: 0.6, delay: 0.42 }}
           className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Have a workflow that looks like one of these?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Have a workflow that looks like one of these?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Start with the Systems Audit. I will review whether the workflow has enough data, ownership, and business value to justify a Phase 1 Roadmap. Review services if you want the pricing model before submitting.
           </p>

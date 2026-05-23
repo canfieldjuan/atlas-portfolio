@@ -808,7 +808,7 @@ function AuditPageContent() {
               <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
                 {signal.icon}
               </div>
-              <h2 className="text-sm font-semibold text-white mb-2">{signal.title}</h2>
+              <h2 className="text-sm font-semibold text-foreground mb-2">{signal.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{signal.detail}</p>
             </div>
           ))}
@@ -816,7 +816,7 @@ function AuditPageContent() {
 
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4">
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 text-sm text-foreground/70">
-            <h2 className="text-sm font-semibold text-white mb-2">What happens after you submit</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-2">What happens after you submit</h2>
             <p className="leading-relaxed">
               {isContentOpsContext
                 ? contentOpsCopy.nextStepCopy
@@ -827,7 +827,7 @@ function AuditPageContent() {
             </p>
           </div>
           <div className="rounded-lg border border-border bg-surface p-5">
-            <h2 className="text-sm font-semibold text-white mb-4">What I am checking for</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-4">What I am checking for</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {pageReviewCriteria.map((item) => (
                 <div key={item} className="flex items-start gap-2">
@@ -872,7 +872,7 @@ function AuditPageContent() {
                 value={formData.fullName}
                 onChange={handleChange('fullName')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors ${
                   formErrors.fullName ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="John Doe"
@@ -897,7 +897,7 @@ function AuditPageContent() {
                 value={formData.workEmail}
                 onChange={handleChange('workEmail')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors ${
                   formErrors.workEmail ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="john@company.com"
@@ -926,7 +926,7 @@ function AuditPageContent() {
                 value={formData.companyOrProjectUrl}
                 onChange={handleChange('companyOrProjectUrl')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors ${
                   formErrors.companyOrProjectUrl ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="Acme Inc. or https://acme.com"
@@ -954,7 +954,7 @@ function AuditPageContent() {
                 value={formData.roleAndDecisionScope}
                 onChange={handleChange('roleAndDecisionScope')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors ${
                   formErrors.roleAndDecisionScope ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder="Founder, Ops lead, IT owner, evaluator, final approver..."
@@ -1001,7 +1001,7 @@ function AuditPageContent() {
                     value={formData.projectInterest}
                     onChange={handleChange('projectInterest')}
                     disabled={isInputDisabled}
-                    className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                    className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
                       formErrors.projectInterest ? 'border-red-400/80' : 'border-border'
                     }`}
                     required
@@ -1042,7 +1042,7 @@ function AuditPageContent() {
                 value={formData.biggestBottleneck}
                 onChange={handleChange('biggestBottleneck')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors resize-none ${
                   formErrors.biggestBottleneck ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder={fieldCopy.bottleneckPlaceholder}
@@ -1070,7 +1070,7 @@ function AuditPageContent() {
                 value={formData.automationDataSources}
                 onChange={handleChange('automationDataSources')}
                 disabled={isInputDisabled}
-                className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none ${
+                className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors resize-none ${
                   formErrors.automationDataSources ? 'border-red-400/80' : 'border-border'
                 }`}
                 placeholder={fieldCopy.dataSourcesPlaceholder}
@@ -1098,7 +1098,7 @@ function AuditPageContent() {
                 value={formData.currentTechEcosystem}
                 onChange={handleChange('currentTechEcosystem')}
                 disabled={isInputDisabled}
-                className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                className="w-full bg-background border border-border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors"
                 placeholder={fieldCopy.techPlaceholder}
                 aria-describedby={formErrors.currentTechEcosystem ? 'currentTechEcosystem-error' : undefined}
               />
@@ -1118,7 +1118,7 @@ function AuditPageContent() {
                   value={formData.desiredTimeline}
                   onChange={handleChange('desiredTimeline')}
                   disabled={isInputDisabled}
-                  className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                  className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
                     formErrors.desiredTimeline ? 'border-red-400/80' : 'border-border'
                   }`}
                   required
@@ -1150,7 +1150,7 @@ function AuditPageContent() {
                     value={formData.securityRequirement}
                     onChange={handleChange('securityRequirement')}
                     disabled={isInputDisabled}
-                    className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                    className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
                       formErrors.securityRequirement ? 'border-red-400/80' : 'border-border'
                     }`}
                     required
@@ -1189,7 +1189,7 @@ function AuditPageContent() {
                   value={formData.deploymentConstraints}
                   onChange={handleChange('deploymentConstraints')}
                   disabled={isInputDisabled}
-                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors resize-none"
                   placeholder={fieldCopy.deploymentPlaceholder}
                 />
               </div>
@@ -1213,7 +1213,7 @@ function AuditPageContent() {
                   value={formData.roiGoal}
                   onChange={handleChange('roiGoal')}
                   disabled={isInputDisabled}
-                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors"
+                  className="w-full bg-background border border-border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors"
                   placeholder={fieldCopy.roiPlaceholder}
                   aria-invalid={!!formErrors.roiGoal}
                   aria-describedby={formErrors.roiGoal ? 'roiGoal-error' : undefined}
@@ -1233,7 +1233,7 @@ function AuditPageContent() {
                   value={formData.anticipatedInvestmentRange}
                   onChange={handleChange('anticipatedInvestmentRange')}
                   disabled={isInputDisabled}
-                  className={`w-full bg-background border rounded-md px-4 py-3 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
+                  className={`w-full bg-background border rounded-md px-4 py-3 text-foreground focus:outline-none focus:border-primary/50 transition-colors appearance-none ${
                     formErrors.anticipatedInvestmentRange ? 'border-red-400/80' : 'border-border'
                   }`}
                   required
@@ -1319,7 +1319,7 @@ function AuditPageContent() {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <h3 className="font-medium text-white mb-2">
+                <h3 className="font-medium text-foreground mb-2">
                   {submissionSuccessful
                     ? 'Request received'
                     : submissionError

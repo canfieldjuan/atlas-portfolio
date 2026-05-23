@@ -98,7 +98,7 @@ export default function PrivacyPage() {
           <div className="flex items-start gap-4">
             <ShieldCheck className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
             <div>
-              <h2 className="text-base font-semibold text-white mb-2">Public-form boundary</h2>
+              <h2 className="text-base font-semibold text-foreground mb-2">Public-form boundary</h2>
               <p className="text-sm text-foreground/70 leading-relaxed">
                 The Systems Audit form is for project context and fit review. Share enough detail to evaluate the workflow, but do not include credentials, private keys, regulated records, or raw confidential datasets in the public form.
               </p>
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {section.icon}
                   </div>
-                  <h2 className="text-xl font-semibold text-white mb-3">{section.title}</h2>
+                  <h2 className="text-xl font-semibold text-foreground mb-3">{section.title}</h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">{section.detail}</p>
                 </div>
                 <div className="lg:w-2/3 lg:border-l lg:border-border lg:pl-8">
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
         >
           <div className="glass rounded-xl p-8 border border-border">
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">SHORT VERSION</div>
-            <h2 className="text-xl font-semibold text-white mb-4">Data boundaries are part of scope.</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Data boundaries are part of scope.</h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
               A serious AI build needs explicit boundaries around source data, model providers, access, retention, review states, and deployment. If those boundaries are unclear, Phase 1 should clarify them before Phase 2 is priced.
             </p>
@@ -170,7 +170,7 @@ export default function PrivacyPage() {
           transition={{ duration: 0.6, delay: 0.38 }}
           className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Need security context too?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Need security context too?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Privacy covers intake and data-handling expectations. Security covers compliance posture, questionnaires, deployment options, and buyer qualification. About explains the operating model behind the engagement.
           </p>

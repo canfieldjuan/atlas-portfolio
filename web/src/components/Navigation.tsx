@@ -70,7 +70,7 @@ export function Navigation() {
             className={`text-sm font-medium px-4 py-2 rounded-md transition-colors ${
               isAuditPage
                 ? 'bg-primary text-black'
-                : 'bg-surface hover:bg-surface-hover border border-border text-white'
+                : 'bg-surface hover:bg-surface-hover border border-border text-foreground'
             }`}
           >
             Start Systems Audit
@@ -82,7 +82,7 @@ export function Navigation() {
           <Link
             href={buildAuditHref({ source: 'navigation' })}
             aria-current={isAuditPage ? 'page' : undefined}
-            className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border rounded-md transition-colors text-white"
+            className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border rounded-md transition-colors text-foreground"
             onClick={closeMobileMenu}
           >
             Audit

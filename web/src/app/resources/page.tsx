@@ -36,7 +36,7 @@ export default function ResourcesPage() {
                   {article.readingMinutes} min read
                 </span>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-4 group-hover:text-primary transition-colors">
+              <h2 className="text-2xl font-semibold text-foreground mb-4 group-hover:text-primary transition-colors">
                 {article.title}
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed mb-6">
@@ -52,7 +52,7 @@ export default function ResourcesPage() {
 
         <div className="mt-16 rounded-xl border border-primary/20 bg-primary/5 p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="max-w-2xl">
-            <h2 className="text-xl font-semibold text-white mb-2">Need help turning this into a real scope?</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">Need help turning this into a real scope?</h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
               The Phase 1 Roadmap turns a workflow idea into architecture, proof of concept, risk notes, and a fixed-price implementation proposal.
             </p>
