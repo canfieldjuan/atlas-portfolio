@@ -1,0 +1,34 @@
+import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
+  title: "Support Ticket Deflection — Interactive Demo",
+  description:
+    "Type a question your customers keep asking and see the jargon-y help-center article they hit today beside the actionable, customer-language answer the Support Ticket Deflection Report would publish.",
+  path: "/systems/support-ticket-deflection/demo",
+  keywords: [
+    "support ticket deflection demo",
+    "help center answer comparison",
+    "customer language FAQ",
+    "self-service deflection example",
+    "ticket deflection interactive",
+  ],
+});
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: "Home", path: "/" },
+  { name: "Systems", path: "/systems" },
+  { name: "Support Ticket Deflection", path: "/systems/support-ticket-deflection" },
+  { name: "Demo", path: "/systems/support-ticket-deflection/demo" },
+]);
+
+export default function DeflectionDemoLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
+}
