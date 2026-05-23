@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scratch product demos — kept on disk, not linted (see PATTERNS.md).
+    "FAQs-Demos/**",
   ]),
 ]);
 

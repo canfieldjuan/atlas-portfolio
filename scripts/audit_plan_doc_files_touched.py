@@ -59,10 +59,15 @@ def _files_touched_lines(text: str) -> list[str]:
 def claimed_files_touched(text: str) -> set[str]:
     claimed: set[str] = set()
     for line in _files_touched_lines(text):
+        # Claim only the FIRST path-shaped backtick span per list item — that is
+        # the file path (convention: "- `path` — description"). Later spans are
+        # description (e.g. `FAQs-Demos/`, `npm run lint`) and must not be
+        # claimed, or path-shaped ones become phantom paths that fail the gate.
         for match in PATH_PATTERN.finditer(line):
             value = match.group(1).strip()
             if value and PATH_SHAPE_RE.search(value):
                 claimed.add(value)
+                break
     return claimed
 
 

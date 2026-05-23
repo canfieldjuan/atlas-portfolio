@@ -90,6 +90,12 @@ This requires a clean worktree, then runs:
 CI (`.github/workflows/pre_push_audit.yml`) mirrors the plan audits + lint on
 every PR; the full build is covered by Vercel's per-PR preview.
 
+### 2d. Friction log
+
+When a workflow pattern causes (or nearly causes) an issue, record it in
+`PATTERNS.md` and resolve it deliberately as the discipline tightens — rather
+than re-hitting it each session.
+
 ---
 
 ## 3. Intentionally not adopted (yet)
