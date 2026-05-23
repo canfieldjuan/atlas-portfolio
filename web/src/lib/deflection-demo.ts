@@ -1,12 +1,13 @@
 // Data + logic layer for the Support Ticket Deflection demo.
 //
-// This is the data seam the real backend plugs into. Today `searchDeflection`
-// resolves from the local illustrative dataset below; to wire the Atlas backend,
-// change this function's body to `fetch(...)` the live search endpoint (same
-// return type). The consuming component already debounces input, guards against
-// out-of-order responses with a request id, and recovers to a retryable error
-// state if the call rejects — so a real async fetch is safe; the only
-// data-source change lives here.
+// This is the data seam the real backend plugs into. `searchDeflection` (client)
+// fetches our same-origin route handler `/api/demo/deflection-search`; that route
+// answers from `matchLocal` over the illustrative dataset below until an Atlas
+// endpoint is configured there (server-only env). To wire the real backend you
+// edit the route handler's `mapAtlasMatch`, not this file. The consuming
+// component already debounces input, guards against out-of-order responses with a
+// request id, and recovers to a retryable error state if the call rejects — so a
+// real async fetch is safe.
 //
 // Copy note: numbers here are ILLUSTRATIVE (drawn from the public complaint
 // dataset / typical desk economics), not a guaranteed result. The offer is the
@@ -185,12 +186,16 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
   },
 ];
 
+/** Wire contract for `GET /api/demo/deflection-search` (see the route handler). */
+export type DeflectionSearchResponse = { match: DeflectionIssue | null };
+
 /**
- * The backend seam. Today: matches the query against the local dataset's
- * phrases. Later: replace the body with a `fetch` to the Atlas search endpoint
- * (same return type). Kept async so that swap needs no caller changes.
+ * Local illustrative matcher over `DEMO_ISSUES` (phrase exact/substring, then
+ * token overlap). Pure + synchronous, so the route handler can call it
+ * server-side as the no-backend fallback. The real Atlas backend replaces this
+ * path in the route handler, not here.
  */
-export async function searchDeflection(query: string): Promise<DeflectionIssue | null> {
+export function matchLocal(query: string): DeflectionIssue | null {
   const q = query.trim().toLowerCase();
   if (!q) return null;
   // Best phrase match: exact-contains first, then token overlap.
@@ -216,6 +221,24 @@ export async function searchDeflection(query: string): Promise<DeflectionIssue |
     }
   }
   return best?.issue ?? null;
+}
+
+/**
+ * The backend seam (client side). Calls our same-origin route handler, which
+ * answers from `matchLocal` until an Atlas endpoint is configured there. Same
+ * signature as before, so the consuming component is unchanged — it already
+ * debounces, guards out-of-order responses, and recovers from a rejection (a
+ * non-ok response throws here and surfaces the component's retryable error state).
+ */
+export async function searchDeflection(query: string): Promise<DeflectionIssue | null> {
+  const q = query.trim();
+  if (!q) return null;
+  const res = await fetch(`/api/demo/deflection-search?q=${encodeURIComponent(q)}`, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) throw new Error(`deflection search failed: ${res.status}`);
+  const data = (await res.json()) as DeflectionSearchResponse;
+  return data.match ?? null;
 }
 
 /** Illustrative savings for one issue (no guaranteed result — see file header). */
