@@ -138,8 +138,11 @@ export function DeflectionDemo() {
   function onType(raw: string) {
     setQuery(raw);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    // Every edit invalidates any in-flight request immediately — so a slow
+    // earlier response can't apply during the debounce window before the next
+    // search fires. runSearch bumps it again when the debounced call starts.
+    reqRef.current++;
     if (!raw.trim()) {
-      reqRef.current++; // cancel any in-flight result
       setPhase('idle');
       setIssue(null);
       return;
