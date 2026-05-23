@@ -9,15 +9,15 @@
 // request id, and recovers to a retryable error state if the call rejects — so a
 // real async fetch is safe.
 //
-// Copy note: numbers here are ILLUSTRATIVE (drawn from the public complaint
-// dataset / typical desk economics), not a guaranteed result. The offer is the
+// Copy note: the per-issue numbers and quotes here are ILLUSTRATIVE (modeled on a
+// public consumer-complaint dataset), not a guaranteed result. The offer is the
 // Support Ticket Deflection Report — a CSV analysis, not an integration that
 // promises a fixed deflection rate.
 
 export type DeflectionDoc = {
   /** What the help center / search returns for this question. */
   title: string;
-  /** For the "traditional" doc: a jargon-y preview. For "improved": step lines. */
+  /** Newline-separated step lines for the answer. */
   body: string;
   /** 0–100 illustrative intent-match score. */
   matchScore: number;
@@ -33,38 +33,20 @@ export type DeflectionIssue = {
   intent: string;
   /** Phrases a customer actually types — used for matching. */
   phrases: string[];
-  /** Illustrative monthly ticket volume for this issue from the sample dataset. */
-  ticketsPerMonth: number;
-  /** Illustrative blended cost to resolve one ticket, in USD. */
-  costPerTicket: number;
-  /** Illustrative share of this issue's tickets that a good FAQ can self-serve. */
-  deflectionShare: number;
-  /** The jargon-y doc a customer hits today. */
-  traditional: DeflectionDoc;
-  /** The actionable, customer-language FAQ the Report would produce. */
+  /** The actionable, customer-language FAQ the Report would produce (Atlas's "improved" side). */
   improved: DeflectionDoc;
 
   // ── Real-signal fields (Atlas's ticket-FAQ pipeline provides these) ──────────
-  // Optional during the slice-3a migration; populated illustratively for
-  // DEMO_ISSUES, mapped from Atlas in slice 3c. Slice 3b makes them required and
-  // drops the deprecated `traditional` / `costPerTicket` / `deflectionShare`.
   /** Atlas `frequency`: ticket count across the sample corpus (a total, NOT monthly). */
-  ticketVolumeInSample?: number;
+  ticketVolumeInSample: number;
   /** Atlas `opportunity_score`: relative priority of fixing this issue. */
-  opportunityScore?: number;
+  opportunityScore: number;
   /** Atlas `failure_risk_signals`: snake_case "why it matters" tags. */
-  riskSignals?: string[];
+  riskSignals: string[];
   /** Atlas `evidence_quotes[0]`: a real customer quote (PII-redacted in real data). */
-  customerQuote?: string;
+  customerQuote: string;
   /** Atlas `summary`: one-line demand summary across the sample. */
-  summary?: string;
-};
-
-export type DeflectionSavings = {
-  ticketsPerMonth: number;
-  deflectedPerMonth: number;
-  monthlyCost: number;
-  monthlySavings: number;
+  summary: string;
 };
 
 // ── Illustrative dataset (replace via searchDeflection → backend) ─────────────
@@ -73,23 +55,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 1,
     intent: 'Account Access',
     phrases: ["can't log in", 'login not working', 'forgot password', 'locked out', 'sign in problem', 'password reset'],
-    ticketsPerMonth: 2847,
-    costPerTicket: 14,
-    deflectionShare: 0.65,
     ticketVolumeInSample: 3120,
     opportunityScore: 15600,
     riskSignals: ['blocked_access', 'failed_login', 'account_lockout'],
     customerQuote: "I've reset my password three times and still can't get back into my account.",
     summary: 'Login and password-reset failures are the single largest access driver across the sample.',
-    traditional: {
-      title: 'Authentication and Authorization Protocols',
-      body: 'Covers the authentication framework: SSO integration, OAuth 2.0 token management, session persistence, and multi-factor deployment strategies for enterprise environments.',
-      matchScore: 32,
-      matchLabel: 'Partial keyword match',
-      format: 'Long article · 4,200 words',
-      hasSolution: false,
-      actions: ['Read full article', 'Contact IT admin'],
-    },
     improved: {
       title: "I can't log in — how do I get back into my account?",
       body: 'Open the login page and click "Forgot password"\nEnter the email linked to your account\nCheck your inbox and spam for the reset link\nClick it and set a new password\nStill stuck? Use chat — we verify and reset manually',
@@ -104,23 +74,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 2,
     intent: 'Billing Dispute',
     phrases: ['charged twice', 'double charge', 'duplicate charge', 'billed twice', 'overcharged', 'two charges'],
-    ticketsPerMonth: 1923,
-    costPerTicket: 15,
-    deflectionShare: 0.55,
     ticketVolumeInSample: 2418,
     opportunityScore: 13600,
     riskSignals: ['money_or_account_risk', 'duplicate_charge', 'billing_error'],
     customerQuote: "I was charged twice for the same order and I can't find where to dispute it.",
     summary: 'Duplicate-charge and billing-error reports recur heavily across the sample.',
-    traditional: {
-      title: 'Billing Cycle Processing and Invoice Reconciliation',
-      body: 'How charges are generated, processed, and reconciled in the financial pipeline — proration logic, invoice timelines, and payment gateway settlement periods.',
-      matchScore: 28,
-      matchLabel: 'Weak keyword match',
-      format: 'Long article · 3,800 words',
-      hasSolution: false,
-      actions: ['Read full article', 'Submit a ticket'],
-    },
     improved: {
       title: 'I see a duplicate charge — how do I get it removed?',
       body: 'Check whether it is a pending authorization (often drops off in 3–5 days)\nIf both have posted, open Billing → Transaction History\nClick "Report Issue" on the duplicate\nWe review within 24 hours and issue a refund\nYou get an email when the refund is processed',
@@ -135,23 +93,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 3,
     intent: 'Order Status',
     phrases: ['where is my order', 'order not received', 'delivery late', 'order missing', 'never arrived', 'shipping delayed'],
-    ticketsPerMonth: 2156,
-    costPerTicket: 11,
-    deflectionShare: 0.7,
     ticketVolumeInSample: 2890,
     opportunityScore: 11200,
     riskSignals: ['delivery_delay', 'missing_order', 'tracking_gap'],
     customerQuote: 'My order says delivered but it never arrived.',
     summary: 'Where-is-my-order and missing-delivery questions dominate post-purchase tickets.',
-    traditional: {
-      title: 'Order Fulfillment Status and Tracking Methodology',
-      body: 'An overview of the fulfillment pipeline: warehouse processing, carrier handoff protocols, tracking-number assignment, and delivery-window calculation.',
-      matchScore: 35,
-      matchLabel: 'Partial keyword match',
-      format: 'Long article · 3,500 words',
-      hasSolution: false,
-      actions: ['Read full article', 'Contact shipping'],
-    },
     improved: {
       title: "My order hasn't arrived — what should I do right now?",
       body: 'Check Account → Orders → Track\nIf tracking has not updated in 48+ hours, the carrier may be delayed\nIf the delivery date has passed, click "Report Missing Order"\nWe contact the carrier and ship a replacement within 2 days\nYou keep the original if it later arrives',
@@ -166,23 +112,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 4,
     intent: 'Cancellation',
     phrases: ['cancel subscription', 'how to cancel', 'stop billing', 'end subscription', 'unsubscribe', 'cancel plan'],
-    ticketsPerMonth: 1834,
-    costPerTicket: 13,
-    deflectionShare: 0.5,
     ticketVolumeInSample: 1760,
     opportunityScore: 8800,
     riskSignals: ['failed_workflow', 'retention_risk', 'data_loss_fear'],
     customerQuote: "I just want to cancel but I can't find the option anywhere.",
     summary: 'Customers struggle to self-serve cancellation and worry about losing their data.',
-    traditional: {
-      title: 'Subscription Lifecycle Management and Termination Procedures',
-      body: 'The subscription lifecycle from provisioning through termination — downgrade paths, billing-cycle alignment, data-retention policy, and reactivation workflows.',
-      matchScore: 30,
-      matchLabel: 'Weak keyword match',
-      format: 'Long article · 5,100 words',
-      hasSolution: false,
-      actions: ['Read full article', 'Contact account manager'],
-    },
     improved: {
       title: 'How do I cancel my plan without losing my data?',
       body: 'Open Settings → Subscription → Cancel Plan\nPick your cancellation date (effective at period end)\nExport first: Settings → Data → Download Everything\nConfirm — access continues until the period ends\nReactivate within 90 days and everything is preserved',
@@ -197,23 +131,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 5,
     intent: 'App Stability',
     phrases: ['app crashing', 'keeps closing', 'freezing', 'not responding', "app won't open", 'keeps crashing'],
-    ticketsPerMonth: 1654,
-    costPerTicket: 16,
-    deflectionShare: 0.45,
     ticketVolumeInSample: 1540,
     opportunityScore: 9200,
     riskSignals: ['app_crash', 'blocked_access', 'failed_workflow'],
     customerQuote: 'The app crashes every time I open the reports tab.',
     summary: 'Repeated crash reports cluster around a few specific app actions.',
-    traditional: {
-      title: 'Application Stability and Runtime Diagnostics',
-      body: 'Guidance on runtime error handling, crash-dump analysis, memory monitoring, and process lifecycle — stack-trace interpretation and debug-logging configuration.',
-      matchScore: 25,
-      matchLabel: 'Weak keyword match',
-      format: 'Long article · 4,600 words',
-      hasSolution: false,
-      actions: ['Read full article', 'Submit diagnostic logs'],
-    },
     improved: {
       title: 'The app keeps crashing — how do I fix it fast?',
       body: 'Force-close the app and reopen it once\nUpdate to the latest version in your app store\nClear the app cache: Settings → Storage → Clear Cache\nRestart your device, then reopen\nStill crashing? Tap "Send crash report" so we can see the exact error',
@@ -279,40 +201,6 @@ export async function searchDeflection(query: string): Promise<DeflectionIssue |
   if (!res.ok) throw new Error(`deflection search failed: ${res.status}`);
   const data = (await res.json()) as DeflectionSearchResponse;
   return data.match ?? null;
-}
-
-/** Illustrative savings for one issue (no guaranteed result — see file header). */
-export function estimateSavings(issue: DeflectionIssue): DeflectionSavings {
-  const deflectedPerMonth = Math.round(issue.ticketsPerMonth * issue.deflectionShare);
-  return {
-    ticketsPerMonth: issue.ticketsPerMonth,
-    deflectedPerMonth,
-    monthlyCost: issue.ticketsPerMonth * issue.costPerTicket,
-    monthlySavings: deflectedPerMonth * issue.costPerTicket,
-  };
-}
-
-/** Aggregate of `estimateSavings` across a dataset — same shape, summed. */
-export type DeflectionTotals = DeflectionSavings;
-
-/**
- * Illustrative totals across the sample dataset (no guaranteed result). Sums the
- * per-issue `estimateSavings`, so the "math" section can't drift from the
- * per-search numbers — both derive from the same illustrative `DEMO_ISSUES`.
- */
-export function estimateDeflectionTotals(issues: DeflectionIssue[] = DEMO_ISSUES): DeflectionTotals {
-  return issues.reduce<DeflectionTotals>(
-    (acc, issue) => {
-      const s = estimateSavings(issue);
-      return {
-        ticketsPerMonth: acc.ticketsPerMonth + s.ticketsPerMonth,
-        deflectedPerMonth: acc.deflectedPerMonth + s.deflectedPerMonth,
-        monthlyCost: acc.monthlyCost + s.monthlyCost,
-        monthlySavings: acc.monthlySavings + s.monthlySavings,
-      };
-    },
-    { ticketsPerMonth: 0, deflectedPerMonth: 0, monthlyCost: 0, monthlySavings: 0 },
-  );
 }
 
 export const DEMO_CHIPS: string[] = [
