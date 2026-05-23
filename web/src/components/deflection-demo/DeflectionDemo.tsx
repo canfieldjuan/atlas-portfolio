@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, FileText, Loader2, Search, X } from 'lucide-react';
-import Link from 'next/link';
+import { Check, Loader2, Search, X } from 'lucide-react';
 import {
   DEMO_CHIPS,
   estimateSavings,
@@ -304,25 +303,6 @@ export function DeflectionDemo() {
           </div>
         </motion.div>
       )}
-
-      {/* Bottom CTA (kept) */}
-      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center shadow-[var(--primary-glow)]">
-        <FileText className="w-7 h-7 text-primary mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-foreground mb-2">
-          See this run on your own tickets
-        </h2>
-        <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
-          Upload a CSV of your last 90 days of closed tickets. We send back a free Deflection
-          Snapshot: your top repeat questions, the wording customers use, and a sample answer.
-        </p>
-        <Link
-          href="/systems/support-ticket-deflection/intake"
-          className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
-        >
-          Upload your CSV — get a free Snapshot
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </div>
     </div>
   );
 }
