@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, FileText, Loader2, Search, X } from 'lucide-react';
 import Link from 'next/link';
@@ -105,10 +105,12 @@ export function DeflectionDemo() {
   // state if it is still the latest. Guards against out-of-order async results
   // once searchDeflection is wired to a real backend fetch.
   const reqRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Actual search — called by chips/submit and the debounce timer. The request-id
+  // guard drops a stale earlier response once searchDeflection becomes a real fetch.
   async function runSearch(raw: string) {
     const q = raw.trim();
-    setQuery(raw);
     const reqId = ++reqRef.current;
     if (!q) {
       setPhase('idle');
@@ -122,10 +124,38 @@ export function DeflectionDemo() {
     setPhase(found ? 'result' : 'no-match');
   }
 
+  // Per-keystroke: update the field immediately, debounce the search so a real
+  // backend isn't hit on every character.
+  function onType(raw: string) {
+    setQuery(raw);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!raw.trim()) {
+      reqRef.current++; // cancel any in-flight result
+      setPhase('idle');
+      setIssue(null);
+      return;
+    }
+    debounceRef.current = setTimeout(() => void runSearch(raw), 220);
+  }
+
+  // Chips / submit / clear: search immediately.
+  function searchNow(raw: string) {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setQuery(raw);
+    void runSearch(raw);
+  }
+
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    void runSearch(query);
+    searchNow(query);
   }
+
+  useEffect(
+    () => () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    },
+    [],
+  );
 
   const savings = issue ? estimateSavings(issue) : null;
 
@@ -143,7 +173,7 @@ export function DeflectionDemo() {
               id="deflection-q"
               type="text"
               value={query}
-              onChange={(e) => void runSearch(e.target.value)}
+              onChange={(e) => onType(e.target.value)}
               placeholder={'e.g. "I can\'t log in" or "charged twice"'}
               autoComplete="off"
               className="flex-1 bg-transparent outline-none text-sm sm:text-base text-foreground placeholder:text-foreground/35"
@@ -151,7 +181,7 @@ export function DeflectionDemo() {
             {query && (
               <button
                 type="button"
-                onClick={() => void runSearch('')}
+                onClick={() => searchNow('')}
                 aria-label="Clear"
                 className="text-foreground/40 hover:text-foreground transition-colors"
               >
@@ -168,7 +198,7 @@ export function DeflectionDemo() {
             <button
               key={chip}
               type="button"
-              onClick={() => void runSearch(chip)}
+              onClick={() => searchNow(chip)}
               className="px-3 py-1.5 rounded-full border border-border bg-surface text-sm text-foreground/65 hover:border-primary/40 hover:text-foreground transition-colors"
             >
               {chip}

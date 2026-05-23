@@ -39,8 +39,10 @@ sections and the prominent wedge link come in slice 2.
 
 - **Backend seam:** `searchDeflection(query)` is `async` and currently resolves
   from the local `DEMO_ISSUES` dataset by phrase-matching. To wire the Atlas
-  backend, change only that function to `fetch` the live endpoint — the component
-  consumes the returned `DeflectionIssue` type and never touches the source.
+  backend, change that function's body to `fetch` the live endpoint (same return
+  type). The consuming component already **debounces** input and **guards
+  against out-of-order responses** (request id), so the data-source swap is the
+  only change needed for a real async fetch.
 - **Component** is presentation-only: it calls `searchDeflection` / `estimateSavings`
   and renders the two-doc comparison + illustrative volume + CTA. Re-themed to our
   tokens (blue `--primary`, light `--surface`/`glass`, `text-foreground`,
