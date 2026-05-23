@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, FileText, Loader2, Search, X } from 'lucide-react';
 import Link from 'next/link';
@@ -101,10 +101,15 @@ export function DeflectionDemo() {
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [issue, setIssue] = useState<DeflectionIssue | null>(null);
+  // Monotonic request id: each search bumps it; a resolved response only updates
+  // state if it is still the latest. Guards against out-of-order async results
+  // once searchDeflection is wired to a real backend fetch.
+  const reqRef = useRef(0);
 
   async function runSearch(raw: string) {
     const q = raw.trim();
     setQuery(raw);
+    const reqId = ++reqRef.current;
     if (!q) {
       setPhase('idle');
       setIssue(null);
@@ -112,6 +117,7 @@ export function DeflectionDemo() {
     }
     setPhase('searching');
     const found = await searchDeflection(q);
+    if (reqId !== reqRef.current) return; // superseded by a newer search
     setIssue(found);
     setPhase(found ? 'result' : 'no-match');
   }
