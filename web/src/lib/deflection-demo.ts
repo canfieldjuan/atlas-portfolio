@@ -43,6 +43,21 @@ export type DeflectionIssue = {
   traditional: DeflectionDoc;
   /** The actionable, customer-language FAQ the Report would produce. */
   improved: DeflectionDoc;
+
+  // ── Real-signal fields (Atlas's ticket-FAQ pipeline provides these) ──────────
+  // Optional during the slice-3a migration; populated illustratively for
+  // DEMO_ISSUES, mapped from Atlas in slice 3c. Slice 3b makes them required and
+  // drops the deprecated `traditional` / `costPerTicket` / `deflectionShare`.
+  /** Atlas `frequency`: ticket count across the sample corpus (a total, NOT monthly). */
+  ticketVolumeInSample?: number;
+  /** Atlas `opportunity_score`: relative priority of fixing this issue. */
+  opportunityScore?: number;
+  /** Atlas `failure_risk_signals`: snake_case "why it matters" tags. */
+  riskSignals?: string[];
+  /** Atlas `evidence_quotes[0]`: a real customer quote (PII-redacted in real data). */
+  customerQuote?: string;
+  /** Atlas `summary`: one-line demand summary across the sample. */
+  summary?: string;
 };
 
 export type DeflectionSavings = {
@@ -61,6 +76,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     ticketsPerMonth: 2847,
     costPerTicket: 14,
     deflectionShare: 0.65,
+    ticketVolumeInSample: 3120,
+    opportunityScore: 15600,
+    riskSignals: ['blocked_access', 'failed_login', 'account_lockout'],
+    customerQuote: "I've reset my password three times and still can't get back into my account.",
+    summary: 'Login and password-reset failures are the single largest access driver across the sample.',
     traditional: {
       title: 'Authentication and Authorization Protocols',
       body: 'Covers the authentication framework: SSO integration, OAuth 2.0 token management, session persistence, and multi-factor deployment strategies for enterprise environments.',
@@ -87,6 +107,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     ticketsPerMonth: 1923,
     costPerTicket: 15,
     deflectionShare: 0.55,
+    ticketVolumeInSample: 2418,
+    opportunityScore: 13600,
+    riskSignals: ['money_or_account_risk', 'duplicate_charge', 'billing_error'],
+    customerQuote: "I was charged twice for the same order and I can't find where to dispute it.",
+    summary: 'Duplicate-charge and billing-error reports recur heavily across the sample.',
     traditional: {
       title: 'Billing Cycle Processing and Invoice Reconciliation',
       body: 'How charges are generated, processed, and reconciled in the financial pipeline — proration logic, invoice timelines, and payment gateway settlement periods.',
@@ -113,6 +138,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     ticketsPerMonth: 2156,
     costPerTicket: 11,
     deflectionShare: 0.7,
+    ticketVolumeInSample: 2890,
+    opportunityScore: 11200,
+    riskSignals: ['delivery_delay', 'missing_order', 'tracking_gap'],
+    customerQuote: 'My order says delivered but it never arrived.',
+    summary: 'Where-is-my-order and missing-delivery questions dominate post-purchase tickets.',
     traditional: {
       title: 'Order Fulfillment Status and Tracking Methodology',
       body: 'An overview of the fulfillment pipeline: warehouse processing, carrier handoff protocols, tracking-number assignment, and delivery-window calculation.',
@@ -139,6 +169,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     ticketsPerMonth: 1834,
     costPerTicket: 13,
     deflectionShare: 0.5,
+    ticketVolumeInSample: 1760,
+    opportunityScore: 8800,
+    riskSignals: ['failed_workflow', 'retention_risk', 'data_loss_fear'],
+    customerQuote: "I just want to cancel but I can't find the option anywhere.",
+    summary: 'Customers struggle to self-serve cancellation and worry about losing their data.',
     traditional: {
       title: 'Subscription Lifecycle Management and Termination Procedures',
       body: 'The subscription lifecycle from provisioning through termination — downgrade paths, billing-cycle alignment, data-retention policy, and reactivation workflows.',
@@ -165,6 +200,11 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     ticketsPerMonth: 1654,
     costPerTicket: 16,
     deflectionShare: 0.45,
+    ticketVolumeInSample: 1540,
+    opportunityScore: 9200,
+    riskSignals: ['app_crash', 'blocked_access', 'failed_workflow'],
+    customerQuote: 'The app crashes every time I open the reports tab.',
+    summary: 'Repeated crash reports cluster around a few specific app actions.',
     traditional: {
       title: 'Application Stability and Runtime Diagnostics',
       body: 'Guidance on runtime error handling, crash-dump analysis, memory monitoring, and process lifecycle — stack-trace interpretation and debug-logging configuration.',

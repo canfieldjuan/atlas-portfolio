@@ -5,55 +5,38 @@ import { motion } from 'framer-motion';
 import { Check, Loader2, Search, X } from 'lucide-react';
 import {
   DEMO_CHIPS,
-  estimateSavings,
   searchDeflection,
   type DeflectionDoc,
   type DeflectionIssue,
 } from '@/lib/deflection-demo';
 
-// Interactive demo: type a question a customer asks, see what the help center
-// returns today (a jargon-y doc) vs the actionable, customer-language answer the
-// Support Ticket Deflection Report would publish — plus an illustrative volume.
-// Modular: all data/search comes from `@/lib/deflection-demo` (the backend seam);
-// this component only renders. Numbers are illustrative, not a guaranteed result.
+// Interactive demo: type a question a customer asks, see the actionable answer
+// the Support Ticket Deflection Report would publish, beside the real demand
+// behind it — ticket volume in the sample, opportunity score, risk signals, and
+// what customers actually said. Modular: all data/search comes from
+// `@/lib/deflection-demo` (the backend seam); this component only renders.
+// Numbers are illustrative until wired to Atlas; never a guaranteed result.
 
 type Phase = 'idle' | 'searching' | 'result' | 'no-match' | 'error';
 
-function MatchBar({ score, tone }: { score: number; tone: 'muted' | 'primary' }) {
+function MatchBar({ score }: { score: number }) {
   return (
     <div className="h-1.5 w-full rounded-full bg-foreground/10 overflow-hidden">
-      <div
-        className={`h-full rounded-full ${tone === 'primary' ? 'bg-primary' : 'bg-foreground/30'}`}
-        style={{ width: `${score}%` }}
-      />
+      <div className="h-full rounded-full bg-primary" style={{ width: `${score}%` }} />
     </div>
   );
 }
 
-function DocCard({
-  doc,
-  variant,
-}: {
-  doc: DeflectionDoc;
-  variant: 'today' | 'report';
-}) {
-  const isReport = variant === 'report';
+// The actionable answer the Report would publish (Atlas's real "improved" side).
+function ReportCard({ doc }: { doc: DeflectionDoc }) {
   return (
-    <div
-      className={`rounded-xl border p-5 flex flex-col ${
-        isReport ? 'border-primary/30 bg-primary/[0.04]' : 'border-border bg-surface'
-      }`}
-    >
+    <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-5 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">
-          {isReport ? 'What the Report would publish' : 'What your help center returns today'}
+          What the Report would publish
         </span>
-        <span
-          className={`inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-widest ${
-            isReport ? 'text-primary' : 'text-foreground/40'
-          }`}
-        >
-          {isReport ? <Check className="w-3 h-3" /> : null}
+        <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-widest text-primary">
+          <Check className="w-3 h-3" />
           {doc.matchLabel}
         </span>
       </div>
@@ -63,35 +46,89 @@ function DocCard({
           <span>Intent match</span>
           <span className="font-mono">{doc.matchScore}%</span>
         </div>
-        <MatchBar score={doc.matchScore} tone={isReport ? 'primary' : 'muted'} />
+        <MatchBar score={doc.matchScore} />
       </div>
-      {isReport ? (
-        <ol className="space-y-1.5 mb-4">
-          {doc.body.split('\n').map((step, i) => (
-            <li key={i} className="flex gap-2 text-sm text-foreground/70 leading-relaxed">
-              <span className="font-mono text-xs text-primary/70 mt-0.5">{i + 1}.</span>
-              {step}
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <p className="text-sm text-foreground/55 leading-relaxed mb-4">{doc.body}</p>
-      )}
+      <ol className="space-y-1.5 mb-4">
+        {doc.body.split('\n').map((step, i) => (
+          <li key={i} className="flex gap-2 text-sm text-foreground/70 leading-relaxed">
+            <span className="font-mono text-xs text-primary/70 mt-0.5">{i + 1}.</span>
+            {step}
+          </li>
+        ))}
+      </ol>
       <div className="mt-auto flex flex-wrap gap-2 pt-1">
         {doc.actions.map((action) => (
           <span
             key={action}
-            className={`text-xs px-3 py-1.5 rounded-md border ${
-              isReport
-                ? 'border-primary/30 text-primary'
-                : 'border-border text-foreground/50'
-            }`}
+            className="text-xs px-3 py-1.5 rounded-md border border-primary/30 text-primary"
           >
             {action}
           </span>
         ))}
       </div>
       <p className="mt-3 text-[11px] text-foreground/40">{doc.format}</p>
+    </div>
+  );
+}
+
+// snake_case risk tag → "Title Case".
+function humanizeSignal(tag: string): string {
+  return tag.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// The real demand behind the question (Atlas's signals). Every field is optional
+// during the slice-3a migration, so a match missing one degrades instead of throwing.
+function SignalsPanel({ issue }: { issue: DeflectionIssue }) {
+  const hasMetric = issue.ticketVolumeInSample != null || issue.opportunityScore != null;
+  return (
+    <div className="rounded-xl border border-border bg-surface p-5 flex flex-col">
+      <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45 mb-3">
+        Why this matters — real signals
+      </span>
+      {hasMetric && (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {issue.ticketVolumeInSample != null && (
+            <div>
+              <div className="text-2xl font-semibold text-foreground tabular-nums">
+                {issue.ticketVolumeInSample.toLocaleString()}
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
+                Tickets in sample
+              </div>
+            </div>
+          )}
+          {issue.opportunityScore != null && (
+            <div>
+              <div className="text-2xl font-semibold text-primary tabular-nums">
+                {issue.opportunityScore.toLocaleString()}
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
+                Opportunity score
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {issue.riskSignals && issue.riskSignals.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {issue.riskSignals.map((sig) => (
+            <span
+              key={sig}
+              className="text-xs px-2.5 py-1 rounded-md border border-border text-foreground/60"
+            >
+              {humanizeSignal(sig)}
+            </span>
+          ))}
+        </div>
+      )}
+      {issue.customerQuote && (
+        <blockquote className="mt-auto border-l-2 border-primary/30 pl-3 text-sm text-foreground/70 italic leading-relaxed">
+          &ldquo;{issue.customerQuote}&rdquo;
+          {issue.summary && (
+            <footer className="mt-2 not-italic text-[11px] text-foreground/45">{issue.summary}</footer>
+          )}
+        </blockquote>
+      )}
     </div>
   );
 }
@@ -168,8 +205,6 @@ export function DeflectionDemo() {
     [],
   );
 
-  const savings = issue ? estimateSavings(issue) : null;
-
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -221,9 +256,9 @@ export function DeflectionDemo() {
       {/* States */}
       {phase === 'idle' && (
         <p className="text-sm text-foreground/50 leading-relaxed px-1">
-          Pick a question above. You&apos;ll see the jargon-y article a customer hits in most help
-          centers today, beside the actionable, customer-language answer the Deflection Report
-          would have your team publish.
+          Pick a question above. You&apos;ll see the actionable answer the Deflection Report would
+          have your team publish, beside the real demand behind it — ticket volume, the risk it
+          carries, and what customers actually say.
         </p>
       )}
 
@@ -237,7 +272,7 @@ export function DeflectionDemo() {
         <div className="glass rounded-xl border border-border p-6 text-sm text-foreground/60 leading-relaxed">
           No close match in this short sample set. The real Report runs against <em>your</em> 90-day
           ticket export, where repeat questions like this surface by volume — try one of the chips
-          above to see the comparison.
+          above to see an example.
         </div>
       )}
 
@@ -248,7 +283,7 @@ export function DeflectionDemo() {
         </div>
       )}
 
-      {phase === 'result' && issue && savings && (
+      {phase === 'result' && issue && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -257,49 +292,15 @@ export function DeflectionDemo() {
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
             <h2 className="text-lg font-semibold text-foreground">
-              {issue.intent}: the same intent, two very different answers
+              {issue.intent}: the answer to publish, and the demand behind it
             </h2>
             <span className="text-[11px] font-mono uppercase tracking-widest text-foreground/40">
               Illustrative · sample dataset
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <DocCard doc={issue.traditional} variant="today" />
-            <DocCard doc={issue.improved} variant="report" />
-          </div>
-
-          {/* Illustrative volume — no guaranteed result */}
-          <div className="rounded-xl border border-border bg-surface p-5">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div>
-                <div className="text-2xl font-semibold text-foreground tabular-nums">
-                  {savings.ticketsPerMonth.toLocaleString()}
-                </div>
-                <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
-                  Tickets / mo (sample)
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-primary tabular-nums">
-                  ~{savings.deflectedPerMonth.toLocaleString()}
-                </div>
-                <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
-                  Could self-serve
-                </div>
-              </div>
-              <div className="col-span-2 sm:col-span-1">
-                <div className="text-2xl font-semibold text-foreground tabular-nums">
-                  ~${savings.monthlySavings.toLocaleString()}
-                </div>
-                <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
-                  At ${issue.costPerTicket}/ticket
-                </div>
-              </div>
-            </div>
-            <p className="mt-4 text-[11px] text-foreground/45 leading-relaxed">
-              Illustrative, from a public complaint dataset — not a guaranteed result. The Report
-              ranks <em>your</em> repeat questions by real volume and drafts answers your team reviews.
-            </p>
+            <ReportCard doc={issue.improved} />
+            <SignalsPanel issue={issue} />
           </div>
         </motion.div>
       )}
