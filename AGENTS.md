@@ -113,16 +113,57 @@ than re-hitting it each session.
 
 ---
 
-## 3. Intentionally not adopted (yet)
+## 3. Reviewer verdicts
+
+When a separate reviewer session audits a PR (optional — prompt in
+`AUDITOR_PROMPT.md`), it comments **once per push** with a verdict:
+
+| Level | Meaning | Builder action |
+|---|---|---|
+| **BLOCKER** | Correctness, security, contract break, or CI red. | Fix before merge. |
+| **MAJOR** | Architectural / scope / pattern concern. | Fix if small; else discuss before deferring. |
+| **NIT** | Style, naming, comment polish. | Apply if 1-line; else skip. Reviewer marks NITs skip-worthy. |
+| **LGTM** | Gates green, no remaining concerns. | Merge. |
+
+### 3a. Independent verification
+
+The reviewer reproduces, rather than trusting prose — Verification prose is not
+gate-checked (see `PATTERNS.md`):
+
+```
+**Verification (independent):**
+1. <claim from PR / plan> — verified via <command>
+2. <invariant from Mechanism> — confirmed at <file:line>
+
+**Plan-doc compliance:** Why / Scope / Files touched / Mechanism / Intentional /
+Deferred / Verification / Estimated diff size — matches AGENTS.md.
+
+**<N> NITs (skip-worthy):** ...
+
+LGTM. (or: BLOCKER — ...)
+```
+
+### 3b. CI gate
+
+CI must be green before LGTM. A transient/flaky failure can be called out
+separately rather than block.
+
+Today the Codex bot auto-reviews each push (P1/P2 inline) and the operator
+reviews by hand; a dedicated reviewer session is optional, not required per PR.
+Per the standing autonomy rule, a green PR with no actionable review comments is
+merged and the next slice picked up without waiting for explicit approval.
+
+---
+
+## 4. Intentionally not adopted (yet)
 
 Ported deliberately as a subset of Atlas's tooling. Not here, on purpose:
 
 - **MCP / extracted-package / cross-layer / ASCII-Python audits** — Atlas
   data-pipeline checks that don't apply to a Next.js/TS site.
 - **`audit_plan_code_consistency.py`** — parses Python AST; can't read our TS.
-- **`audit_pr_session_drift.py`** — deferred until adapted from Atlas's
-  `claude/pr-*` / `.claude/` assumptions to this repo's conventions.
-- **Reviewer-verdict model** (BLOCKER / MAJOR / NIT / LGTM) + a separate
-  reviewer session — adopt if/when we run independent review here.
+
+(Adopted since: `audit_pr_session_drift.py` lenient/advisory in #55; the
+reviewer-verdict model + `AUDITOR_PROMPT.md` in this slice.)
 
 See `web/plans/PR-Adopt-Atlas-PR-Discipline.md` for the adoption rationale.
