@@ -229,6 +229,29 @@ export function estimateSavings(issue: DeflectionIssue): DeflectionSavings {
   };
 }
 
+/** Aggregate of `estimateSavings` across a dataset — same shape, summed. */
+export type DeflectionTotals = DeflectionSavings;
+
+/**
+ * Illustrative totals across the sample dataset (no guaranteed result). Sums the
+ * per-issue `estimateSavings`, so the "math" section can't drift from the
+ * per-search numbers — both derive from the same illustrative `DEMO_ISSUES`.
+ */
+export function estimateDeflectionTotals(issues: DeflectionIssue[] = DEMO_ISSUES): DeflectionTotals {
+  return issues.reduce<DeflectionTotals>(
+    (acc, issue) => {
+      const s = estimateSavings(issue);
+      return {
+        ticketsPerMonth: acc.ticketsPerMonth + s.ticketsPerMonth,
+        deflectedPerMonth: acc.deflectedPerMonth + s.deflectedPerMonth,
+        monthlyCost: acc.monthlyCost + s.monthlyCost,
+        monthlySavings: acc.monthlySavings + s.monthlySavings,
+      };
+    },
+    { ticketsPerMonth: 0, deflectedPerMonth: 0, monthlyCost: 0, monthlySavings: 0 },
+  );
+}
+
 export const DEMO_CHIPS: string[] = [
   "can't log in",
   'charged twice',
