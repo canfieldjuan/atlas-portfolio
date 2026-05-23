@@ -240,7 +240,7 @@ export default function SystemsPage() {
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {system.label}
                   </div>
-                  <h2 className="text-2xl font-semibold text-white mb-4">{system.title}</h2>
+                  <h2 className="text-2xl font-semibold text-foreground mb-4">{system.title}</h2>
                   <p className="text-sm text-foreground/60 leading-relaxed">{system.summary}</p>
                   <div className="mt-5 flex flex-col items-start gap-3">
                     {system.href && (
@@ -313,7 +313,7 @@ export default function SystemsPage() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               IMPLEMENTATION MODEL
             </div>
-            <h2 className="text-2xl font-semibold text-white mb-3">
+            <h2 className="text-2xl font-semibold text-foreground mb-3">
               Faster than a blank-slate build, still customized where it counts.
             </h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
@@ -327,7 +327,7 @@ export default function SystemsPage() {
                 <div className="w-8 h-8 rounded-full border border-primary/30 bg-primary/10 text-primary flex items-center justify-center font-mono text-xs mb-5">
                   0{index + 1}
                 </div>
-                <h3 className="text-base font-semibold text-white mb-3">{step.title}</h3>
+                <h3 className="text-base font-semibold text-foreground mb-3">{step.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{step.detail}</p>
               </div>
             ))}
@@ -341,7 +341,7 @@ export default function SystemsPage() {
           className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <BarChart3 className="w-8 h-8 text-primary mx-auto mb-5" />
-          <h2 className="text-2xl font-semibold text-white mb-3">
+          <h2 className="text-2xl font-semibold text-foreground mb-3">
             Bring the bottleneck. I will map the system.
           </h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
