@@ -197,9 +197,12 @@ export async function searchDeflection(query: string): Promise<DeflectionIssue |
       const p = phrase.toLowerCase();
       let score = 0;
       if (q === p) score = 100;
-      else if (q.includes(p) || p.includes(q)) score = 80;
+      // Substring match only for queries long enough to be meaningful — a 1–2
+      // char query (e.g. "a") otherwise matches many phrases at score 80.
+      else if (q.length >= 3 && (q.includes(p) || p.includes(q))) score = 80;
       else {
-        const qTokens = new Set(q.split(/\s+/).filter(Boolean));
+        // Whole-token overlap; ignore 1-char tokens so stray characters don't match.
+        const qTokens = new Set(q.split(/\s+/).filter((t) => t.length >= 2));
         const overlap = p.split(/\s+/).filter((t) => qTokens.has(t)).length;
         score = overlap * 20;
       }
