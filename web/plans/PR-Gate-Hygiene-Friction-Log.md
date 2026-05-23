@@ -25,7 +25,8 @@ patterns so we resolve them as we tighten the discipline.
 4. Harden `audit_plan_doc_files_touched.py` to claim only the first path-shaped
    backtick span per list item — the gate caught that the #53 path-shape guard
    still claimed path-shaped backticks inside descriptions (this PR's own plan
-   tripped it: claimed 11 vs 7 actual).
+   tripped it on first run — claimed 11 vs 7 — before the parser fix and the
+   8th file settled the gate at claimed 8 / actual 8).
 
 ### Files touched
 

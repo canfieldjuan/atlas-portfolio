@@ -58,6 +58,18 @@ phantom claimed path. This PR's own plan tripped it on first run (claimed 11 vs
 **Resolution:** parser now claims only the *first* path-shaped span per list
 item (this PR, `PR-Gate-Hygiene-Friction-Log`).
 
+### DOCUMENTED — Files-touched parser has two heuristic edges
+The "first path-shaped backtick span per bullet" rule leaves two edges, accepted
+as convention rather than chased with more regex (per #54 review):
+- **Multi-file bullet:** `` - `a.ts` and `b.ts` — ... `` claims only `a.ts`;
+  `b.ts` would phantom-`MISSING`. Convention: **one file per bullet**.
+- **Extensionless root file:** `LICENSE`, `Makefile`, `Dockerfile`, `CODEOWNERS`
+  aren't matched by the `/`-or-`.ext` path-shape guard, so they phantom-`MISSING`
+  if a PR touches one. No clean fix yet — if it bites, add the specific name to
+  `PATH_SHAPE_RE`. (Narrow: almost every file has a `/` or an extension.)
+**Status:** convention pinned in `AGENTS.md §2b`; a red gate from either edge is
+now a documented answer, not a re-debug.
+
 ### RESOLVED — Base ref not forwarded to the audit bundle
 `local_pr_review.sh` accepted a base-ref arg but didn't pass it to
 `pre_push_audit.sh`, which silently re-resolved trunk — wrong audited diff for a

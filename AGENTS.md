@@ -73,6 +73,14 @@ The `### Files touched` list must equal the PR's diff exactly — no missing, no
 extra files (enforced by `scripts/audit_plan_doc_files_touched.py`). This is the
 check that catches "the model touched files I didn't expect."
 
+**Bullet format the parser expects:** one file per bullet, its path the **first**
+path-shaped backtick span on the line — `` - `path/to/file` — description ``.
+The parser claims only that first span, so backtick'd paths *inside* the
+description are ignored. Two heuristic edges are accepted as convention (logged
+in `PATTERNS.md`) rather than chased with more regex: a bullet listing two files
+in backticks claims only the first (so list **one file per bullet**), and an
+extensionless root file (`LICENSE`, `Makefile`) isn't recognized as path-shaped.
+
 ### 2c. Run the gate before opening or updating a PR
 
 ```bash
