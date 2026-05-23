@@ -8,39 +8,19 @@ as we tighten the discipline, rather than re-hitting it each session.
 Each entry: what the pattern is, why it bit, and its status. Newest first.
 `RESOLVED` entries stay for the record. `OPEN` entries are the backlog.
 
+This log is **workflow/process friction** (the PR discipline itself biting).
+Deferred **product/code risk** from a slice lives in `HARDENING.md`, not here.
+
 ---
 
 ## 2026-05-23
 
-### OPEN — Atlas deflection-search go-live gate (close ALL four before flipping the env on)
-The contract-first backend seam (#66) ships an **inert** Atlas proxy in
-`web/src/app/api/demo/deflection-search/route.ts`: with no
-`DEFLECTION_SEARCH_ATLAS_BASE_URL` set it answers from `matchLocal`, so the proxy
-branch is dead code today. `mapAtlasMatch` validates only
-`intent` / `ticketsPerMonth` / `traditional != null` / `improved != null`, then
-casts to `DeflectionIssue`. The instant Atlas env is configured, a
-shallowly-valid-but-incomplete upstream object passes as `200` and can either
-(a) yield `~$NaN` (missing `costPerTicket` / `deflectionShare` in
-`estimateSavings`), or worse (b) **crash the demo's React render** —
-`doc.actions.map` throws if `actions` is missing/non-array and there is no error
-boundary, so the whole demo errors instead of the intended `502`.
-**Impact:** none today — the proxy path is inert until the env is set, and the
-#66 reviewer (`canfieldjuan`, MAJOR endorsing Codex P1) LGTM'd the inert slice on
-exactly that basis. Bites the moment `DEFLECTION_SEARCH_ATLAS_BASE_URL` is set.
-**Gate — close all four together as 2c-finalize, before configuring any Atlas env:**
-1. **Full `mapAtlasMatch` shape validation** — `id`, `costPerTicket`,
-   `deflectionShare`, `phrases[]`, and each doc's `actions` (expected array),
-   `matchScore`, the string fields, `hasSolution`; reject malformed → `502`.
-2. **Outer `catch` → generic message** — it currently returns raw `error.message`;
-   a Node `fetch` network failure can leak the upstream hostname (the token stays
-   header-only, not leaked).
-3. **Length-cap `q`** — currently only trimmed, so it is forwarded to Atlas unbounded.
-4. **`AbortController` timeout on the upstream fetch** — a hung Atlas hangs the
-   request; the client has no timeout either, so improve both (consistent with
-   `audit-intake.ts`).
-**Source:** #66 review + the `TODO(2c-finalize)` marker in `route.ts`. The merged
-plan doc's Deferred names "fill in mapAtlasMatch"; this entry is the durable,
-cross-slice home so the gate survives the squashed plan.
+### MOVED — Atlas deflection-search go-live gate → `HARDENING.md`
+The deflection-search proxy go-live gate (the four `mapAtlasMatch` items that must
+close before any Atlas env is configured) was originally logged here in #67. It is
+**deferred product/code risk**, not workflow friction, so it now lives in
+`HARDENING.md` as `DEFLECTION-GOLIVE-1` (the canonical example of the two-logs
+split established in `AGENTS.md §2e`). See `HARDENING.md` for the current gate.
 
 ### RESOLVED — "Invisible text" was misdiagnosed from source; `globals.css` already remapped it
 The intake (#52), `/systems` (#60), and the site-wide contrast pass (#61) were

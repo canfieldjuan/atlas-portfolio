@@ -23,23 +23,25 @@ Required `##` sections, **in this order** (enforced by
 | Section | Purpose |
 |---|---|
 | **Why this slice exists** | What's broken / missing / which request this closes. |
-| **Scope (this PR)** | The narrow surface this PR touches. Numbered intent + a `### Files touched` subsection listing every file in backticks. |
+| **Scope (this PR)** | Open with a `Slice phase: <phase>` line (see §2e), then the narrow surface this PR touches: numbered intent + a `### Files touched` subsection listing every file in backticks. |
 | **Mechanism** | How the change works — enough that the reviewer needn't reverse-engineer it from the diff. |
 | **Intentional** | Things that look wrong but aren't — explicit trade-offs and rejected alternatives. |
-| **Deferred** | What's punted to a follow-up, and what would unlock it. |
+| **Deferred** | What's punted to a follow-up, and what would unlock it. End with `Parked hardening: none` or the `HARDENING.md` entry titles this slice added (see §2e). |
 | **Verification** | The exact commands run locally + their results. |
 | **Estimated diff size** | A table with a `\| Total \| ~N \|` row (enforced by `scripts/audit_plan_doc_diff_size.py`). Flag if over the 400-LOC soft cap. |
 
 ### 1b. PR body
 
-Mirror the plan: lead with `Plan: web/plans/PR-<Slice-Name>.md`, then a
-one-paragraph why, then `## Intentional`, `## Deferred`, `## Verification`,
-`## Diff size`.
+Mirror the plan: lead with `Plan: web/plans/PR-<Slice-Name>.md` and a
+`Slice phase: <phase>` line, then a one-paragraph why, then `## Intentional`,
+`## Deferred`, `## Parked hardening` (`None.` or the `HARDENING.md` titles added),
+`## Verification`, `## Diff size`.
 
 ### 1c. Commit message
 
-Same `Plan: ...` lead line + Intentional / Deferred sections. Squash-merge
-collapses to one canonical commit (this repo squash-merges).
+Same `Plan: ...` + `Slice phase: ...` lead lines + Intentional / Deferred /
+Parked hardening sections. Squash-merge collapses to one canonical commit (this
+repo squash-merges).
 
 ### 1d. Diff budget
 
@@ -109,7 +111,41 @@ every PR; the full build is covered by Vercel's per-PR preview.
 
 When a workflow pattern causes (or nearly causes) an issue, record it in
 `PATTERNS.md` and resolve it deliberately as the discipline tightens — rather
-than re-hitting it each session.
+than re-hitting it each session. `PATTERNS.md` is **workflow/process friction**;
+deferred **product/code risk** goes in `HARDENING.md` (see §2e).
+
+### 2e. Slice phases & hardening triage
+
+Every plan names a `Slice phase:` in `Scope (this PR)`; the PR body and commit
+repeat it. The phases:
+
+| Phase | Use when |
+|---|---|
+| `Vertical slice` | Building the thinnest end-to-end path that proves the real flow. |
+| `Functional validation` | Proving the finished flow works on representative inputs. |
+| `Robust testing` | Pushing scale / failure / integration edges after the flow works. |
+| `Production hardening` | Closing survivability, security, durability, and operational gaps. |
+| `Product polish` | UX, copy, defaults, ergonomics after the core behavior is proven. |
+| `Workflow/process` | Changing repo workflow, review contracts, audits, or tooling — not product behavior. |
+
+Normal order is `Vertical slice → Functional validation → Robust testing →
+Production hardening → Product polish`. Small corrections can go out of order; the
+plan just names why the phase fits now.
+
+**Triage rule.** Fix inline *only* what the slice cannot function without — the
+stated flow, the `AGENTS.md` contract / the plan / CI, security guards the slice
+introduces, output truthfulness, and reviewer BLOCKERs. Everything else found
+while working (non-blocking error-handling gaps, missing validation, naming,
+refactors, edge cases) is appended to root `HARDENING.md` and left **out** of the
+diff. Each `HARDENING.md` entry carries: file/location, one-line description, why
+it matters, effort (`S`/`M`/`L`), category (`correctness`/`polish`/`tech-debt`/
+`security`), and the slice it was found in.
+
+Report parked work in the plan's `Deferred` (`Parked hardening: none` or the entry
+titles) and the PR body's `## Parked hardening`. At each slice start, scan
+`HARDENING.md` for entries touching the same files; fix only what this slice needs,
+and during a `Production hardening` phase promote the entries that are the reason
+the slice exists.
 
 ---
 
@@ -168,15 +204,42 @@ Fixes go in as new commits (never force-push); squash-merge collapses them.
 
 ---
 
-## 4. Intentionally not adopted (yet)
+## 4. Anti-patterns
+
+Never in a PR or review:
+
+- **Drive-by formatting** unrelated to the slice — format-only diffs ship as their
+  own slice.
+- **Plan doc in a follow-up commit** — plan and code ship together (§2a).
+- **"While I was here" cleanups** not required for the slice to function — add a
+  `HARDENING.md` entry and move on (§2e).
+- **Bypassing the gate** with `--no-verify` or force-push unless the operator names
+  it in the latest message.
+- **Reviewer rubber-stamping** — a green gate doesn't prove the diff matches the
+  plan; spot-check the diff, don't just trust a green test sweep.
+- **Builder applying every NIT** — apply only the 1-line / unambiguous ones; skip
+  the ones the reviewer marked skip-worthy.
+
+---
+
+## 5. Intentionally not adopted (yet)
 
 Ported deliberately as a subset of Atlas's tooling. Not here, on purpose:
 
 - **MCP / extracted-package / cross-layer / ASCII-Python audits** — Atlas
   data-pipeline checks that don't apply to a Next.js/TS site.
 - **`audit_plan_code_consistency.py`** — parses Python AST; can't read our TS.
+- **Ownership lanes** — Atlas's cross-PR coordination for concurrent builders;
+  we're effectively single-threaded and the drift audit already treats lanes as
+  optional. (We adopted `Slice phase:` but not the `Ownership lane:` line.)
+- **Auditor fixture tests (Atlas §3h)** + the heavier pytest discipline — our gate
+  is lint + build + Vercel; revisit if we extend the `audit_plan_doc*.py` scripts.
+- **A separate debt register (`docs/technical-debt/`)** — `HARDENING.md` is our
+  parked-risk queue; promotion path is a follow-up plan, not a register.
 
 (Adopted since: `audit_pr_session_drift.py` lenient/advisory in #55; the
-reviewer-verdict model + `AUDITOR_PROMPT.md` in this slice.)
+reviewer-verdict model + `AUDITOR_PROMPT.md` in #56–57; slice phases, the
+`HARDENING.md` register + parked-hardening triage, and the anti-patterns list in
+this slice.)
 
-See `web/plans/PR-Adopt-Atlas-PR-Discipline.md` for the adoption rationale.
+See `web/plans/PR-Adopt-Atlas-PR-Discipline.md` for the original adoption rationale.
