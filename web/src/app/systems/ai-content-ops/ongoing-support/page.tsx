@@ -195,7 +195,7 @@ export default function OngoingSupportPage() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               THE PROBLEM
             </div>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
               AI content workflows quietly stop working.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
@@ -215,7 +215,7 @@ export default function OngoingSupportPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 MONTHLY SCOPE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 What is included every month.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -236,7 +236,7 @@ export default function OngoingSupportPage() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {item.icon}
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-2">{item.title}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{item.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
@@ -249,7 +249,7 @@ export default function OngoingSupportPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 MONTH ONE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Discovery, baseline, and the first quick wins.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -275,7 +275,7 @@ export default function OngoingSupportPage() {
                       {step.timing.toUpperCase()}
                     </div>
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-2">{step.title}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{step.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{step.detail}</p>
                 </motion.div>
               ))}
@@ -288,7 +288,7 @@ export default function OngoingSupportPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 BEST FIT
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Built for teams running an AI content workflow that needs ongoing tuning.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -313,7 +313,7 @@ export default function OngoingSupportPage() {
                   <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-3">
                     AUDIENCE 0{i + 1}
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-2">{audience.title}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{audience.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{audience.detail}</p>
                 </motion.div>
               ))}
@@ -326,7 +326,7 @@ export default function OngoingSupportPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 PRICING
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Single floor. Scoped to your stack and cadence.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -336,9 +336,9 @@ export default function OngoingSupportPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-4">
               <div className="rounded-xl border border-primary/30 bg-primary/[0.04] shadow-[var(--primary-glow)] p-6 md:p-8">
-                <h3 className="text-lg font-semibold text-white mb-3">Ongoing Optimization</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Ongoing Optimization</h3>
                 <div className="mb-2 flex items-baseline gap-2 flex-wrap">
-                  <span className="text-3xl font-bold text-white">Starts at $2,500</span>
+                  <span className="text-3xl font-bold text-foreground">Starts at $2,500</span>
                   <span className="text-sm text-foreground/50">per month</span>
                 </div>
                 <p className="text-xs text-primary/80 font-mono mb-5">~10–15 hours of focused work per month</p>
@@ -400,7 +400,7 @@ export default function OngoingSupportPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 FAQ
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Common questions before booking.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -418,7 +418,7 @@ export default function OngoingSupportPage() {
                 >
                   <div className="flex items-start gap-2 mb-2">
                     <HelpCircle className="w-4 h-4 text-primary shrink-0 mt-1" />
-                    <h3 className="text-base font-semibold text-white">{faq.q}</h3>
+                    <h3 className="text-base font-semibold text-foreground">{faq.q}</h3>
                   </div>
                   <p className="text-sm text-foreground/60 leading-relaxed pl-6">{faq.a}</p>
                 </motion.div>
@@ -433,7 +433,7 @@ export default function OngoingSupportPage() {
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                   NEXT STEP
                 </div>
-                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                   Want to keep your AI content system tuned?
                 </h2>
                 <p className="text-foreground/60 leading-relaxed mb-8">

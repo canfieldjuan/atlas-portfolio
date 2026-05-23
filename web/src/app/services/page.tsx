@@ -186,7 +186,7 @@ export default function ServicesPage() {
           {solutionOutcomes.map((outcome) => (
             <div key={outcome.title} className="glass rounded-xl p-6 border border-border">
               <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
-              <h2 className="text-base font-semibold text-white mb-3">{outcome.title}</h2>
+              <h2 className="text-base font-semibold text-foreground mb-3">{outcome.title}</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">{outcome.detail}</p>
             </div>
           ))}
@@ -207,10 +207,10 @@ export default function ServicesPage() {
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Map className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-white">The Roadmap</h2>
+              <h2 className="text-xl font-semibold text-foreground">The Roadmap</h2>
             </div>
             <div className="mb-2">
-              <span className="text-3xl font-bold text-white">$4,500</span>
+              <span className="text-3xl font-bold text-foreground">$4,500</span>
             </div>
             <p className="text-xs text-foreground/40 font-mono mb-6">Flat fee. Credited toward Phase 2.</p>
             <p className="text-foreground/60 text-sm leading-relaxed mb-8">
@@ -257,10 +257,10 @@ export default function ServicesPage() {
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Wrench className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold text-white">Custom Implementation</h2>
+              <h2 className="text-xl font-semibold text-foreground">Custom Implementation</h2>
             </div>
             <div className="mb-2">
-              <span className="text-3xl font-bold text-white">Scoped in Phase 1</span>
+              <span className="text-3xl font-bold text-foreground">Scoped in Phase 1</span>
             </div>
             <p className="text-xs text-foreground/40 font-mono mb-1">Fixed price. Agreed before any work begins.</p>
             <p className="text-xs text-primary/70 font-mono mb-6">Typical past range: $8k – $50k+ depending on complexity</p>
@@ -287,7 +287,7 @@ export default function ServicesPage() {
             </div>
             <Link
               href="/capabilities"
-              className="group w-full py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-all text-sm bg-surface text-white hover:bg-surface-hover border border-border"
+              className="group w-full py-3 rounded-md font-medium flex items-center justify-center gap-2 transition-all text-sm bg-surface text-foreground hover:bg-surface-hover border border-border"
             >
               See What I Can Build
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -306,7 +306,7 @@ export default function ServicesPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 PRODUCTIZED STARTING POINTS
               </div>
-              <h2 className="text-xl font-semibold text-white mb-3">
+              <h2 className="text-xl font-semibold text-foreground mb-3">
                 When the workflow shape is already known, the build does not have to start from zero.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -328,7 +328,7 @@ export default function ServicesPage() {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
                   {system.icon}
                 </div>
-                <h3 className="text-base font-semibold text-white mb-3">{system.title}</h3>
+                <h3 className="text-base font-semibold text-foreground mb-3">{system.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{system.detail}</p>
               </div>
             ))}
@@ -345,7 +345,7 @@ export default function ServicesPage() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               PHASE 1 DELIVERABLES
             </div>
-            <h2 className="text-xl font-semibold text-white mb-3">
+            <h2 className="text-xl font-semibold text-foreground mb-3">
               What the $4,500 roadmap actually produces
             </h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
@@ -357,7 +357,7 @@ export default function ServicesPage() {
             {phaseOneDeliverables.map((item) => (
               <div key={item.title} className="rounded-lg border border-border bg-surface p-5">
                 <CheckCircle2 className="w-4 h-4 text-primary mb-4" />
-                <h3 className="text-sm font-semibold text-white mb-2">{item.title}</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-2">{item.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
               </div>
             ))}
@@ -371,7 +371,7 @@ export default function ServicesPage() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
         >
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Best fit for</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Best fit for</h2>
             <div className="space-y-3">
               {fitSummary.bestFor.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -383,7 +383,7 @@ export default function ServicesPage() {
           </div>
 
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Probably not ideal for</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Probably not ideal for</h2>
             <div className="space-y-3">
               {fitSummary.notIdeal.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -405,7 +405,7 @@ export default function ServicesPage() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               WHAT TEAMS HIRE ME TO BUILD
             </div>
-            <h2 className="text-xl font-semibold text-white mb-3">
+            <h2 className="text-xl font-semibold text-foreground mb-3">
               The search term changes; the work is a scoped system.
             </h2>
             <p className="text-sm text-foreground/60 leading-relaxed">
@@ -416,7 +416,7 @@ export default function ServicesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {buyerLanguage.map((item) => (
               <div key={item.term} className="rounded-lg border border-border bg-surface p-5">
-                <h3 className="text-sm font-semibold text-white mb-2">{item.term}</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-2">{item.term}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
               </div>
             ))}
@@ -431,7 +431,7 @@ export default function ServicesPage() {
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-lg font-semibold text-white mb-2">Need more context before you commit?</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-2">Need more context before you commit?</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 Review the delivery model on the process page or the current security posture before starting the audit. The pricing only makes sense if the engagement shape and risk boundaries fit your team.
               </p>
@@ -471,7 +471,7 @@ export default function ServicesPage() {
         >
           <div className="flex items-center gap-3 mb-8">
             <HelpCircle className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-white">Common Questions</h2>
+            <h2 className="text-lg font-semibold text-foreground">Common Questions</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
@@ -521,7 +521,7 @@ export default function ServicesPage() {
               },
             ].map((faq, i) => (
               <div key={i}>
-                <h3 className="text-sm font-medium text-white mb-2">{faq.q}</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2">{faq.q}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{faq.a}</p>
               </div>
             ))}

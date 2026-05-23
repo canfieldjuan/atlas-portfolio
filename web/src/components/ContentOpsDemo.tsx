@@ -416,7 +416,7 @@ export function ContentOpsDemo() {
               onClick={() => handleScenarioChange(s.id)}
               className={`flex-1 px-5 py-4 text-left text-sm transition-colors border-b sm:border-b-0 sm:border-r border-border last:border-r-0 last:border-b-0 ${
                 isActive
-                  ? 'bg-primary/[0.06] text-white'
+                  ? 'bg-primary/[0.06] text-foreground'
                   : 'text-foreground/60 hover:bg-surface-hover hover:text-foreground/80'
               }`}
             >
@@ -431,7 +431,7 @@ export function ContentOpsDemo() {
 
       <div className="p-6 md:p-8">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white mb-2">{scenario.title}</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">{scenario.title}</h3>
           <p className="text-sm text-foreground/65 leading-relaxed">{scenario.summary}</p>
         </div>
 
@@ -524,7 +524,7 @@ export function ContentOpsDemo() {
                   <div className="flex-1 min-w-0">
                     <div
                       className={`text-sm font-medium ${
-                        isPending ? 'text-foreground/45' : 'text-white'
+                        isPending ? 'text-foreground/45' : 'text-foreground'
                       }`}
                     >
                       {stage.label}
@@ -562,7 +562,7 @@ export function ContentOpsDemo() {
                     SEO BLOG OUTLINE
                   </div>
                 </div>
-                <h4 className="text-sm font-semibold text-white mb-3 leading-snug">
+                <h4 className="text-sm font-semibold text-foreground mb-3 leading-snug">
                   {scenario.assets.blog.title}
                 </h4>
                 <ul className="space-y-1.5">
@@ -581,7 +581,7 @@ export function ContentOpsDemo() {
                     EMAIL CAMPAIGN
                   </div>
                 </div>
-                <h4 className="text-sm font-semibold text-white mb-3 leading-snug">
+                <h4 className="text-sm font-semibold text-foreground mb-3 leading-snug">
                   {scenario.assets.email.name}
                 </h4>
                 <div className="space-y-2.5">
@@ -608,7 +608,7 @@ export function ContentOpsDemo() {
                     SALES BRIEF
                   </div>
                 </div>
-                <h4 className="text-sm font-semibold text-white mb-3 leading-snug">
+                <h4 className="text-sm font-semibold text-foreground mb-3 leading-snug">
                   {scenario.assets.brief.title}
                 </h4>
                 <ul className="space-y-1.5">
@@ -630,7 +630,7 @@ export function ContentOpsDemo() {
                 <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-2">
                   {scenario.assets.landing.eyebrow}
                 </div>
-                <h4 className="text-base font-semibold text-white mb-2 leading-snug">
+                <h4 className="text-base font-semibold text-foreground mb-2 leading-snug">
                   {scenario.assets.landing.headline}
                 </h4>
                 <p className="text-xs text-foreground/60 leading-relaxed">
@@ -653,7 +653,7 @@ export function ContentOpsDemo() {
 
             <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <div className="text-sm font-semibold text-white mb-0.5">
+                <div className="text-sm font-semibold text-foreground mb-0.5">
                   Want to see this using your own business data?
                 </div>
                 <p className="text-xs text-foreground/55">

@@ -32,7 +32,7 @@ export default function ArchitecturePage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="glass rounded-xl p-8 border border-border mb-12"
         >
-          <h2 className="text-lg font-semibold text-white mb-3">What this page is for</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-3">What this page is for</h2>
           <p className="text-sm text-foreground/60 leading-relaxed mb-4">
             Buyers do not need implementation-level detail at the start, but they should understand how I think about system reliability, evidence, and operational control before committing to roadmap work.
           </p>
@@ -86,7 +86,7 @@ export default function ArchitecturePage() {
                 <div className="absolute left-0 top-1 w-10 h-10 bg-background border border-primary/30 rounded-full flex items-center justify-center text-primary font-mono text-sm z-10">
                   0{i + 1}
                 </div>
-                <h3 className="text-xl text-white font-medium mb-2">{step.title}</h3>
+                <h3 className="text-xl text-foreground font-medium mb-2">{step.title}</h3>
                 <p className="text-foreground/60 text-sm leading-relaxed">{step.desc}</p>
               </div>
             ))}
@@ -99,7 +99,7 @@ export default function ArchitecturePage() {
           transition={{ duration: 0.6, delay: 0.35 }}
           className="glass rounded-xl p-8 border border-border mb-16"
         >
-          <h2 className="text-lg font-semibold text-white mb-3">What changes per project</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-3">What changes per project</h2>
           <p className="text-sm text-foreground/60 leading-relaxed mb-4">
             Deployment model, model providers, data residency, approval workflows, and monitoring depth are all scoped against the actual operating environment and buyer requirements.
           </p>

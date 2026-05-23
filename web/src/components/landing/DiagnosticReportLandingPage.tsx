@@ -192,7 +192,7 @@ function Pipeline({ stages }: { stages: DiagnosticPipelineStage[] }) {
               <div className="text-[10px] font-mono text-primary/70 mb-2">
                 STEP {String(index + 1).padStart(2, '0')}
               </div>
-              <div className="text-sm font-medium text-white leading-snug">{stage.label}</div>
+              <div className="text-sm font-medium text-foreground leading-snug">{stage.label}</div>
               {stage.sub && (
                 <div className="text-[11px] text-foreground/45 mt-1 font-mono">{stage.sub}</div>
               )}
@@ -230,7 +230,7 @@ function PricingTierCard({
     'group inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md font-medium transition-colors text-sm',
     tier.highlighted
       ? 'bg-primary text-black hover:bg-primary/90'
-      : 'border border-border text-white hover:bg-surface-hover',
+      : 'border border-border text-foreground hover:bg-surface-hover',
   ].join(' ');
 
   return (
@@ -240,9 +240,9 @@ function PricingTierCard({
           {tier.badge}
         </div>
       )}
-      <h3 className="text-lg font-semibold text-white mb-3">{tier.title}</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-3">{tier.title}</h3>
       <div className="mb-1 flex items-baseline gap-2 flex-wrap">
-        <span className="text-3xl font-bold text-white">{tier.price}</span>
+        <span className="text-3xl font-bold text-foreground">{tier.price}</span>
         {tier.priceDetail && (
           <span className="text-sm text-foreground/50">{tier.priceDetail}</span>
         )}
@@ -331,7 +331,7 @@ export function DiagnosticReportLandingPage({
           <section className="section-band section-band-muted mt-32">
             <div className="max-w-4xl">
               <SectionLabel>{config.problem.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
                 {config.problem.title}
               </h2>
               {config.problem.content}
@@ -341,14 +341,14 @@ export function DiagnosticReportLandingPage({
           <section className="section-band">
             <div className="max-w-3xl mb-10">
               <SectionLabel>{config.solution.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
                 {config.solution.title}
               </h2>
               {config.solution.content}
             </div>
 
             <div className="max-w-3xl mb-6">
-              <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-white mb-3">
+              <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-3">
                 {config.solution.processTitle}
               </h3>
               <p className="text-foreground/65 leading-relaxed">
@@ -367,7 +367,7 @@ export function DiagnosticReportLandingPage({
               <div className="grid gap-10 lg:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] lg:items-start">
                 <div className="max-w-3xl lg:sticky lg:top-24">
                   <SectionLabel>{config.comparison.label}</SectionLabel>
-                  <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                  <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                     {config.comparison.title}
                   </h2>
                   <p className="text-foreground/65 leading-relaxed">
@@ -383,7 +383,7 @@ export function DiagnosticReportLandingPage({
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-start">
               <div className="max-w-3xl lg:sticky lg:top-24">
                 <SectionLabel>{config.sample.label}</SectionLabel>
-                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                   {config.sample.title}
                 </h2>
                 <p className="text-foreground/65 leading-relaxed">{config.sample.description}</p>
@@ -395,7 +395,7 @@ export function DiagnosticReportLandingPage({
           <section id={config.deliverables.id} className="section-band scroll-mt-24">
             <div className="max-w-3xl mb-10">
               <SectionLabel>{config.deliverables.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 {config.deliverables.title}
               </h2>
               <p className="text-foreground/65 leading-relaxed">{config.deliverables.description}</p>
@@ -409,7 +409,7 @@ export function DiagnosticReportLandingPage({
                       {item.icon}
                     </div>
                   )}
-                  <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
                 </AnimatedCard>
               ))}
@@ -426,7 +426,7 @@ export function DiagnosticReportLandingPage({
           <section className="section-band section-band-muted">
             <div className="max-w-3xl mb-10">
               <SectionLabel>{config.audience.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 {config.audience.title}
               </h2>
               <p className="text-foreground/65 leading-relaxed">{config.audience.description}</p>
@@ -438,7 +438,7 @@ export function DiagnosticReportLandingPage({
                   <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-3">
                     GOOD FIT {String(index + 1).padStart(2, '0')}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{item.detail}</p>
                 </AnimatedCard>
               ))}
@@ -455,7 +455,7 @@ export function DiagnosticReportLandingPage({
           <section id={config.pricing.id} className="section-band scroll-mt-24">
             <div className="max-w-3xl mb-12">
               <SectionLabel>{config.pricing.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 {config.pricing.title}
               </h2>
               <p className="text-foreground/65 leading-relaxed">{config.pricing.description}</p>
@@ -486,7 +486,7 @@ export function DiagnosticReportLandingPage({
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-10 md:p-12 shadow-[var(--primary-glow)] text-center">
               <div className="max-w-2xl mx-auto">
                 <SectionLabel>{config.finalCta.label}</SectionLabel>
-                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                   {config.finalCta.title}
                 </h2>
                 <div className="text-foreground/65 leading-relaxed mb-8 space-y-4">
@@ -507,7 +507,7 @@ export function DiagnosticReportLandingPage({
           <section id={config.faq.id} className="section-band scroll-mt-24">
             <div className="max-w-3xl mb-10">
               <SectionLabel>{config.faq.label}</SectionLabel>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 {config.faq.title}
               </h2>
               <p className="text-foreground/65 leading-relaxed">{config.faq.description}</p>
@@ -517,7 +517,7 @@ export function DiagnosticReportLandingPage({
                 <AnimatedCard key={faq.q} index={index} className="">
                   <div className="flex items-start gap-2 mb-2">
                     <HelpCircle className="w-4 h-4 text-primary shrink-0 mt-1" />
-                    <h3 className="text-base font-semibold text-white">{faq.q}</h3>
+                    <h3 className="text-base font-semibold text-foreground">{faq.q}</h3>
                   </div>
                   <p className="text-sm text-foreground/60 leading-relaxed pl-6">{faq.a}</p>
                 </AnimatedCard>

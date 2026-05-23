@@ -231,7 +231,7 @@ function GatewayDiagram() {
           <div key={stage}>
             <div className="rounded-lg border border-border bg-surface px-4 py-3">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-medium text-white">{stage}</div>
+                <div className="text-sm font-medium text-foreground">{stage}</div>
                 <div className="text-[10px] font-mono text-foreground/35">
                   {String(index + 1).padStart(2, '0')}
                 </div>
@@ -309,7 +309,7 @@ export default function AtlasLlmGatewayPage() {
                     <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-1">
                       {fact.label}
                     </div>
-                    <div className="text-sm font-medium text-white">{fact.value}</div>
+                    <div className="text-sm font-medium text-foreground">{fact.value}</div>
                   </div>
                 ))}
               </div>
@@ -328,7 +328,7 @@ export default function AtlasLlmGatewayPage() {
             <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
               THE PROBLEM
             </div>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-6">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
               The waste is not just model price. It is missing cost-control plumbing.
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-4">
@@ -354,7 +354,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 THE WEDGE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 One gateway for the five controls teams keep rebuilding.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -375,7 +375,7 @@ export default function AtlasLlmGatewayPage() {
                   <div className="w-9 h-9 rounded-full border border-primary/30 bg-primary/10 text-primary flex items-center justify-center font-mono text-xs mb-5">
                     {String(index + 1).padStart(2, '0')}
                   </div>
-                  <h3 className="text-base font-semibold text-white mb-3">{step.title}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-3">{step.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{step.detail}</p>
                 </motion.div>
               ))}
@@ -387,7 +387,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 MVP API SURFACE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 A small gateway surface around the calls teams already make.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -413,7 +413,7 @@ export default function AtlasLlmGatewayPage() {
                   className="grid grid-cols-1 md:grid-cols-[160px_1fr_1.4fr] border-b border-border last:border-b-0"
                 >
                   <div className="px-5 py-4 text-xs font-mono text-primary">{endpoint.method}</div>
-                  <div className="px-5 py-4 text-sm font-mono text-white md:border-l border-border">
+                  <div className="px-5 py-4 text-sm font-mono text-foreground md:border-l border-border">
                     {endpoint.path}
                   </div>
                   <div className="px-5 py-4 text-sm text-foreground/60 leading-relaxed md:border-l border-border">
@@ -429,7 +429,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 THE SUBSTRATE
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 The boring infrastructure is the product.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -450,7 +450,7 @@ export default function AtlasLlmGatewayPage() {
                   <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                     {feature.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{feature.detail}</p>
                 </motion.div>
               ))}
@@ -462,7 +462,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-5">Good fit</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-5">Good fit</h2>
               <div className="space-y-3">
                 {fit.map((item) => (
                   <p key={item} className="text-sm text-foreground/65 leading-relaxed flex gap-3">
@@ -476,7 +476,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="w-11 h-11 rounded-lg bg-surface text-foreground/50 flex items-center justify-center mb-6">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-5">Not the first wedge</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-5">Not the first wedge</h2>
               <div className="space-y-3">
                 {notFit.map((item) => (
                   <p key={item} className="text-sm text-foreground/55 leading-relaxed">
@@ -492,7 +492,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 PRIVATE ACCESS
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Flat monthly tiers, no token markup conversation.
               </h2>
               <p className="text-foreground/60 leading-relaxed">
@@ -513,7 +513,7 @@ export default function AtlasLlmGatewayPage() {
                   <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                     {tier.label}
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{tier.title}</h3>
+                  <h3 className="text-xl font-semibold text-foreground mb-3">{tier.title}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed mb-6">{tier.detail}</p>
                   <Link
                     href={buildAuditHref({
@@ -537,7 +537,7 @@ export default function AtlasLlmGatewayPage() {
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                   WHAT COMES NEXT
                 </div>
-                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
+                <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4">
                   Batch opens the door. Cost intelligence expands the account.
                 </h2>
                 <p className="text-sm text-foreground/60 leading-relaxed">
@@ -559,7 +559,7 @@ export default function AtlasLlmGatewayPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 FAQ
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
                 Questions before you route traffic through it.
               </h2>
             </div>
@@ -573,7 +573,7 @@ export default function AtlasLlmGatewayPage() {
                   transition={{ duration: 0.4, delay: index * 0.04 }}
                   className="rounded-xl border border-border bg-surface p-6"
                 >
-                  <h3 className="text-base font-semibold text-white mb-3">{faq.q}</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-3">{faq.q}</h3>
                   <p className="text-sm text-foreground/60 leading-relaxed">{faq.a}</p>
                 </motion.div>
               ))}

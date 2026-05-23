@@ -53,7 +53,7 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
         <p className="mb-3 text-[10px] font-mono tracking-[0.25em] text-primary uppercase">
           Private Admin
         </p>
-        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-white">Audit intake queue</h1>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">Audit intake queue</h1>
         <p className="mb-8 text-sm leading-relaxed text-foreground/60">
           Enter the admin intake token to view recent portfolio audit submissions.
         </p>
@@ -70,7 +70,7 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
                 name="token"
                 type="password"
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-foreground/30 focus:border-primary/60"
+                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-foreground/30 focus:border-primary/60"
                 placeholder="Paste admin token"
                 required
               />
@@ -96,7 +96,7 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
           <p className="mb-2 text-[10px] font-mono tracking-[0.2em] text-primary uppercase">
             {formatDate(row.submittedAt)}
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-white">{row.fullName}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">{row.fullName}</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-foreground/55">
             <span className="rounded-full border border-border px-3 py-1">
               {label(row.projectInterestLabel, row.projectInterest)}
@@ -110,7 +110,7 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-surface p-4 text-sm text-foreground/65 lg:min-w-72">
-          <div className="mb-2 flex items-center gap-2 text-white">
+          <div className="mb-2 flex items-center gap-2 text-foreground">
             <Mail className="h-4 w-4 text-primary" />
             <a href={`mailto:${row.workEmail}`} className="hover:text-primary">
               {row.workEmail}
@@ -171,7 +171,7 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
               <ShieldCheck className="h-3.5 w-3.5" />
               Private Queue
             </p>
-            <h1 className="mb-3 text-4xl font-semibold tracking-tight text-white">
+            <h1 className="mb-3 text-4xl font-semibold tracking-tight text-foreground">
               Audit intake submissions
             </h1>
             <p className="max-w-2xl text-sm leading-relaxed text-foreground/60">
@@ -180,7 +180,7 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
             </p>
           </div>
           <form action="/admin/intake/logout" method="post">
-            <button className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-border hover:text-white">
+            <button className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-border hover:text-foreground">
               <LogOut className="h-4 w-4" />
               Sign out
             </button>

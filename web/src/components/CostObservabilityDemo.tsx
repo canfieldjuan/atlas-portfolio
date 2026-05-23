@@ -93,7 +93,7 @@ export function CostObservabilityDemo() {
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
             ADMIN COST CONSOLE
           </div>
-          <h3 className="text-xl font-semibold text-white">AI spend by {view}</h3>
+          <h3 className="text-xl font-semibold text-foreground">AI spend by {view}</h3>
           <p className="text-xs text-foreground/50 mt-1">
             Server-backed demo route: <code className="text-foreground/70">/api/demo/cost-summary</code>. Filters re-fetch deterministic cost summaries.
           </p>
@@ -120,7 +120,7 @@ export function CostObservabilityDemo() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 md:col-span-1">
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">TOTAL SPEND</div>
-          <div className="text-3xl font-semibold text-white">
+          <div className="text-3xl font-semibold text-foreground">
             {summary ? formatUsd(summary.totalSpend) : '--'}
           </div>
           {summary && (
@@ -186,7 +186,7 @@ export function CostObservabilityDemo() {
                   <div key={row.key}>
                     <div className="flex items-baseline justify-between mb-1.5 gap-3">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-sm text-white truncate">{row.label}</span>
+                        <span className="text-sm text-foreground truncate">{row.label}</span>
                         {row.alert === 'high' && (
                           <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-red-400/40 bg-red-500/10 text-red-300/90">
                             ALERT
@@ -249,7 +249,7 @@ export function CostObservabilityDemo() {
                         alert.severity === 'high' ? 'text-red-300' : 'text-yellow-300/90'
                       }`}
                     />
-                    <div className="text-sm text-white leading-snug">{alert.title}</div>
+                    <div className="text-sm text-foreground leading-snug">{alert.title}</div>
                   </div>
                   <div className="text-xs text-foreground/55 leading-relaxed pl-5">{alert.detail}</div>
                 </div>

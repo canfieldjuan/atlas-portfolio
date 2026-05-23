@@ -121,7 +121,7 @@ export default function SecurityPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-semibold text-white">Current Status (April 27, 2026)</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Current Status (April 27, 2026)</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {currentStatus.map((item, index) => (
@@ -129,7 +129,7 @@ export default function SecurityPage() {
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
                   {item.icon}
                 </div>
-                <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
+                <h3 className="text-base font-semibold text-foreground mb-1">{item.title}</h3>
                 <p className="text-[11px] font-mono tracking-widest text-primary/80 mb-2">{item.status}</p>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.description}</p>
               </div>
@@ -145,7 +145,7 @@ export default function SecurityPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <Waypoints className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-semibold text-white">Practical Compliance Options</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Practical Compliance Options</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {complianceOptions.map((option, index) => (
@@ -154,7 +154,7 @@ export default function SecurityPage() {
                   {option.icon}
                   PATH OPTION
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{option.title}</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{option.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed mb-3">{option.description}</p>
                 <p className="text-sm text-foreground/50">{option.fit}</p>
               </div>
@@ -173,7 +173,7 @@ export default function SecurityPage() {
               <Rocket className="w-4 h-4 text-primary" />
               FAST-CLOSE LANE
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">
+            <h3 className="text-xl font-semibold text-foreground mb-3">
               Buyers without immediate SOC 2 gate
             </h3>
             <p className="text-sm text-foreground/60 leading-relaxed mb-4">
@@ -189,7 +189,7 @@ export default function SecurityPage() {
               <Building2 className="w-4 h-4" />
               ENTERPRISE LANE
             </div>
-            <h3 className="text-xl font-semibold text-white mb-3">
+            <h3 className="text-xl font-semibold text-foreground mb-3">
               Buyers with mandatory SOC 2 procurement
             </h3>
             <p className="text-sm text-foreground/60 leading-relaxed mb-4">
@@ -209,7 +209,7 @@ export default function SecurityPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <Waypoints className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-semibold text-white">Buyer Qualification Checklist</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Buyer Qualification Checklist</h2>
           </div>
           <p className="text-sm text-foreground/60 mb-6">
             Use these gates in discovery before solution design, proposal effort, or security review deep-dives.
@@ -217,7 +217,7 @@ export default function SecurityPage() {
           <div className="space-y-4">
             {checklist.map((item, index) => (
               <div key={index} className="rounded-lg border border-border bg-surface p-5">
-                <h3 className="text-sm font-semibold text-white mb-3">{item.question}</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3">{item.question}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-md bg-primary/10 border border-primary/20 p-3">
                     <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-1">IF YES</p>
@@ -253,7 +253,7 @@ export default function SecurityPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Need a security-first engagement plan?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Need a security-first engagement plan?</h2>
           <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
             Start with a Systems Audit. We can define technical scope, risk boundaries, and the right compliance lane before committing to build effort.
           </p>

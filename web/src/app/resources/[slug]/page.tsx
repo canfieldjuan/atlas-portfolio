@@ -87,7 +87,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
                 {article.readingMinutes} min read
               </span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-6">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground mb-6">
               {article.title}
             </h1>
             <p className="text-sm text-foreground/40 mb-6">
@@ -125,7 +125,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
           <div className="space-y-12">
             {article.sections.map((section) => (
               <section key={section.heading}>
-                <h2 className="text-2xl font-semibold text-white mb-5">{section.heading}</h2>
+                <h2 className="text-2xl font-semibold text-foreground mb-5">{section.heading}</h2>
                 <div className="space-y-5">
                   {section.body.map((paragraph) => (
                     <p key={paragraph} className="text-base text-foreground/65 leading-8">
@@ -151,7 +151,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-semibold text-white mb-2">{related.label}</h2>
+                        <h2 className="text-base font-semibold text-foreground mb-2">{related.label}</h2>
                         <p className="text-sm text-foreground/60 leading-relaxed">{related.detail}</p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-primary shrink-0 mt-1" />
@@ -168,7 +168,7 @@ export default async function ResourceArticlePage({ params }: PageProps) {
                 <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                   NEXT STEP
                 </div>
-                <h2 className="text-xl font-semibold text-white mb-2">
+                <h2 className="text-xl font-semibold text-foreground mb-2">
                   Turn the idea into a scoped build decision.
                 </h2>
                 <p className="text-sm text-foreground/60 leading-relaxed">

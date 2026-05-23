@@ -130,7 +130,7 @@ export default function CapabilitiesPage() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12"
         >
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Best fit for</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Best fit for</h2>
             <div className="space-y-3">
               {capabilitySignals.bestFor.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -142,7 +142,7 @@ export default function CapabilitiesPage() {
           </div>
 
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Probably not ideal for</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Probably not ideal for</h2>
             <div className="space-y-3">
               {capabilitySignals.notIdeal.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -165,7 +165,7 @@ export default function CapabilitiesPage() {
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 PRODUCTIZED SYSTEMS
               </div>
-              <h2 className="text-xl font-semibold text-white mb-3">
+              <h2 className="text-xl font-semibold text-foreground mb-3">
                 Some solutions already have a working core.
               </h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
@@ -187,7 +187,7 @@ export default function CapabilitiesPage() {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
                   {system.icon}
                 </div>
-                <h3 className="text-base font-semibold text-white mb-3">{system.title}</h3>
+                <h3 className="text-base font-semibold text-foreground mb-3">{system.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{system.detail}</p>
               </div>
             ))}
@@ -210,7 +210,7 @@ export default function CapabilitiesPage() {
                   <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                     {domain.icon}
                   </div>
-                  <h2 className="text-xl font-semibold text-white mb-3">{domain.title}</h2>
+                  <h2 className="text-xl font-semibold text-foreground mb-3">{domain.title}</h2>
                   <p className="text-foreground/60 text-sm leading-relaxed">{domain.desc}</p>
                 </div>
 
@@ -239,7 +239,7 @@ export default function CapabilitiesPage() {
         >
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
-              <h2 className="text-lg font-semibold text-white mb-2">Need to validate fit before starting?</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-2">Need to validate fit before starting?</h2>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 Use the services page to understand the pricing model, the process page to understand the engagement path, and the security page if deployment or compliance requirements are going to shape the build.
               </p>
@@ -270,7 +270,7 @@ export default function CapabilitiesPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-16 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">See something that fits your problem?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">See something that fits your problem?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
             Every engagement starts with a Phase 1 Roadmap: a fixed-fee scoping engagement that defines architecture, proves the approach, and prices the implementation before build work begins.
           </p>

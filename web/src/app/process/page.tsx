@@ -195,22 +195,22 @@ export default function ProcessPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <FileText className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-white">Phase 1 at a glance</h2>
+            <h2 className="text-lg font-semibold text-foreground">Phase 1 at a glance</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">FIXED FEE</div>
-              <div className="text-2xl font-semibold text-white mb-1">$4,500</div>
+              <div className="text-2xl font-semibold text-foreground mb-1">$4,500</div>
               <p className="text-sm text-foreground/60">Roadmap engagement before any build work begins.</p>
             </div>
             <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">TIMELINE</div>
-              <div className="text-2xl font-semibold text-white mb-1">2 weeks</div>
+              <div className="text-2xl font-semibold text-foreground mb-1">2 weeks</div>
               <p className="text-sm text-foreground/60">Discovery, audit, prototype, and blueprint delivery.</p>
             </div>
             <div className="rounded-lg bg-surface border border-border p-5">
               <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">OUTPUT</div>
-              <div className="text-base font-semibold text-white mb-1">Blueprint + proof of concept</div>
+              <div className="text-base font-semibold text-foreground mb-1">Blueprint + proof of concept</div>
               <p className="text-sm text-foreground/60">Enough evidence to build, reduce scope, pause, or choose a simpler tool.</p>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function ProcessPage() {
           className="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Good fit</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Good fit</h2>
             <div className="space-y-3">
               {fitSignals.good.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -250,7 +250,7 @@ export default function ProcessPage() {
           </div>
 
           <div className="glass rounded-xl p-8 border border-border">
-            <h2 className="text-lg font-semibold text-white mb-4">Probably not a fit</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Probably not a fit</h2>
             <div className="space-y-3">
               {fitSignals.bad.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -313,7 +313,7 @@ export default function ProcessPage() {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-xl font-semibold text-white mb-2">{step.title}</h2>
+                    <h2 className="text-xl font-semibold text-foreground mb-2">{step.title}</h2>
 
                     {/* Timeline badge */}
                     <div className="inline-flex items-center gap-1.5 text-xs font-mono text-foreground/40 mb-5">
@@ -364,13 +364,13 @@ export default function ProcessPage() {
         >
           <div className="flex items-center gap-3 mb-2">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold text-white">Trust & Security</h2>
+            <h2 className="text-lg font-semibold text-foreground">Trust & Security</h2>
           </div>
           <p className="text-sm text-foreground/60 mb-8">How your data and infrastructure are handled throughout the engagement.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {trustItems.map((item, i) => (
               <div key={i}>
-                <h3 className="text-sm font-medium text-white mb-2">{item.title}</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2">{item.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -392,7 +392,7 @@ export default function ProcessPage() {
           transition={{ duration: 0.6, delay: 0.48 }}
           className="mt-6 glass rounded-xl p-8 border border-border"
         >
-          <h2 className="text-lg font-semibold text-white mb-2">Decision gates</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-2">Decision gates</h2>
           <p className="text-sm text-foreground/60 mb-6">
             The process is structured so neither side has to pretend certainty exists before the proof does.
           </p>
@@ -400,7 +400,7 @@ export default function ProcessPage() {
             {decisionGates.map((gate, index) => (
               <div key={index} className="rounded-lg bg-surface border border-border p-5">
                 <div className="text-[10px] font-mono text-foreground/40 tracking-widest mb-2">CHECKPOINT {index + 1}</div>
-                <h3 className="text-sm font-medium text-white mb-2">{gate.title}</h3>
+                <h3 className="text-sm font-medium text-foreground mb-2">{gate.title}</h3>
                 <p className="text-sm text-foreground/60 leading-relaxed">{gate.detail}</p>
               </div>
             ))}
@@ -414,13 +414,13 @@ export default function ProcessPage() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-6 glass rounded-xl p-8 border border-border"
         >
-          <h2 className="text-lg font-semibold text-white mb-2">How long does Phase 2 take?</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-2">How long does Phase 2 take?</h2>
           <p className="text-sm text-foreground/60 mb-6">It depends on the complexity defined in your Phase 1 blueprint. Here are typical ranges:</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {timelineEstimates.map((est, i) => (
               <div key={i} className="bg-surface rounded-lg p-5">
                 <div className="text-primary font-mono text-xl font-bold mb-1">{est.time}</div>
-                <div className="text-white text-sm font-medium mb-2">{est.complexity} Complexity</div>
+                <div className="text-foreground text-sm font-medium mb-2">{est.complexity} Complexity</div>
                 <p className="text-foreground/50 text-xs leading-relaxed">{est.example}</p>
               </div>
             ))}
@@ -434,7 +434,7 @@ export default function ProcessPage() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-12 rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
-          <h2 className="text-2xl font-semibold text-white mb-3">Ready to start at Step 1?</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-3">Ready to start at Step 1?</h2>
           <p className="text-foreground/60 mb-8 max-w-xl mx-auto">
             Start the Systems Audit. I will review whether the workflow has enough pain, data, ownership, and budget path to justify paid scoping.
           </p>

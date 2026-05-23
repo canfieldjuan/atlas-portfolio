@@ -433,7 +433,7 @@ function DeflectionReportSample() {
       <div className="border-b border-border px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-surface">
         <div className="flex items-center gap-2">
           <Workflow className="w-4 h-4 text-primary/80" />
-          <span className="text-sm font-medium text-white">Support Ticket Deflection Report</span>
+          <span className="text-sm font-medium text-foreground">Support Ticket Deflection Report</span>
           <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             · Live Demo / Public Dataset
           </span>
@@ -447,7 +447,7 @@ function DeflectionReportSample() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {demoScaleStats.map((stat) => (
             <div key={stat.label} className="rounded-lg border border-border bg-surface px-3 py-3">
-              <p className="text-lg font-semibold text-white">{stat.value}</p>
+              <p className="text-lg font-semibold text-foreground">{stat.value}</p>
               <p className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
                 {stat.label}
               </p>
@@ -462,14 +462,14 @@ function DeflectionReportSample() {
           </div>
           <p className="text-base text-foreground/75 leading-relaxed">
             A local CFPB public complaint archive contains{' '}
-            <span className="text-white font-medium">1,282,355 rows</span>, including{' '}
-            <span className="text-white font-medium">383,564 rows with consumer narratives</span>.
+            <span className="text-foreground font-medium">1,282,355 rows</span>, including{' '}
+            <span className="text-foreground font-medium">383,564 rows with consumer narratives</span>.
             The answer generator was validated on{' '}
-            <span className="text-white font-medium">1,000 public complaint narratives</span>
+            <span className="text-foreground font-medium">1,000 public complaint narratives</span>
             {' '}with fail-closed output checks before this page leaned on the scale claim.
             Customer reports are built for full uploaded CSV batches, including common{' '}
-            <span className="text-white font-medium">500-1,000+ ticket exports</span>.
-            The <span className="text-white font-medium">{totalSources}-row excerpt below</span>{' '}
+            <span className="text-foreground font-medium">500-1,000+ ticket exports</span>.
+            The <span className="text-foreground font-medium">{totalSources}-row excerpt below</span>{' '}
             is kept short so visitors can inspect grounded output without reading a full report.
           </p>
         </div>
@@ -492,7 +492,7 @@ function DeflectionReportSample() {
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm text-white font-medium truncate">{row.issue}</p>
+                    <p className="text-sm text-foreground font-medium truncate">{row.issue}</p>
                     <p className="text-xs text-foreground/55 leading-snug mt-1">
                       &ldquo;{row.question}&rdquo;
                     </p>
@@ -525,7 +525,7 @@ function DeflectionReportSample() {
                 <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
                   {example.issue.toUpperCase()}
                 </p>
-                <p className="text-sm font-medium text-white mb-3">
+                <p className="text-sm font-medium text-foreground mb-3">
                   Q: {example.question}
                 </p>
                 <p className="text-sm text-foreground/70 leading-relaxed mb-4">
@@ -542,7 +542,7 @@ function DeflectionReportSample() {
                   </ol>
                 </div>
                 <p className="text-sm text-foreground/65 leading-relaxed mb-4">
-                  <span className="text-white font-medium">When to contact support: </span>
+                  <span className="text-foreground font-medium">When to contact support: </span>
                   {example.supportGuidance}
                 </p>
                 <p className="text-[11px] font-mono text-foreground/45">
@@ -664,21 +664,21 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
           <div className="space-y-5 text-sm text-foreground/65 leading-relaxed">
             <div>
               <p className="text-foreground/45 mb-1">A customer looks for:</p>
-              <p className="text-white">&ldquo;how do I cancel my account&rdquo;</p>
+              <p className="text-foreground">&ldquo;how do I cancel my account&rdquo;</p>
               <p className="text-foreground/45 mt-2 mb-1">Your help center says:</p>
-              <p className="text-white">&ldquo;account cancellation flow&rdquo;</p>
+              <p className="text-foreground">&ldquo;account cancellation flow&rdquo;</p>
             </div>
             <div className="border-t border-border pt-5">
               <p className="text-foreground/45 mb-1">A customer looks for:</p>
-              <p className="text-white">&ldquo;why was I charged twice?&rdquo;</p>
+              <p className="text-foreground">&ldquo;why was I charged twice?&rdquo;</p>
               <p className="text-foreground/45 mt-2 mb-1">Your help center says:</p>
-              <p className="text-white">&ldquo;billing reconciliation&rdquo;</p>
+              <p className="text-foreground">&ldquo;billing reconciliation&rdquo;</p>
             </div>
             <div className="border-t border-border pt-5">
               <p className="text-foreground/45 mb-1">A customer looks for:</p>
-              <p className="text-white">&ldquo;how do I add another person?&rdquo;</p>
+              <p className="text-foreground">&ldquo;how do I add another person?&rdquo;</p>
               <p className="text-foreground/45 mt-2 mb-1">Your product calls it:</p>
-              <p className="text-white">&ldquo;seat management&rdquo;</p>
+              <p className="text-foreground">&ldquo;seat management&rdquo;</p>
             </div>
           </div>
         </div>
