@@ -208,7 +208,10 @@ export async function searchDeflection(query: string): Promise<DeflectionIssue |
         const overlap = p.split(/\s+/).filter((t) => qTokens.has(t)).length;
         score = overlap * 20;
       }
-      if (score > 0 && (!best || score > best.score)) best = { issue, score };
+      // Only surface an issue on a meaningful match: exact/substring (100/80) or
+      // a 2+ word token overlap (40+). A single weak token (e.g. "in" → 20) is
+      // not enough — otherwise the UI shows "strong intent match" for noise.
+      if (score >= 40 && (!best || score > best.score)) best = { issue, score };
     }
   }
   return best?.issue ?? null;
