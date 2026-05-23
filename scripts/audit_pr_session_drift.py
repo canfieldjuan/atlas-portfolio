@@ -223,8 +223,11 @@ def load_open_pull_requests(base_ref: str) -> tuple[str, tuple[OpenPullRequest, 
             "open",
             "--base",
             base_branch,
+            # Bounded scan: gh hard-limits the result set, so pick a ceiling far
+            # above any realistic open-PR count for this repo. (True pagination
+            # deferred — only matters past this bound.)
             "--limit",
-            "100",
+            "1000",
             "--json",
             "number,title,headRefName,headRefOid,url",
         ],
