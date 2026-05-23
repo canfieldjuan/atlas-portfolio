@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# scratch product demos — kept on disk, out of git/lint/build (see PATTERNS.md)
+FAQs-Demos/
