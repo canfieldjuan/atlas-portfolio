@@ -93,8 +93,11 @@ This requires a clean worktree, then runs:
    plan↔files-touched, plan↔diff-size, for any `web/plans/PR-*.md` in the diff.
 2. **Cross-session drift** (advisory) — `scripts/audit_pr_session_drift.py` flags
    files that `main` or another open PR also changed (and overlapping ownership
-   lanes, which are optional). Informational only; exits 0 until tightened with
-   `--strict`.
+   lanes, which are optional). Informational; exits 0 until tightened with
+   `--strict`. Under `--strict` the blocking signals are base drift and
+   ownership-lane overlap; open-PR *file* overlap stays advisory (lanes are the
+   cross-PR block — revisit if you tighten while lanes are unused). See
+   `PATTERNS.md`.
 3. **ESLint** (`npm --prefix web run lint`).
 4. **Next build** (`npm --prefix web run build`).
 5. **Whitespace** (`git diff --check`).

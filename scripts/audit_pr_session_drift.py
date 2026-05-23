@@ -78,6 +78,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
 
     render_report(args.base_ref, report)
+    # Cross-PR blocking signal is ownership-LANE overlap, not file overlap:
+    # open_pr_overlaps (two PRs touching the same file) stays advisory by design
+    # (faithful to Atlas). When tightening --strict — especially while lanes are
+    # unused — reconsider whether to add open_pr_overlaps here (see PATTERNS.md).
     blocking = bool(
         report.path_errors
         or report.ownership_errors
@@ -115,6 +119,12 @@ def build_report(base_ref: str, *, skip_github: bool = False) -> DriftReport:
         current_branch = current_head_ref()
         current_oid = current_head_oid()
         for pr in prs:
+            # KNOWN ISSUE (see PATTERNS.md): self-matching on branch name OR oid
+            # is imperfect — a different PR sharing a branch name (e.g. fork
+            # `patch-1`) is wrongly skipped, and under CI's detached merge-ref
+            # neither matches so the PR sees its own files. Fine in local-only
+            # advisory use (HEAD == headRefOid on a branch). Key on PR number when
+            # wiring --strict into CI.
             if pr.head_ref == current_branch or (pr.head_oid and pr.head_oid == current_oid):
                 continue
             overlap = frozenset(branch_files & pr.files)

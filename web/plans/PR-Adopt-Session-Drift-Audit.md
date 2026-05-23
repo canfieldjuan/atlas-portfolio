@@ -29,6 +29,7 @@ same files — without blocking. Tighten to enforcing later.
 - `scripts/audit_pr_session_drift.py` — ported + adapted audit (new)
 - `scripts/local_pr_review.sh` — run the drift audit (advisory) in the bundle
 - `AGENTS.md` — document the drift check in the gate list
+- `PATTERNS.md` — log the two #55-review follow-ups (self-filter; strict file-overlap)
 
 ## Mechanism
 
@@ -60,6 +61,11 @@ same files — without blocking. Tighten to enforcing later.
   sessions become common. Tracked alongside the lenient→strict note in `AGENTS.md`.
 - Making ownership lanes a required plan-doc field (and gate-enforcing them).
 - CI wiring, if the base-drift check proves worth running server-side.
+- Self-PR filter: key on the resolved PR **number** (fixes the branch-name
+  false-negative and the CI detached-HEAD false-positive) — do this with the CI
+  wiring. (#55 review; logged in `PATTERNS.md`)
+- Decide whether open-PR file overlap blocks under `--strict` (vs requiring
+  ownership lanes) when tightening. (#55 review; logged in `PATTERNS.md`)
 - Parked hardening: none.
 
 ## Verification
@@ -74,10 +80,11 @@ same files — without blocking. Tighten to enforcing later.
 
 | Area | LOC |
 |---|---|
-| session-drift script (ported + adapted) | ~425 |
-| this plan doc | ~90 |
-| local_pr_review.sh + AGENTS.md wiring/docs | ~16 |
-| **Total** | ~530 |
+| session-drift script (ported + adapted) | ~440 |
+| this plan doc | ~100 |
+| local_pr_review.sh + AGENTS.md wiring/docs | ~20 |
+| PATTERNS.md log + #55-review doc-comments | ~15 |
+| **Total** | ~575 |
 
 Over the 400-LOC soft cap — justified in "Why this slice exists" as an
 indivisible script port.
