@@ -10,6 +10,7 @@ import {
   Repeat,
   Workflow,
 } from 'lucide-react';
+import Link from 'next/link';
 import {
   DiagnosticReportLandingPage,
   type DiagnosticPricingTier,
@@ -438,8 +439,17 @@ function DeflectionReportSample() {
             · Live Demo / Public Dataset
           </span>
         </div>
-        <div className="text-[11px] font-mono text-foreground/45">
-          Source: 1.28M-row public archive · 1,000-row run validated
+        <div className="flex items-center gap-4">
+          <span className="hidden md:inline text-[11px] font-mono text-foreground/45">
+            Source: 1.28M-row public archive · 1,000-row run validated
+          </span>
+          <Link
+            href="/systems/support-ticket-deflection/demo"
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 transition-colors"
+          >
+            Try it live
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
 
