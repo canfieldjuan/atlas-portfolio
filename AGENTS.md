@@ -153,11 +153,18 @@ reviews by hand; a dedicated reviewer session is optional, not required per PR.
 
 ### 3c. Merge autonomy
 
-A PR that is **CI-green** with **no actionable review** — no BLOCKER/MAJOR, and
-any bot P1/P2s either addressed or explicitly accepted and logged in
-`PATTERNS.md` — is squash-merged and the next slice picked up, without a separate
-explicit sign-off. Anything actionable is resolved (or accepted in `PATTERNS.md`)
-first. Fixes go in as new commits (never force-push); squash-merge collapses them.
+A PR that is **CI-green** with **no actionable review** is squash-merged and the
+next slice picked up, without a separate explicit sign-off. **No actionable
+review** means, per verdict level:
+
+- **BLOCKER** — none open; must be fixed first.
+- **MAJOR** — fixed, or explicitly accepted by the operator and logged in
+  `PATTERNS.md` (the §3 table's "discuss before deferring"). The agent does not
+  defer a MAJOR on its own.
+- **bot P1/P2** — addressed, or accepted-and-logged in `PATTERNS.md`.
+- **NIT** — never blocks.
+
+Fixes go in as new commits (never force-push); squash-merge collapses them.
 
 ---
 
