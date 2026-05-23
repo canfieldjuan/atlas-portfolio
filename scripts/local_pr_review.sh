@@ -87,6 +87,12 @@ git diff --name-status "$base"...HEAD || true
 
 run_check "Plan-doc audit bundle" bash scripts/pre_push_audit.sh "$base_ref"
 
+# Cross-session drift — advisory (exits 0): flags files that main or another open
+# PR also changed. Surfaces info; does not block until we pass --strict.
+if [ -f scripts/audit_pr_session_drift.py ]; then
+    run_check "Cross-session PR drift (advisory)" python3 scripts/audit_pr_session_drift.py "$base_ref"
+fi
+
 # Node gates: our real "does it compile / lint" check. Run from web/.
 run_check "ESLint (web)" npm --prefix web run lint
 run_check "Next build (web)" npm --prefix web run build
