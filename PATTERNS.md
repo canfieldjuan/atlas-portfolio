@@ -12,6 +12,25 @@ Each entry: what the pattern is, why it bit, and its status. Newest first.
 
 ## 2026-05-23
 
+### OPEN — Session-drift self-PR filter is imperfect (matters when wiring CI/--strict)
+`audit_pr_session_drift.py` excludes the *current* PR from open-PR overlap by
+matching branch name **or** commit OID. Two failure modes (Codex P2 + review on
+#55): a different PR sharing a branch name (e.g. fork `patch-1`) is wrongly
+skipped (false negative), and under a CI `pull_request` build's detached merge-ref
+neither match fires, so the PR sees its **own** files as overlap (false positive).
+**Impact:** none today — local-only advisory use runs on a branch where
+`HEAD == headRefOid`. Bites when `--strict` is wired into CI.
+**Fix when it matters:** key self-identification on the resolved **PR number**,
+not branch/OID.
+
+### OPEN — Open-PR file overlap is advisory even under --strict
+By design (faithful to Atlas), the cross-PR *blocking* signal is ownership-**lane**
+overlap; open-PR *file* overlap is only a heads-up. Since lanes are currently
+optional/unused, flipping `--strict` would give **no** cross-PR enforcement.
+**Impact:** none today (lenient). 
+**Decide when tightening:** either require ownership lanes, or add
+`open_pr_overlaps` to the `--strict` blocking set. Documented in `AGENTS.md §2c`.
+
 ### OPEN — Clean-tree gate trips on untracked content drafts
 `scripts/local_pr_review.sh` refuses to run unless the worktree is clean, but
 untracked content drafts (e.g. root `*.md` scratch files) count as "dirty", so

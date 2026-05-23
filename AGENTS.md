@@ -91,9 +91,16 @@ This requires a clean worktree, then runs:
 
 1. **Plan-doc audit bundle** (`scripts/pre_push_audit.sh`) — plan shape,
    plan↔files-touched, plan↔diff-size, for any `web/plans/PR-*.md` in the diff.
-2. **ESLint** (`npm --prefix web run lint`).
-3. **Next build** (`npm --prefix web run build`).
-4. **Whitespace** (`git diff --check`).
+2. **Cross-session drift** (advisory) — `scripts/audit_pr_session_drift.py` flags
+   files that `main` or another open PR also changed (and overlapping ownership
+   lanes, which are optional). Informational; exits 0 until tightened with
+   `--strict`. Under `--strict` the blocking signals are base drift and
+   ownership-lane overlap; open-PR *file* overlap stays advisory (lanes are the
+   cross-PR block — revisit if you tighten while lanes are unused). See
+   `PATTERNS.md`.
+3. **ESLint** (`npm --prefix web run lint`).
+4. **Next build** (`npm --prefix web run build`).
+5. **Whitespace** (`git diff --check`).
 
 CI (`.github/workflows/pre_push_audit.yml`) mirrors the plan audits + lint on
 every PR; the full build is covered by Vercel's per-PR preview.
