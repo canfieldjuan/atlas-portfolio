@@ -3,9 +3,10 @@
 // This is the data seam the real backend plugs into. Today `searchDeflection`
 // resolves from the local illustrative dataset below; to wire the Atlas backend,
 // change this function's body to `fetch(...)` the live search endpoint (same
-// return type). The consuming component already debounces input and guards
-// against out-of-order responses with a request id, so a real async fetch is
-// safe — the only data-source change lives here.
+// return type). The consuming component already debounces input, guards against
+// out-of-order responses with a request id, and recovers to a retryable error
+// state if the call rejects — so a real async fetch is safe; the only
+// data-source change lives here.
 //
 // Copy note: numbers here are ILLUSTRATIVE (drawn from the public complaint
 // dataset / typical desk economics), not a guaranteed result. The offer is the

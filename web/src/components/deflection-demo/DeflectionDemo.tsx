@@ -18,7 +18,7 @@ import {
 // Modular: all data/search comes from `@/lib/deflection-demo` (the backend seam);
 // this component only renders. Numbers are illustrative, not a guaranteed result.
 
-type Phase = 'idle' | 'searching' | 'result' | 'no-match';
+type Phase = 'idle' | 'searching' | 'result' | 'no-match' | 'error';
 
 function MatchBar({ score, tone }: { score: number; tone: 'muted' | 'primary' }) {
   return (
@@ -118,10 +118,19 @@ export function DeflectionDemo() {
       return;
     }
     setPhase('searching');
-    const found = await searchDeflection(q);
-    if (reqId !== reqRef.current) return; // superseded by a newer search
-    setIssue(found);
-    setPhase(found ? 'result' : 'no-match');
+    try {
+      const found = await searchDeflection(q);
+      if (reqId !== reqRef.current) return; // superseded by a newer search
+      setIssue(found);
+      setPhase(found ? 'result' : 'no-match');
+    } catch {
+      // Once searchDeflection is a real fetch, a network/API failure rejects
+      // here — recover to a visible, retryable state instead of freezing on
+      // 'searching' with an unhandled rejection.
+      if (reqId !== reqRef.current) return;
+      setIssue(null);
+      setPhase('error');
+    }
   }
 
   // Per-keystroke: update the field immediately, debounce the search so a real
@@ -227,6 +236,13 @@ export function DeflectionDemo() {
           No close match in this short sample set. The real Report runs against <em>your</em> 90-day
           ticket export, where repeat questions like this surface by volume — try one of the chips
           above to see the comparison.
+        </div>
+      )}
+
+      {phase === 'error' && (
+        <div className="glass rounded-xl border border-border p-6 text-sm text-foreground/60 leading-relaxed">
+          The search couldn&apos;t run just now. Try a chip above or search again — this is a
+          recoverable state, not a frozen one.
         </div>
       )}
 
