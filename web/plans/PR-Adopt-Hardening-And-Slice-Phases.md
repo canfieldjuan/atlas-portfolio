@@ -73,8 +73,6 @@ Slice phase: Workflow/process
 
 ## Deferred
 
-Parked hardening: none.
-
 - **Auditor fixture tests** (Atlas §3h) — not adopted; only matters if we extend
   `audit_plan_doc*.py`, and we have no test harness for the scripts yet.
 - **Enforcing `Slice phase:` via the audit** — left as convention; revisit if it's
@@ -82,6 +80,8 @@ Parked hardening: none.
 - **Ownership lanes / per-package guardrails / manifest / Kimi routing / domain
   audits / `audit_plan_code_consistency.py`** — Atlas-specific, stay out (recorded
   in `AGENTS.md`).
+
+Parked hardening: none.
 
 ## Verification
 
