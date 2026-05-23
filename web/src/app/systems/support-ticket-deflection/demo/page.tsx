@@ -1,8 +1,6 @@
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
-import { CostTicker } from '@/components/deflection-demo/CostTicker';
-import { DeflectionMath } from '@/components/deflection-demo/DeflectionMath';
 import { HowItWorks } from '@/components/deflection-demo/HowItWorks';
 
 export default function SupportTicketDeflectionDemoPage() {
@@ -25,24 +23,22 @@ export default function SupportTicketDeflectionDemoPage() {
             If customers keep asking it, the answer isn&apos;t where they&apos;re looking.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Type a question your customers keep asking. You&apos;ll see the jargon-y article most
-            help centers return today, beside the actionable, customer-language answer the Support
-            Ticket Deflection Report would have your team publish — the gap that turns a repeat
-            question into a repeat ticket.
+            Type a question your customers keep asking. You&apos;ll see the actionable answer the
+            Support Ticket Deflection Report would have your team publish — beside the real demand
+            behind it: how often it&apos;s asked, the risk it carries, and what customers actually say.
           </p>
-        </div>
-
-        <div className="mb-10">
-          <CostTicker />
+          <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
+            Illustrative sample of repeat-question clusters, modeled on public consumer-complaint
+            data — the real Report ranks your own ticket export by volume.
+          </p>
         </div>
 
         <DeflectionDemo />
 
         <div className="mt-16 space-y-16">
-          <DeflectionMath />
           <HowItWorks />
 
-          {/* Bottom CTA (kept) — hoisted here so the math + how-it-works read before it. */}
+          {/* Bottom CTA (kept) — hoisted here so how-it-works reads before it. */}
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center shadow-[var(--primary-glow)]">
             <FileText className="w-7 h-7 text-primary mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">
