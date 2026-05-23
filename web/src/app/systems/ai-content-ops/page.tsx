@@ -18,8 +18,8 @@ import { buildAuditHref } from '@/lib/audit-routing';
 
 // Content Ops hub: the umbrella over productized content offers. Cards link to
 // the live wedge routes (link-first); route-nesting + the demo page are later
-// slices. Headings use text-foreground — text-white is invisible on the light
-// `glass`/page surfaces.
+// slices. Headings use the real text-foreground token directly — the old
+// white-text utility and its globals.css !important remap are gone.
 
 type Offer = {
   icon: React.ReactNode;
