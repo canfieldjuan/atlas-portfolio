@@ -12,6 +12,27 @@ Each entry: what the pattern is, why it bit, and its status. Newest first.
 
 ## 2026-05-23
 
+### RESOLVED — "Invisible text" was misdiagnosed from source; `globals.css` already remapped it
+The intake (#52), `/systems` (#60), and the site-wide contrast pass (#61) were
+all framed as fixing `text-white` rendering invisible on light surfaces. **They
+weren't invisible:** `globals.css` (from the light-theme migration #40) had
+`.text-white { color: var(--text-strong) !important }`, forcing every `text-white`
+to render dark at runtime. The swaps were *semantic cleanup* (use the real
+`text-foreground` token instead of the `!important` band-aid), not visual fixes —
+caught by the #61 reviewer (LGTM, 1 NIT).
+**Lesson:** don't diagnose a CSS-visual bug from utility classes alone — render
+it (or grep `globals.css` for an override) before declaring it broken. Source
+tokens lie when a global `!important` rule remaps them.
+**Resolution:** removed the now-dead `.text-white` override (this PR,
+`PR-Remove-Dead-Text-White-Override`).
+
+### RESOLVED — Auto-merged #61 on the bot 👍 before the human reviewer's verdict
+The review-watcher merged #61 on Codex's 👍, but the independent reviewer
+(`canfieldjuan`) posts a review-with-body that often lands *after* the bot — so
+the human review (LGTM + the NIT above) was skipped.
+**Resolution:** the merge gate is now the **human reviewer's** verdict, not the
+bot's 👍 (Codex 👍 is necessary but not sufficient). See [[pr-autonomy-rule]].
+
 ### OPEN — Session-drift self-PR filter is imperfect (matters when wiring CI/--strict)
 `audit_pr_session_drift.py` excludes the *current* PR from open-PR overlap by
 matching branch name **or** commit OID. Two failure modes (Codex P2 + review on
