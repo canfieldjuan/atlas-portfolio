@@ -150,8 +150,14 @@ separately rather than block.
 
 Today the Codex bot auto-reviews each push (P1/P2 inline) and the operator
 reviews by hand; a dedicated reviewer session is optional, not required per PR.
-Per the standing autonomy rule, a green PR with no actionable review comments is
-merged and the next slice picked up without waiting for explicit approval.
+
+### 3c. Merge autonomy
+
+A PR that is **CI-green** with **no actionable review** — no BLOCKER/MAJOR, and
+any bot P1/P2s either addressed or explicitly accepted and logged in
+`PATTERNS.md` — is squash-merged and the next slice picked up, without a separate
+explicit sign-off. Anything actionable is resolved (or accepted in `PATTERNS.md`)
+first. Fixes go in as new commits (never force-push); squash-merge collapses them.
 
 ---
 
