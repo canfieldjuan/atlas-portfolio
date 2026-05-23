@@ -85,7 +85,7 @@ echo
 echo "changed files:"
 git diff --name-status "$base"...HEAD || true
 
-run_check "Plan-doc audit bundle" bash scripts/pre_push_audit.sh
+run_check "Plan-doc audit bundle" bash scripts/pre_push_audit.sh "$base_ref"
 
 # Node gates: our real "does it compile / lint" check. Run from web/.
 run_check "ESLint (web)" npm --prefix web run lint

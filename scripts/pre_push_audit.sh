@@ -41,7 +41,16 @@ resolve_base_ref() {
     return 1
 }
 
-if ! base_ref=$(resolve_base_ref); then
+# Accept an explicit base ref as the first arg (forwarded by local_pr_review.sh);
+# otherwise auto-resolve trunk. This keeps the audited diff aligned with the
+# caller's chosen base instead of silently re-resolving origin/main.
+base_ref="${1:-}"
+if [ -n "$base_ref" ]; then
+    if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+        echo "pre_push_audit.sh: base ref not found: $base_ref" >&2
+        exit 2
+    fi
+elif ! base_ref=$(resolve_base_ref); then
     echo "pre_push_audit.sh: could not resolve trunk base ref." >&2
     echo "tried: refs/remotes/origin/HEAD, origin/main" >&2
     exit 2

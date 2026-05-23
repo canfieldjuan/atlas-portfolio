@@ -42,21 +42,23 @@ declared files stay aligned across sessions — before the PR goes live.
 ## Mechanism
 
 - `scripts/local_pr_review.sh` (run before each PR): requires a clean tree,
-  resolves base `origin/main`, runs `pre_push_audit.sh`, then `git diff --check`
-  (whitespace). Missing optional scripts SKIP, so the bundle can grow later
-  without breaking.
-- `scripts/pre_push_audit.sh`: for each added/modified `web/plans/PR-*.md`, runs
+  resolves base `origin/main` (or an explicit base-ref arg), runs
+  `pre_push_audit.sh` **forwarding that base ref**, then `npm --prefix web run
+  lint`, `npm --prefix web run build`, and `git diff --check` (whitespace). The
+  Node gates live here, not in `pre_push_audit.sh`.
+- `scripts/pre_push_audit.sh`: accepts an optional base-ref arg (else
+  auto-resolves trunk). For each added/modified `web/plans/PR-*.md`, runs
   `audit_plan_doc.py` (required `##` sections, in order); for each
   newly-committed plan, runs `audit_plan_doc_files_touched.py` (the plan's
   "Files touched" list must equal the diff's files) and
-  `audit_plan_doc_diff_size.py` (diff LOC vs declared budget). Then runs
-  `npm --prefix web run lint` and `npm --prefix web run build`.
+  `audit_plan_doc_diff_size.py` (diff LOC vs declared budget). No Node gates.
 - `.github/workflows/pre_push_audit.yml`: on `pull_request` + push to `main`,
-  sets up Python 3.13 + Node, runs the plan audits + `npm run lint`. The full
+  sets up Python 3.12 + Node, runs the plan audits + `npm run lint`. The full
   build is left to Vercel's existing per-PR deploy to avoid double-building.
 - The three audit scripts take the plan path as an argument and are
-  path-agnostic — ported unchanged; only the orchestrators' `web/plans/` glob
-  and the Node steps are repo-specific.
+  path-agnostic — ported unchanged except for a path-shape guard in the
+  files-touched parser; only the orchestrators' `web/plans/` glob, base-ref
+  threading, and the Node steps are repo-specific.
 
 ## Intentional
 
@@ -99,8 +101,10 @@ declared files stay aligned across sessions — before the PR goes live.
 ## Verification
 
 - `bash scripts/pre_push_audit.sh` passes — plan shape (7/7 sections, in order),
-  plan↔files-touched (8 claimed == 8 in diff), plan↔diff-size (810 est vs 814
-  actual, 0.5% drift, OK).
+  plan↔files-touched (8 claimed == 8 in diff), and plan↔diff-size OK (estimate
+  ~810 in the Estimated diff size table; the script prints the live actual +
+  drift, which stays inside the ±25% band — the moving number is not hardcoded
+  here, since Verification prose is not gate-checked).
 - `npm --prefix web run lint` and `npm --prefix web run build` pass on all
   **tracked** code. They currently fail only on untracked `web/FAQs-Demos/`
   scratch demo files (not in git, never reach CI/Vercel) — excluding those is a

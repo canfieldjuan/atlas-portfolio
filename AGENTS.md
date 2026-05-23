@@ -48,7 +48,9 @@ plan's "Why this slice exists" justifies the overage.
 
 ### 1e. Branch naming
 
-`claude/pr-<slice-name>` for builder branches.
+`claude/pr-<slice-name>` for agent-built PR branches **going forward** — the
+convention adopted with this tooling. Branches predating it use `codex/*` /
+`fix/*`; those are fine as-is, no renaming needed.
 
 ### 1f. Open ready for review
 

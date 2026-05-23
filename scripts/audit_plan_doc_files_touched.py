@@ -11,6 +11,12 @@ from pathlib import Path
 
 PATH_PATTERN = re.compile(r"`([^`\n]+)`")
 
+# A backtick span counts as a claimed path only if it looks like one: it has a
+# directory separator or ends in a file extension. Without this guard, inline
+# code in a Files-touched description (e.g. `npm run lint`, `useState`) would be
+# captured as phantom claimed paths and break the audit on a future plan doc.
+PATH_SHAPE_RE = re.compile(r"/|\.[A-Za-z0-9]+$")
+
 
 @dataclass(frozen=True)
 class FilesTouchedAudit:
@@ -55,7 +61,7 @@ def claimed_files_touched(text: str) -> set[str]:
     for line in _files_touched_lines(text):
         for match in PATH_PATTERN.finditer(line):
             value = match.group(1).strip()
-            if value:
+            if value and PATH_SHAPE_RE.search(value):
                 claimed.add(value)
     return claimed
 
