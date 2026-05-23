@@ -33,8 +33,8 @@ function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
   const m = match as Partial<DeflectionIssue>;
   const valid =
     typeof m.intent === 'string' &&
-    typeof m.ticketsPerMonth === 'number' &&
-    m.traditional != null &&
+    typeof m.ticketVolumeInSample === 'number' &&
+    typeof m.opportunityScore === 'number' &&
     m.improved != null;
   if (!valid) throw new Error('Atlas returned a malformed deflection match');
   return { match: match as DeflectionIssue };
