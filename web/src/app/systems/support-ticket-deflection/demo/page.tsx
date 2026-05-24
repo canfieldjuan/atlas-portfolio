@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
+import { SupportTaxCalculator } from '@/components/deflection-demo/SupportTaxCalculator';
 import { HowItWorks } from '@/components/deflection-demo/HowItWorks';
 
 export default function SupportTicketDeflectionDemoPage() {
@@ -36,6 +37,7 @@ export default function SupportTicketDeflectionDemoPage() {
         <DeflectionDemo />
 
         <div className="mt-16 space-y-16">
+          <SupportTaxCalculator />
           <HowItWorks />
 
           {/* Bottom CTA (kept) — hoisted here so how-it-works reads before it. */}
