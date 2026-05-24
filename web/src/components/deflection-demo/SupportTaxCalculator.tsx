@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -40,13 +40,18 @@ function SliderField({
   prefix?: string;
   suffix?: string;
 }) {
+  const fieldId = useId();
+
   // The number input is uncontrolled (keyed on `value` so a slider move remounts it
   // with the new default) — so typing isn't clamped on every keystroke; commit on
-  // blur/Enter. No setState-in-effect needed to keep it in sync with the slider.
-  const commit = (raw: string) => {
-    const n = Number(raw);
-    if (raw.trim() !== '' && Number.isFinite(n)) {
+  // blur/Enter. On empty/invalid blur, snap the box back to the current value so it
+  // never shows blank while state still holds a number.
+  const commit = (input: HTMLInputElement) => {
+    const n = Number(input.value);
+    if (input.value.trim() !== '' && Number.isFinite(n)) {
       onChange(clamp(Math.round(n / step) * step, min, max));
+    } else {
+      input.value = String(value);
     }
   };
 
@@ -54,7 +59,7 @@ function SliderField({
     <div>
       <div className="flex items-end justify-between gap-3 mb-2">
         <div>
-          <label className="text-sm font-medium text-foreground">{label}</label>
+          <label htmlFor={fieldId} className="text-sm font-medium text-foreground">{label}</label>
           <div className="text-[11px] text-foreground/45">{hint}</div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -65,13 +70,13 @@ function SliderField({
             min={min}
             max={max}
             step={step}
+            id={fieldId}
             key={value}
             defaultValue={value}
-            onBlur={(e) => commit(e.target.value)}
+            onBlur={(e) => commit(e.currentTarget)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') e.currentTarget.blur();
             }}
-            aria-label={label}
             className="w-24 rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm font-semibold text-foreground tabular-nums outline-none focus:border-primary/60 transition-colors"
           />
           {suffix && <span className="text-sm text-foreground/50">{suffix}</span>}
