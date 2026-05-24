@@ -171,6 +171,13 @@ persistence / export / review-status for drafts; deterministic generation proven
 - "Publishes to your help center automatically" — it's review-ready drafts.
 - "Connect Zendesk/Intercom" — upload/export only; no live integration.
 
+**Exception — user-supplied-input calculators.** A calculator that computes a cost
+from the *user's own* inputs (their ticket volume × their cost-per-ticket × a
+stated, adjustable repeat-rate assumption) is fine — it's the prospect's own
+estimate, not a product cost-claim. It must label the assumptions and disclaim it's
+"not a forecast of what the Report will save." (See the Support Tax Calculator at
+`/systems/support-ticket-deflection/calculator`.)
+
 **Approved taglines.**
 - *"Turn support tickets into a review-ready FAQ report. Atlas analyzes your recent
   ticket export, finds repeated customer questions, ranks the biggest deflection
