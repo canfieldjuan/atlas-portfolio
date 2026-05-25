@@ -918,5 +918,5 @@ proof / methodology context** (the demo, or a "what the analysis does" line), wh
 detail reads as credibility, not friction.
 
 **Why:** the 6 stages mix what the *buyer* does with internal mechanics; for a
-10-50 operator the 3-step view lowers perceived effort, while the pipeline detail
+15–75 operator the 3-step view lowers perceived effort, while the pipeline detail
 still earns trust where rigor = proof (D-002 specific, D-013 data-is-moat).

@@ -29,8 +29,9 @@ Slice phase: Workflow/process
 ### Files touched
 
 - `web/plans/PR-ICP-15-75.md` — this plan doc (new)
-- `web/docs/landing-page-framework/decisions.md` — D-001 size → 15–75 sweet / 10–200 outer
+- `web/docs/landing-page-framework/decisions.md` — D-001 size → 15–75 sweet / 10–200 outer (+ the D-029 reasoning line 10-50 → 15–75)
 - `web/docs/landing-page-framework/support-deflection-acquisition-pack.md` — banner + Prospect List Rules to the new targeting criteria
+- `web/docs/landing-page-framework/voice-reference.md` — the reader line (10-50 → 15–75) so drafting uses the current ICP
 
 ## Mechanism
 
@@ -48,8 +49,11 @@ Slice phase: Workflow/process
 
 ## Intentional
 
-- **Revises the #76-locked 10-50** — deliberate operator change, not drift; recorded
-  as the latest cut so copy and outbound both read 15–75 sweet / 10–200 outer.
+- **Revises the #76-locked 10-50** — deliberate operator change, not drift. The
+  **canonical docs** (decisions.md, the acquisition pack, the voice guide) now read
+  15–75 sweet / 10–200 outer. The **live wedge page copy still says "10-50"**
+  (`page.tsx:770` + the wider wedge copy) — that's updated in the build phase,
+  **deferred + tracked below**, not in this docs PR.
 - **Landing vs list split:** the landing "who it's for" uses the sweet spot +
   signals; the hard band + filters live here (the list doc), not in page copy.
 - **Pack message templates left for later** — fixing the 4 "last 90 days" lines in
@@ -58,6 +62,9 @@ Slice phase: Workflow/process
 
 ## Deferred
 
+- **Live wedge page copy → 15–75** (`page.tsx:770` "10-50 person company" + the wider
+  wedge ICP/fit copy) — lands in the build/copy slice; tracked here so the live page
+  doesn't silently contradict the canon.
 - Reconcile the acquisition pack's outbound *message* copy (still 90-days) with
   `outbound-sequence.md` when the pack is next revised.
 - The remaining landing copy sections (FAQ + risk-reversal) — in the copy thread.
@@ -75,9 +82,10 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| `decisions.md` (D-001 ICP bullet) | ~4 |
+| `decisions.md` (D-001 ICP bullet + D-029 line) | ~5 |
 | `support-deflection-acquisition-pack.md` (banner + prospect rules) | ~30 |
-| this plan doc | ~95 |
-| **Total** | ~129 |
+| `voice-reference.md` (reader line) | ~2 |
+| this plan doc | ~102 |
+| **Total** | ~139 |
 
 Well under the 400-LOC soft cap.

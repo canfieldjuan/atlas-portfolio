@@ -69,7 +69,7 @@ Use this overlay when writing the Support Ticket Deflection Report page and rela
 
 **Voice label:** plain-spoken diagnostic direct response.
 
-**Reader:** founder, owner, support lead, or small-team operator at a 10-50 person company. They are close enough to the inbox to know repeat questions are a problem. They do not need enterprise language. They need the issue named clearly and the next step made easy.
+**Reader:** founder, owner, support lead, or small-team operator at a 15–75-person company (10–200 range). They are close enough to the inbox to know repeat questions are a problem. They do not need enterprise language. They need the issue named clearly and the next step made easy.
 
 ### Core Argument
 
