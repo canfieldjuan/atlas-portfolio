@@ -44,7 +44,10 @@ type AtlasFaqResult = {
  */
 function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
   const results = (raw as { results?: unknown } | null)?.results;
-  if (!Array.isArray(results) || results.length === 0) return { match: null };
+  // A missing/renamed `results` is a contract break → surface it (502), not a
+  // silent no-match. An empty array is a genuine no-match.
+  if (!Array.isArray(results)) throw new Error('Atlas response missing results[]');
+  if (results.length === 0) return { match: null };
 
   const items = results as AtlasFaqResult[];
   const top = items[0];

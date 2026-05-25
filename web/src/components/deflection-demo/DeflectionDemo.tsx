@@ -12,8 +12,8 @@ import {
 
 // Interactive demo: type a question a customer asks, see the actionable answer
 // the Support Ticket Deflection Report would publish, beside the real demand
-// behind it — ticket volume in the sample, opportunity score, risk signals, and
-// what customers actually said. Modular: all data/search comes from
+// behind it — the ticket volume for the issue and the source tickets cited as
+// evidence. Modular: all data/search comes from
 // `@/lib/deflection-demo` (the backend seam); this component only renders.
 // Numbers are illustrative until wired to Atlas; never a guaranteed result.
 
@@ -230,8 +230,8 @@ export function DeflectionDemo() {
       {phase === 'idle' && (
         <p className="text-sm text-foreground/50 leading-relaxed px-1">
           Pick a question above. You&apos;ll see the actionable answer the Deflection Report would
-          have your team publish, beside the real demand behind it — ticket volume, the risk it
-          carries, and what customers actually say.
+          have your team publish, beside the real demand behind it — the ticket volume for the
+          issue and the source tickets cited as evidence.
         </p>
       )}
 
