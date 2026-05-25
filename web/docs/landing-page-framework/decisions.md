@@ -22,14 +22,14 @@ Revisit open ones in any order — this isn't sequential.
 | D-006 | Products that get the framework first | **DECIDED** |
 | D-007 | Template count (one vs multiple) | **DECIDED** |
 | D-008 | Proof-type strategy (B2B math vs visual) | OPEN |
-| D-009 | SMB sub-segments (which verticals) | OPEN |
+| D-009 | SMB sub-segments (which verticals) | **DECIDED** |
 | D-010 | Buyer awareness stage we write to | **DECIDED** |
-| D-011 | Price-range scope for offers | OPEN |
-| D-012 | Page types — direct-offer vs lead-magnet | OPEN |
-| D-013 | Input data is the moat, not the output renderer | OPEN (frame) |
+| D-011 | Price-range scope for offers | **DECIDED** |
+| D-012 | Page types — direct-offer vs lead-magnet | **DECIDED** |
+| D-013 | Input data is the moat, not the output renderer | **DECIDED** |
 | D-014 | Lead-with-one vs portfolio positioning | OPEN |
 | D-015 | Offer shape — trial vs paid pilot vs subscription vs done-for-you | **DECIDED** |
-| D-016 | Integration scope for v1 (which support platforms) | OPEN |
+| D-016 | Integration scope for v1 (which support platforms) | **DECIDED** |
 | D-017 | Fulfillment model — self-serve product vs managed service | **DECIDED** |
 | D-018 | "Magic moment" — what buyer sees in first 24 hours | **DECIDED** |
 | D-019 | First-5-customers acquisition motion | **DECIDED** |
@@ -38,6 +38,11 @@ Revisit open ones in any order — this isn't sequential.
 | D-022 | Problem framing — known vs unknown problem in hero | **DECIDED** |
 | D-023 | Customer-facing product name (vs internal platform name) | **DECIDED** |
 | D-024 | Every deliverable terminates in an action path | **DECIDED** |
+| D-025 | Partner pricing gate — URL approach | **DECIDED** |
+| D-026 | Landing page copywriting framework | **DECIDED** |
+| D-027 | Export window for first ask | **DECIDED** |
+| D-028 | Google/SEO-ranking headline — current wedge vs separate offer | **DECIDED** |
+| D-029 | Mechanism altitude on the landing (3 steps vs pipeline) | **DECIDED** |
 
 ---
 
@@ -50,6 +55,7 @@ Revisit open ones in any order — this isn't sequential.
 **Decision:**
 
 - **SMBs only.** No enterprise. No consumers.
+- **10–50 employees** (operator, 2026-05-25). The wedge page reflects this; `offer-locked.md`'s "10–100" is **superseded** — keep 10–50-employee outfits.
 - **Actively seeking AI solutions** — NOT "AI-curious." Different buyers.
 - Value either **time saved** or **money made/saved** (or both) — must be quantifiable on day 1.
 
@@ -265,19 +271,19 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 ## D-009 — SMB sub-segments (verticals)
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-24)
 
 **Question:** "SMB" is too broad to write copy to. Which specific verticals?
 
-**Candidates:**
-- B2B SaaS companies ($1M-$20M ARR) doing content
-- Marketing agencies serving SMBs
-- Local service businesses (multi-location, owner-operated)
-- Professional services (accounting, legal, consulting under 50 employees)
-- E-commerce brands ($1M-$50M)
-- Operator-led trades + home services
+**Decision:** B2B SaaS first. The pipeline is industry-agnostic but the copy,
+proof assets, demo, and outbound targeting are all written for B2B SaaS teams.
+Expand to other verticals only after the first paying SaaS customers validate
+the offer. Apollo list targeting is SaaS-filtered from launch.
 
-**Decision:** _pending_
+**Why SaaS first:** Support ticket volume is visible, exportable, and high enough
+to show repeat patterns. Buyers (founders, Heads of Support, CS leads) feel
+ticket cost directly. Help center infrastructure already exists in most SaaS
+companies -- the gap is content and ranking, not infrastructure.
 
 ---
 
@@ -315,31 +321,38 @@ This follows directly from D-001's "actively seeking AI solutions" target — th
 
 ## D-011 — Price-range scope for offers
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-24)
 
-**Question:** What price bands do our offers live in? Affects everything from urgency tactics to objection handling.
+**Question:** What price bands do our offers live in?
 
-**Reference ranges:**
-- Sub-$500/mo: must do free trial / quick proof, no qualification gate
-- $500-$2,500/mo: lightweight qual, money-back guarantee, fast onboarding
-- $2,500-$10,000/mo: qualification required, contract, ramp-up acceptable
-- $10,000+ one-time: full sales conversation; landing page is just intro
+**Decision:**
 
-**Decision:** _pending_
+| Tier | Price | Notes |
+|---|---|---|
+| Free Deflection Snapshot | $0 | First ask, no card |
+| Full Deflection Report (partner) | $1,000 | First 5 design partners only, partner URL |
+| Full Deflection Report (standard) | $1,500 | Public page |
+| Quarterly Refresh | $1,500/quarter | Ongoing cadence |
+
+**Gating mechanism:** Separate URL approach (see D-025). Partner price is never
+shown on the public page. Standard price is never discounted on the public page.
+
+**Annual tier ($4,800 prepaid):** Was in prior planning docs. Not confirmed or
+removed in this session. Revisit after first 5 paying customers.
 
 ---
 
 ## D-012 — Page types — direct-offer vs lead-magnet
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-24)
 
-**Question:** Does our framework cover **direct-offer pages** (call to buy now / book now) and **lead-magnet pages** (free thing in exchange for email), or just one?
+**Question:** Does our framework cover direct-offer pages and lead-magnet pages,
+or just one?
 
-**Context:** Direct-offer is what we've been building. Lead-magnets are useful for slower buyer states and channel-fit on LinkedIn / cold traffic.
-
-**Recommendation:** Start direct-offer only. Add lead-magnet template if D-005 (channels) lands on a channel that warrants it (e.g., LinkedIn organic with mid-funnel buyers).
-
-**Decision:** _pending_
+**Decision:** Direct-offer only. The free Deflection Snapshot is the entry point
+but the page is a direct-offer page -- the action is upload your export, not
+download a PDF in exchange for an email. Lead-magnet template deferred until
+channel data (D-005) proves it is needed.
 
 ---
 
@@ -355,7 +368,7 @@ Once enough core decisions land, we'll build the matching `framework.md` and `te
 
 ## D-013 — Input data is the moat, not the output renderer
 
-**Status:** OPEN (this is a frame, not a single decision)
+**Status:** DECIDED (2026-05-24 -- frame confirmed as operating principle)
 
 **Frame:** Generic AI-copy tools (Jasper, Copy.ai, Anyword) compete on output quality from blank prompts. That lane is saturated. The wedge is the **input pipeline** — turning the buyer's own data (tickets, calls, reviews, docs) into evidence-grounded outputs.
 
@@ -364,7 +377,9 @@ Once enough core decisions land, we'll build the matching `framework.md` and `te
 - Output type is a configurable renderer head, not the product identity
 - Defensibility is the data integrations + extraction quality + evidence linking, not the LLM
 
-**Decision needed:** Just confirm this is the operating frame so the framework's voice carries it consistently.
+**Decision:** Confirmed as the operating frame. All copy, proof assets, and positioning
+carry this frame. The headline, subheadline, Picture section, and CTA copy all
+reference the buyer's own ticket data as the source -- not AI generation from scratch.
 
 ---
 
@@ -406,7 +421,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 **Question:** What does the actual purchase look like?
 
-**Decision:** Three-tier offer ladder, shipped on `/systems/ai-content-ops`:
+**Decision:** Three-tier offer ladder, shipped on `/systems/support-ticket-deflection`:
 
 | # | Tier | Price | Cadence | Purpose |
 |---|---|---|---|---|
@@ -441,9 +456,11 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 - D-017 founder-led product → $1,500/quarter sits in the pricing band that supports manual fulfillment
 - D-018 magic moment → free Deflection Snapshot IS the magic moment, productized as the entry tier
-- D-019 first-5-customers → free tier IS the LinkedIn outbound offer ("send us a CSV")
+- D-019 first-5-customers → free tier IS the LinkedIn outbound offer (upload your export via the intake UI)
 - D-022 known-problem framing → "Free first analysis. Paid quarterly after." is two beats matching the known→action structure
-- D-024 action path → every tier terminates in a single concrete next step (Send CSV / Subscribe Quarterly / Subscribe Annually)
+- D-024 action path → every tier terminates in a single concrete next step (Upload export / Subscribe Quarterly / Subscribe Annually)
+- D-025 partner URL → free snapshot is the offer on the partner URL; paid report price shown as $1,000 on partner page, $1,500 on public page
+- D-027 export window → first ask is 3-6 month full export, not 90 days
 
 ---
 
@@ -482,9 +499,14 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 - **v2 upgrade for paying customers:** Zendesk API (most-asked first), Intercom API (second)
 - **v3+:** HelpScout, Freshdesk API as customer demand pulls
 
-**Why this matters for D-019 (first 5 customers):** "Send me a CSV export of your last 90 days of tickets — we'll send back a ranked report in 24 hours" is a pitch you can run on LinkedIn DM today with zero engineering blockers. No security review, no auth dance.
+**Why this matters for D-019 (first 5 customers):** The intake UI accepts uploads directly.
+The pitch is "upload your full 3-6 month export at [partner URL] and we will send back
+a ranked snapshot in 24 hours." No CSV handoff by email, no auth dance, no security review.
 
-**Decision:** _pending_
+**Decision:** DECIDED (2026-05-24). v1 ingestion is self-serve UI upload (CSV/JSON/JSONL).
+The buyer uploads via the intake form at the product URL. No manual handoff. No API
+integrations at launch. Copy must say "upload your export" not "send us a CSV" or
+"connect Zendesk." API integrations remain the v2 upgrade path.
 
 ---
 
@@ -564,7 +586,10 @@ Do not claim the report guarantees ranking, prevents churn automatically, or ful
 
 **Decision:** **Run 10 free Deflection Snapshots to earn the first 5 serious conversations.** Start with warm network and founder-led LinkedIn outreach to support-heavy B2B SaaS teams, then publish anonymized patterns only after review.
 
-**Operating rule:** The first ask is not "buy software." It is "send a CSV of the last 90 days of closed tickets and we will show the repeat questions worth deflecting first." The conversion event is a reply with a CSV or a scheduled data-export call.
+**Operating rule:** The first ask is not "buy software." It is "upload your full
+3-6 month export at [partner URL] and we will show the repeat questions worth
+deflecting first within 24 hours." The conversion event is a completed upload
+via the intake UI. No CSV handoff by email, no scheduled call required.
 
 **Target account shape:**
 
@@ -603,7 +628,7 @@ Do not claim the report guarantees ranking, prevents churn automatically, or ful
 
 **Manual floor for the first 3 snapshots:**
 
-- Intake: CSV upload or direct export handoff.
+- Intake: buyer uploads via the intake UI at the partner URL.
 - Normalize: remove obvious PII and discard unusable rows.
 - Cluster: group repeat questions by intent.
 - Rank: sort by visible ticket volume and severity clues.
@@ -764,3 +789,134 @@ Question 4 of the operator framework is "Who fixes it / how?" — that's the act
 **Pitfall — honest scope over performative actionability:**
 
 Don't invent fake action paths to satisfy this rule. If a deliverable genuinely doesn't have a clear next action, that's a sign the deliverable shouldn't exist — not a sign to invent one. A piece of content that's primarily informational (e.g., an architecture diagram, a glossary) doesn't need an action path; it shouldn't pretend to have one.
+
+---
+
+## D-025 -- Partner pricing gate -- URL approach
+
+**Status:** DECIDED (2026-05-24)
+
+**Question:** How do we gate the $1,000 partner price for the first 5 design partners
+without engineering a discount system?
+
+**Decision:** Separate URL approach.
+
+- Public page at `/systems/support-ticket-deflection` shows $1,500 standard price.
+- Partner page at `/systems/support-ticket-deflection/partner` shows $1,000 partner price.
+- Partner URL is shared only in outbound DMs and cold email.
+- Partner URL is never linked from the public page.
+- No coupon codes, no honor system, no Stripe discount engineering required at launch.
+- First 5 design partners only. Once filled, the partner URL can be retired or
+  redirected to the public page.
+
+**Why this approach:** Matches D-017 founder-led model. Simple to execute today
+with no engineering. Keeps the public page clean -- no two-tier pricing explanation
+required. Outbound message controls who sees the partner price.
+
+---
+
+## D-026 -- Landing page copywriting framework
+
+**Status:** DECIDED (2026-05-24)
+
+**Question:** What copywriting framework structures the landing page?
+
+**Decision:** Promise, Picture, Proof, Push.
+
+| Section | Job |
+|---|---|
+| Promise | Headline and subheadline. Land the offer in 5 seconds. |
+| Picture | Four-beat scene. Put the reader's own situation back at them. |
+| Proof | Three-layer stack: category SEO truth, demo, calculator. |
+| Push | Single action. Upload your export -- free. No alternatives. |
+
+**Picture section -- four beats (locked):**
+
+1. Open on the scene -- second person, agent, queue, Monday morning.
+2. Name the specific questions -- lowercase, customer-phrased, 3-4 examples.
+3. Run the math -- small to large, $20 anchor, visceral not precise.
+4. Name the cause, land on the missed opportunity -- the language gap, end on
+   what Google could have handled.
+
+**Proof stack -- three layers (locked):**
+
+1. Category truth -- ranked pages outperform unranked, established SEO fact.
+2. Demo -- inline comparison, company language vs customer language on real data.
+3. Calculator -- buyer inputs their own numbers, confirms their own suspicion.
+
+**What this framework rejects:** Bullet-point pain lists. Lecture on why SEO
+matters. Curiosity-gap headlines. Vague CTAs.
+
+**Full framework doc:** `landing-page-framework.md`
+
+---
+
+## D-027 -- Export window for first ask
+
+**Status:** DECIDED (2026-05-24)
+
+**Question:** What ticket export window do we ask for in the first ask?
+
+**Previous default:** 90 days (from D-019 and acquisition pack).
+
+**Decision:** 3 to 6 month export. Any period works -- the volume and window do not affect the paid report scope or price. The 3-6 month ask gives enough data to show repeat patterns without making the export feel like a large project.
+
+**Why the window changed (revised 2026-05-24):**
+
+- The pipeline handles up to 50,000 rows. A 90-day sample undersells the
+  capability and produces weaker clustering.
+- More data means the financial math in the snapshot is more alarming.
+  15 repeat tickets over a month is annoying. The same 15 questions costing
+  $18,000+ over a year is a budget conversation.
+- Full history gives the deterministic parser a richer set of customer language
+  clusters, making FAQ drafts more accurate.
+
+**Qualifier:** Below a few hundred usable rows the snapshot fails closed or asks
+for a wider export window. The 3-6 month ask assumes the buyer has enough
+support volume to show repeat patterns. Thin-signal reply process unchanged.
+
+**Copy implication:** All outbound messages, landing page CTAs, and intake
+instructions say "upload your last 3 to 6 months" not "last 90 days." NOTE: the
+**quarterly refresh cadence stays "every 90 days"** — only the *first-ask export
+window* changes. Copy swaps are per-instance, not a global find-replace.
+
+---
+
+## D-028 — Google/SEO-ranking headline — current wedge vs a separate offer
+
+**Status:** DECIDED (2026-05-25)
+
+**Question:** `copy-template.md` locks a headline that foregrounds Google/SEO
+ranking ("Is Google deflecting your tier-one tickets? … FAQ pages that rank on
+Google"). Does it go on the current wedge?
+
+**Decision:** **No — not on the current wedge, and not yet.** The Google/SEO-ranking
+angle is locked as a **separate future offer / landing to test.** The current wedge
+(`/systems/support-ticket-deflection`) stays on the **cost / repeat-answering**
+angle. This is the direction we move *later*, not now.
+
+**Why:** "ranks on Google" is a stronger claim than the search backend (relevance
+ranking, not an SEO guarantee) can defensibly stand behind today. Quarantining it
+to a separate test page keeps the live wedge inside the no-guaranteed-ranking
+guardrail. Revisit as its own landing/A-B once ranking outcomes can be substantiated.
+
+---
+
+## D-029 — Mechanism altitude on the landing (3 steps vs the pipeline)
+
+**Status:** DECIDED (2026-05-25)
+
+**Question:** `copy-template.md` §18 says the mechanism section is "three steps
+maximum." The wedge currently renders a 6-stage pipeline (Support Tickets →
+Cluster → Rank → Extract → Draft → Review & Publish).
+
+**Decision:** The landing's **"how it works" = 3 buyer-altitude steps** (export →
+we run the analysis → the repeat questions stop becoming tickets — matching the
+demo's existing `HowItWorks`). The 6-stage pipeline's internal rigor
+(cluster / rank / extract / draft) is **not deleted** — it **relocates to a
+proof / methodology context** (the demo, or a "what the analysis does" line), where
+detail reads as credibility, not friction.
+
+**Why:** the 6 stages mix what the *buyer* does with internal mechanics; for a
+10-50 operator the 3-step view lowers perceived effort, while the pipeline detail
+still earns trust where rigor = proof (D-002 specific, D-013 data-is-moat).
