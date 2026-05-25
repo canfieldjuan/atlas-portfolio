@@ -31,7 +31,8 @@ Slice phase: Workflow/process
 ### Files touched
 
 - `web/plans/PR-Canonicalize-Decisions.md` — this plan doc (new)
-- `web/docs/landing-page-framework/decisions.md` — promoted superset + ICP-10-50 lock + D-028/D-029
+- `web/docs/landing-page-framework/decisions.md` — promoted superset + ICP-10-50 lock + D-028/D-029 + D-016 Status fix
+- `web/docs/landing-page-framework/support-deflection-acquisition-pack.md` — superseded-values banner (it still carried the old 10-100 / "last 90 days")
 
 ## Mechanism
 
@@ -58,6 +59,11 @@ Slice phase: Workflow/process
   stay inside the no-guaranteed-ranking claims guardrail; it's a separate future test.
 - **Docs-only, no code** — this changes no app behavior; it's the source-of-truth
   that the copy/build phase will draw from.
+- **#76-review fixes folded in:** D-016's section `**Status:**` flipped OPEN→DECIDED
+  (the promote left it contradicting its own table row + Decision line); and the
+  committed `support-deflection-acquisition-pack.md` — which still asserted the old
+  10-100 / "last 90 days" — gets a superseded-values banner pointing at D-001/D-027,
+  so the lock doesn't ship a live cross-doc contradiction on the values it locks.
 
 ## Deferred
 
@@ -82,8 +88,9 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| `decisions.md` (promote superset + 3 overrides) | ~245 |
-| this plan doc | ~95 |
-| **Total** | ~340 |
+| `decisions.md` (promote superset + overrides + D-016 fix) | ~248 |
+| `support-deflection-acquisition-pack.md` (superseded banner) | ~6 |
+| this plan doc | ~105 |
+| **Total** | ~359 |
 
 Under the 400-LOC soft cap (the bulk is an editorial doc promotion, not code).

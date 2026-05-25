@@ -55,7 +55,7 @@ Revisit open ones in any order — this isn't sequential.
 **Decision:**
 
 - **SMBs only.** No enterprise. No consumers.
-- **10–50 employees** (operator, 2026-05-25). The wedge page reflects this; `offer-locked.md`'s "10–100" is **superseded** — keep 10–50-employee outfits.
+- **10–50 employees** (operator, 2026-05-25). This **supersedes** the committed `support-deflection-acquisition-pack.md` ("10–100", banner-noted there) and the `offer-locked.md` draft — keep 10–50-employee outfits.
 - **Actively seeking AI solutions** — NOT "AI-curious." Different buyers.
 - Value either **time saved** or **money made/saved** (or both) — must be quantifiable on day 1.
 
@@ -466,7 +466,7 @@ Externally still keep the wedge ("support tickets → FAQs") until the first pay
 
 ## D-016 — Integration scope for v1
 
-**Status:** OPEN
+**Status:** DECIDED (2026-05-24)
 
 **Question:** Which support platforms do we integrate on launch, and what ingestion methods do we support?
 
