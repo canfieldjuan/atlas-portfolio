@@ -43,7 +43,7 @@ function ReportCard({ doc }: { doc: DeflectionDoc }) {
       <h3 className="text-base font-semibold text-foreground mb-2 leading-snug">{doc.title}</h3>
       <div className="mb-3">
         <div className="flex items-center justify-between text-[11px] text-foreground/45 mb-1">
-          <span>Intent match</span>
+          <span>Relevance</span>
           <span className="font-mono">{doc.matchScore}%</span>
         </div>
         <MatchBar score={doc.matchScore} />
@@ -71,64 +71,37 @@ function ReportCard({ doc }: { doc: DeflectionDoc }) {
   );
 }
 
-// snake_case risk tag → "Title Case".
-function humanizeSignal(tag: string): string {
-  return tag.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-// The real demand behind the question (Atlas's signals). Every field is optional
-// during the slice-3a migration, so a match missing one degrades instead of throwing.
+// The real demand behind the question, from the Atlas search projection: the
+// ticket volume for the issue + the count of source tickets cited as evidence.
 function SignalsPanel({ issue }: { issue: DeflectionIssue }) {
-  const hasMetric = issue.ticketVolumeInSample != null || issue.opportunityScore != null;
   return (
     <div className="rounded-xl border border-border bg-surface p-5 flex flex-col">
-      <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45 mb-3">
+      <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45 mb-4">
         Why this matters — real signals
       </span>
-      {hasMetric && (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {issue.ticketVolumeInSample != null && (
-            <div>
-              <div className="text-2xl font-semibold text-foreground tabular-nums">
-                {issue.ticketVolumeInSample.toLocaleString()}
-              </div>
-              <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
-                Tickets in sample
-              </div>
-            </div>
-          )}
-          {issue.opportunityScore != null && (
-            <div>
-              <div className="text-2xl font-semibold text-primary tabular-nums">
-                {issue.opportunityScore.toLocaleString()}
-              </div>
-              <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
-                Opportunity score
-              </div>
-            </div>
-          )}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <div className="text-2xl font-semibold text-foreground tabular-nums">
+            {issue.ticketVolumeInSample.toLocaleString()}
+          </div>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
+            Tickets in sample
+          </div>
         </div>
-      )}
-      {issue.riskSignals && issue.riskSignals.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {issue.riskSignals.map((sig) => (
-            <span
-              key={sig}
-              className="text-xs px-2.5 py-1 rounded-md border border-border text-foreground/60"
-            >
-              {humanizeSignal(sig)}
-            </span>
-          ))}
+        <div>
+          <div className="text-2xl font-semibold text-primary tabular-nums">
+            {issue.sourceCount.toLocaleString()}
+          </div>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mt-1">
+            Source tickets
+          </div>
         </div>
-      )}
-      {issue.customerQuote && (
-        <blockquote className="mt-auto border-l-2 border-primary/30 pl-3 text-sm text-foreground/70 italic leading-relaxed">
-          &ldquo;{issue.customerQuote}&rdquo;
-          {issue.summary && (
-            <footer className="mt-2 not-italic text-[11px] text-foreground/45">{issue.summary}</footer>
-          )}
-        </blockquote>
-      )}
+      </div>
+      <p className="mt-auto pt-4 text-[11px] text-foreground/45 leading-relaxed">
+        Both come straight from the matched FAQ: the ticket volume behind the question, and
+        the source tickets cited as evidence. The answer beside this is what the Report would
+        have your team review and publish.
+      </p>
     </div>
   );
 }
