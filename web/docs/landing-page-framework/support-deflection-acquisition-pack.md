@@ -1,5 +1,10 @@
 # Support Deflection Acquisition Pack
 
+> **⚠️ Superseded values — `decisions.md` is canonical.** This pack predates two
+> locks: ICP is **10–50 employees** (D-001), not the "10-100" below; and the
+> first-ask export window is **3–6 months** (D-027), not "last 90 days." Read those
+> values from `decisions.md`; update this pack when it's next revised.
+
 Use this pack to run the first 10 free Deflection Snapshot offers from D-019.
 
 The goal is not to sell software in the first message. The goal is to get a real support-ticket CSV from a qualified team, send back a useful snapshot, and learn whether the paid Support Ticket Deflection Report is worth pitching.
