@@ -24,7 +24,7 @@ import { generateFaqJsonLd } from '@/lib/seo';
 const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 
 const pipelineStages = [
-  { label: 'Support Tickets', sub: 'CSV • Last 90 days' },
+  { label: 'Support Tickets', sub: 'CSV • 3–6 months' },
   { label: 'Cluster by Intent' },
   { label: 'Rank by Volume' },
   { label: 'Extract Customer Wording' },
@@ -74,7 +74,7 @@ const useCases = [
   {
     title: `Head of Support trying to cut ticket volume`,
     detail:
-      `Your KPI is not “write more FAQs.” It is fewer avoidable tickets. The problem is that the inbox is too busy to stop and sort 90 days of tickets by hand.`,
+      `Your KPI is not “write more FAQs.” It is fewer avoidable tickets. The problem is that the inbox is too busy to stop and sort 3–6 months of tickets by hand.`,
   },
   {
     title: `Small team without a full-time docs person`,
@@ -91,7 +91,7 @@ const pricingTiers: DiagnosticPricingTier[] = [
     price: `Free`,
     sla: `Delivered in 24 hours after CSV upload`,
     description:
-      `Upload your last 90 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
+      `Upload your last 3–6 months of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
     includes: [
       `Top 5-10 repeat questions`,
       `Customer wording examples`,
@@ -109,7 +109,7 @@ const pricingTiers: DiagnosticPricingTier[] = [
     title: `Full Deflection Report`,
     price: `$1,500`,
     description:
-      `For the first 90-day batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
+      `For the first 3–6 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
       `Top 25-50 repeat questions`,
       `Customer wording clusters`,
@@ -319,7 +319,7 @@ function DeflectionReportHeroArtifact() {
       <div className="space-y-5 p-5">
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            [`90 days`, `ticket window`],
+            [`3–6 months`, `ticket window`],
             [`Top 25`, `questions ranked`],
             [`5 answers`, `ready to review`],
           ].map(([value, label]) => (
@@ -608,13 +608,16 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="w-3 h-3" />,
-    kicker: 'An automated cost cutter built from the tickets your customers already opened.',
     title:
-      'Stop paying your team to answer the same handful of questions over and over.',
-    intro: 'Drop in your Zendesk history. We find the repeat tickets and turn them into a self-service layer built to keep avoidable questions out of the inbox.',
+      'Stop answering the same $20 questions all day — because your help-center docs are written in your words, not your customers’.',
+    intro:
+      'Upload 3–6 months of support tickets. We find the questions customers ask most — in the words they actually use — and draft the step-by-step self-serve answers your team reviews and publishes. The first analysis is free.',
     body:
-      'Upload a CSV of your last 90 days of support tickets. We group the repeat questions, show which ones cost the most support time, pull out the words customers actually use, and draft the self-service answers your team can review and publish. No integration. No extra data project. Just the repeat-ticket cost hiding in your inbox.',
-    cta: sharedCta,
+      'It works because your tickets already hold the words customers use when they’re stuck — not your internal product language. We group the repeat questions, rank them by how often they come up, and draft each into a step-by-step FAQ — in your customers’ own words — that walks the customer to the resolution on their own. Your team reviews and publishes each one. No integration. No new platform. No data project.',
+    cta: {
+      label: 'Upload your tickets — get a free Deflection Snapshot',
+      href: GAP_REPORT_INTAKE_HREF,
+    },
     artifact: <DeflectionReportHeroArtifact />,
   },
   problem: {
@@ -716,7 +719,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
         <p>The hard part is that their questions are spread across months of old tickets.</p>
         <p>That is where the Support Ticket Deflection Report comes in.</p>
         <p>
-          Upload your last 90 days of support tickets. We group the repeat questions, rank the ones customers ask most, pull out the words customers actually use, and turn the biggest gaps into clear self-service answers.
+          Upload your last 3–6 months of support tickets. We group the repeat questions, rank the ones customers ask most, pull out the words customers actually use, and turn the biggest gaps into clear self-service answers.
         </p>
         <p>It works because your tickets show the problem in the customer’s language.</p>
         <p>
@@ -781,7 +784,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     label: 'PRICING',
     title: 'Start with a free snapshot. Pay when you want the full report.',
     description:
-      'The free snapshot gives you enough to see whether your old tickets are hiding deflectable support work. If the pattern is there, the full Deflection Report turns that first 90-day batch into answers your team can actually review and publish.',
+      'The free snapshot gives you enough to see whether your old tickets are hiding deflectable support work. If the pattern is there, the full Deflection Report turns that first 3–6 month batch into answers your team can actually review and publish.',
     tiers: pricingTiers,
     constraintLabel: 'WHAT\'S NOT INCLUDED',
     exclusions: [
@@ -793,9 +796,9 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   finalCta: {
     label: 'START HERE',
     title:
-      'Send us your last 90 days of support tickets, and we’ll show which repeat questions should stop hitting your inbox',
+      'Send us your last 3–6 months of support tickets, and we’ll show which repeat questions should stop hitting your inbox',
     body: [
-      'Upload your last 90 days of tickets. We turn the repeat questions into self-service answers your team can review and publish.',
+      'Upload your last 3–6 months of tickets. We turn the repeat questions into self-service answers your team can review and publish.',
       'The questions that keep coming back can slow down when customers can actually find the answer before they open another ticket.',
     ],
     cta: sharedCta,
