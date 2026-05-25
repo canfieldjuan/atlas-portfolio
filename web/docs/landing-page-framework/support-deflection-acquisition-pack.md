@@ -1,9 +1,11 @@
 # Support Deflection Acquisition Pack
 
-> **⚠️ Superseded values — `decisions.md` is canonical.** This pack predates two
-> locks: ICP is **10–50 employees** (D-001), not the "10-100" below; and the
-> first-ask export window is **3–6 months** (D-027), not "last 90 days." Read those
-> values from `decisions.md`; update this pack when it's next revised.
+> **⚠️ `decisions.md` is canonical.** ICP sweet spot is **15–75 employees** (10–200
+> outer band) per D-001 — the Prospect List Rules below are current. The first-ask
+> export window is **3–6 months** (D-027); the outbound *message templates* further
+> down still say "last 90 days" and are superseded by
+> `SEO-Ticket-Deflection-Template-Docs/outbound-sequence.md` — update them when this
+> pack is next revised.
 
 Use this pack to run the first 10 free Deflection Snapshot offers from D-019.
 
@@ -11,22 +13,28 @@ The goal is not to sell software in the first message. The goal is to get a real
 
 ## Prospect List Rules
 
-Start with 30-50 accounts, not a broad scrape.
+Start with 30-50 accounts, not a broad scrape. List quality beats email volume.
 
-Good targets:
+**Company filters:**
 
-- B2B SaaS, marketplace, productized service, or support-heavy software business.
-- 10-100 employees.
-- Visible support motion: help center, docs, status page, support portal, or public support email.
-- Buyer likely owns support cost: founder, Head of Support, CS lead, COO, or operations lead.
-- Likely uses Zendesk, Intercom, Freshdesk, HelpScout, or another exportable support inbox.
+- B2B SaaS (primary), or a marketplace / productized / support-heavy software business.
+- **15–75 employees (sweet spot); 10–200 outer band** (per D-001).
+- Uses Zendesk (or Intercom / Freshdesk / Help Scout) — an exportable support inbox.
+- Has a help center / knowledge base (signals they already care about self-service).
 
-Skip:
+**Title filters (the buyer who owns ticket volume):**
 
-- Consumer complaint workflows with heavy regulated data.
-- Enterprise accounts where a CSV export needs security review before a conversation.
-- Teams with no visible support volume.
-- Teams hiring many support agents for bespoke implementation work rather than repeat issues.
+- Head / VP / Director of Support
+- Head / VP of Customer Experience
+- Head of Customer Success (if they own support)
+- Founder / CEO (companies under ~30 — the founder is often still in the queue)
+
+**Exclude:**
+
+- Enterprise / Fortune 500 — a $1,500 report is below their procurement threshold; cycle too long.
+- Pure high-volume consumer apps (B2C) — different product fit.
+- Pre-product or very early — no months of tickets to export yet (no tickets, nothing to find).
+- Teams with no visible support volume, or hiring agents for bespoke implementation rather than repeat issues.
 
 ## LinkedIn Connection Note
 
