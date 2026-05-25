@@ -32,12 +32,23 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
+## 2026-05-25
+
+### DEFLECTION-BADGE-1 — result badge is a static "Illustrative · sample dataset"
+- File/location: `web/src/components/deflection-demo/DeflectionDemo.tsx` (the `phase === 'result'` header badge).
+- Description: The result-block badge is hard-coded "Illustrative · sample dataset" — correct while the demo answers from the local dataset, but once `DEFLECTION_SEARCH_ATLAS_BASE_URL` is set and the route returns real Atlas rows it mislabels real data. Fix needs a `source: 'local' | 'atlas'` flag on the search response so the component labels accordingly.
+- Why it matters: avoids labeling real customer data "illustrative" (or vice-versa) once the env is live. Cosmetic until then.
+- Effort: S
+- Category: polish
+- Found during: PR-Deflection-Atlas-Wiring (3c).
+
 ## 2026-05-23
 
-### DEFLECTION-GOLIVE-1 — Atlas deflection-search proxy go-live gate
+### DEFLECTION-GOLIVE-1 — RESOLVED (3c) — Atlas deflection-search proxy go-live gate
 - File/location: `web/src/app/api/demo/deflection-search/route.ts` (`mapAtlasMatch` + the `GET` handler).
 - Description: Close **all four** before any Atlas env (`DEFLECTION_SEARCH_ATLAS_BASE_URL`) is configured: (1) full `mapAtlasMatch` shape validation — every field the UI renders incl. `riskSignals[]`, the string fields, and `improved.actions` as an array — reject malformed → `502`; (2) outer `catch` → a generic message (it currently returns raw `error.message`, which can leak the upstream hostname on a Node `fetch` network failure; the token stays header-only); (3) length-cap `q` (currently only trimmed → forwarded to Atlas unbounded); (4) an `AbortController` timeout on the upstream fetch (a hung Atlas hangs the request; the client has no timeout either).
 - Why it matters: the proxy path is inert today (no env), but the moment Atlas is wired a shallow/incomplete upstream object can crash the demo's `doc.actions.map` render with no error boundary, instead of the intended `502`. Migrated here from `PATTERNS.md`.
 - Effort: M
 - Category: security / correctness
-- Found during: PR-Deflection-Demo-Backend-Seam (#66). Blocked upstream: the Atlas `faq-deflection-search` route does not exist yet, and Atlas owns + must lock the response contract before this gate closes (build `mapAtlasMatch` only against a real sample payload, never a guessed shape).
+- Found during: PR-Deflection-Demo-Backend-Seam (#66). Blocked upstream: the Atlas `faq-deflection-search` route did not exist yet, and Atlas owns + must lock the response contract before this gate closes (build `mapAtlasMatch` only against a real sample payload, never a guessed shape).
+- Resolved: PR-Deflection-Atlas-Wiring (3c) closed all four once Atlas locked the contract — full `mapAtlasMatch` field validation, generic outer-catch with server-side logging (no upstream-host leak), 256-char `q` cap, and an 8s `AbortController` timeout. Remaining to go live = config only: set `DEFLECTION_SEARCH_ATLAS_BASE_URL` + `DEFLECTION_SEARCH_ATLAS_AUTH_TOKEN` to a deployed host + a B2B-growth JWT whose account has approved rows.

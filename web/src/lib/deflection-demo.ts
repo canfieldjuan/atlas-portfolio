@@ -9,7 +9,7 @@
 // request id, and recovers to a retryable error state if the call rejects — so a
 // real async fetch is safe.
 //
-// Copy note: the per-issue numbers and quotes here are ILLUSTRATIVE (modeled on a
+// Copy note: the per-issue numbers here are ILLUSTRATIVE (modeled on a
 // public consumer-complaint dataset), not a guaranteed result. The offer is the
 // Support Ticket Deflection Report — a CSV analysis, not an integration that
 // promises a fixed deflection rate.
@@ -29,24 +29,19 @@ export type DeflectionDoc = {
 };
 
 export type DeflectionIssue = {
-  id: number;
+  /** Local: numeric id. Atlas: the FAQ id (string). Metadata only — not rendered. */
+  id: number | string;
   intent: string;
-  /** Phrases a customer actually types — used for matching. */
+  /** Phrases a customer actually types — used by the LOCAL matcher only. */
   phrases: string[];
-  /** The actionable, customer-language FAQ the Report would produce (Atlas's "improved" side). */
+  /** The actionable answer the Report would publish (Atlas `question` + `answer_summary`). */
   improved: DeflectionDoc;
 
-  // ── Real-signal fields (Atlas's ticket-FAQ pipeline provides these) ──────────
-  /** Atlas `frequency`: ticket count across the sample corpus (a total, NOT monthly). */
+  // ── Real-signal fields from the Atlas faq-deflection-search projection ────────
+  /** Atlas `ticket_count`: tickets for this issue across the sample (a total, NOT monthly). */
   ticketVolumeInSample: number;
-  /** Atlas `opportunity_score`: relative priority of fixing this issue. */
-  opportunityScore: number;
-  /** Atlas `failure_risk_signals`: snake_case "why it matters" tags. */
-  riskSignals: string[];
-  /** Atlas `evidence_quotes[0]`: a real customer quote (PII-redacted in real data). */
-  customerQuote: string;
-  /** Atlas `summary`: one-line demand summary across the sample. */
-  summary: string;
+  /** Atlas `source_ids.length`: source tickets cited as evidence for this FAQ. */
+  sourceCount: number;
 };
 
 // ── Illustrative dataset (replace via searchDeflection → backend) ─────────────
@@ -56,10 +51,7 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     intent: 'Account Access',
     phrases: ["can't log in", 'login not working', 'forgot password', 'locked out', 'sign in problem', 'password reset'],
     ticketVolumeInSample: 3120,
-    opportunityScore: 15600,
-    riskSignals: ['blocked_access', 'failed_login', 'account_lockout'],
-    customerQuote: "I've reset my password three times and still can't get back into my account.",
-    summary: 'Login and password-reset failures are the single largest access driver across the sample.',
+    sourceCount: 24,
     improved: {
       title: "I can't log in — how do I get back into my account?",
       body: 'Open the login page and click "Forgot password"\nEnter the email linked to your account\nCheck your inbox and spam for the reset link\nClick it and set a new password\nStill stuck? Use chat — we verify and reset manually',
@@ -75,10 +67,7 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     intent: 'Billing Dispute',
     phrases: ['charged twice', 'double charge', 'duplicate charge', 'billed twice', 'overcharged', 'two charges'],
     ticketVolumeInSample: 2418,
-    opportunityScore: 13600,
-    riskSignals: ['money_or_account_risk', 'duplicate_charge', 'billing_error'],
-    customerQuote: "I was charged twice for the same order and I can't find where to dispute it.",
-    summary: 'Duplicate-charge and billing-error reports recur heavily across the sample.',
+    sourceCount: 31,
     improved: {
       title: 'I see a duplicate charge — how do I get it removed?',
       body: 'Check whether it is a pending authorization (often drops off in 3–5 days)\nIf both have posted, open Billing → Transaction History\nClick "Report Issue" on the duplicate\nWe review within 24 hours and issue a refund\nYou get an email when the refund is processed',
@@ -94,10 +83,7 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     intent: 'Order Status',
     phrases: ['where is my order', 'order not received', 'delivery late', 'order missing', 'never arrived', 'shipping delayed'],
     ticketVolumeInSample: 2890,
-    opportunityScore: 11200,
-    riskSignals: ['delivery_delay', 'missing_order', 'tracking_gap'],
-    customerQuote: 'My order says delivered but it never arrived.',
-    summary: 'Where-is-my-order and missing-delivery questions dominate post-purchase tickets.',
+    sourceCount: 18,
     improved: {
       title: "My order hasn't arrived — what should I do right now?",
       body: 'Check Account → Orders → Track\nIf tracking has not updated in 48+ hours, the carrier may be delayed\nIf the delivery date has passed, click "Report Missing Order"\nWe contact the carrier and ship a replacement within 2 days\nYou keep the original if it later arrives',
@@ -113,10 +99,7 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     intent: 'Cancellation',
     phrases: ['cancel subscription', 'how to cancel', 'stop billing', 'end subscription', 'unsubscribe', 'cancel plan'],
     ticketVolumeInSample: 1760,
-    opportunityScore: 8800,
-    riskSignals: ['failed_workflow', 'retention_risk', 'data_loss_fear'],
-    customerQuote: "I just want to cancel but I can't find the option anywhere.",
-    summary: 'Customers struggle to self-serve cancellation and worry about losing their data.',
+    sourceCount: 14,
     improved: {
       title: 'How do I cancel my plan without losing my data?',
       body: 'Open Settings → Subscription → Cancel Plan\nPick your cancellation date (effective at period end)\nExport first: Settings → Data → Download Everything\nConfirm — access continues until the period ends\nReactivate within 90 days and everything is preserved',
@@ -132,10 +115,7 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     intent: 'App Stability',
     phrases: ['app crashing', 'keeps closing', 'freezing', 'not responding', "app won't open", 'keeps crashing'],
     ticketVolumeInSample: 1540,
-    opportunityScore: 9200,
-    riskSignals: ['app_crash', 'blocked_access', 'failed_workflow'],
-    customerQuote: 'The app crashes every time I open the reports tab.',
-    summary: 'Repeated crash reports cluster around a few specific app actions.',
+    sourceCount: 22,
     improved: {
       title: 'The app keeps crashing — how do I fix it fast?',
       body: 'Force-close the app and reopen it once\nUpdate to the latest version in your app store\nClear the app cache: Settings → Storage → Clear Cache\nRestart your device, then reopen\nStill crashing? Tap "Send crash report" so we can see the exact error',
