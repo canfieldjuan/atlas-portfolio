@@ -55,7 +55,7 @@ Revisit open ones in any order — this isn't sequential.
 **Decision:**
 
 - **SMBs only.** No enterprise. No consumers.
-- **10–50 employees** (operator, 2026-05-25). This **supersedes** the committed `support-deflection-acquisition-pack.md` ("10–100", banner-noted there) and the `offer-locked.md` draft — keep 10–50-employee outfits.
+- **15–75 employees (sweet spot); 10–200 outer prospecting band** (operator, 2026-05-25, revised from a briefly-locked 10-50 after working the outbound targeting criteria). Supersedes both the 10-50 cut and `offer-locked.md`'s "10–100". The landing "who it's for" leans on the **15–75 sweet spot + fit-signals** (B2B SaaS, runs an exportable help desk, has a help center); the broad **10–200** band + title/qualifier/exclusion filters are **outbound-list criteria** — see `support-deflection-acquisition-pack.md`.
 - **Actively seeking AI solutions** — NOT "AI-curious." Different buyers.
 - Value either **time saved** or **money made/saved** (or both) — must be quantifiable on day 1.
 
