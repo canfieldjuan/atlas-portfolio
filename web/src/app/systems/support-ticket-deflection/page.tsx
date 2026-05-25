@@ -319,7 +319,7 @@ function DeflectionReportHeroArtifact() {
       <div className="space-y-5 p-5">
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            [`90 days`, `ticket window`],
+            [`3–6 months`, `ticket window`],
             [`Top 25`, `questions ranked`],
             [`5 answers`, `ready to review`],
           ].map(([value, label]) => (
@@ -608,13 +608,16 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="w-3 h-3" />,
-    kicker: 'An automated cost cutter built from the tickets your customers already opened.',
     title:
-      'Stop paying your team to answer the same handful of questions over and over.',
-    intro: 'Drop in your Zendesk history. We find the repeat tickets and turn them into a self-service layer built to keep avoidable questions out of the inbox.',
+      'Stop answering the same $20 questions all day — because your help-center docs are written in your words, not your customers’.',
+    intro:
+      'Upload 3–6 months of support tickets. We find the questions customers ask most — in the words they actually use — and draft the step-by-step self-serve answers your team reviews and publishes. The first analysis is free.',
     body:
-      'Upload a CSV of your last 90 days of support tickets. We group the repeat questions, show which ones cost the most support time, pull out the words customers actually use, and draft the self-service answers your team can review and publish. No integration. No extra data project. Just the repeat-ticket cost hiding in your inbox.',
-    cta: sharedCta,
+      'It works because your tickets already hold the words customers use when they’re stuck — not your internal product language. We group the repeat questions, rank them by how often they come up, and draft each into a step-by-step FAQ — in your customers’ own words — that walks the customer to the resolution on their own. Your team reviews and publishes each one. No integration. No new platform. No data project.',
+    cta: {
+      label: 'Upload your tickets — get a free Deflection Snapshot',
+      href: GAP_REPORT_INTAKE_HREF,
+    },
     artifact: <DeflectionReportHeroArtifact />,
   },
   problem: {

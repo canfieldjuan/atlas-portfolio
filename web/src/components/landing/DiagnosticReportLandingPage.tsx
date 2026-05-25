@@ -51,7 +51,7 @@ export type DiagnosticReportLandingPageConfig = {
   hero: {
     eyebrow: string;
     eyebrowIcon?: ReactNode;
-    kicker: string;
+    kicker?: string;
     title: string;
     intro: string;
     body: string;
@@ -305,7 +305,9 @@ export function DiagnosticReportLandingPage({
                 {config.hero.eyebrowIcon}
                 <span>{config.hero.eyebrow}</span>
               </div>
-              <p className="text-sm text-foreground/50 mb-6">{config.hero.kicker}</p>
+              {config.hero.kicker && (
+                <p className="text-sm text-foreground/50 mb-6">{config.hero.kicker}</p>
+              )}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
                 {config.hero.title}
               </h1>
