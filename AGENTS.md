@@ -27,7 +27,7 @@ Required `##` sections, **in this order** (enforced by
 | **Mechanism** | How the change works — enough that the reviewer needn't reverse-engineer it from the diff. |
 | **Intentional** | Things that look wrong but aren't — explicit trade-offs and rejected alternatives. |
 | **Deferred** | What's punted to a follow-up, and what would unlock it. End with `Parked hardening: none` or the `HARDENING.md` entry titles this slice added (see §2e). |
-| **Verification** | The exact commands run locally + their results. |
+| **Verification** | The exact commands run locally + their results. If the slice changed a value that recurs (a number, label, route, copy string), **grep the repo for the old value and confirm no stale instance remains** — or name each remaining one in **Deferred**. |
 | **Estimated diff size** | A table with a `\| Total \| ~N \|` row (enforced by `scripts/audit_plan_doc_diff_size.py`). Flag if over the 400-LOC soft cap. |
 
 ### 1b. PR body
@@ -219,6 +219,10 @@ Never in a PR or review:
   plan; spot-check the diff, don't just trust a green test sweep.
 - **Builder applying every NIT** — apply only the 1-line / unambiguous ones; skip
   the ones the reviewer marked skip-worthy.
+- **Value swept in one place, stale elsewhere** — changing a recurring value (a
+  number, label, route, copy string) without grepping the old value to confirm no
+  stale or contradicting instance survives. Caught three times in review
+  (#76/#77/#78); the §1a Verification grep step is the guard.
 
 ---
 
