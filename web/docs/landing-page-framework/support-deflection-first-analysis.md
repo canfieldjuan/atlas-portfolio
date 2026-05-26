@@ -27,7 +27,7 @@ Primary buyer:
 Good-fit account:
 
 - B2B SaaS, marketplace, productized service, or support-heavy software-enabled business.
-- Has at least a few hundred closed tickets in the last 90 days.
+- Has at least a few hundred closed tickets in the last 3–6 months.
 - Has closer to 2,000+ closed tickets if they want the full paid report to rank 25-50 repeat question clusters honestly.
 - Uses Zendesk, Intercom, Freshdesk, HelpScout, or a support inbox that exports CSV.
 - Has a help center, saved replies, onboarding docs, or product docs that are not keeping up.
@@ -43,7 +43,7 @@ Weak-fit account:
 
 The first ask is:
 
-> Send us a CSV of your last 90 days of closed support tickets. We will send back a free Deflection Snapshot showing the repeat questions worth deflecting first.
+> Send us a CSV of your last 3–6 months of closed support tickets. We will send back a free Deflection Snapshot showing the repeat questions worth deflecting first.
 
 Do not lead with software, platform, AI model, or automation. Lead with the concrete artifact.
 
@@ -77,7 +77,7 @@ If the export includes PII, remove obvious names, emails, phone numbers, address
 ## Manual Workflow For First 3 Snapshots
 
 1. Confirm scope.
-   - Last 90 days of closed tickets.
+   - Last 3–6 months of closed tickets.
    - One product or support queue when possible.
    - Snapshot only, not the full paid report.
 

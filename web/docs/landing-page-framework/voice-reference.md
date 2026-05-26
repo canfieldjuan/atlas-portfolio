@@ -186,7 +186,7 @@ This later pass changed the offer and intake language for a specific reason:
 - The page moved away from “The Gap Report” as the visible offer name, then from “The FAQ Report” toward “Support Ticket Deflection Report.”
 - The CTA moved from “send us your CSV” to “upload your CSV” because the intake form already allows users to upload their own CSV. That lowers friction and should stay reflected in the copy.
 - The free offer is a limited “Deflection Snapshot” so the free version proves value without giving away the paid report.
-- The paid offer is the full Support Ticket Deflection Report for the first 90-day batch, with quarterly refreshes positioned as optional follow-up.
+- The paid offer is the full Support Ticket Deflection Report for the first 3–6 month batch, with quarterly refreshes positioned as optional follow-up.
 - The intake form now asks for name, work email, company name, support platform, and CSV. Support platform is required because we want to learn which tools are most common and interpret exports faster.
 - The page and intake were lightened with route-scoped styling only. Do not move those colors into global CSS unless the broader site is intentionally being redesigned.
 
@@ -428,7 +428,7 @@ deflectable in week one.
 ```
 Hey [first name] —
 
-Quick test offer. If you can export the last 90 days of closed
+Quick test offer. If you can export the last 3–6 months of closed
 support tickets, I will send back a free Deflection Snapshot.
 
 It shows:
