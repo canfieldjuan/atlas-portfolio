@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: `CSV file is too large (${(csvFile.size / (1024 * 1024)).toFixed(2)} MB). Maximum is 4 MB. Reduce the date range or column count, or email us directly.`,
+        error: `CSV file is too large (${(csvFile.size / (1024 * 1024)).toFixed(2)} MB). Maximum is 4 MB. Trim to the core columns (ticket id, subject, first message, date), or email us directly.`,
       },
       { status: 413 }
     );

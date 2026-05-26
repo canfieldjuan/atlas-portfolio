@@ -34,6 +34,14 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## 2026-05-25
 
+### DEFLECTION-INTAKE-RATELIMIT-1 — direct-to-blob intake endpoints are unauthenticated + unthrottled
+- File/location: `web/src/app/api/gap-report-intake/upload/route.ts` + `web/src/app/api/gap-report-intake/record/route.ts`.
+- Description: The direct-to-blob flow exposes two open POST endpoints — `/upload` (mints a short-lived Vercel Blob client token) and `/record` (persists + emails). Both validate metadata and cap content-type/size (50 MB), and `/record` confirms blob ownership via `head()`, but neither is rate-limited. An attacker could mint many tokens or spam record submissions. Acceptable at first-5-design-partner volume; add a rate limit (IP/token bucket or Vercel WAF) before broader launch.
+- Why it matters: open lead-form endpoints; bounded today by size/content-type/ownership checks but no abuse throttle.
+- Effort: M
+- Category: security
+- Found during: PR-Intake-Direct-Blob.
+
 ### DEFLECTION-BADGE-1 — result badge is a static "Illustrative · sample dataset"
 - File/location: `web/src/components/deflection-demo/DeflectionDemo.tsx` (the `phase === 'result'` header badge).
 - Description: The result-block badge is hard-coded "Illustrative · sample dataset" — correct while the demo answers from the local dataset, but once `DEFLECTION_SEARCH_ATLAS_BASE_URL` is set and the route returns real Atlas rows it mislabels real data. Fix needs a `source: 'local' | 'atlas'` flag on the search response so the component labels accordingly.
