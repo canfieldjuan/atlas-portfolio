@@ -272,21 +272,27 @@ const demoScaleStats = [
   { value: `46`, label: `rows shown in excerpt` },
 ];
 
-const heroReportRows = [
+const heroReportRows: {
+  topic: string;
+  ticketCount: string;
+  question: string;
+  signal?: string;
+}[] = [
   {
-    issue: `Billing confusion`,
-    count: `41 tickets`,
-    phrase: `why was I charged twice?`,
+    topic: `Billing`,
+    ticketCount: `38 tickets`,
+    question: `why was I charged twice?`,
+    signal: `“charged twice” → 0 results in your help center`,
   },
   {
-    issue: `Team access`,
-    count: `29 tickets`,
-    phrase: `how do I add another person?`,
+    topic: `Team access`,
+    ticketCount: `29 tickets`,
+    question: `how do I add another person?`,
   },
   {
-    issue: `Cancellation steps`,
-    count: `18 tickets`,
-    phrase: `how do I cancel my account?`,
+    topic: `Cancellation`,
+    ticketCount: `18 tickets`,
+    question: `how do I cancel my account?`,
   },
 ];
 
@@ -331,8 +337,8 @@ function DeflectionReportHeroArtifact() {
         <div className="grid gap-3 sm:grid-cols-3">
           {[
             [`3–6 months`, `ticket window`],
-            [`Top 25`, `questions ranked`],
-            [`5 answers`, `ready to review`],
+            [`412 tickets`, `analyzed`],
+            [`✓ Their words`, `not your jargon`],
           ].map(([value, label]) => (
             <div key={label} className="rounded-lg border border-[var(--artifact-dark-border-muted)] bg-[var(--artifact-paper)] px-3 py-3">
               <p className="text-lg font-semibold text-[var(--artifact-paper-text)]">{value}</p>
@@ -352,28 +358,41 @@ function DeflectionReportHeroArtifact() {
           </div>
           <div className="space-y-2">
             {heroReportRows.map((row, index) => (
-              <div key={row.issue} className="rounded-md bg-[var(--artifact-paper)] px-3 py-2">
+              <div key={row.topic} className="rounded-md bg-[var(--artifact-paper)] px-3 py-2">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-[var(--artifact-paper-text)]">
-                    {String(index + 1).padStart(2, '0')} · {row.issue}
+                    {String(index + 1).padStart(2, '0')} · {row.topic}
                   </p>
-                  <p className="shrink-0 text-[11px] font-mono text-[var(--artifact-success-muted)]">{row.count}</p>
+                  <p className="shrink-0 text-[11px] font-mono text-[var(--artifact-success-muted)]">{row.ticketCount}</p>
                 </div>
-                <p className="mt-1 text-xs text-[var(--artifact-paper-muted)]">Customer phrase: &ldquo;{row.phrase}&rdquo;</p>
+                <p className="mt-1 text-xs text-[var(--artifact-paper-muted)]">&ldquo;{row.question}&rdquo;</p>
+                {row.signal && (
+                  <p className="mt-1 text-[11px] text-[var(--artifact-danger)]">⚠ {row.signal}</p>
+                )}
               </div>
             ))}
           </div>
         </div>
 
         <div className="rounded-lg border border-[var(--artifact-success-border-veil)] bg-[var(--artifact-success-surface)] p-4">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
-            Self-service answer your team reviews
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
+              Drafted answer
+            </p>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
+              needs your review
+            </p>
+          </div>
           <p className="mt-2 text-sm font-semibold text-[var(--artifact-paper-text)]">
             Why do I see two charges after changing my plan?
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--artifact-body)]">
-            Most duplicate-looking charges come from a plan change, renewal timing, or a pending authorization. Check your billing page for the invoice date first. If both charges posted, send support the two invoice IDs so they can confirm the adjustment.
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-[var(--artifact-body)]">
+            <li>Check the invoice date on your billing page.</li>
+            <li>A mid-cycle plan change creates a prorated charge alongside the renewal.</li>
+            <li>If both posted, send support the two invoice IDs to confirm the adjustment.</li>
+          </ol>
+          <p className="mt-3 border-t border-[var(--artifact-success-border-veil)] pt-2 text-[11px] font-mono text-[var(--artifact-success-muted)]">
+            drafted from 4 cited tickets · you approve before publishing
           </p>
         </div>
       </div>
