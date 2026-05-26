@@ -38,7 +38,7 @@ const offers: Offer[] = [
     label: 'SUPPORT OPERATIONS',
     title: 'Support Ticket Deflection Report',
     summary:
-      'Turns the last 90 days of closed support tickets into ranked repeat questions, the wording customers actually use, and self-service answers your team reviews and publishes.',
+      'Turns the last 3–6 months of closed support tickets into ranked repeat questions, the wording customers actually use, and self-service answers your team reviews and publishes.',
     points: [
       'Repeat-question clustering by customer intent',
       'Volume-ranked deflection opportunities',

@@ -243,7 +243,7 @@ export function DeflectionDemo() {
 
       {phase === 'no-match' && (
         <div className="glass rounded-xl border border-border p-6 text-sm text-foreground/60 leading-relaxed">
-          No close match in this short sample set. The real Report runs against <em>your</em> 90-day
+          No close match in this short sample set. The real Report runs against <em>your</em> 3–6-month
           ticket export, where repeat questions like this surface by volume — try one of the chips
           above to see an example.
         </div>

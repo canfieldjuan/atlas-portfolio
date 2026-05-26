@@ -248,7 +248,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             One file. Five fields. 24 hours.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Upload a CSV export of the last 90 days of your closed support tickets. We send
+            Upload a CSV export of the last 3–6 months of your closed support tickets. We send
             back a free {copy.snapshotName}: the repeat questions we can see, customer wording
             examples, and {copy.sampleOutputLabel}.
           </p>
