@@ -2,10 +2,9 @@
 
 > **⚠️ `decisions.md` is canonical.** ICP sweet spot is **15–75 employees** (10–200
 > outer band) per D-001 — the Prospect List Rules below are current. The first-ask
-> export window is **3–6 months** (D-027); the outbound *message templates* further
-> down still say "last 90 days" and are superseded by
-> `SEO-Ticket-Deflection-Template-Docs/outbound-sequence.md` — update them when this
-> pack is next revised.
+> export window is **3–6 months** (D-027), now reflected in the message templates
+> below; the fuller outbound sequence lives in
+> `SEO-Ticket-Deflection-Template-Docs/outbound-sequence.md`.
 
 Use this pack to run the first 10 free Deflection Snapshot offers from D-019.
 
@@ -40,7 +39,7 @@ Start with 30-50 accounts, not a broad scrape. List quality beats email volume.
 
 ```text
 Saw you run support/CS at [company]. I am testing a free
-support-ticket analysis: you send the last 90 days of closed tickets,
+support-ticket analysis: you send the last 3–6 months of closed tickets,
 I send back the repeat questions worth deflecting first.
 
 Worth connecting?
@@ -51,7 +50,7 @@ Worth connecting?
 ```text
 Thanks for connecting, [first name].
 
-Quick test offer. If you can export the last 90 days of closed
+Quick test offer. If you can export the last 3–6 months of closed
 support tickets, I will send back a free Deflection Snapshot.
 
 It shows:
@@ -86,7 +85,7 @@ Hi [first name],
 I am looking for 10 support-heavy SaaS teams to run a free Deflection
 Snapshot.
 
-The ask is simple: send a CSV export of the last 90 days of closed
+The ask is simple: send a CSV export of the last 3–6 months of closed
 support tickets. I will send back:
 
 1. Your top repeat ticket patterns.
@@ -109,7 +108,7 @@ Juan
 Use this when someone is interested but asks what you need.
 
 ```text
-The cleanest export is a CSV of closed tickets from the last 90 days.
+The cleanest export is a CSV of closed tickets from the last 3–6 months.
 
 Minimum useful fields:
 - ticket ID
@@ -173,7 +172,7 @@ I attached the snapshot with:
 - one self-service answer draft
 - the first action path
 
-If you want the full report, the next step is the first 90-day Support
+If you want the full report, the next step is the first 3–6 month Support
 Ticket Deflection Report. That gives you the top 25-50 clusters, 3-5
 self-service answers to review, and the publishing priority list.
 
@@ -210,7 +209,7 @@ Use this only when the snapshot found a real repeat-ticket pattern.
 The free snapshot shows enough repeat-ticket signal to justify the
 full report.
 
-The paid version is $1,500 for the first 90-day batch.
+The paid version is $1,500 for the first 3–6 month batch.
 
 It includes:
 - top 25-50 repeat question clusters
