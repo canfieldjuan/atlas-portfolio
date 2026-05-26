@@ -296,21 +296,24 @@ const heroReportRows: {
   },
 ];
 
-const comparisonRows = [
+const termMappings = [
   {
-    customer: `how do I add another person?`,
-    traditional: `Seat management permissions`,
-    answer: `How do I invite a teammate without giving them billing access?`,
+    customerTerm: `export`,
+    docTerm: `Download report`,
+    zeroResults: `6 searches → 0 results`,
+    suggestion: `add “export” as alternate phrasing in the FAQ heading`,
   },
   {
-    customer: `why was I charged twice?`,
-    traditional: `Billing reconciliation policy`,
-    answer: `Why do I see two charges after changing my plan?`,
+    customerTerm: `add another person`,
+    docTerm: `Seat management`,
+    zeroResults: `4 searches → 0 results`,
+    suggestion: `lead the heading with “add a teammate”`,
   },
   {
-    customer: `can I cancel before renewal?`,
-    traditional: `Account lifecycle changes`,
-    answer: `How do I cancel before my renewal date?`,
+    customerTerm: `charged twice`,
+    docTerm: `Billing reconciliation`,
+    zeroResults: `9 searches → 0 results`,
+    suggestion: `title the FAQ “why was I charged twice?”`,
   },
 ];
 
@@ -449,57 +452,32 @@ function DeflectionDraftedAnswer() {
   );
 }
 
-function HelpCenterComparison() {
+function TermMap() {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <div className="rounded-xl border border-[var(--artifact-danger-border)] bg-[var(--artifact-danger-surface)] p-5 shadow-[var(--card-shadow)]">
-        <div className="mb-5 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-danger-tint)] text-[var(--artifact-danger)]">
-            <AlertTriangle className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-danger)]">
-              Traditional help center
-            </p>
-            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers written in company language</h3>
-          </div>
-        </div>
-        <div className="space-y-3">
-          {comparisonRows.map((row) => (
-            <div key={row.traditional} className="rounded-lg border border-[var(--artifact-danger-border-muted)] bg-white px-4 py-3">
-              <p className="text-[11px] text-[var(--artifact-danger)]">Customer searches: &ldquo;{row.customer}&rdquo;</p>
-              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.traditional}</p>
+    <div className="glass overflow-hidden rounded-xl border border-border">
+      <div className="divide-y divide-border">
+        {termMappings.map((m) => (
+          <div key={m.customerTerm} className="px-5 py-4 md:px-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <p className="text-sm font-medium text-foreground">
+                A customer searches &ldquo;{m.customerTerm}&rdquo;
+              </p>
+              <p className="whitespace-nowrap text-[11px] font-mono text-[var(--artifact-danger)]">
+                {m.zeroResults}
+              </p>
             </div>
-          ))}
-        </div>
-        <p className="mt-5 border-t border-[var(--artifact-danger-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-danger-muted)]">
-          The answer may exist, but the title and wording do not match how customers describe the problem when they are stuck.
-        </p>
+            <p className="mt-1 text-xs text-foreground/55">
+              your help center files it under{' '}
+              <span className="text-foreground/75">&ldquo;{m.docTerm}&rdquo;</span>
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-foreground/70">
+              <span className="text-primary/80">↳ fix:</span> {m.suggestion}
+            </p>
+          </div>
+        ))}
       </div>
-
-      <div className="rounded-xl border border-[var(--artifact-success-border)] bg-[var(--artifact-success-panel)] p-5 shadow-[var(--card-shadow)]">
-        <div className="mb-5 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--artifact-success-surface)] text-[var(--artifact-success)]">
-            <FileText className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
-              Deflection answer layer
-            </p>
-            <h3 className="text-lg font-semibold text-[var(--artifact-paper-text)]">Answers drafted from customer wording</h3>
-          </div>
-        </div>
-        <div className="space-y-3">
-          {comparisonRows.map((row) => (
-            <div key={row.answer} className="rounded-lg border border-[var(--artifact-success-border-muted)] bg-white px-4 py-3">
-              <p className="text-[11px] text-[var(--artifact-success)]">Ticket phrase preserved: &ldquo;{row.customer}&rdquo;</p>
-              <p className="mt-1 text-sm font-medium text-[var(--artifact-paper-text)]">{row.answer}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-5 border-t border-[var(--artifact-success-border-muted)] pt-4 text-sm leading-relaxed text-[var(--artifact-body)]">
-          Your team still reviews the answer. The difference is that the first draft starts from the way customers actually ask.
-        </p>
+      <div className="border-t border-border bg-surface px-5 py-3 text-xs leading-relaxed text-foreground/55 md:px-6">
+        The fix is wording, not new docs — these are the words your customers already search, and the words your help center should answer in.
       </div>
     </div>
   );
@@ -825,11 +803,11 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
   },
   comparison: {
     id: 'comparison',
-    label: 'THE WEDGE',
+    label: 'YOUR TERM MAP',
     title: 'The answer can exist and still be invisible.',
     description:
-      'Most ticket-deflection problems are not only missing-answer problems. They are language mismatch problems. The Deflection Report compares what customers ask against how your help center names the answer, then drafts the bridge your team can review and publish.',
-    artifact: <HelpCenterComparison />,
+      'Repeat tickets usually aren’t missing-answer problems — they’re wording problems. The report hands you the term map: the exact words customers search, the words your help center uses instead, and the wording fix. We don’t promise rankings — but these are the words findable answers are built from.',
+    artifact: <TermMap />,
   },
   sample: {
     id: 'demo',
