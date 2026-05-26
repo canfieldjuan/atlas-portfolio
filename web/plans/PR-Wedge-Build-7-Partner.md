@@ -33,6 +33,7 @@ Slice phase: Vertical slice
 - `web/plans/PR-Wedge-Build-7-Partner.md` — this plan doc (new)
 - `web/src/app/systems/support-ticket-deflection/partner/page.tsx` — partner landing (shared config + $1,000 pricing override)
 - `web/src/app/systems/support-ticket-deflection/partner/layout.tsx` — noindex metadata
+- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — make the who-it's-for constraint price-agnostic (was "$1,500") so it's correct on both the public and partner pages
 
 ## Mechanism
 
@@ -56,6 +57,14 @@ Slice phase: Vertical slice
 - **Only the full-report tier changes.** Snapshot (FREE · NO CARD) + Quarterly
   ($1,500/qtr) are the same offer; the design-partner framing (removed from the
   public badge in #82) lives here, on the partner tier.
+- **Price-agnostic who-it's-for constraint (§1a, post-review).** The partner page
+  reuses the shared config and overrides only the price, so it inherited the
+  audience constraint's hardcoded "$1,500" — contradicting its own $1,000. Per
+  §1a I grepped `$1,500`: the full-report tier (L109) is overridden to $1,000 and
+  the quarterly tier (L126) is the same $1,500 on both, but the constraint copy
+  (L789) is now **price-agnostic** ("a one-time report like this sits below
+  procurement") so it reads correctly on the $1,500 public page and the $1,000
+  partner page alike.
 
 ## Deferred
 
@@ -89,7 +98,8 @@ Parked hardening: none.
 |---|---|
 | `partner/page.tsx` | ~28 |
 | `partner/layout.tsx` | ~24 |
-| this plan doc | ~96 |
-| **Total** | ~148 |
+| `landingConfig.tsx` (price-agnostic constraint) | ~2 |
+| this plan doc | ~108 |
+| **Total** | ~162 |
 
 Well under the 400-LOC soft cap.
