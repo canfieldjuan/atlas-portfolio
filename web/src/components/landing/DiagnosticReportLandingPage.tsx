@@ -58,6 +58,13 @@ export type DiagnosticReportLandingPageConfig = {
     cta: DiagnosticLandingCta;
     artifact?: ReactNode;
   };
+  featuredAnswer?: {
+    id: string;
+    label: string;
+    title: string;
+    description: string;
+    artifact: ReactNode;
+  };
   problem: {
     label: string;
     title: string;
@@ -330,7 +337,25 @@ export function DiagnosticReportLandingPage({
             )}
           </section>
 
-          <section className="section-band section-band-muted mt-32">
+          {config.featuredAnswer && (
+            <section
+              id={config.featuredAnswer.id}
+              className="section-band section-band-blue mt-32 scroll-mt-24"
+            >
+              <div className="max-w-3xl mb-10">
+                <SectionLabel>{config.featuredAnswer.label}</SectionLabel>
+                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
+                  {config.featuredAnswer.title}
+                </h2>
+                <p className="text-foreground/65 leading-relaxed">
+                  {config.featuredAnswer.description}
+                </p>
+              </div>
+              {config.featuredAnswer.artifact}
+            </section>
+          )}
+
+          <section className="section-band section-band-muted">
             <div className="max-w-4xl">
               <SectionLabel>{config.problem.label}</SectionLabel>
               <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
