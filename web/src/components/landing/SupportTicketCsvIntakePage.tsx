@@ -440,7 +440,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             )}
             <p id="csv-hint" className="mt-2 text-xs text-foreground/50 leading-relaxed">
               Subject lines and ticket bodies are enough. A few hundred closed tickets can
-              work if repeat questions show up clearly. Max 4 MB. Don&apos;t include PII if
+              work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Don&apos;t include PII if
               your export tool can strip it; if not, upload the CSV anyway and we drop PII
               in our intake step before any model sees it.
             </p>
