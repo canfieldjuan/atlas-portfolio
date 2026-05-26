@@ -622,7 +622,7 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
     title:
       'Stop answering the same $20 questions all day — because your help-center docs are written in your words, not your customers’.',
     intro:
-      'Upload 3–6 months of support tickets. We find the questions customers ask most — in the words they actually use — and draft the step-by-step self-serve answers your team reviews and publishes. The first analysis is free.',
+      'Upload 3–6 months of support tickets. We find the questions customers ask most — in the words they actually use — and draft the step-by-step self-service answers your team reviews and publishes. The first analysis is free.',
     body:
       'It works because your tickets already hold the words customers use when they’re stuck — not your internal product language. We group the repeat questions, rank them by how often they come up, and draft each into a step-by-step FAQ — in your customers’ own words — that walks the customer to the resolution on their own. Your team reviews and publishes each one. No integration. No new platform. No data project.',
     cta: {
