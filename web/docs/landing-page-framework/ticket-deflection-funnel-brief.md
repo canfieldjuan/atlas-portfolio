@@ -78,11 +78,11 @@ confirm because the site and the Atlas GTM doc differ: **ICP size (#3/#4)** and
    [REPO FACT] Reducing repetitive, avoidable tickets via a specific mechanism:
    ingest tickets -> group repeat questions by intent / pain category -> rank by
    volume + failure-risk + opportunity -> extract the customer's actual wording ->
-   draft review-ready self-serve FAQ answers with next steps. The wedge insight is
+   draft review-ready self-service FAQ answers with next steps. The wedge insight is
    LANGUAGE MISMATCH: customers search "how do I cancel," the help center says
    "account lifecycle changes," so the answer exists but is invisible. Funnel
-   phrasing: "We analyze your last 90 days of tickets, find the top repeat issues,
-   and draft self-serve FAQ content that deflects avoidable tickets."
+   phrasing: "We analyze your last 3–6 months of tickets, find the top repeat issues,
+   and draft self-service FAQ content that deflects avoidable tickets."
    (Do NOT say "ranks by cost" — we don't collect handle-time/cost data.)
 
 8. Proof/results I have:
@@ -116,7 +116,7 @@ confirm because the site and the Atlas GTM doc differ: **ICP size (#3/#4)** and
 11. Lead channel I want to start with:
     [REPO FACT — decided in D-019] Stack three: do ~10 free analyses for companies in
     the network -> publish the most striking ANONYMIZED results -> cold LinkedIn
-    outbound. First ask is "send a CSV of your last 90 days," not "buy software."
+    outbound. First ask is "send a CSV of your last 3–6 months," not "buy software."
     [YOUR CALL to refine] Cold email + LinkedIn + the one landing page is the
     natural start; SEO/ads later. (Atlas notes a reusable outreach template + a
     30-min discovery script exist to seed the sequence.)
