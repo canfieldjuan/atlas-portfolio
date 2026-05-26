@@ -666,11 +666,11 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="w-3 h-3" />,
     title:
-      'Stop answering the same $20 questions all day — because your help-center docs are written in your words, not your customers’.',
+      'Turn 3–6 months of messy support tickets into a clean help-center fix list.',
     intro:
-      'Upload 3–6 months of support tickets. We find the questions customers ask most — in the words they actually use — and draft the step-by-step self-service answers your team reviews and publishes. The first analysis is free.',
+      'Upload your closed tickets. We hand back the repeat questions — in your customers’ words — ranked, with drafted, cited answers your team reviews and publishes. The first analysis is free.',
     body:
-      'It works because your tickets already hold the words customers use when they’re stuck — not your internal product language. We group the repeat questions, rank them by how often they come up, and draft each into a step-by-step FAQ — in your customers’ own words — that walks the customer to the resolution on their own. Your team reviews and publishes each one. No integration. No new platform. No data project.',
+      'Right now those answers are buried across months of tickets — too much to sort by hand. We turn the mess into a clean, prioritized list: the questions customers keep asking in their own words, the wording gaps where your help center comes up empty, and a drafted, cited answer for each — yours to review and publish. No integration, no new platform, no data project.',
     cta: {
       label: 'Upload your tickets — get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
