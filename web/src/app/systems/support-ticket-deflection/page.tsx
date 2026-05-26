@@ -55,7 +55,7 @@ const reportContents = [
   },
   {
     icon: <Calculator className="w-5 h-5" />,
-    title: 'Cost-Cutter Notes',
+    title: 'Priority Notes',
     desc: 'Short notes that explain why the answer is worth fixing now, based on repeat volume and the support work showing up in the tickets.',
   },
   {
@@ -596,7 +596,7 @@ function DeflectionReportSample() {
 }
 
 const sharedCta = {
-  label: 'Upload your CSV — free Deflection Snapshot',
+  label: 'Upload your export — free',
   href: GAP_REPORT_INTAKE_HREF,
 };
 
@@ -795,11 +795,10 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
   },
   finalCta: {
     label: 'START HERE',
-    title:
-      'Send us your last 3–6 months of support tickets, and we’ll show which repeat questions should stop hitting your inbox',
+    title: 'See which repeat questions should stop hitting your inbox.',
     body: [
-      'Upload your last 3–6 months of tickets. We turn the repeat questions into self-service answers your team can review and publish.',
-      'The questions that keep coming back can slow down when customers can actually find the answer before they open another ticket.',
+      'Upload 3–6 months of closed tickets. Your free Deflection Snapshot comes back within 24 hours — no integration required.',
+      'Your team reviews and publishes every answer — nothing goes live without you.',
     ],
     cta: sharedCta,
     privacy: privacyCopy,
