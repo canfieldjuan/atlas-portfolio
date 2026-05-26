@@ -4,10 +4,10 @@ import {
   AlertTriangle,
   ArrowRight,
   BarChart3,
-  Calculator,
-  Clock,
   FileText,
   Repeat,
+  Search,
+  ShieldCheck,
   Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -34,33 +34,33 @@ const pipelineStages = [
 const reportContents = [
   {
     icon: <BarChart3 className="w-5 h-5" />,
-    title: 'Repeat Tickets Ranked by Volume',
-    desc: 'The questions customers keep asking, sorted by how often they hit the inbox. That way you can see which answers can reduce avoidable support work first.',
+    title: 'Repeat questions, ranked',
+    desc: 'Every recurring question your customers ask, ranked by how often it hits your inbox and which is worth fixing first.',
   },
   {
-    icon: <AlertTriangle className="w-5 h-5" />,
-    title: 'Deflectable Ticket Opportunities',
-    desc: 'The repeat questions that should not need another human reply because the answer can be turned into a clear self-service path.',
-  },
-  {
-    icon: <Clock className="w-5 h-5" />,
-    title: 'Customer Wording',
-    desc: 'The words customers actually use when they are stuck. This matters because customers search in their own language, not your internal labels.',
+    icon: <Search className="w-5 h-5" />,
+    title: 'Your customer-word term map',
+    desc: 'The exact words customers search vs. the words your docs use — with the wording fix for each. The language findable answers are built from.',
   },
   {
     icon: <FileText className="w-5 h-5" />,
-    title: 'Self-Service Answers to Review',
-    desc: 'Plain-spoken self-service answers for the repeat questions your team should stop answering one ticket at a time. Review, edit, and publish.',
+    title: 'Step-by-step drafted answers',
+    desc: 'A drafted answer for each: summary, steps, action items, and when to point someone to support. Your team reviews and publishes — nothing goes live without you.',
   },
   {
-    icon: <Calculator className="w-5 h-5" />,
-    title: 'Priority Notes',
-    desc: 'Short notes that explain why the answer is worth fixing now, based on repeat volume and the support work showing up in the tickets.',
+    icon: <AlertTriangle className="w-5 h-5" />,
+    title: 'Your findability gaps',
+    desc: 'The questions customers searched for and found nothing — the zero-result gaps driving the most avoidable contacts.',
+  },
+  {
+    icon: <ShieldCheck className="w-5 h-5" />,
+    title: 'Grounded and cited — nothing invented',
+    desc: 'Every answer is labeled grounded-in-a-real-resolution or draft-to-review, and cited to the tickets it came from.',
   },
   {
     icon: <Repeat className="w-5 h-5" />,
-    title: 'What Changed Next Time',
-    desc: 'If you run it again, the next report shows which repeat questions are still reaching the inbox and what your self-service layer should handle next.',
+    title: 'What changed, next time',
+    desc: 'Run it again to see which repeat questions still reach the inbox and what your self-service layer should handle next.',
   },
 ];
 
