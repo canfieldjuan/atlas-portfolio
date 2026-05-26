@@ -5,7 +5,6 @@
 
 export const NO_CHROME_ROUTES = [
   '/systems/ai-content-ops',
-  '/systems/ai-content-ops/intake',
 ] as const;
 
 type NoChromeRoute = (typeof NO_CHROME_ROUTES)[number];
