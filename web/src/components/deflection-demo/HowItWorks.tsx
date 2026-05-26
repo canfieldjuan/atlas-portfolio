@@ -11,7 +11,7 @@ const STEPS: { icon: typeof FileDown; n: number; title: string; body: string }[]
     icon: FileDown,
     n: 1,
     title: 'Export your tickets',
-    body: 'Most help desks export to CSV in a click. Send us your last 90 days of closed tickets — no integration, no new platform to adopt.',
+    body: 'Most help desks export to CSV in a click. Send us your last 3–6 months of closed tickets — no integration, no new platform to adopt.',
   },
   {
     icon: PenLine,
