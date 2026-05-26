@@ -14,6 +14,59 @@ export function isSupportPlatform(value: unknown): value is SupportPlatform {
   return typeof value === 'string' && (SUPPORT_PLATFORMS as readonly string[]).includes(value);
 }
 
+export const GAP_REPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export type GapReportMetadata = {
+  name: string;
+  email: string;
+  companyName: string;
+  supportPlatform: SupportPlatform;
+  csvFilename: string;
+  csvSizeBytes?: number;
+  sourcePage?: string;
+  sourceOffer?: string;
+};
+
+// Shared validation for the direct-to-blob intake: the token route validates
+// before minting an upload token, and the record route re-validates before
+// persisting — one source of truth so the two routes can't drift.
+export function parseGapReportMetadata(
+  raw: unknown
+): { ok: true; value: GapReportMetadata } | { ok: false; error: string } {
+  if (!raw || typeof raw !== 'object') {
+    return { ok: false, error: 'Invalid submission metadata.' };
+  }
+  const m = raw as Record<string, unknown>;
+  const name = typeof m.name === 'string' ? m.name.trim() : '';
+  const email = typeof m.email === 'string' ? m.email.trim() : '';
+  const companyName = typeof m.companyName === 'string' ? m.companyName.trim() : '';
+  const csvFilename = typeof m.csvFilename === 'string' ? m.csvFilename.trim() : '';
+  if (!name) return { ok: false, error: 'Your name is required.' };
+  if (!email || !GAP_REPORT_EMAIL_RE.test(email)) {
+    return { ok: false, error: 'A valid work email is required.' };
+  }
+  if (!companyName) return { ok: false, error: 'Company name is required.' };
+  if (!isSupportPlatform(m.supportPlatform)) {
+    return { ok: false, error: 'Support platform is required.' };
+  }
+  if (!csvFilename.toLowerCase().endsWith('.csv')) {
+    return { ok: false, error: 'A .csv file is required.' };
+  }
+  return {
+    ok: true,
+    value: {
+      name,
+      email,
+      companyName,
+      supportPlatform: m.supportPlatform,
+      csvFilename,
+      csvSizeBytes: typeof m.csvSizeBytes === 'number' ? m.csvSizeBytes : undefined,
+      sourcePage: typeof m.sourcePage === 'string' ? m.sourcePage : undefined,
+      sourceOffer: typeof m.sourceOffer === 'string' ? m.sourceOffer : undefined,
+    },
+  };
+}
+
 export const SUPPORT_PLATFORM_LABEL: Record<SupportPlatform, string> = {
   zendesk: 'Zendesk',
   intercom: 'Intercom',

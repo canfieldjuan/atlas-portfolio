@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Loader2 } from 'lucide-react';
+import { upload } from '@vercel/blob/client';
 import { trackFaqReportCsvSubmitted } from '@/lib/analytics';
 import { SUPPORT_PLATFORM_OPTIONS, type SupportPlatform } from '@/lib/gap-report-intake';
 
@@ -21,7 +22,7 @@ type FormErrors = Partial<{
 }>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_CSV_MB = 4;
+const MAX_CSV_MB = 50;
 
 export type SupportTicketCsvIntakeCopy = {
   backHref: string;
@@ -79,25 +80,48 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     if (submission.phase === 'submitting') return;
     if (!validate()) return;
 
+    const file = csvFile;
+    if (!file) return;
+
     setSubmission({ phase: 'submitting' });
 
-    const formData = new FormData();
-    formData.append('name', name.trim());
-    formData.append('email', email.trim());
-    formData.append('companyName', companyName.trim());
-    if (supportPlatform) {
-      formData.append('supportPlatform', supportPlatform);
-    }
-    if (csvFile) {
-      formData.append('csv', csvFile);
-    }
-    formData.append('sourcePage', copy.sourcePage);
-    formData.append('sourceOffer', copy.sourceOffer);
+    const metadata = {
+      name: name.trim(),
+      email: email.trim(),
+      companyName: companyName.trim(),
+      supportPlatform,
+      csvFilename: file.name,
+      csvSizeBytes: file.size,
+      sourcePage: copy.sourcePage,
+      sourceOffer: copy.sourceOffer,
+    };
 
     try {
-      const response = await fetch('/api/gap-report-intake', {
+      // Upload the CSV directly to Vercel Blob (browser -> Blob), bypassing the
+      // serverless body limit so 3-6 month exports upload natively. /upload only
+      // mints a scoped token; /record persists the submission once stored.
+      const companySlug =
+        companyName
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+          .slice(0, 40) || 'unknown';
+      const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
+      const blob = await upload(
+        `gap-report-csvs/${Date.now()}-${companySlug}/${safeFilename}`,
+        file,
+        {
+          access: 'public',
+          handleUploadUrl: '/api/gap-report-intake/upload',
+          clientPayload: JSON.stringify(metadata),
+        }
+      );
+
+      const response = await fetch('/api/gap-report-intake/record', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...metadata, blobUrl: blob.url }),
       });
       const payload = (await response.json().catch(() => null)) as
         | { ok: boolean; requestId?: string; warnings?: string[]; error?: string }
@@ -129,8 +153,8 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         phase: 'error',
         message:
           error instanceof Error
-            ? `Network error: ${error.message}`
-            : 'Network error. Try again.',
+            ? `Upload failed: ${error.message}. Try again, or email us directly.`
+            : 'Upload failed. Try again, or email us directly.',
       });
     }
   }
@@ -416,7 +440,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             )}
             <p id="csv-hint" className="mt-2 text-xs text-foreground/50 leading-relaxed">
               Subject lines and ticket bodies are enough. A few hundred closed tickets can
-              work if repeat questions show up clearly. Max 4 MB. Don&apos;t include PII if
+              work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Don&apos;t include PII if
               your export tool can strip it; if not, upload the CSV anyway and we drop PII
               in our intake step before any model sees it.
             </p>
