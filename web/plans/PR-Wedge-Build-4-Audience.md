@@ -35,6 +35,7 @@ Slice phase: Product polish
 
 - `web/plans/PR-Wedge-Build-4-Audience.md` — this plan doc (new)
 - `web/src/app/systems/support-ticket-deflection/page.tsx` — audience.description + audience.constraint + snapshot tier badge
+- `web/docs/landing-page-framework/ticket-deflection-funnel-brief.md` — resolve the two "live site says 10-50" CONFIRM notes to 15–75
 
 ## Mechanism
 
@@ -57,6 +58,13 @@ Slice phase: Product polish
   employee count and are on-voice; rewriting them would be scope creep.
 - **Design-partner framing intentionally removed from the public badge** — it's
   the `/partner` page's offer; the public snapshot is simply free / no card.
+- **Repo-wide grep applied, not just `page.tsx`.** The first pass grepped only the
+  touched file; §1a says grep *the repo*. Repo-wide surfaced two now-false "live
+  site says 10-50" CONFIRM notes in the funnel brief — resolved here. Left
+  intentionally: `decisions.md:58` (the D-001 revision *record*), the merged
+  `web/plans/PR-*.md` (historical slice records), and `copy-template.md:1384`
+  (persona content in the quarantined Google-headline *future-offer* template —
+  not the current wedge).
 
 ## Deferred
 
@@ -73,9 +81,11 @@ Parked hardening: none.
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape +
   files-touched 2 == 2 + diff-size).
 - `npm run lint` / `tsc --noEmit` clean.
-- **No stale value remains (AGENTS.md §1a) — closes the #77 item:** `grep -niE
-  "10-50|10–50|person company|employees" page.tsx` returns **nothing**; the
-  live page no longer contradicts D-001.
+- **No stale value remains (AGENTS.md §1a) — repo-wide, closes the #77 item:**
+  `grep -niE "10-50|10–50|person company|employees" page.tsx` returns nothing, and
+  a **repo-wide** `grep -rnE "10-50|10–50"` leaves only the intentional refs named
+  in Intentional (decisions.md revision record, merged plan docs, the future-offer
+  copy-template persona). The live wedge no longer contradicts D-001.
 
 ## Estimated diff size
 
@@ -84,7 +94,8 @@ Parked hardening: none.
 | `page.tsx` audience.description | ~3 |
 | `page.tsx` audience.constraint | ~3 |
 | `page.tsx` snapshot badge | ~2 |
-| this plan doc | ~88 |
-| **Total** | ~96 |
+| `ticket-deflection-funnel-brief.md` (2 CONFIRM notes resolved) | ~8 |
+| this plan doc | ~108 |
+| **Total** | ~124 |
 
 Well under the 400-LOC soft cap.
