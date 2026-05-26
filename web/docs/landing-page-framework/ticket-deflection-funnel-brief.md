@@ -58,9 +58,9 @@ confirm because the site and the Atlas GTM doc differ: **ICP size (#3/#4)** and
    -> Lock the segment. Default: B2B SaaS first.
 
 4. Company size:
-   [CONFIRM] The live site says ~10-50 people (SMB). The Atlas GTM doc implies
-   mid-market. These differ — pick one. (SMB = faster yeses, lower price; mid-market
-   = more volume, higher price.)
+   -> Resolved (D-001, 2026-05-25): **15–75-person B2B SaaS** sweet spot; **10–200**
+   outer prospecting band. The landing leans on the sweet spot + fit-signals; the
+   broad band + the title/qualifier/exclusion list filters are outbound criteria.
 
 5. Industry/niche:
    [REPO FACT/CONFIRM] The pipeline is industry-agnostic (generic ticket schema).
@@ -191,8 +191,8 @@ estimate, not a product cost-claim. It must label the assumptions and disclaim i
 
 ## Two items to confirm before final copy
 
-1. **ICP size (#3/#4):** the live site says 10-50 SMB; the Atlas GTM doc implies
-   mid-market. Pick one.
+1. **ICP size (#3/#4):** Resolved — **15–75 sweet / 10–200 outer** (D-001); the live
+   page reads 15–75. (Was: live site 10-50 vs Atlas GTM mid-market.)
 2. **Price (#10):** the live site publishes $1,500; the Atlas GTM doc treats pricing
    as uncommitted. Confirm final vs provisional.
 

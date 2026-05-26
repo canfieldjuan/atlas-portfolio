@@ -86,7 +86,7 @@ const useCases = [
 const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `snapshot`,
-    badge: `FIRST 5 DESIGN PARTNERS`,
+    badge: `FREE · NO CARD`,
     title: `Deflection Snapshot`,
     price: `Free`,
     sla: `Delivered in 24 hours after CSV upload`,
@@ -770,12 +770,12 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
     label: 'WHO THIS IS FOR',
     title: 'For support teams that feel every repeat ticket.',
     description:
-      'This fits a 10-50 person company where customers keep asking the same questions, the help center is behind, and every avoidable ticket either costs agent time or slows down the team.',
+      'This fits best at a 15–75-person B2B SaaS team: big enough that the same questions repeat across months of tickets, small enough that every avoidable ticket still costs real agent time. If you can export 3–6 months of tickets and already run a help center, you have what the report needs.',
     items: useCases,
     constraintLabel: 'NOT A FIT FOR',
     constraint: (
       <p className="text-sm text-foreground/65 leading-relaxed">
-        This works best when you have enough tickets for repeat questions to show up. It is probably not the right fit yet if support volume is still very low, you cannot export tickets, or you want someone else to run the entire help center for you.
+        Probably not a fit if you’re enterprise (a $1,500 report sits below procurement), a pure high-volume consumer (B2C) app, or pre-product with no months of tickets to export yet — or if you want someone to run the whole help center for you rather than answers your team publishes.
       </p>
     ),
   },
