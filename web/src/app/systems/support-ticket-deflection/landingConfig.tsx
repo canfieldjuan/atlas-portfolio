@@ -373,26 +373,75 @@ function DeflectionReportHeroArtifact() {
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="rounded-lg border border-[var(--artifact-success-border-veil)] bg-[var(--artifact-success-surface)] p-4">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success)]">
-              Drafted answer
-            </p>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--artifact-success-text)]">
-              needs your review
-            </p>
-          </div>
-          <p className="mt-2 text-sm font-semibold text-[var(--artifact-paper-text)]">
-            Why do I see two charges after changing my plan?
+function DeflectionDraftedAnswer() {
+  return (
+    <div className="glass overflow-hidden rounded-xl border border-border">
+      <div className="border-b border-border bg-surface px-5 py-4 md:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-medium text-foreground">
+            Billing · <span className="text-foreground/55">38 tickets</span>
           </p>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-[var(--artifact-body)]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-primary">
+              Priority · High
+            </span>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-foreground/55">
+              in customers’ words
+            </span>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-foreground/55">
+              draft · needs review
+            </span>
+          </div>
+        </div>
+        <p className="mt-1 text-[11px] font-mono text-foreground/45">↑ flagged: zero-result search</p>
+        <h3 className="mt-3 text-lg font-semibold text-foreground">
+          &ldquo;Why do I see two charges after changing my plan?&rdquo;
+        </h3>
+      </div>
+
+      <div className="space-y-6 p-5 md:p-6">
+        <div>
+          <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">Summary</p>
+          <p className="text-sm leading-relaxed text-foreground/70">
+            Customers report a second charge after a mid-cycle plan change and aren’t sure whether they were double-billed.
+          </p>
+        </div>
+        <div>
+          <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">Steps</p>
+          <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-foreground/70">
             <li>Check the invoice date on your billing page.</li>
             <li>A mid-cycle plan change creates a prorated charge alongside the renewal.</li>
             <li>If both posted, send support the two invoice IDs to confirm the adjustment.</li>
           </ol>
-          <p className="mt-3 border-t border-[var(--artifact-success-border-veil)] pt-2 text-[11px] font-mono text-[var(--artifact-success-muted)]">
-            drafted from 4 cited tickets · you approve before publishing
+        </div>
+        <div>
+          <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">Action items</p>
+          <ul className="space-y-1.5 text-sm leading-relaxed text-foreground/70">
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-foreground/30">&#9744;</span> Confirm the proration math against the plan-change date.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-0.5 text-foreground/30">&#9744;</span> Link this answer from the billing FAQ.
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">When to contact support</p>
+          <p className="text-sm leading-relaxed text-foreground/70">
+            If the charge is still unexplained after checking the invoice, reply with both invoice IDs and we’ll confirm the adjustment.
+          </p>
+        </div>
+        <div className="border-t border-border pt-4">
+          <p className="text-xs text-foreground/55">
+            Drafted from <span className="font-medium text-foreground/80">4 cited tickets</span> · you approve &amp; publish — nothing goes live without you.
+          </p>
+          <p className="mt-2 text-[11px] font-mono leading-relaxed text-foreground/40">
+            &ldquo;charged me twice after I upgraded&rdquo; · &ldquo;two charges, same day&rdquo; · &ldquo;did I get double billed?&rdquo;
           </p>
         </div>
       </div>
@@ -649,6 +698,14 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
       href: GAP_REPORT_INTAKE_HREF,
     },
     artifact: <DeflectionReportHeroArtifact />,
+  },
+  featuredAnswer: {
+    id: 'drafted-answer',
+    label: 'A DRAFTED ANSWER',
+    title: 'Every repeat question comes back as a drafted answer your team reviews.',
+    description:
+      'Grounded in your own tickets, in your customers’ words — with the steps, the action items, and exactly when to point someone to support. You approve and publish; nothing goes live without you.',
+    artifact: <DeflectionDraftedAnswer />,
   },
   problem: {
     label: 'YOUR PROBLEM',
