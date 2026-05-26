@@ -24,12 +24,12 @@ import { generateFaqJsonLd } from '@/lib/seo';
 const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 
 const pipelineStages = [
-  { label: 'Support Tickets', sub: 'CSV • 3–6 months' },
-  { label: 'Cluster by Intent' },
-  { label: 'Rank by Volume' },
-  { label: 'Extract Customer Wording' },
-  { label: 'Draft Self-Service Answers' },
-  { label: 'Review & Publish', sub: 'You approve, edit, ship' },
+  { label: 'Upload your tickets', sub: 'CSV export • 3–6 months • no integration' },
+  {
+    label: 'We find & draft the answers',
+    sub: 'Group repeat questions, rank by volume, draft step-by-step FAQs in your customers’ words',
+  },
+  { label: 'You review & publish', sub: 'Your team edits and ships — nothing goes live without you' },
 ];
 
 const reportContents = [
@@ -704,7 +704,7 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
         <p>
           Some email support. Some get annoyed. Some stop using the product. Some cancel and never tell you the real reason.
         </p>
-        <p>The frustrating part is that the cost cutter may already be sitting in your old tickets.</p>
+        <p>The frustrating part is that the answer may already be sitting in your old tickets.</p>
         <p>
           Your customers have already told you where they are getting stuck. You just have not turned those repeat questions into answers they can find.
         </p>
@@ -731,9 +731,9 @@ const landingPageConfig: DiagnosticReportLandingPageConfig = {
         </p>
       </div>
     ),
-    processTitle: 'Here’s how the Deflection Report works.',
+    processTitle: 'Here’s how it works — three steps.',
     processDescription:
-      'You do not need to connect a new tool or clean up months of tickets by hand. Upload the CSV, and we turn it into a simple report your team can use to decide which repeat tickets to deflect first.',
+      'No new tool to connect, no months of tickets to sort by hand. Upload the CSV; we turn it into ranked repeat questions and step-by-step FAQ drafts your team reviews and publishes.',
     stages: pipelineStages,
   },
   comparison: {
