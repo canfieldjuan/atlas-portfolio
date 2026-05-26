@@ -687,14 +687,12 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
   },
   problem: {
     label: 'YOUR PROBLEM',
-    title: 'Repeat tickets are a support-cost problem before they are a content problem.',
+    title: 'Repeat tickets aren’t a missing-answer problem — they’re a wording problem.',
     content: (
       <div className="space-y-4 text-foreground/65 leading-relaxed">
         <p>
-          When customers can’t find answers, they don’t always complain. Sometimes they just leave.
+          Customers who can’t find an answer don’t always complain — sometimes they just leave. That’s what makes a repeat question expensive: it’s never one ticket, it’s the same one, over and over.
         </p>
-        <p>That is what makes repeat support questions expensive.</p>
-        <p>At first, they look small:</p>
         <div className="rounded-xl border border-border bg-surface p-5 md:p-6">
           <div className="grid gap-5 md:grid-cols-[1fr_auto_1fr] md:items-center">
             <div>
@@ -727,16 +725,7 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
           </div>
         </div>
         <p>
-          You answer one. Then your support person answers another. Then a manager answers the same thing again next week.
-        </p>
-        <p>
-          After a while, everyone knows these questions are expensive, but nobody has time to stop and fix the real problem.
-        </p>
-        <p>
-          Because if the same question keeps showing up, that usually means the answer is not where customers are looking.
-        </p>
-        <p>
-          Maybe the answer is not written yet. Maybe it is buried in an old doc. Maybe it is written in words your team uses, not words your customers use.
+          Everyone knows these are expensive. Nobody has time to stop, dig through months of tickets, and fix the real cause — which is almost always this: the answer exists, but not in the words your customers search for.
         </p>
         <div className="rounded-xl border border-border bg-surface p-5 md:p-6">
           <div className="space-y-5 text-sm text-foreground/65 leading-relaxed">
@@ -761,38 +750,21 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
           </div>
         </div>
         <p>
-          That kind of mismatch creates support tickets because customers cannot find the answer in the words they actually use.
-        </p>
-        <p>
-          And when customers have to wait for basic answers, they start losing patience.
-        </p>
-        <p>
-          Some email support. Some get annoyed. Some stop using the product. Some cancel and never tell you the real reason.
-        </p>
-        <p>The frustrating part is that the answer may already be sitting in your old tickets.</p>
-        <p>
-          Your customers have already told you where they are getting stuck. You just have not turned those repeat questions into answers they can find.
+          So they open a ticket — or worse, they don’t: they get annoyed, give up, and a few quietly cancel. Your customers have already told you exactly where they get stuck; you just haven’t turned those repeat questions into answers they can find.
         </p>
       </div>
     ),
   },
   solution: {
     label: 'YOUR SOLUTION',
-    title: 'Your customers have already shown you which tickets should stop reaching support.',
+    title: 'The fix is already in your tickets — you just can’t see it yet.',
     content: (
       <div className="space-y-4 text-foreground/65 leading-relaxed">
-        <p>The hard part is that their questions are spread across months of old tickets.</p>
-        <p>That is where the Support Ticket Deflection Report comes in.</p>
         <p>
-          Upload your last 3–6 months of support tickets. We group the repeat questions, rank the ones customers ask most, pull out the words customers actually use, and turn the biggest gaps into clear self-service answers.
+          Those answers are buried across months of tickets, too much to read by hand. Upload 3–6 months of closed tickets and we pull the pattern out: the repeat questions ranked by volume, the exact words customers use when they’re stuck (not your internal labels), and a drafted answer for each.
         </p>
-        <p>It works because your tickets show the problem in the customer’s language.</p>
         <p>
-          Not your product language. Not your internal labels. Not the words your team uses after they already understand the product.
-        </p>
-        <p>The words customers use when they are stuck.</p>
-        <p>
-          That means the answers you publish are easier for customers to recognize, search for, and use before they open another ticket.
+          Because each answer is written in the words customers actually search, they find it on their own — and stop opening the ticket.
         </p>
       </div>
     ),
