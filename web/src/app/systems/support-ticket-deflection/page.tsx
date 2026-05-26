@@ -144,11 +144,15 @@ const pricingTiers: DiagnosticPricingTier[] = [
 const pricingFaqs: { q: string; a: string }[] = [
   {
     q: `What do I get in the free snapshot?`,
-    a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
+    a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample step-by-step self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
   },
   {
     q: `What do I get in the full Deflection Report?`,
-    a: `The full report gives you the bigger working list: 25-50 repeat questions, customer wording clusters, missing or hard-to-find answers, 3-5 self-service answers, priority notes, and source ticket IDs.`,
+    a: `The full report gives you the bigger working list: 25-50 repeat questions, customer wording clusters, missing or hard-to-find answers, 3-5 step-by-step self-service answers, priority notes, and source ticket IDs.`,
+  },
+  {
+    q: `How many tickets should I export?`,
+    a: `Three to six months of closed tickets is the sweet spot. A few hundred is enough for the free snapshot to show whether repeat patterns are there; more history lets the full report rank the repeats more confidently. If the export is too thin, we will tell you what would make it useful.`,
   },
   {
     q: `What if my tickets are messy?`,
@@ -163,12 +167,20 @@ const pricingFaqs: { q: string; a: string }[] = [
     a: `Because customers search for the problem in their own words. If they ask support one way and your help center says it another way, the answer can exist and still be hard to find.`,
   },
   {
+    q: `We just updated our help center — do we still need this?`,
+    a: `Maybe not, and the free snapshot will tell you. If your tickets show customers still asking things your updated docs already cover, the gap is usually wording: the answer exists, but not in the words customers search. If the snapshot does not find that, we will say so.`,
+  },
+  {
     q: `How much editing will the answers need?`,
     a: `Plan on light editing. Most teams adjust tone, add a product link, confirm the exact steps, and publish. The point is that you are not starting from a blank page.`,
   },
   {
     q: `What if we do not have enough tickets?`,
     a: `Then we will tell you. The report works best when repeat questions show up clearly. If the export is too thin to be useful, we will not pretend there is a pattern that is not there.`,
+  },
+  {
+    q: `Do you replace our help desk?`,
+    a: `No. The report does not touch your help desk — Zendesk, Intercom, Help Scout, whatever you run — or your live support queue. It works from a CSV export and hands back self-service answers your team publishes in the help center you already use, so fewer repeat questions reach the desk in the first place.`,
   },
   {
     q: `Do we have to sign up for quarterly reports?`,
