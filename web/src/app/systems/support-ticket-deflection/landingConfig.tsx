@@ -786,7 +786,7 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
     constraintLabel: 'NOT A FIT FOR',
     constraint: (
       <p className="text-sm text-foreground/65 leading-relaxed">
-        Probably not a fit if you’re enterprise (a $1,500 report sits below procurement), a pure high-volume consumer (B2C) app, or pre-product with no months of tickets to export yet — or if you want someone to run the whole help center for you rather than answers your team publishes.
+        Probably not a fit if you’re enterprise (a one-time report like this sits below procurement), a pure high-volume consumer (B2C) app, or pre-product with no months of tickets to export yet — or if you want someone to run the whole help center for you rather than answers your team publishes.
       </p>
     ),
   },
