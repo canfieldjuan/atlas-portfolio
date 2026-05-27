@@ -193,7 +193,7 @@ export function DeflectionDemo() {
               type="text"
               value={query}
               onChange={(e) => onType(e.target.value)}
-              placeholder={'e.g. "I can\'t log in" or "charged twice"'}
+              placeholder={'e.g. "export reports" or "webhook retries"'}
               autoComplete="off"
               className="flex-1 bg-transparent outline-none text-sm sm:text-base text-foreground placeholder:text-foreground/35"
             />
