@@ -64,7 +64,11 @@ the wrong doc) for some topics, so:
 - Some items carry `failure_risk_signals` including `"zero_result_search"`.
 - The report-level source mix reflects it: `source_type_counts` /
   `weighted_source_volume_by_type` include the search-log source type alongside
-  `support_ticket`; `source_count` / `ticket_source_count` updated accordingly.
+  `support_ticket`. **`ticket_source_count` must stay ticket-only** — it's the
+  count of support-ticket rows, and the on-page "tickets analyzed" stat reads
+  from it, so search-log rows must NOT inflate it. Only `source_count` (the
+  all-source-types total) grows to include the search-log rows; the breakdown
+  lives in `source_type_counts`.
 
 ### Fields the demo renders (so v2 fills them with no round-trip)
 
