@@ -1,6 +1,6 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
-import { parseGapReportMetadata } from '@/lib/gap-report-intake';
+import { gapReportBlobToken, parseGapReportMetadata } from '@/lib/gap-report-intake';
 
 export const runtime = 'nodejs';
 
@@ -22,6 +22,8 @@ export async function POST(request: Request) {
     const json = await handleUpload({
       request,
       body,
+      // Target the public deflection Blob store, not the project default.
+      token: gapReportBlobToken(),
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         if (!pathname.startsWith('gap-report-csvs/')) {
           throw new Error('Unexpected upload path.');
