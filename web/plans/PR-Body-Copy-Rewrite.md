@@ -55,7 +55,6 @@ Slice phase: Product polish
 - `SEO-Ticket-Deflection-Template-Docs/compass_artifact_wf-6079584f-1416-4306-8ae1-3017e6e67b69_text_markdown.md` — sourced business-intelligence brief on repetitive support cost
 - `SEO-Ticket-Deflection-Template-Docs/compass_artifact_wf-b40e704d-e762-46e3-a8b8-5eb0ef3af3db_text_markdown.md` — sourced sales-intelligence brief on repeat-question language and triggers
 - `SEO-Ticket-Deflection-Template-Docs/internal-language-extract.md` — extracted internal support-language phrases
-- `SEO-Ticket-Deflection-Template-Docs/leaky-bucket-calculator.html` — calculator HTML with accessibility-label fix
 - `SEO-Ticket-Deflection-Template-Docs/preview.html` — calculator / preview HTML artifact
 - `SEO-Ticket-Deflection-Template-Docs/sourced-facts-extract.md` — ranked sourced-facts extract
 - `web/src/components/landing/DeflectionLandingPage.tsx` — standalone page component for the support-deflection route
@@ -136,4 +135,8 @@ Parked hardening: none.
 | route wiring + config export changes | ~25 |
 | research and collateral artifacts | ~3500+ |
 | Plan doc update | ~130 |
-| Total | large, justified by user-requested full dirty worktree inclusion |
+| Total | ~5,200 |
+
+Over the 400-LOC soft cap. Justified because this PR intentionally carries the
+full current support-deflection rewrite plus its research and collateral
+artifacts, per user request.
