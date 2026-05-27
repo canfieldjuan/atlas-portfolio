@@ -62,13 +62,17 @@ the wrong doc) for some topics, so:
   render as the term map). Size the search-log rows so a gap's
   `zero_result_source_count` lands in the **~3–10 range**, not a toy 1.
 - Some items carry `failure_risk_signals` including `"zero_result_search"`.
-- The report-level source mix reflects it: `source_type_counts` /
-  `weighted_source_volume_by_type` include the search-log source type alongside
-  `support_ticket`. **`ticket_source_count` must stay ticket-only** — it's the
-  count of support-ticket rows, and the on-page "tickets analyzed" stat reads
-  from it, so search-log rows must NOT inflate it. Only `source_count` (the
-  all-source-types total) grows to include the search-log rows; the breakdown
-  lives in `source_type_counts`.
+- The source mix reflects it at **two levels** (mind which is which — in the v1
+  artifact the per-type breakdown is **per-item**, not report-level):
+  - **Per item:** `items[].source_type_counts` / `items[].weighted_source_volume_by_type`
+    gain the `search_log` source type alongside `support_ticket` (e.g.
+    `{ "support_ticket": 5, "search_log": 4 }` — v1 items are `{ "support_ticket": N }`).
+  - **Report level:** only `source_count` (the all-source-types total) grows to
+    include the search-log rows. **`ticket_source_count` must stay ticket-only** —
+    it's the count of support-ticket rows, and the on-page "tickets analyzed" stat
+    reads from it, so search-log rows must NOT inflate it. (Report-level today is
+    just `source_count` + `ticket_source_count`; there is no report-level
+    `source_type_counts` — the per-type breakdown lives on each item.)
 
 ### Fields the demo renders (so v2 fills them with no round-trip)
 
