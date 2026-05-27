@@ -18,7 +18,7 @@ the two intake routes at the public store's token explicitly.
 
 ## Scope (this PR)
 
-Slice phase: Bug fix (deploy config)
+Slice phase: Production hardening
 
 1. **`gap-report-intake.ts`** — add `gapReportBlobToken()`: returns
    `ticke_deflection_blob_READ_WRITE_TOKEN ?? BLOB_READ_WRITE_TOKEN ?? undefined`.
