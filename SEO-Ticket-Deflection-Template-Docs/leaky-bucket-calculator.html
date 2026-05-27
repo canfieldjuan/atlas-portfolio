@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaky Bucket - Support Cost & Capacity Calculator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090d;
+    --surface: #0f1318;
+    --surface-2: #161b22;
+    --border: #1f2630;
+    --border-strong: #2a3340;
+    --text: #e6e9ee;
+    --text-dim: #94a0b0;
+    --text-muted: #5d6878;
+    --amber: #f5b54a;
+    --amber-soft: #3a2a10;
+    --rose: #f06a7a;
+    --rose-soft: #3a141b;
+    --emerald: #4ade8c;
+    --emerald-soft: #0e2a1c;
+  }
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { background: var(--bg); color: var(--text); font-family: 'Manrope', system-ui, sans-serif; }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(245,181,74,0.04), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(74,222,140,0.03), transparent 40%),
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: auto, auto, 48px 48px, 48px 48px;
+    background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+    min-height: 100vh;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.02em; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+  /* Hairlines */
+  .hairline { border-color: var(--border); }
+  .hairline-strong { border-color: var(--border-strong); }
+  .surface { background: var(--surface); border: 1px solid var(--border); }
+  .surface-2 { background: var(--surface-2); border: 1px solid var(--border); }
+
+  /* Range slider styling */
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 999px;
+    background: linear-gradient(to right, var(--text-dim) 0%, var(--text-dim) var(--fill, 0%), var(--border-strong) var(--fill, 0%), var(--border-strong) 100%);
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--text);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong), 0 2px 6px rgba(0,0,0,0.6);
+    cursor: grab; transition: transform 120ms ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.1); }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--text);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border-strong);
+    cursor: grab;
+  }
+  input[type="range"]:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 4px;
+  }
+
+  /* Numeric input */
+  .num-input {
+    background: transparent; border: 1px solid var(--border-strong);
+    color: var(--text); padding: 6px 10px; border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    width: 100%; text-align: right; font-variant-numeric: tabular-nums;
+    transition: border-color 150ms ease;
+  }
+  .num-input:focus { outline: none; border-color: var(--text-dim); }
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .num-input { -moz-appearance: textfield; }
+
+  /* Preset segmented control */
+  .seg-btn {
+    background: transparent; color: var(--text-dim); border: 1px solid transparent;
+    transition: all 150ms ease;
+  }
+  .seg-btn[aria-pressed="true"] {
+    background: var(--surface-2); color: var(--text); border-color: var(--border-strong);
+  }
+  .seg-btn:hover:not([aria-pressed="true"]) { color: var(--text); }
+
+  /* Tooltip */
+  .tip-wrap { position: relative; display: inline-flex; }
+  .tip-btn {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: transparent; border: 1px solid var(--border-strong);
+    color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .tip-btn:hover, .tip-btn:focus-visible { color: var(--text); border-color: var(--text-dim); outline: none; }
+  .tip-content {
+    position: absolute; top: calc(100% + 8px); left: 0;
+    width: 280px; max-width: calc(100vw - 32px);
+    background: var(--surface-2); border: 1px solid var(--border-strong);
+    border-radius: 8px; padding: 12px 14px;
+    font-size: 12px; line-height: 1.5; color: var(--text-dim);
+    z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transform: translateY(-4px);
+    transition: opacity 150ms ease, transform 150ms ease;
+  }
+  .tip-content.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .tip-content strong { color: var(--text); font-weight: 600; }
+  .tip-content code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--amber); }
+
+  /* Result cards */
+  .result-card { position: relative; overflow: hidden; }
+  .result-card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  }
+  .card-amber::before { background: var(--amber); }
+  .card-rose::before { background: var(--rose); }
+  .card-emerald::before { background: var(--emerald); }
+  .accent-amber { color: var(--amber); }
+  .accent-rose { color: var(--rose); }
+  .accent-emerald { color: var(--emerald); }
+
+  .pulse {
+    animation: pulse 320ms ease-out;
+  }
+  @keyframes pulse {
+    0% { opacity: 0.55; }
+    100% { opacity: 1; }
+  }
+
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .chev { transition: transform 200ms ease; }
+  details[open] .chev { transform: rotate(90deg); }
+
+  .warn-banner {
+    background: linear-gradient(90deg, rgba(240,106,122,0.1), transparent);
+    border-left: 2px solid var(--rose);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<main class="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
+
+  <!-- Header -->
+  <header class="mb-10 sm:mb-14">
+    <div class="flex items-start justify-between gap-4 mb-6">
+      <div class="font-mono text-[11px] tracking-[0.18em] text-[var(--text-muted)] uppercase">
+        Diagnostic v1.0 / Support Operations
+      </div>
+      <div class="font-mono text-[11px] tracking-[0.18em] text-[var(--text-muted)] uppercase hidden sm:block">
+        Reactive Model
+      </div>
+    </div>
+    <h1 class="font-display text-4xl sm:text-6xl font-light leading-[0.95] tracking-tight mb-4">
+      The <em class="italic font-normal accent-amber">Leaky Bucket</em><br>
+      Support Cost &amp; Capacity Calculator
+    </h1>
+    <p id="header-sub" class="text-[var(--text-dim)] text-base sm:text-lg max-w-2xl leading-relaxed font-light">
+      Three hidden drains every CX leader pays for and almost no one measures. Adjust the inputs to expose them.
+    </p>
+  </header>
+
+  <div id="warn-zone" class="hidden mb-6 px-4 py-3 warn-banner text-sm text-[var(--text-dim)] font-mono">
+    Math verification failed. See console for details.
+  </div>
+
+  <!-- Two pane layout -->
+  <div class="grid lg:grid-cols-2 gap-6 lg:gap-10">
+
+    <!-- LEFT: Inputs -->
+    <section aria-label="Inputs">
+
+      <!-- Industry presets -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <span class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">Model / Preset</span>
+        </div>
+        <div class="surface rounded-lg p-1 flex gap-1" role="group" aria-label="Industry preset">
+          <button type="button" class="seg-btn flex-1 px-4 py-2.5 rounded-md text-sm font-medium" data-preset="saas" aria-pressed="true">
+            B2B Tech / SaaS
+          </button>
+          <button type="button" class="seg-btn flex-1 px-4 py-2.5 rounded-md text-sm font-medium" data-preset="ecom" aria-pressed="false">
+            B2C E-commerce
+          </button>
+          <button type="button" class="seg-btn flex-1 px-4 py-2.5 rounded-md text-sm font-medium" data-preset="internal" aria-pressed="false">
+            Internal Knowledge Ops
+          </button>
+        </div>
+      </div>
+
+      <!-- Primary inputs -->
+      <div class="surface rounded-xl p-6 sm:p-8 space-y-7">
+        <div class="flex items-center justify-between border-b hairline pb-4 -mt-2">
+          <span class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">Operating Inputs</span>
+        </div>
+
+        <!-- Input rows generated below -->
+        <div id="primary-inputs"></div>
+      </div>
+
+      <!-- Advanced assumptions -->
+      <details class="mt-6 surface rounded-xl p-6 sm:p-8 group">
+        <summary class="flex items-center justify-between mb-0">
+          <span class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase">Model Assumptions</span>
+          <span class="text-[var(--text-dim)] text-sm flex items-center gap-2">
+            <span class="text-[var(--text-muted)]">collapsed</span>
+            <svg class="chev" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M3 2L7 5L3 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </summary>
+        <div class="mt-6 pt-6 border-t hairline space-y-7" id="assumption-inputs"></div>
+      </details>
+
+      <p class="mt-6 text-[11px] text-[var(--text-muted)] leading-relaxed font-mono">
+        All calculations update in real time. Benchmarks drawn from HDI, MetricNet, SQM Group, Forrester, and SaaS Capital. Adjust assumptions to match your environment.
+      </p>
+    </section>
+
+    <!-- RIGHT: Outputs -->
+    <section aria-label="Results" class="space-y-6 lg:sticky lg:top-8 lg:self-start">
+
+      <!-- Quick rate -->
+      <div class="surface rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <div class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase mb-1">Hourly Loaded Agent Rate</div>
+          <div class="text-xs text-[var(--text-dim)]">Annual salary divided by 2,080 hours</div>
+        </div>
+        <div class="text-2xl font-mono tabular text-[var(--text)]" id="out-hourly">$0.00</div>
+      </div>
+
+      <!-- Card A: Context Assembly Leak -->
+      <article class="surface result-card card-amber rounded-xl p-6 sm:p-8">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase mb-2">Leak 01</div>
+            <h2 id="card-context-title" class="font-display text-2xl font-normal tracking-tight">Context Assembly Leak</h2>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="accent-amber mt-1" aria-hidden="true">
+            <path d="M10 2v3M10 15v3M3.5 6.5l2.1 2.1M14.4 11.4l2.1 2.1M2 10h3M15 10h3M3.5 13.5l2.1-2.1M14.4 8.6l2.1-2.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="font-display text-5xl sm:text-6xl font-light tracking-tight accent-amber tabular mb-1" id="out-context-main">$0</div>
+        <div class="text-sm text-[var(--text-dim)] mb-6">Annual labor wasted assembling context</div>
+        <div class="grid grid-cols-2 gap-4 pt-5 border-t hairline">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Monthly Repetitive Tickets</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-rep-tickets">0</div>
+          </div>
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Monthly Hours Wasted</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-context-hours">0</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card B: Burnout Attrition Tax -->
+      <article class="surface result-card card-rose rounded-xl p-6 sm:p-8">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase mb-2">Leak 02</div>
+            <h2 id="card-burnout-title" class="font-display text-2xl font-normal tracking-tight">Burnout Attrition Tax</h2>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="accent-rose mt-1" aria-hidden="true">
+            <path d="M10 11a3 3 0 100-6 3 3 0 000 6zM4 18v-1a4 4 0 014-4h4a4 4 0 014 4v1M15 5l3 3-3 3M18 8h-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="font-display text-5xl sm:text-6xl font-light tracking-tight accent-rose tabular mb-1" id="out-burnout-main">$0</div>
+        <div class="text-sm text-[var(--text-dim)] mb-6">Annual cost of repetition-driven turnover</div>
+        <div class="grid grid-cols-2 gap-4 pt-5 border-t hairline">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Agents Lost / Year</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-agents-lost">0</div>
+          </div>
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Burnout-Driven Share</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-burnout-share">0%</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card C: Reclaimable -->
+      <article class="surface result-card card-emerald rounded-xl p-6 sm:p-8">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.18em] text-[var(--text-muted)] uppercase mb-2">Reclaimable</div>
+            <h2 class="font-display text-2xl font-normal tracking-tight">First-Year Reclaimable Budget</h2>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="accent-emerald mt-1" aria-hidden="true">
+            <path d="M3 17l5-5 3 3 6-7M14 8h3v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="font-display text-5xl sm:text-6xl font-light tracking-tight accent-emerald tabular mb-1" id="out-reclaim-main">$0</div>
+        <div id="card-reclaim-sub" class="text-sm text-[var(--text-dim)] mb-6">Savings when routine questions self-resolve via docs</div>
+        <div class="grid grid-cols-3 gap-4 pt-5 border-t hairline">
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Current</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-current-ss">0%</div>
+          </div>
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Target</div>
+            <div class="text-lg font-mono tabular text-[var(--text)]" id="out-target-ai">0%</div>
+          </div>
+          <div>
+            <div class="font-mono text-[10px] tracking-[0.14em] text-[var(--text-muted)] uppercase mb-1">Delta</div>
+            <div class="text-lg font-mono tabular accent-emerald" id="out-delta">0%</div>
+          </div>
+        </div>
+      </article>
+
+      <p class="text-[11px] text-[var(--text-muted)] leading-relaxed font-mono pt-2">
+        Outputs are directional. Plug in your actuals for a defensible internal estimate. Math verification runs on load (check console).
+      </p>
+    </section>
+
+  </div>
+
+  <footer class="mt-16 pt-8 border-t hairline">
+    <div class="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] tracking-[0.14em] uppercase">
+      <span>Leaky Bucket / CX Diagnostic</span>
+      <span class="hidden sm:inline">Built for executives, not spreadsheets</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- CONSTANTS ----------
+  const PRESETS = {
+    saas: {
+      monthlyTickets: 3000, agents: 10, salary: 70000,
+      repetitiveRatePct: 50, attritionRatePct: 35
+    },
+    ecom: {
+      monthlyTickets: 15000, agents: 25, salary: 55000,
+      repetitiveRatePct: 65, attritionRatePct: 45
+    },
+    internal: {
+      monthlyTickets: 800, agents: 6, salary: 150000,
+      repetitiveRatePct: 60, attritionRatePct: 18
+    }
+  };
+
+  const DEFAULT_ASSUMPTIONS = {
+    annualWorkHours: 2080,
+    contextMinutesPerTicket: 10,
+    replacementCost: 46000,
+    burnoutModifierPct: 70,
+    currentSelfServicePct: 14,
+    targetAIDeflectionPct: 50,
+    humanTicketCost: 22,
+    selfServeTicketCost: 0
+  };
+
+  // Assumption overrides applied per preset (external presets fall back to DEFAULT_ASSUMPTIONS).
+  const PRESET_ASSUMPTIONS = {
+    internal: {
+      contextMinutesPerTicket: 23,   // context-switch / refocus cost per interruption
+      replacementCost: 90000,        // replacing a senior/specialist hire
+      burnoutModifierPct: 55,
+      currentSelfServicePct: 10,     // internal docs are notoriously unfindable
+      targetAIDeflectionPct: 50,
+      humanTicketCost: 35,           // higher loaded cost per human-answered question
+      selfServeTicketCost: 0
+    }
+  };
+
+  // Per-mode field label/tooltip overrides (only Internal relabels; external uses field defaults).
+  const MODE_LABELS = {
+    internal: {
+      monthlyTickets: { label: "Monthly Internal Requests", tip: "Repeated internal questions/requests across the org — Slack #ask threads, IT tickets, \"how do I…\" asks. <strong>Used in:</strong> <code>T_m</code>" },
+      agents: { label: "Experts Fielding Questions", tip: "Headcount of the people interrupted to answer — senior eng, IT, ops, team leads. The expensive ones. <strong>Used in:</strong> <code>A</code>" },
+      salary: { label: "Avg Loaded Salary (interrupted staff)", tip: "Fully loaded salary of the staff pulled off work to answer. Internal experts run $120K–$200K — that's the point. <strong>Used in:</strong> <code>S</code>" },
+      repetitiveRatePct: { label: "Repetitive Question Rate", tip: "Share of internal questions that repeat — onboarding, setup, process, \"where is X\". Runs high internally. <strong>Used in:</strong> <code>P_r</code>" },
+      attritionRatePct: { label: "Annual Attrition (senior staff)", tip: "Departures/year of the interrupted staff. Lower than support, far pricier to replace. <strong>Used in:</strong> <code>T_o</code>" },
+      contextMinutesPerTicket: { label: "Context-Switch Minutes / Interruption", tip: "Minutes lost refocusing after an interruption (not just answering). Research puts the full refocus cost near 23 min. <strong>Used in:</strong> <code>H_context</code>" },
+      replacementCost: { label: "Replacement Cost (senior staff)", tip: "Recruiting + onboarding + ramp loss to replace a departed specialist. Well above a support backfill. <strong>Used in:</strong> burnout tax." },
+      currentSelfServicePct: { label: "Current Internal Doc Findability", tip: "Share of internal questions an employee can self-answer from existing docs today. Usually dismal. <strong>Used in:</strong> <code>D_current</code>" },
+      targetAIDeflectionPct: { label: "Target Self-Serve via Docs", tip: "Realistic share answerable by findable, accurate internal docs. <strong>Used in:</strong> <code>D_target</code>" },
+      humanTicketCost: { label: "Cost / Human-Answered Question", tip: "Fully loaded cost when a human stops to answer an internal question. <strong>Used in:</strong> <code>C_e</code>" },
+      selfServeTicketCost: { label: "Cost / Self-Served Question", tip: "Marginal cost when a question self-resolves via docs — ~$0 (no per-answer inference). <strong>Used in:</strong> <code>C_s</code>" }
+    }
+  };
+
+  // Result-card + header copy per mode.
+  const CARD_TEXT = {
+    default: {
+      contextTitle: "Context Assembly Leak",
+      burnoutTitle: "Burnout Attrition Tax",
+      reclaimSub: "Savings when routine questions self-resolve via docs",
+      headerSub: "Three hidden drains every CX leader pays for and almost no one measures. Adjust the inputs to expose them."
+    },
+    internal: {
+      contextTitle: "Interruption & Context-Switch Leak",
+      burnoutTitle: "Senior-Staff Attrition Tax",
+      reclaimSub: "Savings when internal questions self-resolve via docs",
+      headerSub: "Three hidden drains every ops & eng leader pays for and almost no one measures. Adjust the inputs to expose them."
+    }
+  };
+
+  const PRIMARY_FIELDS = [
+    {
+      id: "monthlyTickets", label: "Monthly Ticket Volume",
+      min: 100, max: 100000, step: 100,
+      format: "count",
+      tip: "Total tickets your frontline support team handles per month across all channels. <strong>Used in:</strong> <code>T_m</code>"
+    },
+    {
+      id: "agents", label: "Frontline Support Agents",
+      min: 1, max: 200, step: 1,
+      format: "count",
+      tip: "Headcount of Tier-1 agents actively closing tickets. Exclude managers, ops, and engineers. <strong>Used in:</strong> <code>A</code>"
+    },
+    {
+      id: "salary", label: "Avg Loaded Annual Salary",
+      min: 30000, max: 200000, step: 1000,
+      format: "currency",
+      tip: "Fully loaded salary per agent including benefits, payroll tax, tooling allocation. Industry blended median in SaaS sits at $65K-$80K. <strong>Used in:</strong> <code>S</code>"
+    },
+    {
+      id: "repetitiveRatePct", label: "Repetitive / Tier-1 Ticket Rate",
+      min: 0, max: 100, step: 1,
+      format: "percent",
+      tip: "Share of tickets that ask the same predictable questions: password resets, status checks, billing FAQs. HDI baseline: 50-70% in mid-market support. <strong>Used in:</strong> <code>P_r</code>"
+    },
+    {
+      id: "attritionRatePct", label: "Annual Agent Attrition Rate",
+      min: 0, max: 100, step: 1,
+      format: "percent",
+      tip: "Voluntary plus involuntary agent departures per year. HDI 2018 service-desk benchmark: ~40%. SaaS support orgs run 25-55%. <strong>Used in:</strong> <code>T_o</code>"
+    }
+  ];
+
+  const ASSUMPTION_FIELDS = [
+    {
+      id: "annualWorkHours", label: "Annual Work Hours / Agent",
+      min: 1000, max: 3000, step: 10, format: "count",
+      tip: "Standard FTE hours per year. Default <code>2,080</code> reflects 40 hours x 52 weeks before PTO. <strong>Used in:</strong> hourly rate formula <code>R_h = S / hours</code>"
+    },
+    {
+      id: "contextMinutesPerTicket", label: "Context Assembly Minutes / Ticket",
+      min: 1, max: 60, step: 1, format: "count",
+      tip: "Minutes an agent spends gathering account state, prior conversations, billing info, and product context BEFORE answering. Industry estimates: 8-15 minutes. <strong>Used in:</strong> <code>H_context = T_r * minutes / 60</code>"
+    },
+    {
+      id: "replacementCost", label: "Agent Replacement Cost",
+      min: 1000, max: 200000, step: 500, format: "currency",
+      tip: "Recruiting, onboarding, ramp productivity loss per replaced agent. Mid-market benchmark: $30K-$60K. Default <code>$46,000</code>. <strong>Used in:</strong> burnout tax."
+    },
+    {
+      id: "burnoutModifierPct", label: "Burnout-Driven Turnover Share",
+      min: 0, max: 100, step: 1, format: "percent",
+      tip: "Percentage of attrition attributable to repetitive Tier-1 fatigue (vs comp, relocation, life events). Support leaders typically estimate 60-80%. <strong>Used in:</strong> burnout tax modifier."
+    },
+    {
+      id: "currentSelfServicePct", label: "Current Self-Service Rate",
+      min: 0, max: 100, step: 1, format: "percent",
+      tip: "Percent of routine tickets resolved today by your help center / FAQ / legacy chatbot. Gartner 2024: only <code>14%</code> of issues fully resolve in legacy self-service. <strong>Used in:</strong> <code>D_current</code>"
+    },
+    {
+      id: "targetAIDeflectionPct", label: "Target Self-Serve Deflection Rate",
+      min: 0, max: 100, step: 1, format: "percent",
+      tip: "Realistic share of routine tickets resolved by findable, accurate docs — no AI agent, just better self-serve. Mid-market best-in-class: 40-60%. Set conservatively. <strong>Used in:</strong> <code>D_target</code>"
+    },
+    {
+      id: "humanTicketCost", label: "Human-Handled Ticket Cost",
+      min: 1, max: 200, step: 0.5, format: "currency",
+      tip: "Fully loaded cost per human-resolved ticket. SaaS support benchmark: <code>$18-$35</code>. Default <code>$22</code>. <strong>Used in:</strong> <code>C_e</code>"
+    },
+    {
+      id: "selfServeTicketCost", label: "Self-Served Ticket Cost",
+      min: 0, max: 50, step: 0.1, format: "currency",
+      tip: "Marginal cost when a ticket self-resolves via docs — ~<code>$0</code> in a deterministic system (no per-answer inference to pay for). <strong>Used in:</strong> <code>C_s</code>"
+    }
+  ];
+
+  // ---------- STATE ----------
+  let state = Object.assign({}, PRESETS.saas, DEFAULT_ASSUMPTIONS);
+  let currentPreset = "saas";
+
+  // ---------- MATH ENGINE ----------
+  // Single source of truth. Do not duplicate.
+  function calculateMetrics(input) {
+    const T_m = Number(input.monthlyTickets) || 0;
+    const A = Number(input.agents) || 0;
+    const S = Number(input.salary) || 0;
+    const P_r = (Number(input.repetitiveRatePct) || 0) / 100;
+    const T_o = (Number(input.attritionRatePct) || 0) / 100;
+    const hours = Number(input.annualWorkHours) || 2080;
+    const ctxMin = Number(input.contextMinutesPerTicket) || 0;
+    const replCost = Number(input.replacementCost) || 0;
+    const burnMod = (Number(input.burnoutModifierPct) || 0) / 100;
+    const D_current = (Number(input.currentSelfServicePct) || 0) / 100;
+    const D_target = (Number(input.targetAIDeflectionPct) || 0) / 100;
+    const C_e = Number(input.humanTicketCost) || 0;
+    const C_s = Number(input.selfServeTicketCost) || 0;
+
+    // Hourly loaded rate
+    const hourlyRate = hours > 0 ? S / hours : 0;
+
+    // Leak 1: Context assembly
+    const monthlyRepetitiveTickets = T_m * P_r;
+    const monthlyContextHours = monthlyRepetitiveTickets * ctxMin / 60;
+    const annualContextLeakage = monthlyContextHours * 12 * hourlyRate;
+
+    // Leak 2: Burnout attrition tax
+    const agentsLostPerYear = A * T_o;
+    const burnoutAttritionTax = agentsLostPerYear * replCost * burnMod;
+
+    // Leak 3: Reclaimable
+    const incrementalDeflection = Math.max(0, D_target - D_current);
+    const reclaimableBudget = T_m * P_r * 12 * incrementalDeflection * (C_e - C_s);
+
+    return {
+      hourlyRate,
+      monthlyRepetitiveTickets,
+      monthlyContextHours,
+      annualContextLeakage,
+      agentsLostPerYear,
+      burnoutAttritionTax,
+      incrementalDeflection,
+      reclaimableBudget,
+      currentSelfServiceDecimal: D_current,
+      targetAIDecimal: D_target
+    };
+  }
+
+  // ---------- FORMATTERS ----------
+  const usd0 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const usd2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const numFmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+  const numFmt1 = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  function fmtCurrencyBig(v) { return usd0.format(Math.round(v)); }
+  function fmtCurrencyPrecise(v) { return usd2.format(v); }
+  function fmtCount(v) { return numFmt.format(Math.round(v)); }
+  function fmtHours(v) { return numFmt.format(Math.round(v)); }
+  function fmtAgents(v) { return numFmt1.format(v); }
+  function fmtPct(v) { return Math.round(v) + "%"; }
+  function fmtPctDec(v) { return Math.round(v * 100) + "%"; }
+
+  // ---------- VALIDATION ----------
+  function sanitize(value, field) {
+    if (value === null || value === undefined || value === "") return field.min;
+    let s = String(value).replace(/[$,\s%]/g, "");
+    s = s.replace(/[^0-9.\-]/g, "");
+    let n = parseFloat(s);
+    if (!isFinite(n)) return field.min;
+    if (n < 0) n = 0;
+    if (n < field.min) n = field.min;
+    if (n > field.max) n = field.max;
+    return n;
+  }
+
+  // ---------- RENDER INPUTS ----------
+  function buildField(field, value, containerId, override) {
+    const wrap = document.createElement("div");
+    wrap.dataset.field = field.id;
+    // Effective label for the active mode — drives the visible label AND the
+    // aria-labels, so screen-reader names match the relabeled (e.g. internal) UI.
+    const effLabel = (override && override.label) || field.label;
+
+    const topRow = document.createElement("div");
+    topRow.className = "flex items-center justify-between gap-3 mb-3";
+
+    const labelBlock = document.createElement("div");
+    labelBlock.className = "flex items-center gap-2";
+
+    const lbl = document.createElement("label");
+    lbl.htmlFor = "input-" + field.id;
+    lbl.className = "text-sm font-medium text-[var(--text)]";
+    lbl.textContent = effLabel;
+
+    const tipWrap = document.createElement("span");
+    tipWrap.className = "tip-wrap";
+    const tipBtn = document.createElement("button");
+    tipBtn.type = "button";
+    tipBtn.className = "tip-btn";
+    tipBtn.setAttribute("aria-label", "Info about " + effLabel);
+    tipBtn.setAttribute("aria-expanded", "false");
+    tipBtn.textContent = "?";
+    const tipContent = document.createElement("div");
+    tipContent.className = "tip-content";
+    tipContent.setAttribute("role", "tooltip");
+    tipContent.innerHTML = (override && override.tip) || field.tip;
+    tipBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const open = tipContent.classList.toggle("open");
+      tipBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      document.querySelectorAll(".tip-content.open").forEach(function (el) {
+        if (el !== tipContent) {
+          el.classList.remove("open");
+          const btn = el.previousElementSibling;
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+    // No focus-open handler: it raced the click toggle (focus opened, then click
+    // immediately closed → needed two clicks). Click toggles for mouse AND keyboard
+    // (a <button> fires click on Enter/Space); blur still closes on tab-away.
+    tipBtn.addEventListener("blur", function () {
+      setTimeout(function () { tipContent.classList.remove("open"); tipBtn.setAttribute("aria-expanded", "false"); }, 150);
+    });
+    tipWrap.appendChild(tipBtn);
+    tipWrap.appendChild(tipContent);
+
+    labelBlock.appendChild(lbl);
+    labelBlock.appendChild(tipWrap);
+
+    // Right side: numeric input with prefix/suffix
+    const inputCell = document.createElement("div");
+    inputCell.className = "flex items-center gap-1.5";
+    const prefix = document.createElement("span");
+    prefix.className = "text-[var(--text-muted)] text-xs font-mono";
+    if (field.format === "currency") prefix.textContent = "$";
+    const numIn = document.createElement("input");
+    numIn.type = "text";
+    numIn.inputMode = "decimal";
+    numIn.className = "num-input";
+    numIn.id = "input-" + field.id;
+    numIn.style.width = field.format === "currency" ? "110px" : "84px";
+    numIn.value = formatInputValue(value, field);
+    const suffix = document.createElement("span");
+    suffix.className = "text-[var(--text-muted)] text-xs font-mono";
+    if (field.format === "percent") suffix.textContent = "%";
+    if (field.format === "currency") suffix.textContent = "";
+
+    if (field.format === "currency") inputCell.appendChild(prefix);
+    inputCell.appendChild(numIn);
+    if (field.format === "percent") inputCell.appendChild(suffix);
+
+    topRow.appendChild(labelBlock);
+    topRow.appendChild(inputCell);
+
+    // Slider
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.id = "slider-" + field.id;
+    slider.min = field.min;
+    slider.max = field.max;
+    slider.step = field.step;
+    slider.value = value;
+    slider.setAttribute("aria-label", effLabel);
+    updateSliderFill(slider);
+
+    // Range labels
+    const rangeRow = document.createElement("div");
+    rangeRow.className = "flex justify-between mt-2 text-[10px] font-mono text-[var(--text-muted)] tracking-wide uppercase";
+    const minL = document.createElement("span");
+    minL.textContent = formatRangeLabel(field.min, field);
+    const maxL = document.createElement("span");
+    maxL.textContent = formatRangeLabel(field.max, field);
+    rangeRow.appendChild(minL);
+    rangeRow.appendChild(maxL);
+
+    wrap.appendChild(topRow);
+    wrap.appendChild(slider);
+    wrap.appendChild(rangeRow);
+
+    // Sync logic
+    slider.addEventListener("input", function () {
+      const v = sanitize(slider.value, field);
+      state[field.id] = v;
+      numIn.value = formatInputValue(v, field);
+      updateSliderFill(slider);
+      render();
+    });
+    numIn.addEventListener("input", function () {
+      const v = sanitize(numIn.value, field);
+      state[field.id] = v;
+      slider.value = v;
+      updateSliderFill(slider);
+      render();
+    });
+    numIn.addEventListener("blur", function () {
+      numIn.value = formatInputValue(state[field.id], field);
+    });
+
+    document.getElementById(containerId).appendChild(wrap);
+  }
+
+  function formatInputValue(v, field) {
+    if (field.format === "currency") {
+      return Number(v).toLocaleString("en-US", { maximumFractionDigits: 2 });
+    }
+    if (field.format === "percent") {
+      return String(Math.round(v));
+    }
+    return Number(v).toLocaleString("en-US");
+  }
+
+  function formatRangeLabel(v, field) {
+    if (field.format === "currency") {
+      if (v >= 1000) return "$" + (v / 1000) + "k";
+      return "$" + v;
+    }
+    if (field.format === "percent") return v + "%";
+    if (v >= 1000) return (v / 1000).toLocaleString("en-US", { maximumFractionDigits: 0 }) + "k";
+    return v.toLocaleString("en-US");
+  }
+
+  function updateSliderFill(slider) {
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const val = Number(slider.value);
+    const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+    slider.style.setProperty("--fill", pct + "%");
+  }
+
+  // ---------- RENDER OUTPUTS ----------
+  let lastValues = {};
+  function render() {
+    const r = calculateMetrics(state);
+
+    setOut("out-hourly", fmtCurrencyPrecise(r.hourlyRate));
+    setOut("out-context-main", fmtCurrencyBig(r.annualContextLeakage));
+    setOut("out-rep-tickets", fmtCount(r.monthlyRepetitiveTickets));
+    setOut("out-context-hours", fmtHours(r.monthlyContextHours));
+    setOut("out-burnout-main", fmtCurrencyBig(r.burnoutAttritionTax));
+    setOut("out-agents-lost", fmtAgents(r.agentsLostPerYear));
+    setOut("out-burnout-share", Math.round(state.burnoutModifierPct) + "%");
+    setOut("out-reclaim-main", fmtCurrencyBig(r.reclaimableBudget));
+    setOut("out-current-ss", fmtPctDec(r.currentSelfServiceDecimal));
+    setOut("out-target-ai", fmtPctDec(r.targetAIDecimal));
+    setOut("out-delta", fmtPctDec(r.incrementalDeflection));
+  }
+
+  function setOut(id, txt) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.textContent !== txt) {
+      el.textContent = txt;
+      el.classList.remove("pulse");
+      void el.offsetWidth;
+      el.classList.add("pulse");
+    }
+  }
+
+  // ---------- PRESETS / MODE ----------
+  function activeOverride(fieldId) {
+    return (currentPreset === "internal" && MODE_LABELS.internal[fieldId]) || null;
+  }
+
+  function setText(id, txt) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  }
+
+  function applyCardText() {
+    const t = currentPreset === "internal" ? CARD_TEXT.internal : CARD_TEXT.default;
+    setText("card-context-title", t.contextTitle);
+    setText("card-burnout-title", t.burnoutTitle);
+    setText("card-reclaim-sub", t.reclaimSub);
+    setText("header-sub", t.headerSub);
+  }
+
+  // Rebuild every input with the active mode's labels (cleaner than patching the DOM
+  // in place). Preset switches are deliberate button clicks, so a rebuild is fine.
+  function renderInputs() {
+    const pc = document.getElementById("primary-inputs");
+    const ac = document.getElementById("assumption-inputs");
+    pc.innerHTML = "";
+    ac.innerHTML = "";
+    PRIMARY_FIELDS.forEach(function (f) { buildField(f, state[f.id], "primary-inputs", activeOverride(f.id)); });
+    ASSUMPTION_FIELDS.forEach(function (f) { buildField(f, state[f.id], "assumption-inputs", activeOverride(f.id)); });
+    applyCardText();
+  }
+
+  function applyPreset(name) {
+    currentPreset = name;
+    // Full reset: defaults + preset primary numbers + any preset assumption overrides.
+    state = Object.assign({}, DEFAULT_ASSUMPTIONS, PRESETS[name], PRESET_ASSUMPTIONS[name] || {});
+    document.querySelectorAll("[data-preset]").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.dataset.preset === name ? "true" : "false");
+    });
+    renderInputs();
+    render();
+  }
+
+  // ---------- INIT ----------
+  function init() {
+    renderInputs();
+
+    document.querySelectorAll("[data-preset]").forEach(function (btn) {
+      btn.addEventListener("click", function () { applyPreset(btn.dataset.preset); });
+    });
+
+    // Spacing between input rows
+    Array.from(document.querySelectorAll("#primary-inputs > div, #assumption-inputs > div")).forEach(function (el, i, arr) {
+      if (i < arr.length - 1) el.style.paddingBottom = "0";
+    });
+
+    // Close any open tooltip on outside click
+    document.addEventListener("click", function () {
+      document.querySelectorAll(".tip-content.open").forEach(function (el) {
+        el.classList.remove("open");
+        const btn = el.previousElementSibling;
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    // Close on ESC
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        document.querySelectorAll(".tip-content.open").forEach(function (el) {
+          el.classList.remove("open");
+          const btn = el.previousElementSibling;
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        });
+      }
+    });
+
+    render();
+    const ok = verifyMathEngine();
+    if (!ok) document.getElementById("warn-zone").classList.remove("hidden");
+  }
+
+  // ---------- VERIFICATION ----------
+  function verifyMathEngine() {
+    const testInput = {
+      monthlyTickets: 10000,
+      agents: 20,
+      salary: 70000,
+      repetitiveRatePct: 60,
+      attritionRatePct: 42,
+      annualWorkHours: 2080,
+      contextMinutesPerTicket: 10,
+      replacementCost: 46000,
+      burnoutModifierPct: 70,
+      currentSelfServicePct: 14,
+      targetAIDeflectionPct: 50,
+      humanTicketCost: 22,
+      selfServeTicketCost: 1
+    };
+    const result = calculateMetrics(testInput);
+    const expected = {
+      hourlyRate: 33.65,
+      annualContextLeakage: 403846.15,
+      burnoutAttritionTax: 270480.00,
+      reclaimableBudget: 544320.00
+    };
+    const tolerance = 0.01;
+    function assertClose(label, actual, expectedValue) {
+      const pass = Math.abs(actual - expectedValue) <= tolerance;
+      const msg = (pass ? "PASS" : "FAIL") + ": " + label + ". Expected " + expectedValue + ", got " + actual.toFixed(4);
+      if (pass) { console.log("%c" + msg, "color:#4ade8c"); }
+      else { console.error(msg); }
+      return pass;
+    }
+    console.log("%c--- Leaky Bucket math verification ---", "color:#f5b54a; font-weight:bold");
+    const checks = [
+      assertClose("Hourly Loaded Agent Rate", result.hourlyRate, expected.hourlyRate),
+      assertClose("Annual Labor Context Leakage", result.annualContextLeakage, expected.annualContextLeakage),
+      assertClose("Burnout Attrition Tax", result.burnoutAttritionTax, expected.burnoutAttritionTax),
+      assertClose("First-Year Reclaimable Budget", result.reclaimableBudget, expected.reclaimableBudget)
+    ];
+    // Internal Knowledge Ops preset — locks the relabeled mode's headline numbers.
+    const internalInput = {
+      monthlyTickets: 800, agents: 6, salary: 150000, repetitiveRatePct: 60, attritionRatePct: 18,
+      annualWorkHours: 2080, contextMinutesPerTicket: 23, replacementCost: 90000, burnoutModifierPct: 55,
+      currentSelfServicePct: 10, targetAIDeflectionPct: 50, humanTicketCost: 35, selfServeTicketCost: 0
+    };
+    const ir = calculateMetrics(internalInput);
+    const internalChecks = [
+      assertClose("Internal / Hourly Rate", ir.hourlyRate, 72.12),
+      assertClose("Internal / Context Leak", ir.annualContextLeakage, 159230.77),
+      assertClose("Internal / Attrition Tax", ir.burnoutAttritionTax, 53460.00),
+      assertClose("Internal / Reclaimable", ir.reclaimableBudget, 80640.00)
+    ];
+
+    const allPass = checks.concat(internalChecks).every(Boolean);
+    console.log("%c" + (allPass ? "All checks PASSED" : "Some checks FAILED") + " ---", "color:" + (allPass ? "#4ade8c" : "#f06a7a") + "; font-weight:bold");
+    return allPass;
+  }
+
+  // Expose for debugging
+  window.LeakyBucket = { calculateMetrics: calculateMetrics, verifyMathEngine: verifyMathEngine, state: function () { return state; } };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+  // Add visual gaps between primary input rows
+  const styleTag = document.createElement("style");
+  styleTag.textContent = "#primary-inputs > div + div, #assumption-inputs > div + div { margin-top: 28px; }";
+  document.head.appendChild(styleTag);
+})();
+</script>
+
+</body>
+</html>
