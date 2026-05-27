@@ -1,8 +1,8 @@
 'use client';
 
-import { DiagnosticReportLandingPage } from '@/components/landing/DiagnosticReportLandingPage';
-import { landingPageConfig } from './landingConfig';
+import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
+import { landingPageConfigV2 } from './landingConfig-v2';
 
-export default function AiContentOpsPage() {
-  return <DiagnosticReportLandingPage config={landingPageConfig} />;
+export default function SupportTicketDeflectionPage() {
+  return <DeflectionLandingPage config={landingPageConfigV2} />;
 }

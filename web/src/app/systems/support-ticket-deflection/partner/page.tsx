@@ -1,8 +1,8 @@
 'use client';
 
+import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
 import {
   DiagnosticReportLandingPage,
-  type DiagnosticPricingTier,
 } from '@/components/landing/DiagnosticReportLandingPage';
 import { landingPageConfig, pricingTiers } from '../landingConfig';
 
