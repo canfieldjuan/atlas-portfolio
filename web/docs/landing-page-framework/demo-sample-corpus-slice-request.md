@@ -92,9 +92,13 @@ zero_result_source_count }`.
 Report-level: `generated`, `source_count`, `ticket_source_count`,
 `output_checks{ uses_user_vocabulary, condensed, has_action_items }`.
 
-Keep the `evidence_quotes[]` **citation format consistent across source types** —
-`` `<source-id>` - <subject>: "<quote>" `` (e.g. `kb-saas-demo-001`,
-`searchlog-saas-demo-001`) — the on-page card renders that literal string.
+Use the **same citation string format** for every quote field —
+`` `<source-id>` - <subject>: "<quote>" `` — so the card can render any of them.
+The `<source-id>` **prefix signals the source type**, and the fields stay
+separated by source: `evidence_quotes[]` carries **ticket IDs only** (e.g.
+`saas-demo-001` — per A above), while resolution / search-log citations go in
+their own fields with `kb-saas-demo-001` / `searchlog-saas-demo-001` prefixes. So
+the format is shared; `evidence_quotes[]` is never populated with non-ticket sources.
 
 ## The constraint (unchanged)
 
