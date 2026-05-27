@@ -65,6 +65,10 @@ Slice phase: Product polish
   `focus`-open raced the `click`-toggle, so a first click opened-then-closed it
   (needed two clicks). Removed the redundant focus-open handler — click toggles for
   mouse + keyboard (a `<button>` fires `click` on Enter/Space), `blur` still closes.
+- **Fixed an a11y label bug** (Codex): in Internal mode the visible labels swapped but
+  the slider + tooltip `aria-label`s kept the external names — screen-reader users
+  heard "Monthly Ticket Volume" not "Monthly Internal Requests." Now a single
+  `effLabel` drives the visible label *and* both aria-labels.
 
 ## Deferred
 

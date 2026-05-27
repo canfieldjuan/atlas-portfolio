@@ -581,6 +581,9 @@
   function buildField(field, value, containerId, override) {
     const wrap = document.createElement("div");
     wrap.dataset.field = field.id;
+    // Effective label for the active mode — drives the visible label AND the
+    // aria-labels, so screen-reader names match the relabeled (e.g. internal) UI.
+    const effLabel = (override && override.label) || field.label;
 
     const topRow = document.createElement("div");
     topRow.className = "flex items-center justify-between gap-3 mb-3";
@@ -591,14 +594,14 @@
     const lbl = document.createElement("label");
     lbl.htmlFor = "input-" + field.id;
     lbl.className = "text-sm font-medium text-[var(--text)]";
-    lbl.textContent = (override && override.label) || field.label;
+    lbl.textContent = effLabel;
 
     const tipWrap = document.createElement("span");
     tipWrap.className = "tip-wrap";
     const tipBtn = document.createElement("button");
     tipBtn.type = "button";
     tipBtn.className = "tip-btn";
-    tipBtn.setAttribute("aria-label", "Info about " + field.label);
+    tipBtn.setAttribute("aria-label", "Info about " + effLabel);
     tipBtn.setAttribute("aria-expanded", "false");
     tipBtn.textContent = "?";
     const tipContent = document.createElement("div");
@@ -662,7 +665,7 @@
     slider.max = field.max;
     slider.step = field.step;
     slider.value = value;
-    slider.setAttribute("aria-label", field.label);
+    slider.setAttribute("aria-label", effLabel);
     updateSliderFill(slider);
 
     // Range labels
