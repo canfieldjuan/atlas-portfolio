@@ -9,10 +9,14 @@
 // request id, and recovers to a retryable error state if the call rejects — so a
 // real async fetch is safe.
 //
-// Copy note: the per-issue numbers here are ILLUSTRATIVE (modeled on a
-// public consumer-complaint dataset), not a guaranteed result. The offer is the
-// Support Ticket Deflection Report — a CSV analysis, not an integration that
-// promises a fixed deflection rate.
+// Copy note: the demand numbers (ticketVolumeInSample / sourceCount) are real —
+// the ticket_count and cited source_ids from a labeled-synthetic B2B-SaaS sample
+// run through the Atlas FAQ generator (the same sample behind the wedge-page
+// demo). The answers below are ILLUSTRATIVE finished FAQs, not generator output:
+// they show what a published answer looks like, while your Report gives you
+// drafts from your own tickets to refine. The offer is the Support Ticket
+// Deflection Report — a CSV analysis, not an integration that promises a fixed
+// deflection rate.
 
 export type DeflectionDoc = {
   /** What the help center / search returns for this question. */
@@ -45,85 +49,104 @@ export type DeflectionIssue = {
 };
 
 // ── Illustrative dataset (replace via searchDeflection → backend) ─────────────
+// Topics + demand numbers are from the labeled-synthetic B2B-SaaS sample (the
+// same run behind the wedge-page demo); the answers are illustrative finished
+// FAQs (see the copy note above).
 export const DEMO_ISSUES: DeflectionIssue[] = [
   {
     id: 1,
-    intent: 'Account Access',
-    phrases: ["can't log in", 'login not working', 'forgot password', 'locked out', 'sign in problem', 'password reset'],
-    ticketVolumeInSample: 3120,
-    sourceCount: 24,
+    intent: 'Reporting friction',
+    phrases: ['how do i export attribution reports', 'export attribution reports', 'export reports', 'csv export missing fields', 'download report', 'export to csv'],
+    ticketVolumeInSample: 8,
+    sourceCount: 8,
     improved: {
-      title: "I can't log in — how do I get back into my account?",
-      body: 'Open the login page and click "Forgot password"\nEnter the email linked to your account\nCheck your inbox and spam for the reset link\nClick it and set a new password\nStill stuck? Use chat — we verify and reset manually',
-      matchScore: 94,
-      matchLabel: 'Strong intent match',
-      format: 'Actionable FAQ · 5 steps',
-      hasSolution: true,
-      actions: ['Reset my password', 'Chat with support'],
-    },
-  },
-  {
-    id: 2,
-    intent: 'Billing Dispute',
-    phrases: ['charged twice', 'double charge', 'duplicate charge', 'billed twice', 'overcharged', 'two charges'],
-    ticketVolumeInSample: 2418,
-    sourceCount: 31,
-    improved: {
-      title: 'I see a duplicate charge — how do I get it removed?',
-      body: 'Check whether it is a pending authorization (often drops off in 3–5 days)\nIf both have posted, open Billing → Transaction History\nClick "Report Issue" on the duplicate\nWe review within 24 hours and issue a refund\nYou get an email when the refund is processed',
-      matchScore: 97,
-      matchLabel: 'Strong intent match',
-      format: 'Actionable FAQ · 5 steps',
-      hasSolution: true,
-      actions: ['Report duplicate charge', 'Check transactions'],
-    },
-  },
-  {
-    id: 3,
-    intent: 'Order Status',
-    phrases: ['where is my order', 'order not received', 'delivery late', 'order missing', 'never arrived', 'shipping delayed'],
-    ticketVolumeInSample: 2890,
-    sourceCount: 18,
-    improved: {
-      title: "My order hasn't arrived — what should I do right now?",
-      body: 'Check Account → Orders → Track\nIf tracking has not updated in 48+ hours, the carrier may be delayed\nIf the delivery date has passed, click "Report Missing Order"\nWe contact the carrier and ship a replacement within 2 days\nYou keep the original if it later arrives',
+      title: 'How do I export attribution reports (CSV or PDF)?',
+      body: 'Open Dashboard → Analytics and pick the report you need\nClick Export (top right) and choose CSV or PDF\nUse "Add fields" to include source and owner columns before exporting\nLarge exports email you a download link when they finish\nNo Export button? Your plan or role may gate it — an admin can enable it under Settings → Permissions',
       matchScore: 96,
       matchLabel: 'Strong intent match',
       format: 'Actionable FAQ · 5 steps',
       hasSolution: true,
-      actions: ['Track my order', 'Report missing order'],
+      actions: ['Export a report', 'Check export permissions'],
     },
   },
   {
-    id: 4,
-    intent: 'Cancellation',
-    phrases: ['cancel subscription', 'how to cancel', 'stop billing', 'end subscription', 'unsubscribe', 'cancel plan'],
-    ticketVolumeInSample: 1760,
-    sourceCount: 14,
+    id: 2,
+    intent: 'Integration setup',
+    phrases: ['where can i see failed webhook delivery attempts', 'failed webhook deliveries', 'webhook delivery log', 'webhook retries', 'retry a webhook', 'webhook not firing'],
+    ticketVolumeInSample: 7,
+    sourceCount: 7,
     improved: {
-      title: 'How do I cancel my plan without losing my data?',
-      body: 'Open Settings → Subscription → Cancel Plan\nPick your cancellation date (effective at period end)\nExport first: Settings → Data → Download Everything\nConfirm — access continues until the period ends\nReactivate within 90 days and everything is preserved',
+      title: 'Where do I see failed webhook deliveries and retry them?',
+      body: 'Open Settings → Integrations → Webhooks\nSelect the endpoint and open its Delivery Log\nFilter by "Failed" to see the status code and payload for each attempt\nClick Retry on a failed attempt, or "Retry all"\nRepeated 4xx is usually the signing secret or URL; 5xx is usually the receiver',
       matchScore: 95,
       matchLabel: 'Strong intent match',
       format: 'Actionable FAQ · 5 steps',
       hasSolution: true,
-      actions: ['Cancel my plan', 'Export my data first'],
+      actions: ['Open webhook logs', 'Retry a delivery'],
+    },
+  },
+  {
+    id: 3,
+    intent: 'Data import',
+    phrases: ['which csv columns are required for account imports', 'required csv columns', 'account import columns', 'import errors', 'csv import template', 'import accounts'],
+    ticketVolumeInSample: 4,
+    sourceCount: 4,
+    improved: {
+      title: 'Which CSV columns are required to import accounts?',
+      body: 'Go to Settings → Data → Import Accounts\nDownload the CSV template — required columns are marked\nAccount name and owner email are required; the rest are optional\nUpload your file — the validator flags missing or malformed rows before anything imports\nFix the flagged rows and re-upload; nothing is created until validation passes',
+      matchScore: 96,
+      matchLabel: 'Strong intent match',
+      format: 'Actionable FAQ · 5 steps',
+      hasSolution: true,
+      actions: ['Download the template', 'Start an import'],
+    },
+  },
+  {
+    id: 4,
+    intent: 'Manual follow-up',
+    phrases: ['how do i send workflow alerts to a different slack channel', 'workflow alerts slack channel', 'route alerts to slack', 'change slack channel', 'slack notifications', 'send alerts to slack'],
+    ticketVolumeInSample: 5,
+    sourceCount: 5,
+    improved: {
+      title: 'How do I route workflow alerts to a specific Slack channel?',
+      body: 'Open Settings → Notifications → Slack\nConnect Slack if you have not yet (an admin may need to approve it)\nPick the workflow, then choose the destination channel\nUsing a private channel? Invite the app to it first with /invite\nSend a test alert to confirm it lands in the right place',
+      matchScore: 94,
+      matchLabel: 'Strong intent match',
+      format: 'Actionable FAQ · 5 steps',
+      hasSolution: true,
+      actions: ['Open Slack settings', 'Send a test alert'],
     },
   },
   {
     id: 5,
-    intent: 'App Stability',
-    phrases: ['app crashing', 'keeps closing', 'freezing', 'not responding', "app won't open", 'keeps crashing'],
-    ticketVolumeInSample: 1540,
-    sourceCount: 22,
+    intent: 'Billing & payments',
+    phrases: ['where can i download invoices for the annual subscription', 'download invoices', 'download my invoice', 'where are my invoices', 'get a receipt', 'annual subscription invoice'],
+    ticketVolumeInSample: 4,
+    sourceCount: 4,
     improved: {
-      title: 'The app keeps crashing — how do I fix it fast?',
-      body: 'Force-close the app and reopen it once\nUpdate to the latest version in your app store\nClear the app cache: Settings → Storage → Clear Cache\nRestart your device, then reopen\nStill crashing? Tap "Send crash report" so we can see the exact error',
+      title: 'Where do I download invoices and receipts?',
+      body: 'Open Settings → Billing → Invoices\nEach invoice lists the period, plan, and seats\nClick Download for a PDF, or "Email invoice" to send it to finance\nAdd a VAT/Tax ID or a billing email under Billing → Details\nAnnual-plan question or an amount that looks wrong? Contact billing with the invoice number',
+      matchScore: 95,
+      matchLabel: 'Strong intent match',
+      format: 'Actionable FAQ · 5 steps',
+      hasSolution: true,
+      actions: ['Download an invoice', 'Update billing details'],
+    },
+  },
+  {
+    id: 6,
+    intent: 'Permissions & access',
+    phrases: ['how do i let managers edit workflows without full admin access', 'edit workflows without admin', 'limited admin access', 'custom roles', 'role permissions', 'transfer a seat'],
+    ticketVolumeInSample: 8,
+    sourceCount: 8,
+    improved: {
+      title: 'How do I let managers edit workflows without making them admins?',
+      body: 'Open Settings → Members → Roles\nCreate or edit a role (for example, "Workflow Editor")\nGrant "Edit workflows" without the admin or billing permissions\nAssign the role to the managers who need it\nNeed finer-grained control or SSO-mapped roles? Those are on Business plans and up',
       matchScore: 93,
       matchLabel: 'Strong intent match',
       format: 'Actionable FAQ · 5 steps',
       hasSolution: true,
-      actions: ['Send crash report', 'Chat with support'],
+      actions: ['Open role settings', 'Create a custom role'],
     },
   },
 ];
@@ -184,9 +207,10 @@ export async function searchDeflection(query: string): Promise<DeflectionIssue |
 }
 
 export const DEMO_CHIPS: string[] = [
-  "can't log in",
-  'charged twice',
-  'where is my order',
-  'cancel subscription',
-  'app crashing',
+  'export attribution reports',
+  'failed webhook deliveries',
+  'required CSV columns for imports',
+  'workflow alerts to a Slack channel',
+  'download invoices',
+  'edit workflows without admin access',
 ];

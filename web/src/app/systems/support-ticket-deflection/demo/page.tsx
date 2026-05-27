@@ -29,8 +29,10 @@ export default function SupportTicketDeflectionDemoPage() {
             behind it: how often it&apos;s asked, the risk it carries, and what customers actually say.
           </p>
           <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
-            Illustrative sample of repeat-question clusters, modeled on public consumer-complaint
-            data — the real Report ranks your own ticket export by volume.
+            The demand numbers are real — ticket and source counts from a labeled-synthetic B2B-SaaS
+            sample run through the generator (the same sample on the wedge page). The answers are
+            illustrative finished FAQs: this is what a published answer looks like, while your Report
+            gives you drafts from your own ticket export to review and refine.
           </p>
         </div>
 
