@@ -21,12 +21,18 @@ Slice phase: Production hardening
    `- Resolved:` line with the rule spec (per-IP, `/api/gap-report-intake/` + POST
    → 10 req/60s → Deny 429), noting there is no app-level limiter by design and
    the code fallback (`@upstash/ratelimit`) if the WAF rule is ever removed.
+2. **`page-overhaul-brief.md`** — update the stale "#88 open verification +
+   follow-ups" note (lines ~139): all three are now done (verify #103, remove POST
+   #104, rate-limit WAF #105). Leaving it open would contradict this resolution and
+   send a future session back to finished work (the repo-wide grep-the-status lesson).
 
 ### Files touched
 
 - `web/plans/PR-RateLimit-Resolved.md` — this plan doc (new)
 - `HARDENING.md` — mark `DEFLECTION-INTAKE-RATELIMIT-1` resolved (follows the
   `DEFLECTION-GOLIVE-1` resolved-entry convention)
+- `web/docs/landing-page-framework/page-overhaul-brief.md` — mark the #88
+  verification + follow-ups note DONE (was still listed as open)
 
 ## Mechanism
 
@@ -59,7 +65,8 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | `HARDENING.md` resolved entry | ~4 |
-| this plan doc | ~55 |
-| **Total** | ~59 |
+| `page-overhaul-brief.md` note → DONE | ~12 |
+| this plan doc | ~62 |
+| **Total** | ~78 |
 
 Well under the 400-LOC soft cap.
