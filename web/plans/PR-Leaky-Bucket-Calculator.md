@@ -61,6 +61,10 @@ Slice phase: Product polish
   reviewed here).
 - **Theming deferred** — it ships on its own dark theme; reconciling to the site's
   blue/light is a separate pass if/when it's embedded on-site.
+- **Fixed a pre-existing tooltip bug** (Codex caught it on review): the `?` button's
+  `focus`-open raced the `click`-toggle, so a first click opened-then-closed it
+  (needed two clicks). Removed the redundant focus-open handler — click toggles for
+  mouse + keyboard (a `<button>` fires `click` on Enter/Space), `blur` still closes.
 
 ## Deferred
 

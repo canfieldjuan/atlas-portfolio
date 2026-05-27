@@ -617,7 +617,9 @@
         }
       });
     });
-    tipBtn.addEventListener("focus", function () { tipContent.classList.add("open"); tipBtn.setAttribute("aria-expanded", "true"); });
+    // No focus-open handler: it raced the click toggle (focus opened, then click
+    // immediately closed → needed two clicks). Click toggles for mouse AND keyboard
+    // (a <button> fires click on Enter/Space); blur still closes on tab-away.
     tipBtn.addEventListener("blur", function () {
       setTimeout(function () { tipContent.classList.remove("open"); tipBtn.setAttribute("aria-expanded", "false"); }, 150);
     });
