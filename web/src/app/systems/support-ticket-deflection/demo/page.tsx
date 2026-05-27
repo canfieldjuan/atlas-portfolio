@@ -30,9 +30,9 @@ export default function SupportTicketDeflectionDemoPage() {
           </p>
           <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
             The demand numbers are real — ticket and source counts from a labeled-synthetic B2B-SaaS
-            sample run through the generator (the same sample on the wedge page). The answers are
-            illustrative finished FAQs: this is what a published answer looks like, while your Report
-            gives you drafts from your own ticket export to review and refine.
+            sample run through the generator. The answers are illustrative finished FAQs: this is what
+            a published answer looks like, while your Report gives you drafts from your own ticket
+            export to review and refine.
           </p>
         </div>
 

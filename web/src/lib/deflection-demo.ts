@@ -11,8 +11,8 @@
 //
 // Copy note: the demand numbers (ticketVolumeInSample / sourceCount) are real —
 // the ticket_count and cited source_ids from a labeled-synthetic B2B-SaaS sample
-// run through the Atlas FAQ generator (the same sample behind the wedge-page
-// demo). The answers below are ILLUSTRATIVE finished FAQs, not generator output:
+// run through the Atlas FAQ generator. The answers below are ILLUSTRATIVE
+// finished FAQs, not generator output:
 // they show what a published answer looks like, while your Report gives you
 // drafts from your own tickets to refine. The offer is the Support Ticket
 // Deflection Report — a CSV analysis, not an integration that promises a fixed

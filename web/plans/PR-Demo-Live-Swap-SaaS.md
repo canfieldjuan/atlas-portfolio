@@ -25,9 +25,11 @@ Slice phase: Product polish
    *illustrative* finished FAQ for the SaaS topic (same pattern as the prior CFPB
    answers — illustrative, label-gated, never generator output).
 2. **`DEMO_CHIPS`** → the 6 customer-wording questions (trimmed).
-3. **Copy** — `deflection-demo.ts` header comment + `demo/page.tsx` intro tie the
-   surfaces together: the live demo shows the *finished* FAQ; the Report gives
-   you *drafts* from your real tickets to refine (like the wedge-page sample).
+3. **Copy** — `deflection-demo.ts` header comment + `demo/page.tsx` intro frame
+   the answer honestly: the demand numbers are real, the answers are illustrative
+   *finished* FAQs, and your Report gives you *drafts* from your real tickets to
+   refine. (No cross-claim that the wedge already shows this sample — that would
+   be false until #100 lands; the surfaces just use the same SaaS data.)
 
 ### Files touched
 
@@ -53,8 +55,8 @@ Slice phase: Product polish
 - **Illustrative answers, not generator output** — the sample's real `steps` are
   generic `draft_needs_review` scaffolds (no resolution text in the corpus), so
   parading them would be worse than a clean hand-authored FAQ. The honesty
-  mechanism is the label (as it always was for this demo), and the tie-line makes
-  "draft on the card, finished example here" coherent.
+  mechanism is the label (as it always was for this demo); the intro frames it as
+  "a finished example here, drafts from your own tickets in your Report."
 - **Real demand numbers** — ticket/source counts come straight from the JSON, so
   the "real signals" panel is now actually real.
 - **Item 6 relabeled** — the JSON topic "other support issues" (a permissions /
