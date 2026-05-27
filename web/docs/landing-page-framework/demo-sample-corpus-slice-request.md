@@ -50,7 +50,13 @@ showing both states is itself the selling point (`answer_evidence_status` =
   `answer` / `steps[]` / `action_items[]` that are **real customer-facing steps**
   (not the scaffold lines).
 - Keep ≈2–3 items `draft_needs_review` so the demo can show the contrast honestly.
-- `evidence_quotes[]` drawn from the resolution sources where applicable.
+- **Keep `evidence_quotes[]` as customer-ticket wording.** The card renders them
+  under "Cited from N tickets" and they're the "in their words" proof — grounded
+  answers must **not** replace them with KB / macro / help-article text (that
+  would make the citation copy false and lose the customer-wording proof). If you
+  want to cite the resolution source too, add it as a **distinct, labelled field**
+  (e.g. `resolution_evidence_quotes[]` + `resolution_source_labels[]`) so the page
+  can show "drafted from help article X" separately from the customer quotes.
 
 ### B. Labeled-synthetic search-log rows (→ zero-result proof)
 
