@@ -1,4 +1,5 @@
 import { del, list } from '@vercel/blob';
+import { gapReportBlobToken } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
   gapReportDatabaseConfigured,
@@ -29,7 +30,9 @@ function errorMessage(error: unknown) {
 }
 
 async function deleteBlob(url: string) {
-  await del(url);
+  // Same public-store token as the intake routes — new CSVs land in the public
+  // store, so cleanup must target it or the 30-day retention promise silently fails.
+  await del(url, { token: gapReportBlobToken() });
 }
 
 async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
@@ -91,6 +94,7 @@ async function cleanupOrphanedBlobs(cutoff: Date, limit: number) {
       prefix: GAP_REPORT_BLOB_PREFIX,
       limit,
       cursor,
+      token: gapReportBlobToken(),
     });
 
     for (const blob of page.blobs) {

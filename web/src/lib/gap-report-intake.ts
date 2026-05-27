@@ -16,6 +16,20 @@ export function isSupportPlatform(value: unknown): value is SupportPlatform {
 
 export const GAP_REPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// The atlas-portfolio project has multiple Vercel Blob stores connected, so the
+// default BLOB_READ_WRITE_TOKEN resolves to the wrong (private) store. This intake
+// uses the public deflection store explicitly via its prefixed token; falls back
+// to the default if the store setup is ever consolidated to a single store.
+// Returns undefined when neither is set, so the SDK surfaces its own "no token"
+// error rather than us masking it. One source of truth for both intake routes.
+export function gapReportBlobToken(): string | undefined {
+  return (
+    process.env.ticke_deflection_blob_READ_WRITE_TOKEN?.trim() ||
+    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+    undefined
+  );
+}
+
 export type GapReportMetadata = {
   name: string;
   email: string;

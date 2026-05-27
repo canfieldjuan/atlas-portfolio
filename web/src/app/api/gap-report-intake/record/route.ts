@@ -1,6 +1,10 @@
 import { head } from '@vercel/blob';
 import { NextResponse } from 'next/server';
-import { parseGapReportMetadata, recordGapReportSubmission } from '@/lib/gap-report-intake';
+import {
+  gapReportBlobToken,
+  parseGapReportMetadata,
+  recordGapReportSubmission,
+} from '@/lib/gap-report-intake';
 
 export const runtime = 'nodejs';
 
@@ -30,8 +34,10 @@ export async function POST(request: Request) {
 
   // head() uses our store's token, so it only resolves blobs we own; this is the
   // authoritative check that the reported URL is a real upload in our namespace.
+  // Same explicit public-store token as /upload, so the ownership check runs
+  // against the store the CSV was actually uploaded to.
   try {
-    await head(blobUrl);
+    await head(blobUrl, { token: gapReportBlobToken() });
   } catch {
     return NextResponse.json({ ok: false, error: 'Upload not found.' }, { status: 400 });
   }
