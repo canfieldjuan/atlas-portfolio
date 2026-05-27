@@ -28,6 +28,10 @@ Slice phase: Production hardening
    so the minted client token (and thus the upload) targets the public store.
 3. **`/record/route.ts`** — pass `token: gapReportBlobToken()` to `head()`, so the
    ownership check runs against the store the CSV was uploaded to.
+4. **`gap-report-cleanup.ts`** — pass the same token to `del()` + `list()`, so the
+   30-day retention job deletes from the store the CSVs actually live in (else
+   new public-store uploads are never cleaned → silent breach of the deletion
+   promise on customer PII).
 
 ### Files touched
 
@@ -35,6 +39,7 @@ Slice phase: Production hardening
 - `web/src/lib/gap-report-intake.ts` — `gapReportBlobToken()` helper
 - `web/src/app/api/gap-report-intake/upload/route.ts` — pass token to `handleUpload`
 - `web/src/app/api/gap-report-intake/record/route.ts` — pass token to `head()`
+- `web/src/lib/gap-report-cleanup.ts` — pass token to `del()` + `list()` (retention)
 
 ## Mechanism
 
@@ -76,7 +81,8 @@ Parked hardening: none.
 | `gapReportBlobToken()` helper | ~14 |
 | `/upload` import + token arg | ~4 |
 | `/record` import + token arg | ~8 |
-| this plan doc | ~70 |
-| **Total** | ~96 |
+| `gap-report-cleanup.ts` token on `del()` + `list()` | ~12 |
+| this plan doc | ~83 |
+| **Total** | ~121 |
 
 Well under the 400-LOC soft cap.
