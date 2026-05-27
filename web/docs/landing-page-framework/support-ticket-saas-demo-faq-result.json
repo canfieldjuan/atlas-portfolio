@@ -1,0 +1,435 @@
+{
+  "generated": 6,
+  "items": [
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"How do I export attribution reports before our board meeting?\" / \"Why is the campaign CSV export missing source and owner columns?\" / \"Can I schedule a weekly attribution report export for finance?\" Evidence comes from 8 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-001` - Attribution export blocked: \"How do I export attribution reports before our board meeting?\"",
+        "`saas-demo-002` - CSV export missing fields: \"Why is the campaign CSV export missing source and owner columns?\"",
+        "`saas-demo-003` - Export scheduled report: \"Can I schedule a weekly attribution report export for finance?\""
+      ],
+      "failure_risk_score": 2,
+      "failure_risk_signals": [
+        "blocked_access",
+        "failed_workflow"
+      ],
+      "frequency": 8,
+      "opportunity_score": 24,
+      "question": "How do I export attribution reports before our board meeting?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-001",
+        "saas-demo-002",
+        "saas-demo-003",
+        "saas-demo-004",
+        "saas-demo-005",
+        "saas-demo-006",
+        "saas-demo-007",
+        "saas-demo-008"
+      ],
+      "source_labels": [
+        "`saas-demo-001` - Attribution export blocked",
+        "`saas-demo-002` - CSV export missing fields",
+        "`saas-demo-003` - Export scheduled report"
+      ],
+      "source_type_counts": {
+        "support_ticket": 8
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about reporting friction across 8 ticket sources. The clearest customer wording is \"How do I export attribution reports before our board meeting?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "export",
+          "documentation_term": "Download report",
+          "failure_risk_score": 2,
+          "failure_risk_signals": [
+            "blocked_access",
+            "failed_workflow"
+          ],
+          "first_source_id": "saas-demo-001",
+          "opportunity_score": 24,
+          "source_id_count": 8,
+          "suggestion": "Add \"export\" as alternate phrasing for \"Download report\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        },
+        {
+          "customer_term": "reports",
+          "documentation_term": "Dashboard analytics",
+          "failure_risk_score": 2,
+          "failure_risk_signals": [
+            "blocked_access",
+            "failed_workflow"
+          ],
+          "first_source_id": "saas-demo-001",
+          "opportunity_score": 24,
+          "source_id_count": 8,
+          "suggestion": "Add \"reports\" as alternate phrasing for \"Dashboard analytics\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 8,
+      "topic": "reporting friction",
+      "weighted_frequency": 8,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 8
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if the export is missing, locked by plan or role, or still unavailable after an admin checks permissions."
+    },
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"Where can I see failed webhook delivery attempts?\" / \"How do we know when the API rate limit has been reached?\" / \"Can we rotate webhook signing secrets without downtime?\" Evidence comes from 7 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-017` - Webhook retries: \"Where can I see failed webhook delivery attempts?\"",
+        "`saas-demo-018` - API rate limits: \"How do we know when the API rate limit has been reached?\"",
+        "`saas-demo-019` - Webhook secret rotation: \"Can we rotate webhook signing secrets without downtime?\""
+      ],
+      "failure_risk_score": 1,
+      "failure_risk_signals": [
+        "failed_workflow"
+      ],
+      "frequency": 7,
+      "opportunity_score": 14,
+      "question": "Where can I see failed webhook delivery attempts?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-017",
+        "saas-demo-018",
+        "saas-demo-019",
+        "saas-demo-020",
+        "saas-demo-021",
+        "saas-demo-022",
+        "saas-demo-023"
+      ],
+      "source_labels": [
+        "`saas-demo-017` - Webhook retries",
+        "`saas-demo-018` - API rate limits",
+        "`saas-demo-019` - Webhook secret rotation"
+      ],
+      "source_type_counts": {
+        "support_ticket": 7
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about integration setup across 7 ticket sources. The clearest customer wording is \"Where can I see failed webhook delivery attempts?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "delivery attempts",
+          "documentation_term": "Webhook delivery logs",
+          "failure_risk_score": 1,
+          "failure_risk_signals": [
+            "failed_workflow"
+          ],
+          "first_source_id": "saas-demo-017",
+          "opportunity_score": 14,
+          "source_id_count": 7,
+          "suggestion": "Add \"delivery attempts\" as alternate phrasing for \"Webhook delivery logs\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 7,
+      "topic": "integration setup",
+      "weighted_frequency": 7,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 7
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if the issue still affects the workflow after you try the steps above."
+    },
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"Which CSV columns are required for account imports?\" / \"How do I fix import errors for missing owner email values?\" / \"Can we import historical opportunities from last quarter?\" Evidence comes from 4 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-025` - CSV import columns: \"Which CSV columns are required for account imports?\"",
+        "`saas-demo-026` - Import validation errors: \"How do I fix import errors for missing owner email values?\"",
+        "`saas-demo-027` - Historical data import: \"Can we import historical opportunities from last quarter?\""
+      ],
+      "failure_risk_score": 2,
+      "failure_risk_signals": [
+        "failed_workflow",
+        "incorrect_record"
+      ],
+      "frequency": 4,
+      "opportunity_score": 12,
+      "question": "Which CSV columns are required for account imports?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-025",
+        "saas-demo-026",
+        "saas-demo-027",
+        "saas-demo-028"
+      ],
+      "source_labels": [
+        "`saas-demo-025` - CSV import columns",
+        "`saas-demo-026` - Import validation errors",
+        "`saas-demo-027` - Historical data import"
+      ],
+      "source_type_counts": {
+        "support_ticket": 4
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about data import across 4 ticket sources. The clearest customer wording is \"Which CSV columns are required for account imports?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "import columns",
+          "documentation_term": "CSV import requirements",
+          "failure_risk_score": 2,
+          "failure_risk_signals": [
+            "failed_workflow",
+            "incorrect_record"
+          ],
+          "first_source_id": "saas-demo-025",
+          "opportunity_score": 12,
+          "source_id_count": 4,
+          "suggestion": "Add \"import columns\" as alternate phrasing for \"CSV import requirements\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 4,
+      "topic": "data import",
+      "weighted_frequency": 4,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 4
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if you cannot access the account, the field is locked, or the confirmation message never arrives."
+    },
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"How do I send workflow alerts to a different Slack channel?\" / \"How do I automate demo follow-up after a meeting is completed?\" / \"Why did a prospect not enter the renewal workflow?\" Evidence comes from 5 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-024` - Slack notification routing: \"How do I send workflow alerts to a different Slack channel?\"",
+        "`saas-demo-029` - Follow-up automation: \"How do I automate demo follow-up after a meeting is completed?\"",
+        "`saas-demo-030` - Workflow enrollment: \"Why did a prospect not enter the renewal workflow?\""
+      ],
+      "failure_risk_score": 0,
+      "failure_risk_signals": [],
+      "frequency": 5,
+      "opportunity_score": 5,
+      "question": "How do I send workflow alerts to a different Slack channel?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-024",
+        "saas-demo-029",
+        "saas-demo-030",
+        "saas-demo-031",
+        "saas-demo-032"
+      ],
+      "source_labels": [
+        "`saas-demo-024` - Slack notification routing",
+        "`saas-demo-029` - Follow-up automation",
+        "`saas-demo-030` - Workflow enrollment"
+      ],
+      "source_type_counts": {
+        "support_ticket": 5
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about manual follow-up across 5 ticket sources. The clearest customer wording is \"How do I send workflow alerts to a different Slack channel?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "Slack channel",
+          "documentation_term": "Slack notification routing",
+          "failure_risk_score": 0,
+          "failure_risk_signals": [],
+          "first_source_id": "saas-demo-024",
+          "opportunity_score": 5,
+          "source_id_count": 5,
+          "suggestion": "Add \"Slack channel\" as alternate phrasing for \"Slack notification routing\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 5,
+      "topic": "manual follow-up",
+      "weighted_frequency": 5,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 5
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if the issue still affects the workflow after you try the steps above."
+    },
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"Where can I download invoices for the annual subscription?\" / \"Why did we get a plan limit warning after adding seats?\" / \"Can we upgrade before renewal and keep the same billing date?\" Evidence comes from 4 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-033` - Invoice download: \"Where can I download invoices for the annual subscription?\"",
+        "`saas-demo-034` - Plan limit warning: \"Why did we get a plan limit warning after adding seats?\"",
+        "`saas-demo-035` - Upgrade timing: \"Can we upgrade before renewal and keep the same billing date?\""
+      ],
+      "failure_risk_score": 0,
+      "failure_risk_signals": [],
+      "frequency": 4,
+      "opportunity_score": 4,
+      "question": "Where can I download invoices for the annual subscription?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-033",
+        "saas-demo-034",
+        "saas-demo-035",
+        "saas-demo-036"
+      ],
+      "source_labels": [
+        "`saas-demo-033` - Invoice download",
+        "`saas-demo-034` - Plan limit warning",
+        "`saas-demo-035` - Upgrade timing"
+      ],
+      "source_type_counts": {
+        "support_ticket": 4
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about billing and payments across 4 ticket sources. The clearest customer wording is \"Where can I download invoices for the annual subscription?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "invoice",
+          "documentation_term": "Billing and invoices",
+          "failure_risk_score": 0,
+          "failure_risk_signals": [],
+          "first_source_id": "saas-demo-033",
+          "opportunity_score": 4,
+          "source_id_count": 4,
+          "suggestion": "Add \"invoice\" as alternate phrasing for \"Billing and invoices\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 4,
+      "topic": "billing and payments",
+      "weighted_frequency": 4,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 4
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if the charge, fee, payment, balance, or dispute still looks wrong after you compare it with your records."
+    },
+    {
+      "action_items": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "answer": "Customers mention: \"How do I let managers edit workflows without full admin access?\" / \"Can I transfer a paid seat from a departed employee?\" / \"Why can viewers open a report but not save filters?\" Evidence comes from 8 ticket source(s).",
+      "answer_evidence_status": "draft_needs_review",
+      "displayed_evidence_count": 3,
+      "evidence_count": 3,
+      "evidence_quotes": [
+        "`saas-demo-013` - Role permissions: \"How do I let managers edit workflows without full admin access?\"",
+        "`saas-demo-014` - Seat transfer: \"Can I transfer a paid seat from a departed employee?\"",
+        "`saas-demo-015` - Viewer role limits: \"Why can viewers open a report but not save filters?\""
+      ],
+      "failure_risk_score": 0,
+      "failure_risk_signals": [],
+      "frequency": 8,
+      "opportunity_score": 8,
+      "question": "How do I let managers edit workflows without full admin access?",
+      "question_source": "customer_wording",
+      "resolution_source_count": 0,
+      "source_ids": [
+        "saas-demo-013",
+        "saas-demo-014",
+        "saas-demo-015",
+        "saas-demo-016",
+        "saas-demo-009",
+        "saas-demo-010",
+        "saas-demo-011",
+        "saas-demo-012"
+      ],
+      "source_labels": [
+        "`saas-demo-013` - Role permissions",
+        "`saas-demo-014` - Seat transfer",
+        "`saas-demo-015` - Viewer role limits"
+      ],
+      "source_type_counts": {
+        "support_ticket": 8
+      },
+      "steps": [
+        "Review the cited ticket evidence and confirm the policy-approved answer before publishing.",
+        "Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.",
+        "If it still does not work, contact support at https://example.com/support and include the cited ticket details."
+      ],
+      "summary": "Customers are asking about other support issues across 8 ticket sources. The clearest customer wording is \"How do I let managers edit workflows without full admin access?\", so this FAQ should answer that request directly and tell users exactly what to try next.",
+      "term_mappings": [
+        {
+          "customer_term": "SSO",
+          "documentation_term": "Single sign-on setup",
+          "failure_risk_score": 0,
+          "failure_risk_signals": [],
+          "first_source_id": "saas-demo-013",
+          "opportunity_score": 8,
+          "source_id_count": 8,
+          "suggestion": "Add \"SSO\" as alternate phrasing for \"Single sign-on setup\" in FAQ headings and answer text.",
+          "zero_result_source_count": 0
+        }
+      ],
+      "ticket_count": 8,
+      "topic": "other support issues",
+      "weighted_frequency": 8,
+      "weighted_source_volume_by_type": {
+        "support_ticket": 8
+      },
+      "when_to_contact_support": "Contact support at https://example.com/support if the issue still affects the workflow after you try the steps above."
+    }
+  ],
+  "markdown": "# Synthetic B2B SaaS Support FAQ Demo\n\n_Source rows analyzed: 36. Ticket sources used: 36._\n\n## 1. How do I export attribution reports before our board meeting?\n\nCustomers are asking about reporting friction across 8 ticket sources. The clearest customer wording is \"How do I export attribution reports before our board meeting?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"export\"; documentation says \"Download report\". Add \"export\" as alternate phrasing for \"Download report\" in FAQ headings and answer text. (Seen in 8 source(s); mapping score 24.)\n- Customers say \"reports\"; documentation says \"Dashboard analytics\". Add \"reports\" as alternate phrasing for \"Dashboard analytics\" in FAQ headings and answer text. (Seen in 8 source(s); mapping score 24.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if the export is missing, locked by plan or role, or still unavailable after an admin checks permissions.\n\n**Sources:**\n\n- `saas-demo-001` - Attribution export blocked: \"How do I export attribution reports before our board meeting?\"\n- `saas-demo-002` - CSV export missing fields: \"Why is the campaign CSV export missing source and owner columns?\"\n- `saas-demo-003` - Export scheduled report: \"Can I schedule a weekly attribution report export for finance?\"\n\n## 2. Where can I see failed webhook delivery attempts?\n\nCustomers are asking about integration setup across 7 ticket sources. The clearest customer wording is \"Where can I see failed webhook delivery attempts?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"delivery attempts\"; documentation says \"Webhook delivery logs\". Add \"delivery attempts\" as alternate phrasing for \"Webhook delivery logs\" in FAQ headings and answer text. (Seen in 7 source(s); mapping score 14.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if the issue still affects the workflow after you try the steps above.\n\n**Sources:**\n\n- `saas-demo-017` - Webhook retries: \"Where can I see failed webhook delivery attempts?\"\n- `saas-demo-018` - API rate limits: \"How do we know when the API rate limit has been reached?\"\n- `saas-demo-019` - Webhook secret rotation: \"Can we rotate webhook signing secrets without downtime?\"\n\n## 3. Which CSV columns are required for account imports?\n\nCustomers are asking about data import across 4 ticket sources. The clearest customer wording is \"Which CSV columns are required for account imports?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"import columns\"; documentation says \"CSV import requirements\". Add \"import columns\" as alternate phrasing for \"CSV import requirements\" in FAQ headings and answer text. (Seen in 4 source(s); mapping score 12.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if you cannot access the account, the field is locked, or the confirmation message never arrives.\n\n**Sources:**\n\n- `saas-demo-025` - CSV import columns: \"Which CSV columns are required for account imports?\"\n- `saas-demo-026` - Import validation errors: \"How do I fix import errors for missing owner email values?\"\n- `saas-demo-027` - Historical data import: \"Can we import historical opportunities from last quarter?\"\n\n## 4. How do I send workflow alerts to a different Slack channel?\n\nCustomers are asking about manual follow-up across 5 ticket sources. The clearest customer wording is \"How do I send workflow alerts to a different Slack channel?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"Slack channel\"; documentation says \"Slack notification routing\". Add \"Slack channel\" as alternate phrasing for \"Slack notification routing\" in FAQ headings and answer text. (Seen in 5 source(s); mapping score 5.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if the issue still affects the workflow after you try the steps above.\n\n**Sources:**\n\n- `saas-demo-024` - Slack notification routing: \"How do I send workflow alerts to a different Slack channel?\"\n- `saas-demo-029` - Follow-up automation: \"How do I automate demo follow-up after a meeting is completed?\"\n- `saas-demo-030` - Workflow enrollment: \"Why did a prospect not enter the renewal workflow?\"\n\n## 5. Where can I download invoices for the annual subscription?\n\nCustomers are asking about billing and payments across 4 ticket sources. The clearest customer wording is \"Where can I download invoices for the annual subscription?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"invoice\"; documentation says \"Billing and invoices\". Add \"invoice\" as alternate phrasing for \"Billing and invoices\" in FAQ headings and answer text. (Seen in 4 source(s); mapping score 4.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if the charge, fee, payment, balance, or dispute still looks wrong after you compare it with your records.\n\n**Sources:**\n\n- `saas-demo-033` - Invoice download: \"Where can I download invoices for the annual subscription?\"\n- `saas-demo-034` - Plan limit warning: \"Why did we get a plan limit warning after adding seats?\"\n- `saas-demo-035` - Upgrade timing: \"Can we upgrade before renewal and keep the same billing date?\"\n\n## 6. How do I let managers edit workflows without full admin access?\n\nCustomers are asking about other support issues across 8 ticket sources. The clearest customer wording is \"How do I let managers edit workflows without full admin access?\", so this FAQ should answer that request directly and tell users exactly what to try next.\n\n**Vocabulary gaps:**\n\n- Customers say \"SSO\"; documentation says \"Single sign-on setup\". Add \"SSO\" as alternate phrasing for \"Single sign-on setup\" in FAQ headings and answer text. (Seen in 8 source(s); mapping score 8.)\n\n**What to do next:**\n\n1. Review the cited ticket evidence and confirm the policy-approved answer before publishing.\n2. Draft the customer-facing steps from a verified help article, runbook, macro, or resolved ticket.\n3. If it still does not work, contact support at https://example.com/support and include the cited ticket details.\n\n**When to contact support:**\n\nContact support at https://example.com/support if the issue still affects the workflow after you try the steps above.\n\n**Sources:**\n\n- `saas-demo-013` - Role permissions: \"How do I let managers edit workflows without full admin access?\"\n- `saas-demo-014` - Seat transfer: \"Can I transfer a paid seat from a departed employee?\"\n- `saas-demo-015` - Viewer role limits: \"Why can viewers open a report but not save filters?\"\n",
+  "output_checks": {
+    "condensed": true,
+    "has_action_items": true,
+    "uses_user_vocabulary": true
+  },
+  "saved_ids": [],
+  "source_count": 36,
+  "ticket_source_count": 36,
+  "warnings": []
+}
