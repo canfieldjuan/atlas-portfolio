@@ -34,13 +34,14 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## 2026-05-25
 
-### DEFLECTION-INTAKE-RATELIMIT-1 — direct-to-blob intake endpoints are unauthenticated + unthrottled
+### DEFLECTION-INTAKE-RATELIMIT-1 — RESOLVED (Vercel WAF) — direct-to-blob intake endpoints are unauthenticated + unthrottled
 - File/location: `web/src/app/api/gap-report-intake/upload/route.ts` + `web/src/app/api/gap-report-intake/record/route.ts`.
 - Description: The direct-to-blob flow exposes two open POST endpoints — `/upload` (mints a short-lived Vercel Blob client token) and `/record` (persists + emails). Both validate metadata and cap content-type/size (50 MB), and `/record` confirms blob ownership via `head()`, but neither is rate-limited. An attacker could mint many tokens or spam record submissions. Acceptable at first-5-design-partner volume; add a rate limit (IP/token bucket or Vercel WAF) before broader launch.
 - Why it matters: open lead-form endpoints; bounded today by size/content-type/ownership checks but no abuse throttle.
 - Effort: M
 - Category: security
 - Found during: PR-Intake-Direct-Blob.
+- Resolved: Operator added a **Vercel Firewall (WAF) rate-limit rule** 2026-05-27 — per-IP, Request Path starts-with `/api/gap-report-intake/` AND method POST → Rate Limit 10 req / 60s → Deny (429). Edge-enforced, covers both `/upload` + `/record`. **Handled at the edge by design — there is NO app-level limiter in code** (repo has no rate-limit infra, and the WAF rule needs no backing store). If the WAF rule is ever removed, this re-opens; the code fallback would be `@upstash/ratelimit` (Vercel KV / Upstash) in both routes.
 
 ### DEFLECTION-BADGE-1 — result badge is a static "Illustrative · sample dataset"
 - File/location: `web/src/components/deflection-demo/DeflectionDemo.tsx` (the `phase === 'result'` header badge).

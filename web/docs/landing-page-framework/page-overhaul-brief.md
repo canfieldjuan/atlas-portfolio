@@ -126,7 +126,7 @@ When fixing the demo cards: the labels + numbers should reflect *these* (e.g.
 | #85 | `/partner` page ($1,000, first-5, noindex) |
 | #86 | Swept "90 days" → "3–6 months" across the deflection surface |
 | #87 | Retired the orphaned `ai-content-ops/intake` (308 → deflection intake) |
-| #88 | **Direct-to-blob CSV upload** (no 4 MB cap) — *verify on the deploy* |
+| #88 | **Direct-to-blob CSV upload** (no 4 MB cap) — *verified on the deploy ✓ (#103)* |
 | #89 | Acq-pack templates → 3–6 months; hero "self-serve" → "self-service" |
 | #90 | Swept the same stragglers in the internal `web/docs` source docs |
 
@@ -136,11 +136,13 @@ FAQ, a gated `/partner` twin. **What it is NOT yet:** sharp, benefit-led, or
 hooky (see §6). This was the "make it correct + consistent" pass; the next pass
 is "make it persuasive."
 
-**One open verification (owner: operator):** #88's live upload→record round-trip
-couldn't be tested locally — verify a real CSV upload on the Vercel deploy before
-relying on it. Then two small follow-ups: remove the old `/api/gap-report-intake`
-POST (kept one cycle as fallback) and rate-limit the open upload endpoints
-(`HARDENING.md` `DEFLECTION-INTAKE-RATELIMIT-1`).
+**#88 deploy verification + follow-ups — DONE (2026-05-27):** the live
+upload→record round-trip is verified working on the Vercel deploy (#103 pointed
+the intake at the public Blob store's token + a marked end-to-end upload came back
+green — blob stored, record persisted, notification + confirmation emails + DB row,
+zero warnings); the legacy `/api/gap-report-intake` POST is removed (#104); and the
+open upload endpoints are rate-limited via a Vercel Firewall rule
+(`HARDENING.md` `DEFLECTION-INTAKE-RATELIMIT-1`, resolved).
 
 ---
 
