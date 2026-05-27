@@ -191,86 +191,69 @@ const faqJsonLd = generateFaqJsonLd(
   pricingFaqs.map((faq) => ({ question: faq.q, answer: faq.a })),
 );
 
-const sampleRankedQuestions: {
-  issue: string;
+const saasDemoStats = [
+  { value: `36`, label: `tickets analyzed` },
+  { value: `6`, label: `FAQs generated` },
+  { value: `✓`, label: `in their words` },
+  { value: `✓`, label: `action items` },
+];
+
+const saasDemoQuestions: {
+  topic: string;
   question: string;
-  count: number;
-  sourceType: string;
+  ticketCount: string;
+  signals?: string;
 }[] = [
   {
-    issue: `Credit report disputes`,
-    question: `How can I dispute credit report information that keeps reappearing or has not been corrected?`,
-    count: 28,
-    sourceType: `CFPB complaint narratives`,
+    topic: `Reporting friction`,
+    question: `How do I export attribution reports before our board meeting?`,
+    ticketCount: `8 tickets`,
+    signals: `blocked access · failed workflow`,
   },
   {
-    issue: `Mortgage servicing issues`,
-    question: `What should I do when a mortgage servicer says I am behind or mishandles escrow, payments, or loss mitigation?`,
-    count: 12,
-    sourceType: `CFPB complaint narratives`,
+    topic: `Integration setup`,
+    question: `Where can I see failed webhook delivery attempts?`,
+    ticketCount: `7 tickets`,
+    signals: `failed workflow`,
   },
   {
-    issue: `Debt collection disputes`,
-    question: `How do I respond when a collector contacts me about a debt I do not recognize or says I still owe?`,
-    count: 6,
-    sourceType: `CFPB complaint narratives`,
+    topic: `Data import`,
+    question: `Which CSV columns are required for account imports?`,
+    ticketCount: `4 tickets`,
+    signals: `failed workflow · incorrect record`,
+  },
+  {
+    topic: `Manual follow-up`,
+    question: `How do I send workflow alerts to a different Slack channel?`,
+    ticketCount: `5 tickets`,
+  },
+  {
+    topic: `Billing & payments`,
+    question: `Where can I download invoices for the annual subscription?`,
+    ticketCount: `4 tickets`,
+  },
+  {
+    topic: `Other support issues`,
+    question: `How do I let managers edit workflows without full admin access?`,
+    ticketCount: `8 tickets`,
   },
 ];
 
-const sampleFaqExamples = [
-  {
-    issue: `Credit report disputes`,
-    question: `How can I dispute credit report information that keeps reappearing or has not been corrected?`,
-    summary:
-      `Consumers repeatedly described disputed credit report information that was not corrected, was verified without enough explanation, or returned after earlier disputes.`,
-    steps: [
-      `Collect the report section, account name, dates, and any letters or screenshots that show what is wrong.`,
-      `File the dispute with each credit reporting company that shows the information, and keep the confirmation number.`,
-      `Attach supporting records instead of relying only on a short written explanation.`,
-      `Track the response date and compare the updated report against the exact item you disputed.`,
-    ],
-    supportGuidance:
-      `Contact support or the reporting company again if the same item returns, the response does not explain what was verified, or the correction appears on one report but not another.`,
-    sources: [`CFPB #1885409`, `CFPB #1973120`, `CFPB #2209426`, `CFPB #2591415`, `CFPB #3138626`],
-  },
-  {
-    issue: `Mortgage servicing issues`,
-    question: `What should I do when a mortgage servicer says I am behind or mishandles escrow, payments, or loss mitigation?`,
-    summary:
-      `The repeated pattern was not one isolated payment question. Consumers described servicer records that did not match their own, escrow changes that were hard to reconcile, or loss-mitigation steps that stalled without clear status.`,
-    steps: [
-      `Download your payment history, escrow statements, notices, and any loss-mitigation letters before calling.`,
-      `Ask the servicer to identify the exact month, fee, escrow line, or document causing the issue.`,
-      `Send missing documents through a trackable channel and keep the upload or delivery confirmation.`,
-      `Request a written explanation when the servicer says the account is delinquent or incomplete.`,
-    ],
-    supportGuidance:
-      `Contact support again if the servicer cannot point to the specific missing item, applies payments differently than your records show, or gives conflicting status updates across calls and letters.`,
-    sources: [`CFPB #2326114`, `CFPB #2619048`, `CFPB #2885301`, `CFPB #3377106`],
-  },
-  {
-    issue: `Debt collection disputes`,
-    question: `How do I respond when a collector contacts me about a debt I do not recognize or says I still owe?`,
-    summary:
-      `Consumers often reported collection attempts for debts they did not recognize, debts they believed were already paid, or accounts where the collector had not provided enough validation detail.`,
-    steps: [
-      `Do not rely on a phone call alone. Ask for the collector name, account number, original creditor, amount, and written validation.`,
-      `Compare the validation notice with your own records, credit reports, and payment history.`,
-      `If the debt is not yours or the amount is wrong, send a written dispute and keep a copy.`,
-      `Document every contact attempt, including dates, phone numbers, letters, and any payment demands.`,
-    ],
-    supportGuidance:
-      `Contact support, the collector, or the relevant regulator if collection continues without validation, the collector reports disputed debt as undisputed, or you receive threats or contact patterns that seem improper.`,
-    sources: [`CFPB #1678934`, `CFPB #2047189`, `CFPB #2755042`, `CFPB #3446907`],
-  },
-];
-
-const demoScaleStats = [
-  { value: `1.28M`, label: `public archive rows` },
-  { value: `383k`, label: `rows with narratives` },
-  { value: `1,000`, label: `rows validated` },
-  { value: `46`, label: `rows shown in excerpt` },
-];
+const saasDemoFaq = {
+  question: `How do I export attribution reports before our board meeting?`,
+  termMappings: [
+    { customer: `export`, doc: `Download report` },
+    { customer: `reports`, doc: `Dashboard analytics` },
+  ],
+  termSuggestion: `add “export” and “reports” to the FAQ heading so customers find it`,
+  whenToContactSupport: `if the export is missing, locked by plan or role, or still unavailable after an admin checks permissions`,
+  citedCount: 8,
+  evidenceQuotes: [
+    `How do I export attribution reports before our board meeting?`,
+    `Why is the campaign CSV export missing source and owner columns?`,
+    `Can I schedule a weekly attribution report export for finance?`,
+  ],
+};
 
 const heroReportRows: {
   topic: string;
@@ -484,8 +467,6 @@ function TermMap() {
 }
 
 function DeflectionReportSample() {
-  const totalSources = sampleRankedQuestions.reduce((sum, row) => sum + row.count, 0);
-
   return (
     <div className="glass rounded-xl border border-border overflow-hidden">
       <div className="border-b border-border px-6 py-4 flex flex-wrap items-center justify-between gap-3 bg-surface">
@@ -493,26 +474,21 @@ function DeflectionReportSample() {
           <Workflow className="w-4 h-4 text-primary/80" />
           <span className="text-sm font-medium text-foreground">Support Ticket Deflection Report</span>
           <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
-            · Live Demo / Public Dataset
+            · Live Demo / B2B SaaS sample
           </span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="hidden md:inline text-[11px] font-mono text-foreground/45">
-            Source: 1.28M-row public archive · 1,000-row run validated
-          </span>
-          <Link
-            href="/systems/support-ticket-deflection/demo"
-            className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 transition-colors"
-          >
-            Try it live
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        <Link
+          href="/systems/support-ticket-deflection/demo"
+          className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 transition-colors"
+        >
+          Try it live
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       <div className="p-6 md:p-8 space-y-8">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {demoScaleStats.map((stat) => (
+          {saasDemoStats.map((stat) => (
             <div key={stat.label} className="rounded-lg border border-border bg-surface px-3 py-3">
               <p className="text-lg font-semibold text-foreground">{stat.value}</p>
               <p className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
@@ -522,130 +498,81 @@ function DeflectionReportSample() {
           ))}
         </div>
 
-        {/* Headline number */}
-        <div>
-          <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
-            HEADLINE FINDING
-          </div>
-          <p className="text-base text-foreground/75 leading-relaxed">
-            A local CFPB public complaint archive contains{' '}
-            <span className="text-foreground font-medium">1,282,355 rows</span>, including{' '}
-            <span className="text-foreground font-medium">383,564 rows with consumer narratives</span>.
-            The answer generator was validated on{' '}
-            <span className="text-foreground font-medium">1,000 public complaint narratives</span>
-            {' '}with fail-closed output checks before this page leaned on the scale claim.
-            Customer reports are built for full uploaded CSV batches, including common{' '}
-            <span className="text-foreground font-medium">500-1,000+ ticket exports</span>.
-            The <span className="text-foreground font-medium">{totalSources}-row excerpt below</span>{' '}
-            is kept short so visitors can inspect grounded output without reading a full report.
-          </p>
-        </div>
+        <p className="text-sm text-foreground/65 leading-relaxed">
+          Real output from the Atlas FAQ generator on a representative labeled-synthetic B2B SaaS support set — no customer tickets shown. Your report runs on your own uploaded CSV.
+        </p>
 
         {/* Ranked list */}
         <div>
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            REPEAT PUBLIC COMPLAINT ISSUES — EXCERPT RANKING
+            REPEAT QUESTIONS FOUND — RANKED
           </div>
           <div className="rounded-lg border border-border overflow-hidden">
-            {sampleRankedQuestions.map((row, i) => (
+            {saasDemoQuestions.map((row, i) => (
               <div
-                key={row.issue}
-                className={`flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${
-                  i < sampleRankedQuestions.length - 1 ? 'border-b border-border' : ''
+                key={row.question}
+                className={`px-4 py-3 ${
+                  i < saasDemoQuestions.length - 1 ? 'border-b border-border' : ''
                 } bg-surface`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-[10px] font-mono text-foreground/40 w-5 shrink-0">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm text-foreground font-medium truncate">{row.issue}</p>
-                    <p className="text-xs text-foreground/55 leading-snug mt-1">
-                      &ldquo;{row.question}&rdquo;
-                    </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-[10px] font-mono text-foreground/40 w-5 shrink-0">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <p className="text-sm text-foreground font-medium">{row.topic}</p>
                   </div>
+                  <span className="shrink-0 text-xs font-mono text-foreground/55">{row.ticketCount}</span>
                 </div>
-                <div className="flex items-center gap-4 shrink-0 pl-8 sm:pl-0">
-                  <span className="text-xs font-mono text-foreground/55">
-                    {row.count} excerpt sources
-                  </span>
-                  <span className="hidden md:inline text-xs text-foreground/40">
-                    {row.sourceType}
-                  </span>
-                </div>
+                <p className="mt-1 pl-8 text-xs text-foreground/55 leading-snug">&ldquo;{row.question}&rdquo;</p>
+                {row.signals && (
+                  <p className="mt-1 pl-8 text-[11px] text-[var(--artifact-danger)]">⚠ {row.signals}</p>
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Sample answers */}
+        {/* One expanded FAQ */}
         <div>
-          <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            GENERATED SELF-SERVICE ANSWER EXCERPTS — 3 ISSUE GROUPS
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[10px] font-mono text-primary/80 tracking-widest">ONE FAQ, EXPANDED</span>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-foreground/55">
+              draft · needs your review
+            </span>
           </div>
-          <div className="rounded-lg border border-border bg-surface overflow-hidden">
-            {sampleFaqExamples.map((example, exampleIndex) => (
-              <div
-                key={example.issue}
-                className={`p-5 ${exampleIndex > 0 ? 'border-t border-border' : ''}`}
-              >
-                <p className="text-[10px] font-mono text-primary/80 tracking-widest mb-2">
-                  {example.issue.toUpperCase()}
-                </p>
-                <p className="text-sm font-medium text-foreground mb-3">
-                  Q: {example.question}
-                </p>
-                <p className="text-sm text-foreground/70 leading-relaxed mb-4">
-                  {example.summary}
-                </p>
-                <div className="mb-4">
-                  <p className="text-[11px] font-mono text-foreground/45 tracking-widest mb-2">
-                    ACTION STEPS
-                  </p>
-                  <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/70 leading-relaxed">
-                    {example.steps.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-                <p className="text-sm text-foreground/65 leading-relaxed mb-4">
-                  <span className="text-foreground font-medium">When to contact support: </span>
-                  {example.supportGuidance}
-                </p>
-                <p className="text-[11px] font-mono text-foreground/45">
-                  Sources:{' '}
-                  {example.sources.map((id, i) => (
-                    <span key={id}>
-                      {i > 0 && <span className="text-foreground/30"> · </span>}
-                      <span className="text-foreground/55">{id}</span>
-                    </span>
-                  ))}
-                </p>
-              </div>
-            ))}
+          <div className="rounded-lg border border-border bg-surface p-5 space-y-4">
+            <p className="text-sm font-semibold text-foreground">&ldquo;{saasDemoFaq.question}&rdquo;</p>
+            <div>
+              <p className="text-[11px] font-mono text-foreground/45 tracking-widest mb-2">TERM MAP</p>
+              <ul className="space-y-1 text-sm text-foreground/70">
+                {saasDemoFaq.termMappings.map((m) => (
+                  <li key={m.customer}>
+                    customers say &ldquo;{m.customer}&rdquo; · your docs say &ldquo;{m.doc}&rdquo;
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-foreground/65">↳ fix: {saasDemoFaq.termSuggestion}</p>
+            </div>
+            <p className="text-sm text-foreground/65 leading-relaxed">
+              <span className="text-foreground font-medium">When to contact support: </span>
+              {saasDemoFaq.whenToContactSupport}.
+            </p>
+            <div className="border-t border-border pt-3">
+              <p className="text-[11px] font-mono text-foreground/45 mb-2">
+                Cited from {saasDemoFaq.citedCount} tickets:
+              </p>
+              <ul className="space-y-1 text-xs text-foreground/55 leading-relaxed">
+                {saasDemoFaq.evidenceQuotes.map((q) => (
+                  <li key={q}>&ldquo;{q}&rdquo;</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
         <p className="text-xs text-foreground/45 leading-relaxed border-t border-border pt-4">
-          Demo generated from a public complaint dataset. The generator passed a 1,000-row
-          validation run; the on-page excerpt is intentionally compact. Customer reports use
-          your uploaded CSV and analyze your full support batch.
-          {' '}
-          <a
-            href="/systems/support-ticket-deflection/public-support-ticket-deflection-demo.md"
-            className="text-primary/90 hover:text-primary underline underline-offset-4"
-          >
-            View the compact Markdown demo
-          </a>
-          {' '}
-          or{' '}
-          <a
-            href="/systems/support-ticket-deflection/public-support-ticket-deflection-1000-row-validated.md"
-            className="text-primary/90 hover:text-primary underline underline-offset-4"
-          >
-            inspect the 1,000-row validation output
-          </a>
-          .
+          A compact excerpt of a real generator run on a labeled-synthetic B2B SaaS support set. Answers come back as drafts your team reviews and publishes — nothing goes live without you. Your report runs on your own uploaded CSV.
         </p>
       </div>
     </div>
@@ -784,9 +711,9 @@ export const landingPageConfig: DiagnosticReportLandingPageConfig = {
   sample: {
     id: 'demo',
     label: 'WHAT YOU GET',
-    title: 'A real Deflection Report demo, built from a public support-ticket-style dataset.',
+    title: 'A real Deflection Report demo, built from a B2B SaaS support set.',
     description:
-      'This sample uses public CFPB complaint narratives to show the report shape without exposing customer data. Your report uses your uploaded CSV: the questions your customers keep asking, the words they use, and self-service answers your team can review, edit, and publish.',
+      'Real output from the Atlas FAQ generator on a representative labeled-synthetic B2B SaaS support set — no customer tickets shown. Your report uses your uploaded CSV: the questions your customers keep asking, the words they use, and drafted answers your team reviews and publishes.',
     artifact: <DeflectionReportSample />,
   },
   deliverables: {

@@ -66,3 +66,51 @@ the sample needs to be something we can stand behind publicly.
 A single sample `TicketFAQMarkdownResult` JSON file (3–6 rich items) we can drop
 in as the demo's static data, plus a one-line note on what we may say about its
 source.
+
+## Backend handoff received
+
+Current defensible source: a checked-in, labeled-synthetic B2B-SaaS support
+ticket corpus from Atlas:
+
+- [`support-ticket-saas-demo-sources.csv`](./support-ticket-saas-demo-sources.csv)
+  — 36 synthetic SaaS support rows, labeled `synthetic_b2b_saas_demo`.
+- [`support-ticket-saas-demo-faq-result.json`](./support-ticket-saas-demo-faq-result.json)
+  — real `TicketFAQMarkdownResult` output generated from those 36 rows through
+  the Atlas FAQ generator.
+
+Public source note:
+
+> Real output from the Atlas FAQ generator, generated from a representative
+> labeled-synthetic B2B-SaaS support-ticket set. No customer tickets are shown.
+
+What the current JSON provides:
+
+- `generated`: 6 FAQ items.
+- `source_count`: 36.
+- `ticket_source_count`: 36.
+- `output_checks`: `uses_user_vocabulary`, `condensed`, and `has_action_items`
+  are all `true`.
+- SaaS topics: reporting exports, integrations/webhooks, CSV imports, Slack /
+  workflow follow-up, billing, permissions / SSO.
+- Rich fields are populated: `steps`, `action_items`,
+  `when_to_contact_support`, `failure_risk_signals`, `evidence_quotes`,
+  `source_ids`, and `term_mappings`.
+
+Known limitation:
+
+- The current synthetic corpus does not include verified resolution text, so
+  every item has `answer_evidence_status: "draft_needs_review"`. That is
+  data-truthful. If the demo needs a mix of `resolution_evidence` and
+  `draft_needs_review`, the backend needs a follow-up corpus slice that adds
+  labeled synthetic resolution evidence and regenerates this artifact.
+- The current source CSV is all support-ticket rows, not search-log rows, so
+  term mappings have `zero_result_source_count: 0` and no item carries
+  `zero_result_search`. If the demo card needs zero-result search proof, add
+  labeled synthetic search-log rows in the same follow-up corpus slice.
+
+Recommendation:
+
+- Use the SaaS artifact for the relatable on-domain demo card.
+- Keep the CFPB artifact only as a separate scale/public-dataset proof if the
+  page has room for that distinction. Do not present CFPB as the primary
+  customer-facing sample for B2B SaaS visitors.
