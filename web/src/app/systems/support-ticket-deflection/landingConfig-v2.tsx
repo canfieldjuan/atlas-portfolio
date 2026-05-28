@@ -153,7 +153,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          Gartner benchmarked the gap plainly: a self-service resolution costs $1.84. An assisted contact costs $13.50. HDI puts the spread at $2.93 versus $22.00. However you cut it, routine questions get dramatically more expensive the moment they reach a human queue.
+          Gartner benchmarked the gap plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, routine questions get dramatically more expensive the moment they reach a human queue.
         </p>
         <p>
           The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox. Gartner also found that 74% of issues that reach a live agent could have been resolved through self-service if the answer existed and was findable.
@@ -170,12 +170,21 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
             ]}
           />
         </div>
-        <p>
-          That repetition taxes the team twice. Salesforce reports agents spend only 39% of their time actually servicing customers. Gorgias found five hours a week disappearing into repetitive tickets. Insignia ties the same pattern to burnout, low morale, and the turnover costs that support leaders end up budgeting around instead of removing.
-        </p>
-        <p>
-          The customer cost is worse. Gartner says 73% of customers attempt self-service, but only 14% fully resolve there. The rest arrive in the queue frustrated. The CEB research behind <em>The Effortless Experience</em> found 94% of low-effort customers intend to repurchase. Only 4% of high-effort customers say the same.
-        </p>
+        <p>That repetition taxes the team twice:</p>
+        <SectionList
+          items={[
+            <>Agents spend only <strong className="text-foreground">39%</strong> of their time actually servicing customers — Salesforce.</>,
+            <><strong className="text-foreground">Five hours a week</strong> disappear into repetitive tickets — Gorgias.</>,
+            <>The same grind drives burnout, low morale, and the turnover costs leaders budget around instead of removing — Insignia.</>,
+          ]}
+        />
+        <p>The customer cost is worse:</p>
+        <SectionList
+          items={[
+            <><strong className="text-foreground">73%</strong> of customers attempt self-service, but only <strong className="text-foreground">14%</strong> fully resolve there — the rest arrive in the queue frustrated (Gartner).</>,
+            <>Low-effort customers intend to repurchase <strong className="text-foreground">94%</strong> of the time; high-effort, only <strong className="text-foreground">4%</strong> (CEB, <em>The Effortless Experience</em>).</>,
+          ]}
+        />
       </CopyBlock>
     ),
   },
@@ -232,9 +241,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           <SectionList
             items={[
               <>Gartner: <strong className="text-foreground">$1.84 self-service vs. $13.50 assisted</strong>.</>,
-              <>Gartner: <strong className="text-foreground">73% of customers try self-service, only 14% fully resolve there</strong>.</>,
               <>SQM Group: <strong className="text-foreground">a 1% improvement in FCR reduces operating costs by 1%</strong>.</>,
-              <>CEB: <strong className="text-foreground">94% repurchase intent for low-effort interactions, 4% for high-effort</strong>.</>,
             ]}
           />
         </div>
