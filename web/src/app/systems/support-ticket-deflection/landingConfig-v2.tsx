@@ -284,9 +284,12 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     title: 'A report your team can act on this week.',
     content: (
       <CopyBlock>
+        <p>
+          You do not have to guess how much of your queue is repeat work. The report counts it — the exact number of times each question recurred in your own tickets — so the opportunity is a number you can see, not a percentage we promise.
+        </p>
         <SectionList
           items={[
-            <>A ranked list of the repeat questions your customers keep asking, in their own words.</>,
+            <>A ranked list of the repeat questions your customers keep asking, in their own words — highest-volume first.</>,
             <>The customer-term-to-doc-term mismatches making existing answers hard to find.</>,
             <>The exact search terms your customers use — the keywords your help-center pages should target.</>,
             <>Source tickets and quoted evidence behind every recommendation.</>,
