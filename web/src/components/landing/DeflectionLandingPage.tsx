@@ -31,6 +31,11 @@ export type DeflectionLandingPageConfig = {
     title: string;
     content: ReactNode;
   };
+  problemCost: {
+    label: string;
+    title: string;
+    content: ReactNode;
+  };
   currentWayVsThisWay: {
     label: string;
     title: string;
@@ -151,8 +156,19 @@ export function DeflectionLandingPage({
           </div>
         </section>
 
-        {/* ── Current Way vs This Way ───────────────────────────────── */}
+        {/* ── Problem Cost ──────────────────────────────────────────── */}
         <section className="section-band">
+          <div className="max-w-4xl">
+            <SectionLabel>{config.problemCost.label}</SectionLabel>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
+              {config.problemCost.title}
+            </h2>
+            {config.problemCost.content}
+          </div>
+        </section>
+
+        {/* ── Current Way vs This Way ───────────────────────────────── */}
+        <section className="section-band section-band-muted">
           <div className="max-w-4xl">
             <SectionLabel>{config.currentWayVsThisWay.label}</SectionLabel>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
@@ -163,7 +179,7 @@ export function DeflectionLandingPage({
         </section>
 
         {/* ── Mechanism ─────────────────────────────────────────────── */}
-        <section className="section-band section-band-muted">
+        <section className="section-band">
           <div className="max-w-3xl mb-10">
             <SectionLabel>{config.mechanism.label}</SectionLabel>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
@@ -182,6 +198,17 @@ export function DeflectionLandingPage({
           </div>
 
           <Pipeline stages={config.mechanism.stages} />
+        </section>
+
+        {/* ── Offer ─────────────────────────────────────────────────── */}
+        <section className="section-band section-band-muted">
+          <div className="max-w-4xl">
+            <SectionLabel>{config.offer.label}</SectionLabel>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
+              {config.offer.title}
+            </h2>
+            {config.offer.content}
+          </div>
         </section>
 
         {/* ── SEO / Search Visibility ───────────────────────────────── */}
@@ -203,17 +230,6 @@ export function DeflectionLandingPage({
               {config.proofStack.title}
             </h2>
             {config.proofStack.content}
-          </div>
-        </section>
-
-        {/* ── Offer ─────────────────────────────────────────────────── */}
-        <section className="section-band section-band-muted">
-          <div className="max-w-4xl">
-            <SectionLabel>{config.offer.label}</SectionLabel>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
-              {config.offer.title}
-            </h2>
-            {config.offer.content}
           </div>
         </section>
 

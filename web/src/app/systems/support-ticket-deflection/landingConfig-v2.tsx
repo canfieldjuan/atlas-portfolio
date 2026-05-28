@@ -10,7 +10,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { type DeflectionLandingPageConfig } from '@/components/landing/DeflectionLandingPage';
 import {
   GAP_REPORT_INTAKE_HREF,
@@ -70,7 +70,25 @@ function ComparisonGrid() {
 
   return (
     <div className="glass overflow-hidden rounded-xl border border-border">
-      <div className="grid gap-px bg-border md:grid-cols-2">
+      <div className="space-y-px bg-border md:hidden">
+        {rows.map((row) => (
+          <div key={row.current} className="bg-background">
+            <div className="border-b border-border px-5 py-4">
+              <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
+                The current way
+              </p>
+              <p className="text-sm leading-relaxed text-foreground/62">{row.current}</p>
+            </div>
+            <div className="px-5 py-4">
+              <p className="mb-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+                Support Ticket Deflection
+              </p>
+              <p className="text-sm leading-relaxed text-foreground/78">{row.next}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden gap-px bg-border md:grid md:grid-cols-2">
         <div className="bg-surface px-5 py-4">
           <p className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">
             The current way
@@ -82,14 +100,14 @@ function ComparisonGrid() {
           </p>
         </div>
         {rows.map((row) => (
-          <>
+          <Fragment key={row.current}>
             <div key={`${row.current}-current`} className="bg-background px-5 py-4 text-sm leading-relaxed text-foreground/62">
               {row.current}
             </div>
             <div key={`${row.current}-next`} className="bg-background px-5 py-4 text-sm leading-relaxed text-foreground/78">
               {row.next}
             </div>
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
@@ -136,19 +154,46 @@ function ProofCards() {
 
 // The calculator link is parameterized so it renders only on the public page.
 // The partner-priced twin (partner/page.tsx) reuses this config but passes no
-// href: the public /calculator's back link returns to the public $1,500 page,
-// which would leak a design partner out of the noindex $1,000 funnel.
-export function makeProblemAgitation(
-  calculatorHref?: string,
-): DeflectionLandingPageConfig['problemAgitation'] {
+// href to the cost section: the public /calculator's back link returns to the
+// public $1,500 page, which would leak a design partner out of the noindex
+// $1,000 funnel.
+export function makeProblemAgitation(): DeflectionLandingPageConfig['problemAgitation'] {
   return {
-    label: 'THE COST OF STAYING HERE',
-    title: 'Repeat tickets are not a small inefficiency. They are an operating cost line.',
+    label: 'THE BROKEN LOOP',
+    title: 'Repeat tickets keep coming back because the answer never reaches the next customer.',
     content: (
       <CopyBlock>
         <p>
           Before a customer ever contacts you, they try to find the answer themselves — searching your help center, Googling the question. <strong className="text-foreground">73%</strong> attempt this; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
         </p>
+        <div className="rounded-xl border border-border bg-surface p-5">
+          <p className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+            The loop support leads already know
+          </p>
+          <SectionList
+            items={[
+              <><strong className="text-foreground">Customer searches, fails, opens a ticket.</strong> The answer may exist, but not in the language they used.</>,
+              <><strong className="text-foreground">Your team answers it manually.</strong> The fix lives inside a reply thread, not where the next customer will find it.</>,
+              <><strong className="text-foreground">The same question comes back next week.</strong> Another agent repeats the work.</>,
+            ]}
+          />
+        </div>
+        <p>
+          The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox — the same predictable questions, over and over.
+        </p>
+      </CopyBlock>
+    ),
+  };
+}
+
+export function makeProblemCost(
+  calculatorHref?: string,
+): DeflectionLandingPageConfig['problemCost'] {
+  return {
+    label: 'WHAT IT COSTS',
+    title: 'Repeat questions are an operating cost line.',
+    content: (
+      <CopyBlock>
         <p>
           That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact — <strong className="text-foreground">$11.66 more every time</strong> a question you could have deflected reaches a person instead. Multiply that by your own repeat volume and the cost is a number you can run, not one we promise.
         </p>
@@ -163,21 +208,6 @@ export function makeProblemAgitation(
             </Link>
           </div>
         )}
-        <p>
-          The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox — the same predictable questions, over and over.
-        </p>
-        <div className="rounded-xl border border-border bg-surface p-5">
-          <p className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-            The loop support leads already know
-          </p>
-          <SectionList
-            items={[
-              <><strong className="text-foreground">Customer searches, fails, opens a ticket.</strong> The answer may exist, but not in the language they used.</>,
-              <><strong className="text-foreground">Your team answers it manually.</strong> The fix lives inside a reply thread, not where the next customer will find it.</>,
-              <><strong className="text-foreground">The same question comes back next week.</strong> Another agent repeats the work.</>,
-            ]}
-          />
-        </div>
         <p>That repetition taxes the team twice:</p>
         <SectionList
           items={[
@@ -209,7 +239,8 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       href: GAP_REPORT_INTAKE_HREF,
     },
   },
-  problemAgitation: makeProblemAgitation('/systems/support-ticket-deflection/calculator'),
+  problemAgitation: makeProblemAgitation(),
+  problemCost: makeProblemCost('/systems/support-ticket-deflection/calculator'),
   currentWayVsThisWay: {
     label: 'WHY THE USUAL FIXES UNDERPERFORM',
     title: 'You probably already tried the obvious things.',
