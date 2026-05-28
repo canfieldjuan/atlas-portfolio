@@ -59,6 +59,7 @@ Slice phase: Product polish
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — mechanism line + offer deliverable bullets
 - `web/src/components/landing/SupportTicketCsvIntakePage.tsx` — CSV-hint privacy line (no false redaction promise)
 - `web/src/app/systems/support-ticket-deflection/layout.tsx` — dropped "AI" from 5 SEO keywords
+- `HARDENING.md` — logged DEFLECTION-INTAKE-PII-1 (public-blob raw-PII exposure)
 
 ## Mechanism
 
@@ -92,9 +93,10 @@ Slice phase: Product polish
 - Pricing *structure* (recurring engine, per-seat) — separate, undecided
   [[deflection-pricing-direction]].
 
-Parked hardening: **#117** — raw CSV (PII) uploaded to a PUBLIC Vercel Blob with no
-redaction. This PR makes the copy honest (recommend self-stripping); the storage
-fix (private store + redact before upload) is tracked there, not done here.
+Parked hardening: logged in `HARDENING.md` as **DEFLECTION-INTAKE-PII-1** (+ issue
+**#117**) — raw CSV (PII) uploaded to a PUBLIC Vercel Blob with no redaction. This
+PR makes the copy honest (recommend self-stripping); the storage fix (private store
++ redact before upload) is a separate slice.
 
 ## Verification
 
@@ -106,7 +108,7 @@ fix (private store + redact before upload) is tracked there, not done here.
   against the "100% deterministic, no AI" body claim. The report claim is now
   consistent across body, FAQ, intake, and `<head>`.
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape + files-touched
-  5 == 5 + diff-size).
+  6 == 6 + diff-size).
 
 ## Estimated diff size
 
@@ -116,7 +118,8 @@ fix (private store + redact before upload) is tracked there, not done here.
 | landingConfig-v2 mechanism + offer bullets | ~6 |
 | intake CSV-hint line | ~4 |
 | layout.tsx SEO keywords | ~5 |
-| this plan doc | ~100 |
-| **Total** | ~131 |
+| HARDENING.md entry (DEFLECTION-INTAKE-PII-1) | ~14 |
+| this plan doc | ~110 |
+| **Total** | ~155 |
 
 Well under the 400-LOC soft cap.
