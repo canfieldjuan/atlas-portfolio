@@ -97,8 +97,12 @@ function jsonLdPayload(value: unknown) {
 
 export function DeflectionLandingPage({
   config,
+  bare = false,
 }: {
   config: DeflectionLandingPageConfig;
+  // When true the global menu/footer are hidden for this route (see SiteChrome),
+  // so drop the nav-clearance top padding that would otherwise leave a gap.
+  bare?: boolean;
 }) {
   return (
     <>
@@ -108,7 +112,7 @@ export function DeflectionLandingPage({
           dangerouslySetInnerHTML={{ __html: jsonLdPayload(config.structuredData) }}
         />
       )}
-      <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
+      <main className={`min-h-screen ${bare ? 'pt-16' : 'pt-32'} pb-20 px-6 relative z-10`}>
         <div className="max-w-6xl mx-auto">
         {/* ── Hero ──────────────────────────────────────────────────── */}
         <section className="max-w-4xl">

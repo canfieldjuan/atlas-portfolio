@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, SITE_KEYWORDS, rootJsonLd } from "@/lib/seo";
-import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
@@ -84,9 +83,7 @@ export default function RootLayout({
           <GoogleAnalytics />
         </Suspense>
 
-        <Navigation />
-        {children}
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

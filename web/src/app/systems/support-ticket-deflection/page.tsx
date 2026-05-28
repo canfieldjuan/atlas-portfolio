@@ -4,5 +4,5 @@ import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPag
 import { landingPageConfigV2 } from './landingConfig-v2';
 
 export default function SupportTicketDeflectionPage() {
-  return <DeflectionLandingPage config={landingPageConfigV2} />;
+  return <DeflectionLandingPage config={landingPageConfigV2} bare />;
 }
