@@ -159,7 +159,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, a question gets dramatically more expensive the moment it reaches a human queue.
         </p>
         <p>
-          The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox. Gartner also found that 74% of issues that reach a live agent could have been resolved through self-service if the answer existed and was findable.
+          The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox — the same predictable questions, over and over.
         </p>
         <div className="rounded-xl border border-border bg-surface p-5">
           <p className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary/80">
@@ -213,9 +213,6 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
         <p>
           Within 24 hours you get a ranked fix list: repeat-question clusters, customer-term-to-doc-term gaps, source-ticket evidence, and a drafted FAQ for each gap. You review, edit, and publish what you approve.
         </p>
-        <p>
-          That fix list is also your SEO list. The phrases customers use in tickets are the phrases they type into Google, and your own volume tells you which ones matter most. Publish the answer in that language and your page finally matches the search instead of missing it on wording — which is how a help-center page gets found, and how a question gets answered before it turns into a ticket. You review and publish, so the visibility is yours to earn; the keywords are already validated by your queue.
-        </p>
       </CopyBlock>
     ),
     processTitle: 'From inbox history to publishable self-service.',
@@ -226,6 +223,26 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       { label: 'We rank the repeat questions', sub: 'Question clusters • wording gaps • source-ticket evidence' },
       { label: 'You review and publish', sub: 'Drafted FAQs • no auto-publish • nothing goes live without you' },
     ],
+  },
+  seoVisibility: {
+    label: 'SEO / SEARCH VISIBILITY',
+    title: 'Every answer you publish is a page written in the words people actually search.',
+    content: (
+      <CopyBlock>
+        <p>
+          The phrases your customers use in tickets are the phrases they type into Google — and your own volume tells you which ones matter most. Today your help-center page misses on wording: it answers in your internal product language, not the words customers search. We hand you their own search wording, validated by your queue, so the answer finally gets published in the same words customers search — not your internal jargon.
+        </p>
+        <p>
+          Gartner put it bluntly: <strong className="text-foreground">74%</strong> of the issues that reach a live agent could have been resolved in self-service — if the answer existed and was findable. Findable is the whole game, and findable means matching the words people search.
+        </p>
+        <p>
+          And it is an asset, not a one-off reply. A published answer sits there for every future customer who searches that question — one page doing work your team would otherwise repeat by hand, so the next person with that question can find the answer instead of writing in.
+        </p>
+        <p>
+          You review and publish every word, so the visibility is yours to earn. We supply the keywords and the drafts; what gets found is the work you ship.
+        </p>
+      </CopyBlock>
+    ),
   },
   proofStack: {
     label: 'WHY THIS IS BELIEVABLE',
