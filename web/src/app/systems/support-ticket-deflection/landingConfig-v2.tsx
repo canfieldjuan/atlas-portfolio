@@ -139,7 +139,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     eyebrowIcon: <Workflow className="h-3 w-3" />,
     title: "Your repeat support tickets are search queries your help center can't answer.",
     intro:
-      "We surface them in your customers' own words — and draft the FAQs you publish.",
+      "We mine them for the exact words your customers type into Google, and draft the FAQs you publish — so the answer is finally written where search can find it.",
     body:
       'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
     cta: {
@@ -153,7 +153,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          <strong className="text-foreground">73%</strong> of your customers try to answer their own question before they ever contact you. Only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — it is just not written in the words they searched for. Every ticket in your queue is a record of those exact words.
+          Before a customer ever contacts you, they try to find the answer themselves — searching your help center, Googling the question. <strong className="text-foreground">73%</strong> attempt this; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
         </p>
         <p>
           That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, a question gets dramatically more expensive the moment it reaches a human queue.
@@ -271,6 +271,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           items={[
             <>A ranked list of the repeat questions your customers keep asking, in their own words.</>,
             <>The customer-term-to-doc-term mismatches making existing answers hard to find.</>,
+            <>The exact search terms your customers use — the keywords your help-center pages should target.</>,
             <>Source tickets and quoted evidence behind every recommendation.</>,
             <>A drafted FAQ for each high-priority gap, built from language your team already used to resolve the issue.</>,
           ]}
