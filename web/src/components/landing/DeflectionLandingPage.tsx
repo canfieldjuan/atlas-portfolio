@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 import {
   AnimatedCard,
   Pipeline,
@@ -109,6 +110,8 @@ export function DeflectionLandingPage({
   // so drop the nav-clearance top padding that would otherwise leave a gap.
   bare?: boolean;
 }) {
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+
   return (
     <>
       {config.structuredData && (
@@ -308,12 +311,43 @@ export function DeflectionLandingPage({
           </div>
 
           <div className="max-w-3xl space-y-3">
-            {config.faq.items.map((item, index) => (
-              <AnimatedCard key={item.q} index={index}>
-                <h3 className="text-base font-semibold text-foreground mb-2">{item.q}</h3>
-                <p className="text-sm text-foreground/60 leading-relaxed">{item.a}</p>
-              </AnimatedCard>
-            ))}
+            {config.faq.items.map((item, index) => {
+              const isOpen = openFaqIndex === index;
+              const buttonId = `${config.faq.id}-question-${index}`;
+              const answerId = `${config.faq.id}-answer-${index}`;
+
+              return (
+                <AnimatedCard key={item.q} index={index}>
+                  <h3>
+                    <button
+                      id={buttonId}
+                      type="button"
+                      className="flex w-full items-start justify-between gap-4 text-left text-base font-semibold text-foreground"
+                      aria-expanded={isOpen}
+                      aria-controls={answerId}
+                      onClick={() => setOpenFaqIndex(isOpen ? -1 : index)}
+                    >
+                      <span>{item.q}</span>
+                      <ChevronDown
+                        className={`mt-0.5 h-4 w-4 shrink-0 text-foreground/45 transition-transform ${
+                          isOpen ? 'rotate-180' : ''
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </h3>
+                  <div
+                    id={answerId}
+                    role="region"
+                    aria-labelledby={buttonId}
+                    hidden={!isOpen}
+                    className="mt-3 border-t border-border/70 pt-3"
+                  >
+                    <p className="text-sm text-foreground/60 leading-relaxed">{item.a}</p>
+                  </div>
+                </AnimatedCard>
+              );
+            })}
           </div>
         </section>
 
