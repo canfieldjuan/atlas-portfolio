@@ -229,13 +229,13 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="h-3 w-3" />,
-    title: "Your repeat support tickets are search queries your help center can't answer.",
+    title: 'Your support tickets already contain the keywords your help center is missing.',
     intro:
-      "We mine them for the exact words your customers type into Google, and draft the FAQs you publish — so the answer is finally written where search can find it.",
+      'Stop guessing what customers search for. We mine your support tickets for the exact words they use and draft FAQs your team can review.',
     body:
-      'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
+      'Upload 3–6 months of support tickets. In 24 hours, get a ranked list of repeat questions, the wording gaps you’re missing, and ready-to-publish FAQ drafts.',
     cta: {
-      label: 'Upload your CSV — get a free Deflection Snapshot',
+      label: 'Find my repeat-ticket gaps',
       href: GAP_REPORT_INTAKE_HREF,
     },
   },
