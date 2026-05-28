@@ -185,6 +185,22 @@ export const pricingFaqs: { q: string; a: string }[] = [
     q: `Do we have to sign up for quarterly reports?`,
     a: `No. Start with the free snapshot. If the snapshot is useful, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep the help center updated as new repeat questions show up.`,
   },
+  {
+    q: `How do you reduce repeat support tickets?`,
+    a: `We rank the questions your customers ask most, in their own words, and draft self-service answers from the replies your team already used to resolve them. You review and publish what you approve, so the next person with that question can find the answer instead of opening a ticket. Nothing is automated and nothing goes live without you.`,
+  },
+  {
+    q: `Will this help if our knowledge base is not working?`,
+    a: `A knowledge base that is not working usually is not broken — the articles are not failing, they are written in your internal product language instead of the words customers search, so the answer never surfaces. We pull the exact wording from your tickets so your articles can be rewritten to match what people actually type. The answer often already exists; it just cannot be found.`,
+  },
+  {
+    q: `Why is our self-service resolution rate so low?`,
+    a: `Gartner found 73% of customers try self-service first, but only 14% resolve there — usually a wording gap, not a content gap. The answer is on the page, just not in the words they searched, so it never surfaces. Your tickets are the list of the exact terms your help center is missing.`,
+  },
+  {
+    q: `How is this different from a chatbot or AI agent?`,
+    a: `A chatbot answers in the moment and can guess wrong; this does not answer anyone. It is a 100% deterministic analysis of your past tickets that hands your team drafted FAQ answers to review and publish. If your bot's resolution rate has plateaued, the gap is usually the underlying content — fix the answers and the bot improves too. No AI talks to your customers here.`,
+  },
 ];
 
 const faqJsonLd = generateFaqJsonLd(
