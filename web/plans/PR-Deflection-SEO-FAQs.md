@@ -66,6 +66,13 @@ page and re-introducing the automation/AI framing #116 just removed).
 
 - Re-clustering / pruning the ad campaign (one ad group of 40 mixed-intent terms) and
   the FAQ-generator cluster's true home — operator-side, not this PR.
+- **Regenerating `web/docs/keyword-inventory.md`** — considered (Codex P2). It is a
+  hand-maintained snapshot dated **2026-05-09** with **no deflection cluster at all**,
+  so the entire deflection page (now 26 keywords) has been absent since before this
+  PR — not drift introduced here. There is no generator script, and a partial
+  hand-edit (new cluster + guessed site-wide totals) would make the doc internally
+  inconsistent. Proper fix = a full regen (ideally a small extraction script),
+  tracked separately as its own maintenance slice.
 
 Parked hardening: none.
 
