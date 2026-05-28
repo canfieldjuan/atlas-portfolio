@@ -11,3 +11,7 @@ out/
 # Python audit-script byproduct (scripts/*.py)
 __pycache__/
 *.pyc
+
+# Local secrets (never commit)
+.env
+.env.local
