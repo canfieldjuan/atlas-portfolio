@@ -26,17 +26,28 @@ Slice phase: Product polish
 2. **New calculator link** below that line → "Run the numbers on your own volume →"
    to `/systems/support-ticket-deflection/calculator`. Imports `Link` (next/link)
    and `ArrowRight`.
+3. **Partner-funnel fix (Codex P2):** the calculator link is parameterized via a
+   `makeProblemAgitation(calculatorHref?)` factory. The shared `landingPageConfigV2`
+   passes the public href; `partner/page.tsx` passes none — the public calculator's
+   back link returns to the public $1,500 page, which would leak a design partner
+   out of the noindex $1,000 funnel. Omit-on-partner (Codex's suggested option),
+   not partner-aware routing (out of scope).
 
 ### Files touched
 
 - `web/plans/PR-Cost-Claim.md` — this plan doc (new)
-- `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — cost line + calculator link + 2 imports
+- `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — cost line + calculator link + 2 imports + `makeProblemAgitation` factory
+- `web/src/app/systems/support-ticket-deflection/partner/page.tsx` — override `problemAgitation` with the link-less variant + comment
 
 ## Mechanism
 
 - `landingConfig-v2.tsx` is `'use client'`; `next/link` to an internal route is the
-  same pattern the calculator page itself uses (proven in this fork). Copy +
-  one internal link; no component change.
+  same pattern the calculator page itself uses (proven in this fork). Copy + one
+  internal link; no landing-component change.
+- A ReactNode child can't be shallow-overridden, so the calculator link is
+  parameterized at construction: the agitation section moves into an exported
+  `makeProblemAgitation(calculatorHref?)` factory. Public passes the href; partner
+  passes nothing. Everything else still propagates via the spread — no drift.
 
 ## Intentional
 
@@ -57,18 +68,22 @@ Parked hardening: none.
 
 ## Verification
 
-- `tsc --noEmit` / `npm run lint` clean; `npm run build` green (calculator route
-  still builds; link target valid).
+- `tsc --noEmit` / `npm run lint` clean; `npm run build` green — public,
+  `/partner`, and `/calculator` routes all compile.
 - Cost claim reads as a delta + the buyer's multiplication; no promised savings.
+- Calculator link renders on the public page, absent on `/partner` (verify on the
+  preview after deploy — spacing where the link was should be clean).
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape + files-touched
-  2 == 2 + diff-size).
+  3 == 3 + diff-size).
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
 | cost line + calculator link + imports | ~14 |
-| this plan doc | ~70 |
-| **Total** | ~84 |
+| `makeProblemAgitation` factory (block moved into a function + conditional link) | ~12 net |
+| partner page override + comment | ~6 |
+| this plan doc | ~80 |
+| **Total** | ~112 |
 
 Well under the 400-LOC soft cap.
