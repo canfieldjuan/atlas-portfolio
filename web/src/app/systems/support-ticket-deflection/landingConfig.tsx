@@ -11,8 +11,8 @@ import {
   Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
+import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
 import {
-  type DiagnosticPricingTier,
   type DiagnosticReportLandingPageConfig,
 } from '@/components/landing/DiagnosticReportLandingPage';
 import { generateFaqJsonLd } from '@/lib/seo';
@@ -20,7 +20,7 @@ import { generateFaqJsonLd } from '@/lib/seo';
 // All on-page CTAs route to the focused deflection report intake (CSV upload),
 // not the broader /audit form. Kept as a single constant so future renames
 // or per-CTA tracking params are one-edit-one-file.
-const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
+export const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 
 const pipelineStages = [
   { label: 'Upload your tickets', sub: 'CSV export • 3–6 months • no integration' },
@@ -140,7 +140,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
   },
 ];
 
-const pricingFaqs: { q: string; a: string }[] = [
+export const pricingFaqs: { q: string; a: string }[] = [
   {
     q: `What do I get in the free snapshot?`,
     a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample step-by-step self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,

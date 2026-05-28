@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaky Bucket Support Cost & Capacity Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          boxShadow: {
+            glow: "0 0 40px rgba(16, 185, 129, 0.12)",
+            amberGlow: "0 0 40px rgba(245, 158, 11, 0.14)",
+            roseGlow: "0 0 40px rgba(244, 63, 94, 0.14)"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 34rem),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.10), transparent 34rem),
+        #020617;
+    }
+
+    input[type="range"] {
+      accent-color: #38bdf8;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      cursor: pointer;
+    }
+
+    .info-tooltip {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+    }
+
+    .info-wrap:hover .info-tooltip,
+    .info-wrap:focus-within .info-tooltip,
+    .info-wrap.is-open .info-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .number-input::-webkit-outer-spin-button,
+    .number-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .number-input {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-slate-100 antialiased">
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <header class="mb-6 overflow-hidden rounded-3xl border border-slate-700/70 bg-slate-900/80 p-6 shadow-2xl backdrop-blur md:p-8">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="mb-3 inline-flex rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-sky-200">
+            Leaky Bucket Calculator
+          </p>
+          <h1 class="max-w-4xl text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+            “Leaky Bucket” Support Cost & Capacity Calculator
+          </h1>
+          <p class="mt-4 max-w-3xl text-base leading-7 text-slate-400 sm:text-lg">
+            Quantify hidden support costs from repetitive CX workflows, context switching, agent churn, and underpowered self-service.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4 text-sm text-slate-300">
+          <p class="text-slate-500">Math engine</p>
+          <p id="verificationStatus" class="mt-1 font-semibold text-emerald-300" aria-live="polite">
+            Awaiting verification
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <section aria-labelledby="inputs-heading" class="rounded-3xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-2xl backdrop-blur sm:p-6">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 id="inputs-heading" class="text-xl font-bold text-white">Input model</h2>
+            <p class="mt-1 text-sm text-slate-400">Adjust support metrics and assumptions. Results update instantly.</p>
+          </div>
+
+          <div class="rounded-2xl border border-slate-700 bg-slate-950 p-1" role="group" aria-label="Industry preset selector">
+            <button
+              id="presetSaas"
+              type="button"
+              class="preset-btn rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-400"
+              data-preset="saas"
+              aria-pressed="true"
+            >
+              B2B Tech / SaaS
+            </button>
+            <button
+              id="presetEcom"
+              type="button"
+              class="preset-btn rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-400"
+              data-preset="ecommerce"
+              aria-pressed="false"
+            >
+              B2C E-commerce
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div
+            class="input-card rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
+            data-key="monthlyTickets"
+          >
+            <div class="mb-3 flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <label for="monthlyTicketsRange" class="font-semibold text-slate-100">
+                  Monthly Ticket Volume
+                </label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Monthly ticket volume information"
+                    aria-describedby="tip-monthlyTickets"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="tip-monthlyTickets"
+                    role="tooltip"
+                    class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl"
+                  >
+                    Total monthly inbound support tickets. Used as T_m in every leak calculation, including repetitive ticket volume and first-year reclaimable budget.
+                  </span>
+                </span>
+              </div>
+              <div class="relative w-36">
+                <input
+                  id="monthlyTicketsInput"
+                  class="number-input w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 pr-10 text-right font-semibold text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Monthly ticket volume value"
+                  data-key="monthlyTickets"
+                />
+                <span class="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">tickets</span>
+              </div>
+            </div>
+            <input
+              id="monthlyTicketsRange"
+              class="w-full"
+              type="range"
+              min="0"
+              max="100000"
+              step="100"
+              data-key="monthlyTickets"
+              aria-describedby="tip-monthlyTickets"
+            />
+            <div class="mt-2 flex justify-between text-xs text-slate-500">
+              <span>0</span>
+              <span>100,000</span>
+            </div>
+          </div>
+
+          <div
+            class="input-card rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
+            data-key="agents"
+          >
+            <div class="mb-3 flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <label for="agentsRange" class="font-semibold text-slate-100">
+                  Frontline Support Team Size
+                </label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Frontline support team size information"
+                    aria-describedby="tip-agents"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="tip-agents"
+                    role="tooltip"
+                    class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl"
+                  >
+                    Number of frontline agents handling customer support. Used with annual attrition rate to estimate agents lost per year.
+                  </span>
+                </span>
+              </div>
+              <div class="relative w-36">
+                <input
+                  id="agentsInput"
+                  class="number-input w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 pr-10 text-right font-semibold text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Frontline support agents value"
+                  data-key="agents"
+                />
+                <span class="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">agents</span>
+              </div>
+            </div>
+            <input
+              id="agentsRange"
+              class="w-full"
+              type="range"
+              min="0"
+              max="500"
+              step="1"
+              data-key="agents"
+              aria-describedby="tip-agents"
+            />
+            <div class="mt-2 flex justify-between text-xs text-slate-500">
+              <span>0</span>
+              <span>500</span>
+            </div>
+          </div>
+
+          <div
+            class="input-card rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
+            data-key="salary"
+          >
+            <div class="mb-3 flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <label for="salaryRange" class="font-semibold text-slate-100">
+                  Average Loaded Salary
+                </label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Average loaded salary information"
+                    aria-describedby="tip-salary"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="tip-salary"
+                    role="tooltip"
+                    class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl"
+                  >
+                    Fully loaded annual salary per agent, including benefits and overhead. Divided by annual work hours to calculate the hourly loaded agent rate.
+                  </span>
+                </span>
+              </div>
+              <div class="relative w-36">
+                <span class="pointer-events-none absolute left-3 top-2.5 text-sm text-slate-500">$</span>
+                <input
+                  id="salaryInput"
+                  class="number-input w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 pl-7 text-right font-semibold text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Average loaded salary value"
+                  data-key="salary"
+                />
+              </div>
+            </div>
+            <input
+              id="salaryRange"
+              class="w-full"
+              type="range"
+              min="0"
+              max="200000"
+              step="1000"
+              data-key="salary"
+              aria-describedby="tip-salary"
+            />
+            <div class="mt-2 flex justify-between text-xs text-slate-500">
+              <span>$0</span>
+              <span>$200,000</span>
+            </div>
+          </div>
+
+          <div
+            class="input-card rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
+            data-key="repetitiveRatePct"
+          >
+            <div class="mb-3 flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <label for="repetitiveRatePctRange" class="font-semibold text-slate-100">
+                  Repetitive / Tier-1 Ticket Rate
+                </label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Repetitive ticket rate information"
+                    aria-describedby="tip-repetitiveRatePct"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="tip-repetitiveRatePct"
+                    role="tooltip"
+                    class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl"
+                  >
+                    Share of tickets that are repetitive or Tier-1. Displayed as a whole percentage, then converted to a decimal internally for formulas.
+                  </span>
+                </span>
+              </div>
+              <div class="relative w-36">
+                <input
+                  id="repetitiveRatePctInput"
+                  class="number-input w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 pr-7 text-right font-semibold text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Repetitive ticket rate percentage value"
+                  data-key="repetitiveRatePct"
+                />
+                <span class="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">%</span>
+              </div>
+            </div>
+            <input
+              id="repetitiveRatePctRange"
+              class="w-full"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              data-key="repetitiveRatePct"
+              aria-describedby="tip-repetitiveRatePct"
+            />
+            <div class="mt-2 flex justify-between text-xs text-slate-500">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <div
+            class="input-card rounded-2xl border border-slate-700 bg-slate-800/70 p-4"
+            data-key="attritionRatePct"
+          >
+            <div class="mb-3 flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <label for="attritionRatePctRange" class="font-semibold text-slate-100">
+                  Annual Agent Attrition Rate
+                </label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Annual agent attrition rate information"
+                    aria-describedby="tip-attritionRatePct"
+                  >
+                    ?
+                  </button>
+                  <span
+                    id="tip-attritionRatePct"
+                    role="tooltip"
+                    class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl"
+                  >
+                    Annual share of agents expected to leave. Multiplied by team size, replacement cost, and burnout modifier to estimate attrition tax.
+                  </span>
+                </span>
+              </div>
+              <div class="relative w-36">
+                <input
+                  id="attritionRatePctInput"
+                  class="number-input w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 pr-7 text-right font-semibold text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-label="Annual agent attrition rate percentage value"
+                  data-key="attritionRatePct"
+                />
+                <span class="pointer-events-none absolute right-3 top-2.5 text-sm text-slate-500">%</span>
+              </div>
+            </div>
+            <input
+              id="attritionRatePctRange"
+              class="w-full"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              data-key="attritionRatePct"
+              aria-describedby="tip-attritionRatePct"
+            />
+            <div class="mt-2 flex justify-between text-xs text-slate-500">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+          </div>
+        </div>
+
+        <details class="mt-6 rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-400">
+            <span>Advanced Assumptions</span>
+            <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">Editable</span>
+          </summary>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="annualWorkHoursInput" class="text-sm font-semibold text-slate-200">Annual work hours per agent</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Annual work hours information"
+                    aria-describedby="tip-annualWorkHours"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-annualWorkHours" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Used to convert fully loaded salary into hourly loaded rate. Default is 2,080 hours.
+                  </span>
+                </span>
+              </div>
+              <input id="annualWorkHoursInput" data-key="annualWorkHours" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="contextMinutesPerTicketInput" class="text-sm font-semibold text-slate-200">Context minutes per repetitive ticket</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Context minutes information"
+                    aria-describedby="tip-contextMinutesPerTicket"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-contextMinutesPerTicket" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Minutes spent retrieving customer state across disconnected tools before resolving repetitive issues.
+                  </span>
+                </span>
+              </div>
+              <input id="contextMinutesPerTicketInput" data-key="contextMinutesPerTicket" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="decimal" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="replacementCostInput" class="text-sm font-semibold text-slate-200">Replacement cost per departed agent</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Replacement cost information"
+                    aria-describedby="tip-replacementCost"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-replacementCost" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Recruiting, onboarding, training, and lost ramp productivity cost for replacing one departed agent.
+                  </span>
+                </span>
+              </div>
+              <input id="replacementCostInput" data-key="replacementCost" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="burnoutModifierPctInput" class="text-sm font-semibold text-slate-200">Burnout-driven turnover modifier</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Burnout turnover modifier information"
+                    aria-describedby="tip-burnoutModifierPct"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-burnoutModifierPct" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Share of turnover cost attributed to repetitive task fatigue. Displayed as a whole percentage, converted internally to a decimal.
+                  </span>
+                </span>
+              </div>
+              <input id="burnoutModifierPctInput" data-key="burnoutModifierPct" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="currentSelfServicePctInput" class="text-sm font-semibold text-slate-200">Current self-service resolution rate</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Current self-service rate information"
+                    aria-describedby="tip-currentSelfServicePct"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-currentSelfServicePct" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Current routine-ticket resolution baseline. The calculator measures incremental improvement above this baseline.
+                  </span>
+                </span>
+              </div>
+              <input id="currentSelfServicePctInput" data-key="currentSelfServicePct" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="targetAIDeflectionPctInput" class="text-sm font-semibold text-slate-200">Target AI deflection rate</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Target AI deflection rate information"
+                    aria-describedby="tip-targetAIDeflectionPct"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-targetAIDeflectionPct" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Target AI-native deflection rate for routine tickets. If it is below the current baseline, incremental improvement is clamped to zero.
+                  </span>
+                </span>
+              </div>
+              <input id="targetAIDeflectionPctInput" data-key="targetAIDeflectionPct" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="numeric" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="humanTicketCostInput" class="text-sm font-semibold text-slate-200">Human-handled ticket cost</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="Human handled ticket cost information"
+                    aria-describedby="tip-humanTicketCost"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-humanTicketCost" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Fully loaded cost for one human-handled support ticket. Used against AI-handled cost to calculate unit savings.
+                  </span>
+                </span>
+              </div>
+              <input id="humanTicketCostInput" data-key="humanTicketCost" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="decimal" autocomplete="off" />
+            </div>
+
+            <div>
+              <div class="mb-2 flex items-center gap-2">
+                <label for="aiTicketCostInput" class="text-sm font-semibold text-slate-200">AI-handled ticket cost</label>
+                <span class="info-wrap relative inline-flex">
+                  <button
+                    type="button"
+                    class="info-trigger flex h-5 w-5 items-center justify-center rounded-full border border-slate-500 text-xs font-bold text-slate-300 hover:border-sky-300 hover:text-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    aria-label="AI handled ticket cost information"
+                    aria-describedby="tip-aiTicketCost"
+                  >
+                    ?
+                  </button>
+                  <span id="tip-aiTicketCost" role="tooltip" class="info-tooltip absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-xl border border-slate-600 bg-slate-950 p-3 text-xs leading-5 text-slate-300 shadow-xl">
+                    Estimated cost for one AI-handled routine ticket. Subtracted from human-handled ticket cost to calculate savings per deflected ticket.
+                  </span>
+                </span>
+              </div>
+              <input id="aiTicketCostInput" data-key="aiTicketCost" class="assumption-input number-input w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/40" type="text" inputmode="decimal" autocomplete="off" />
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section aria-labelledby="results-heading" class="space-y-6">
+        <div class="rounded-3xl border border-slate-700/70 bg-slate-900/80 p-5 shadow-2xl backdrop-blur sm:p-6">
+          <div class="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <h2 id="results-heading" class="text-xl font-bold text-white">Executive diagnostic</h2>
+              <p class="mt-1 text-sm text-slate-400">Three hidden support cost drains, translated into dollars and capacity.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-right">
+              <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Hourly rate</p>
+              <p id="hourlyRate" class="mt-1 text-lg font-black text-sky-200">$0.00</p>
+            </div>
+          </div>
+
+          <div class="grid gap-5">
+            <article class="rounded-3xl border border-amber-400/30 bg-gradient-to-br from-amber-500/15 to-slate-900 p-5 shadow-amberGlow">
+              <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.28em] text-amber-200">Card A</p>
+                  <h3 class="mt-2 text-2xl font-black text-white">Context Assembly Leak</h3>
+                </div>
+                <span aria-hidden="true" class="rounded-2xl bg-amber-400/20 px-3 py-2 text-2xl">⌛</span>
+              </div>
+
+              <p class="text-sm leading-6 text-slate-300">
+                Time burned retrieving customer state before repetitive issues can be resolved.
+              </p>
+
+              <div class="mt-5 rounded-2xl bg-slate-950/60 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-amber-200">Annual Labor Context Leakage</p>
+                <p id="annualContextLeakage" class="mt-2 text-4xl font-black tracking-tight text-amber-200 sm:text-5xl">$0.00</p>
+              </div>
+
+              <dl class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Monthly repetitive tickets</dt>
+                  <dd id="monthlyRepetitiveTickets" class="mt-2 text-xl font-black text-white">0 tickets</dd>
+                </div>
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Monthly context hours wasted</dt>
+                  <dd id="monthlyContextHours" class="mt-2 text-xl font-black text-white">0 hours</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="rounded-3xl border border-rose-400/30 bg-gradient-to-br from-rose-500/15 to-slate-900 p-5 shadow-roseGlow">
+              <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.28em] text-rose-200">Card B</p>
+                  <h3 class="mt-2 text-2xl font-black text-white">Burnout Attrition Tax</h3>
+                </div>
+                <span aria-hidden="true" class="rounded-2xl bg-rose-400/20 px-3 py-2 text-2xl">🔥</span>
+              </div>
+
+              <p class="text-sm leading-6 text-slate-300">
+                Replacement and productivity costs tied to repetitive Tier-1 task fatigue.
+              </p>
+
+              <div class="mt-5 rounded-2xl bg-slate-950/60 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-rose-200">Burnout-Driven Turnover Cost</p>
+                <p id="burnoutAttritionTax" class="mt-2 text-4xl font-black tracking-tight text-rose-200 sm:text-5xl">$0.00</p>
+              </div>
+
+              <dl class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Estimated agents lost per year</dt>
+                  <dd id="annualAgentsLost" class="mt-2 text-xl font-black text-white">0 agents</dd>
+                </div>
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Attrition cost wasted</dt>
+                  <dd id="attritionCostWasted" class="mt-2 text-xl font-black text-white">$0.00</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="rounded-3xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 to-slate-900 p-5 shadow-glow">
+              <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-[0.28em] text-emerald-200">Card C</p>
+                  <h3 class="mt-2 text-2xl font-black text-white">Reclaimable Scale Savings</h3>
+                </div>
+                <span aria-hidden="true" class="rounded-2xl bg-emerald-400/20 px-3 py-2 text-2xl">↗</span>
+              </div>
+
+              <p class="text-sm leading-6 text-slate-300">
+                Incremental savings from moving routine-ticket deflection beyond legacy self-service.
+              </p>
+
+              <div class="mt-5 rounded-2xl bg-slate-950/60 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-emerald-200">First-Year Reclaimable Budget</p>
+                <p id="reclaimableBudget" class="mt-2 text-4xl font-black tracking-tight text-emerald-200 sm:text-5xl">$0.00</p>
+              </div>
+
+              <dl class="mt-5 grid gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Current baseline</dt>
+                  <dd id="currentSelfServiceDisplay" class="mt-2 text-xl font-black text-white">0%</dd>
+                </div>
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Target AI deflection</dt>
+                  <dd id="targetAIDeflectionDisplay" class="mt-2 text-xl font-black text-white">0%</dd>
+                </div>
+                <div class="rounded-2xl border border-slate-700/80 bg-slate-950/50 p-4">
+                  <dt class="text-xs uppercase tracking-[0.16em] text-slate-500">Incremental lift</dt>
+                  <dd id="incrementalDeflectionDisplay" class="mt-2 text-xl font-black text-white">0%</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const presets = {
+      saas: {
+        monthlyTickets: 3000,
+        agents: 10,
+        salary: 70000,
+        repetitiveRatePct: 50,
+        attritionRatePct: 35
+      },
+      ecommerce: {
+        monthlyTickets: 15000,
+        agents: 25,
+        salary: 55000,
+        repetitiveRatePct: 65,
+        attritionRatePct: 45
+      }
+    };
+
+    const defaultAssumptions = {
+      annualWorkHours: 2080,
+      contextMinutesPerTicket: 10,
+      replacementCost: 46000,
+      burnoutModifierPct: 70,
+      currentSelfServicePct: 14,
+      targetAIDeflectionPct: 50,
+      humanTicketCost: 22,
+      aiTicketCost: 1
+    };
+
+    const fieldConfig = {
+      monthlyTickets: { min: 0, max: 100000, step: 100, decimals: 0 },
+      agents: { min: 0, max: 500, step: 1, decimals: 0 },
+      salary: { min: 0, max: 200000, step: 1000, decimals: 0 },
+      repetitiveRatePct: { min: 0, max: 100, step: 1, decimals: 0 },
+      attritionRatePct: { min: 0, max: 100, step: 1, decimals: 0 },
+      annualWorkHours: { min: 1, max: 8760, step: 1, decimals: 0 },
+      contextMinutesPerTicket: { min: 0, max: 240, step: 0.25, decimals: 2 },
+      replacementCost: { min: 0, max: 500000, step: 100, decimals: 2 },
+      burnoutModifierPct: { min: 0, max: 100, step: 1, decimals: 0 },
+      currentSelfServicePct: { min: 0, max: 100, step: 1, decimals: 0 },
+      targetAIDeflectionPct: { min: 0, max: 100, step: 1, decimals: 0 },
+      humanTicketCost: { min: 0, max: 10000, step: 0.01, decimals: 2 },
+      aiTicketCost: { min: 0, max: 10000, step: 0.01, decimals: 2 }
+    };
+
+    const state = {
+      ...presets.saas,
+      ...defaultAssumptions
+    };
+
+    const formatters = {
+      currency: new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }),
+      integer: new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0
+      }),
+      decimal: new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      })
+    };
+
+    function clamp(value, min, max) {
+      const numericValue = Number.isFinite(value) ? value : 0;
+      return Math.min(Math.max(numericValue, min), max);
+    }
+
+    function snapToStep(value, step, min) {
+      if (!step || step <= 0) return value;
+      const snapped = Math.round((value - min) / step) * step + min;
+      return Number(snapped.toFixed(6));
+    }
+
+    function sanitizeNumericInput(rawValue, config) {
+      const stringValue = String(rawValue ?? "");
+      const stripped = stringValue.replace(/[$,%\s,]/g, "").replace(/[^\d.]/g, "");
+      const firstDotIndex = stripped.indexOf(".");
+      const normalized = firstDotIndex === -1
+        ? stripped
+        : stripped.slice(0, firstDotIndex + 1) + stripped.slice(firstDotIndex + 1).replace(/\./g, "");
+
+      if (normalized === "" || normalized === ".") {
+        return 0;
+      }
+
+      const parsed = Number.parseFloat(normalized);
+      if (!Number.isFinite(parsed)) {
+        return 0;
+      }
+
+      const rounded = config.decimals === 0
+        ? Math.round(parsed)
+        : Number(parsed.toFixed(config.decimals));
+
+      const clamped = clamp(rounded, config.min, config.max);
+      return snapToStep(clamped, config.step, config.min);
+    }
+
+    function formatInputValue(key, value) {
+      const config = fieldConfig[key];
+
+      if (config.decimals === 0) {
+        return formatters.integer.format(value);
+      }
+
+      return Number(value).toFixed(config.decimals).replace(/\.?0+$/, "");
+    }
+
+    function toPercentDecimal(percentValue) {
+      return sanitizeNumericInput(percentValue, { min: 0, max: 100, step: 0.000001, decimals: 6 }) / 100;
+    }
+
+    function calculateMetrics(input) {
+      const monthlyTickets = Math.max(0, Number(input.monthlyTickets) || 0);
+      const agents = Math.max(0, Number(input.agents) || 0);
+      const salary = Math.max(0, Number(input.salary) || 0);
+      const repetitiveRatePct = Math.max(0, Number(input.repetitiveRatePct) || 0);
+      const attritionRatePct = Math.max(0, Number(input.attritionRatePct) || 0);
+      const annualWorkHours = Math.max(1, Number(input.annualWorkHours) || 2080);
+      const contextMinutesPerTicket = Math.max(0, Number(input.contextMinutesPerTicket) || 0);
+      const replacementCost = Math.max(0, Number(input.replacementCost) || 0);
+      const burnoutModifierPct = Math.max(0, Number(input.burnoutModifierPct) || 0);
+      const currentSelfServicePct = Math.max(0, Number(input.currentSelfServicePct) || 0);
+      const targetAIDeflectionPct = Math.max(0, Number(input.targetAIDeflectionPct) || 0);
+      const humanTicketCost = Math.max(0, Number(input.humanTicketCost) || 0);
+      const aiTicketCost = Math.max(0, Number(input.aiTicketCost) || 0);
+
+      const repetitiveRate = repetitiveRatePct / 100;
+      const attritionRate = attritionRatePct / 100;
+      const burnoutModifier = burnoutModifierPct / 100;
+      const currentSelfService = currentSelfServicePct / 100;
+      const targetAIDeflection = targetAIDeflectionPct / 100;
+
+      const hourlyRate = salary / annualWorkHours;
+      const monthlyRepetitiveTickets = monthlyTickets * repetitiveRate;
+      const monthlyContextHours = monthlyRepetitiveTickets * contextMinutesPerTicket / 60;
+      const annualContextLeakage = monthlyContextHours * 12 * hourlyRate;
+
+      const annualAgentsLost = agents * attritionRate;
+      const burnoutAttritionTax = annualAgentsLost * replacementCost * burnoutModifier;
+
+      const incrementalDeflection = Math.max(0, targetAIDeflection - currentSelfService);
+      const reclaimableBudget = monthlyTickets * repetitiveRate * 12 * incrementalDeflection * (humanTicketCost - aiTicketCost);
+
+      return {
+        hourlyRate,
+        monthlyRepetitiveTickets,
+        monthlyContextHours,
+        annualContextLeakage,
+        annualAgentsLost,
+        burnoutAttritionTax,
+        currentSelfService,
+        targetAIDeflection,
+        incrementalDeflection,
+        reclaimableBudget
+      };
+    }
+
+    window.calculateMetrics = calculateMetrics;
+
+    function verifyMathEngine() {
+      const testInput = {
+        monthlyTickets: 10000,
+        agents: 20,
+        salary: 70000,
+        repetitiveRatePct: 60,
+        attritionRatePct: 42,
+        annualWorkHours: 2080,
+        contextMinutesPerTicket: 10,
+        replacementCost: 46000,
+        burnoutModifierPct: 70,
+        currentSelfServicePct: 14,
+        targetAIDeflectionPct: 50,
+        humanTicketCost: 22,
+        aiTicketCost: 1
+      };
+
+      const result = calculateMetrics(testInput);
+
+      const expected = {
+        hourlyRate: 33.65,
+        annualContextLeakage: 403846.15,
+        burnoutAttritionTax: 270480.00,
+        reclaimableBudget: 544320.00
+      };
+
+      const tolerance = 0.01;
+
+      function assertClose(label, actual, expectedValue) {
+        const pass = Math.abs(actual - expectedValue) <= tolerance;
+        console[pass ? "log" : "error"](
+          `${pass ? "PASS" : "FAIL"}: ${label}. Expected ${expectedValue}, got ${actual}`
+        );
+        return pass;
+      }
+
+      const checks = [
+        assertClose("Hourly Loaded Agent Rate", result.hourlyRate, expected.hourlyRate),
+        assertClose("Annual Labor Context Leakage", result.annualContextLeakage, expected.annualContextLeakage),
+        assertClose("Burnout Attrition Tax", result.burnoutAttritionTax, expected.burnoutAttritionTax),
+        assertClose("First-Year Reclaimable Budget", result.reclaimableBudget, expected.reclaimableBudget)
+      ];
+
+      return checks.every(Boolean);
+    }
+
+    window.verifyMathEngine = verifyMathEngine;
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    function updateRangeValue(key) {
+      const range = document.querySelector(`input[type="range"][data-key="${key}"]`);
+      if (!range) return;
+
+      const config = fieldConfig[key];
+      range.min = String(config.min);
+      range.max = String(config.max);
+      range.step = String(config.step);
+      range.value = String(clamp(state[key], config.min, config.max));
+    }
+
+    function updateInputValue(key) {
+      const input = document.querySelector(`input[type="text"][data-key="${key}"], .assumption-input[data-key="${key}"]`);
+      if (!input) return;
+
+      input.value = formatInputValue(key, state[key]);
+    }
+
+    function updateAllControls() {
+      Object.keys(fieldConfig).forEach((key) => {
+        updateRangeValue(key);
+        updateInputValue(key);
+      });
+    }
+
+    function renderResults() {
+      const result = calculateMetrics(state);
+
+      setText("hourlyRate", formatters.currency.format(result.hourlyRate));
+      setText("annualContextLeakage", formatters.currency.format(result.annualContextLeakage));
+      setText("monthlyRepetitiveTickets", `${formatters.integer.format(result.monthlyRepetitiveTickets)} tickets`);
+      setText("monthlyContextHours", `${formatters.integer.format(result.monthlyContextHours)} hours`);
+
+      setText("burnoutAttritionTax", formatters.currency.format(result.burnoutAttritionTax));
+      setText("annualAgentsLost", `${formatters.decimal.format(result.annualAgentsLost)} agents`);
+      setText("attritionCostWasted", formatters.currency.format(result.burnoutAttritionTax));
+
+      setText("reclaimableBudget", formatters.currency.format(result.reclaimableBudget));
+      setText("currentSelfServiceDisplay", `${Math.round(result.currentSelfService * 100)}%`);
+      setText("targetAIDeflectionDisplay", `${Math.round(result.targetAIDeflection * 100)}%`);
+      setText("incrementalDeflectionDisplay", `${Math.round(result.incrementalDeflection * 100)}%`);
+    }
+
+    function setStateValue(key, rawValue, shouldFormatInput) {
+      const config = fieldConfig[key];
+      if (!config) return;
+
+      state[key] = sanitizeNumericInput(rawValue, config);
+      updateRangeValue(key);
+
+      if (shouldFormatInput) {
+        updateInputValue(key);
+      }
+
+      renderResults();
+    }
+
+    function applyPreset(presetName) {
+      const preset = presets[presetName];
+      if (!preset) return;
+
+      Object.entries(preset).forEach(([key, value]) => {
+        state[key] = value;
+      });
+
+      document.querySelectorAll(".preset-btn").forEach((button) => {
+        const isActive = button.dataset.preset === presetName;
+        button.setAttribute("aria-pressed", String(isActive));
+        button.classList.toggle("bg-sky-400", isActive);
+        button.classList.toggle("text-slate-950", isActive);
+        button.classList.toggle("shadow-lg", isActive);
+        button.classList.toggle("text-slate-300", !isActive);
+        button.classList.toggle("hover:text-white", !isActive);
+      });
+
+      updateAllControls();
+      renderResults();
+    }
+
+    function bindControlEvents() {
+      document.querySelectorAll('input[type="range"][data-key]').forEach((range) => {
+        range.addEventListener("input", (event) => {
+          setStateValue(event.currentTarget.dataset.key, event.currentTarget.value, true);
+        });
+
+        range.addEventListener("change", (event) => {
+          setStateValue(event.currentTarget.dataset.key, event.currentTarget.value, true);
+        });
+      });
+
+      document.querySelectorAll('input[type="text"][data-key], .assumption-input[data-key]').forEach((input) => {
+        input.addEventListener("input", (event) => {
+          const key = event.currentTarget.dataset.key;
+          const config = fieldConfig[key];
+          const raw = event.currentTarget.value;
+          const cleaned = String(raw ?? "").replace(/[$,%\s,]/g, "").replace(/[^\d.]/g, "");
+          const firstDotIndex = cleaned.indexOf(".");
+          const normalized = firstDotIndex === -1
+            ? cleaned
+            : cleaned.slice(0, firstDotIndex + 1) + cleaned.slice(firstDotIndex + 1).replace(/\./g, "");
+
+          if (raw !== normalized) {
+            event.currentTarget.value = normalized;
+          }
+
+          state[key] = sanitizeNumericInput(normalized, config);
+          updateRangeValue(key);
+          renderResults();
+        });
+
+        input.addEventListener("change", (event) => {
+          setStateValue(event.currentTarget.dataset.key, event.currentTarget.value, true);
+        });
+
+        input.addEventListener("blur", (event) => {
+          setStateValue(event.currentTarget.dataset.key, event.currentTarget.value, true);
+        });
+      });
+
+      document.querySelectorAll(".preset-btn").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          applyPreset(event.currentTarget.dataset.preset);
+        });
+      });
+
+      document.querySelectorAll(".info-trigger").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const currentWrap = event.currentTarget.closest(".info-wrap");
+
+          document.querySelectorAll(".info-wrap.is-open").forEach((wrap) => {
+            if (wrap !== currentWrap) {
+              wrap.classList.remove("is-open");
+            }
+          });
+
+          if (currentWrap) {
+            currentWrap.classList.toggle("is-open");
+          }
+        });
+      });
+
+      document.addEventListener("click", () => {
+        document.querySelectorAll(".info-wrap.is-open").forEach((wrap) => {
+          wrap.classList.remove("is-open");
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".info-wrap.is-open").forEach((wrap) => {
+            wrap.classList.remove("is-open");
+          });
+        }
+      });
+    }
+
+    function initializeApp() {
+      bindControlEvents();
+      applyPreset("saas");
+
+      Object.entries(defaultAssumptions).forEach(([key, value]) => {
+        state[key] = value;
+      });
+
+      updateAllControls();
+      renderResults();
+
+      const verificationPassed = verifyMathEngine();
+      const verificationStatus = document.getElementById("verificationStatus");
+
+      if (verificationStatus) {
+        verificationStatus.textContent = verificationPassed
+          ? "PASS: verification vector matched"
+          : "FAIL: check console for math mismatch";
+
+        verificationStatus.classList.toggle("text-emerald-300", verificationPassed);
+        verificationStatus.classList.toggle("text-rose-300", !verificationPassed);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initializeApp);
+  </script>
+</body>
+</html>
