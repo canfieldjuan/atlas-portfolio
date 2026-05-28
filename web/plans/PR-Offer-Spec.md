@@ -28,8 +28,9 @@ Slice phase: Product polish
    **every gap your tickets already solve** — 100% deterministic, no AI" (was
    "3-5 answers"); new **"no proven answer yet" list**; "priority + source IDs."
 3. **FAQ** (snapshot + full-report answers) → matched to the above; the privacy
-   FAQ's "before model processing" → "before any processing … 100% deterministic,
-   no AI" (it implied a model the pipeline does not use).
+   FAQ no longer claims "we remove private data in the intake step" — there is no
+   redaction code in this repo's intake path, so it now recommends self-stripping
+   + states 30-day deletion + the deterministic/no-AI/no-training facts.
 
 `landingConfig-v2.tsx` (narrative alignment):
 4. **mechanism** ranked-fix-list line → drafts for "every gap your tickets already
@@ -37,17 +38,27 @@ Slice phase: Product polish
 5. **offer "what you get"** → drafted-answer bullet now "every gap your tickets
    already solve … 100% deterministic, no AI"; added the "no proven answer yet" bullet.
 
-`SupportTicketCsvIntakePage.tsx` (Codex P2 — claims consistency):
-6. CSV-hint "before any model sees it" → "before anything processes it. The
-   analysis is 100% deterministic — no AI." The old wording implied a model the
-   pipeline does not use, contradicting the (true) "no AI" report claim.
+`SupportTicketCsvIntakePage.tsx` (Codex P1 — false privacy promise):
+6. CSV-hint no longer promises pre-processing PII stripping. The raw CSV is
+   uploaded to a PUBLIC Vercel Blob (~L111, `access: 'public'`) before any server
+   step, and no redaction code exists — so "we drop PII before anything processes
+   it" was false. Now: recommend self-stripping, "we don't need PII to find your
+   repeat questions," 30-day deletion, deterministic/no-AI. Storage exposure
+   tracked separately in **#117**.
+
+`layout.tsx` (owner MAJOR — metadata consistency):
+7. Dropped "AI" from the 5 page SEO keywords ("AI help doc generator" → "help doc
+   generator", "AI content pipeline" → "deterministic content pipeline", etc.) so
+   the `<head>` no longer markets the page as AI against the "100% deterministic,
+   no AI" body claim.
 
 ### Files touched
 
 - `web/plans/PR-Offer-Spec.md` — this plan doc (new)
-- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — snapshot + full-report tiers, both FAQ answers, privacy FAQ
+- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — snapshot + full-report tiers, both FAQ answers, privacy FAQ (honest)
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — mechanism line + offer deliverable bullets
-- `web/src/components/landing/SupportTicketCsvIntakePage.tsx` — CSV-hint privacy line
+- `web/src/components/landing/SupportTicketCsvIntakePage.tsx` — CSV-hint privacy line (no false redaction promise)
+- `web/src/app/systems/support-ticket-deflection/layout.tsx` — dropped "AI" from 5 SEO keywords
 
 ## Mechanism
 
@@ -81,27 +92,31 @@ Slice phase: Product polish
 - Pricing *structure* (recurring engine, per-seat) — separate, undecided
   [[deflection-pricing-direction]].
 
-Parked hardening: none.
+Parked hardening: **#117** — raw CSV (PII) uploaded to a PUBLIC Vercel Blob with no
+redaction. This PR makes the copy honest (recommend self-stripping); the storage
+fix (private store + redact before upload) is tracked there, not done here.
 
 ## Verification
 
 - `tsc --noEmit` / `npm run lint` clean; `npm run build` green.
 - No "3-5" / "25-50" / "5-10" range left in the deflection surface; narrative and
   tiers agree on draft-per-solvable-gap + the "no answer yet" list.
-- Claims consistency: no copy implies a model processes tickets (intake hint +
-  privacy FAQ fixed); the report's "100% deterministic, no AI" no longer
-  contradicts the intake flow.
+- Claims consistency: no copy implies a model processes tickets; no copy promises
+  PII redaction that isn't implemented; the page's SEO keywords no longer say "AI"
+  against the "100% deterministic, no AI" body claim. The report claim is now
+  consistent across body, FAQ, intake, and `<head>`.
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape + files-touched
-  4 == 4 + diff-size).
+  5 == 5 + diff-size).
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
-| landingConfig.tsx tiers + FAQs | ~14 |
+| landingConfig.tsx tiers + FAQs | ~16 |
 | landingConfig-v2 mechanism + offer bullets | ~6 |
-| intake CSV-hint line | ~3 |
-| this plan doc | ~90 |
-| **Total** | ~113 |
+| intake CSV-hint line | ~4 |
+| layout.tsx SEO keywords | ~5 |
+| this plan doc | ~100 |
+| **Total** | ~131 |
 
 Well under the 400-LOC soft cap.

@@ -159,7 +159,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `What about private customer data?`,
-    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first. If it cannot, upload the CSV anyway and we remove private data in the intake step before any processing. The analysis is 100% deterministic — no AI, no model training, no fine-tuning, no sharing.`,
+    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first — we recommend it; we do not need PII to find your repeat questions. Your file is deleted after 30 days. The analysis is 100% deterministic — no AI, no model training, no fine-tuning, no sharing.`,
   },
   {
     q: `Why use customer wording?`,
