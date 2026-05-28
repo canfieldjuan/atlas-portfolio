@@ -2,12 +2,14 @@
 
 import {
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   CircleHelp,
   FileSearch,
   ShieldCheck,
   Workflow,
 } from 'lucide-react';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { type DeflectionLandingPageConfig } from '@/components/landing/DeflectionLandingPage';
 import {
@@ -132,22 +134,14 @@ function ProofCards() {
   );
 }
 
-export const landingPageConfigV2: DeflectionLandingPageConfig = {
-  structuredData: faqJsonLd,
-  hero: {
-    eyebrow: 'SUPPORT TICKET DEFLECTION',
-    eyebrowIcon: <Workflow className="h-3 w-3" />,
-    title: "Your repeat support tickets are search queries your help center can't answer.",
-    intro:
-      "We mine them for the exact words your customers type into Google, and draft the FAQs you publish — so the answer is finally written where search can find it.",
-    body:
-      'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
-    cta: {
-      label: 'Upload your CSV — get a free Deflection Snapshot',
-      href: GAP_REPORT_INTAKE_HREF,
-    },
-  },
-  problemAgitation: {
+// The calculator link is parameterized so it renders only on the public page.
+// The partner-priced twin (partner/page.tsx) reuses this config but passes no
+// href: the public /calculator's back link returns to the public $1,500 page,
+// which would leak a design partner out of the noindex $1,000 funnel.
+export function makeProblemAgitation(
+  calculatorHref?: string,
+): DeflectionLandingPageConfig['problemAgitation'] {
+  return {
     label: 'THE COST OF STAYING HERE',
     title: 'Repeat tickets are not a small inefficiency. They are an operating cost line.',
     content: (
@@ -156,8 +150,19 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           Before a customer ever contacts you, they try to find the answer themselves — searching your help center, Googling the question. <strong className="text-foreground">73%</strong> attempt this; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
         </p>
         <p>
-          That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, a question gets dramatically more expensive the moment it reaches a human queue.
+          That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact — <strong className="text-foreground">$11.66 more every time</strong> a question you could have deflected reaches a person instead. Multiply that by your own repeat volume and the cost is a number you can run, not one we promise.
         </p>
+        {calculatorHref && (
+          <div>
+            <Link
+              href={calculatorHref}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+            >
+              Run the numbers on your own volume
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
         <p>
           The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox — the same predictable questions, over and over.
         </p>
@@ -186,7 +191,25 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
         </p>
       </CopyBlock>
     ),
+  };
+}
+
+export const landingPageConfigV2: DeflectionLandingPageConfig = {
+  structuredData: faqJsonLd,
+  hero: {
+    eyebrow: 'SUPPORT TICKET DEFLECTION',
+    eyebrowIcon: <Workflow className="h-3 w-3" />,
+    title: "Your repeat support tickets are search queries your help center can't answer.",
+    intro:
+      "We mine them for the exact words your customers type into Google, and draft the FAQs you publish — so the answer is finally written where search can find it.",
+    body:
+      'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
+    cta: {
+      label: 'Upload your CSV — get a free Deflection Snapshot',
+      href: GAP_REPORT_INTAKE_HREF,
+    },
   },
+  problemAgitation: makeProblemAgitation('/systems/support-ticket-deflection/calculator'),
   currentWayVsThisWay: {
     label: 'WHY THE USUAL FIXES UNDERPERFORM',
     title: 'You probably already tried the obvious things.',
