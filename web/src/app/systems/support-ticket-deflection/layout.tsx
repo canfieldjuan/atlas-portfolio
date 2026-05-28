@@ -21,6 +21,16 @@ export const metadata = generatePageMetadata({
     "deterministic content pipeline",
     "evidence backed help content",
     "structured help content workflow",
+    "how to reduce support tickets",
+    "reduce repeat tickets",
+    "ticket deflection tools",
+    "support deflection software",
+    "self-service failure rate",
+    "knowledge base failing",
+    "knowledge base not working",
+    "knowledge gap analysis",
+    "knowledge management gap analysis",
+    "knowledge gap assessment",
   ],
 });
 
