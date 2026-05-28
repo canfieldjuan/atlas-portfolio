@@ -44,6 +44,11 @@ export type DeflectionLandingPageConfig = {
     processDescription: string;
     stages: DiagnosticPipelineStage[];
   };
+  seoVisibility: {
+    label: string;
+    title: string;
+    content: ReactNode;
+  };
   proofStack: {
     label: string;
     title: string;
@@ -173,6 +178,17 @@ export function DeflectionLandingPage({
           </div>
 
           <Pipeline stages={config.mechanism.stages} />
+        </section>
+
+        {/* ── SEO / Search Visibility ───────────────────────────────── */}
+        <section className="section-band section-band-blue">
+          <div className="max-w-4xl">
+            <SectionLabel>{config.seoVisibility.label}</SectionLabel>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-6">
+              {config.seoVisibility.title}
+            </h2>
+            {config.seoVisibility.content}
+          </div>
         </section>
 
         {/* ── Proof Stack ───────────────────────────────────────────── */}
