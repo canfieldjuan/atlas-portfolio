@@ -160,26 +160,26 @@ function ProofCards() {
 export function makeProblemAgitation(): DeflectionLandingPageConfig['problemAgitation'] {
   return {
     label: 'THE BROKEN LOOP',
-    title: 'Repeat tickets keep coming back because the answer never reaches the next customer.',
+    title: 'Stop paying agents to act like search engines.',
     content: (
       <CopyBlock>
         <p>
-          Before a customer ever contacts you, they try to find the answer themselves — searching your help center, Googling the question. <strong className="text-foreground">73%</strong> attempt this; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
+          Repeat tickets keep coming back for one simple reason: your answers never reach the next customer. Gartner data is clear: <strong className="text-foreground">73%</strong> of customers attempt self-service, but only <strong className="text-foreground">14%</strong> succeed. The answer often exists, but it is not written in the words customers actually search for. So they miss it, open a ticket, and your team answers something your help center should have handled.
         </p>
         <div className="rounded-xl border border-border bg-surface p-5">
           <p className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-            The loop support leads already know
+            The loop destroying your queue
           </p>
           <SectionList
             items={[
-              <><strong className="text-foreground">Customer searches, fails, opens a ticket.</strong> The answer may exist, but not in the language they used.</>,
-              <><strong className="text-foreground">Your team answers it manually.</strong> The fix lives inside a reply thread, not where the next customer will find it.</>,
-              <><strong className="text-foreground">The same question comes back next week.</strong> Another agent repeats the work.</>,
+              <><strong className="text-foreground">The miss:</strong> A customer searches their exact problem, finds nothing useful, and opens a ticket.</>,
+              <><strong className="text-foreground">The waste:</strong> Your team answers it manually. The fix gets buried in a private support thread.</>,
+              <><strong className="text-foreground">The repeat:</strong> The same question comes back next week. Another agent repeats the work.</>,
             ]}
           />
         </div>
         <p>
-          The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox — the same predictable questions, over and over.
+          Industry benchmarks show that <strong className="text-foreground">40% to 60%</strong> of support inbox volume is repetitive questions. Every one of those tickets is more than a support request. It is evidence of the customer wording your help center is missing.
         </p>
       </CopyBlock>
     ),
