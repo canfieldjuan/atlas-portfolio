@@ -153,7 +153,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          Before a customer ever contacts you, they Google it. <strong className="text-foreground">73%</strong> try to answer their own question that way; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
+          Before a customer ever contacts you, they try to find the answer themselves — searching your help center, Googling the question. <strong className="text-foreground">73%</strong> attempt this; only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — your help center just is not written in the words they searched, so it never surfaces. Every ticket in your queue is a list of the exact <strong className="text-foreground">search terms you are missing</strong>.
         </p>
         <p>
           That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, a question gets dramatically more expensive the moment it reaches a human queue.
