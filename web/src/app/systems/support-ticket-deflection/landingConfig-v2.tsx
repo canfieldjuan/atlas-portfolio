@@ -137,11 +137,11 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="h-3 w-3" />,
-    title: 'Stop answering the same questions. Start publishing the answers customers already search for.',
+    title: "Your repeat support tickets are search queries your help center can't answer.",
     intro:
-      'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
+      "We surface them in your customers' own words — and draft the FAQs you publish.",
     body:
-      'The answers are already in your queue. What is missing is a reliable way to turn ticket history into findable self-service before the next customer opens the same ticket again.',
+      'Upload 3–6 months of support tickets. In 24 hours, get the repeat questions ranked, the wording gaps surfaced, and drafted FAQs your team reviews and publishes.',
     cta: {
       label: 'Upload your CSV — get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
