@@ -92,7 +92,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     description:
       `Upload your last 3–6 months of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
     includes: [
-      `Top 5-10 repeat questions`,
+      `Your top 5 repeat questions, ranked by how often they were asked`,
       `Customer wording examples`,
       `1 sample self-service answer`,
       `No card required, no contract`,
@@ -110,11 +110,11 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     description:
       `For the first 3–6 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
-      `Top 25-50 repeat questions`,
+      `Every recurring question, ranked by how often it was asked (typically 50+)`,
       `Customer wording clusters`,
-      `Missing or hard-to-find answer list`,
-      `3-5 self-service answers to review and publish`,
-      `Priority notes and source ticket IDs`,
+      `A drafted, publishable answer for every gap your tickets already solve — no AI, built from your team's own replies`,
+      `A "no proven answer yet" list — the frequent questions you have not cracked`,
+      `Priority ranking and source ticket IDs on every finding`,
     ],
     note: `This is the paid version of the work: enough detail to actually update the help center.`,
     cta: `Start the full report`,
@@ -143,11 +143,11 @@ export const pricingTiers: DiagnosticPricingTier[] = [
 export const pricingFaqs: { q: string; a: string }[] = [
   {
     q: `What do I get in the free snapshot?`,
-    a: `You get the top repeat questions we can see, a few examples of the words customers use, and one sample step-by-step self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
+    a: `You get your top 5 repeat questions ranked by how often they were asked, a few examples of the words customers use, and one sample step-by-step self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
   },
   {
     q: `What do I get in the full Deflection Report?`,
-    a: `The full report gives you the bigger working list: 25-50 repeat questions, customer wording clusters, missing or hard-to-find answers, 3-5 step-by-step self-service answers, priority notes, and source ticket IDs.`,
+    a: `The full report gives you the complete working list: every recurring question ranked by how often it was asked (typically 50+), customer wording clusters, a drafted self-service answer for every gap your tickets already solve, a "no proven answer yet" list for the questions you have not cracked, plus priority ranking and source ticket IDs.`,
   },
   {
     q: `How many tickets should I export?`,
