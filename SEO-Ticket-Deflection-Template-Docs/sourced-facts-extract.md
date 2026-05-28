@@ -50,9 +50,19 @@ Legend:
   Lorikeet 2026 synthesis.
 - **40–60% of inbound support volume is highly repetitive queries**; rising to
   70% in high-growth B2C environments. [E] — Industry synthesis.
-- **Gartner: 74% of customer issues reaching live agents could have been
-  resolved through self-service** if the relevant knowledge article existed or
-  was accessible. [M] — Gartner study, cited in CoSupport AI analysis.
+- **~~Gartner: 74% of customer issues reaching live agents could have been
+  resolved through self-service~~ — RETRACTED, MISATTRIBUTED.** [NOT Gartner]
+  Primary-source check (2026-05-28): the Gartner Aug 19 2024 release contains no
+  such figure (it reports 14% resolved / 73% attempt / 43% can't-find-content /
+  45% not-understood, nothing about "could have been resolved"). The "74%" traces
+  to a **CoSupport AI customer testimonial** ("our chatbot now resolves ~74% of
+  all support tickets") — a vendor chatbot resolution rate, not a Gartner
+  self-service study. Do NOT use as a Gartner stat.
+- **Use instead — service leaders report 20–40% of live volume could be resolved
+  in self-service** (see Tier 2 #8). [M] — Gartner / Devin Poole, "Delivering on
+  the Digital Promise," 2019 (leader survey — frame as a leader *estimate*, upper
+  bound 40%). This is the citable, primary-sourced version of the "could have been
+  self-served" claim.
 - **CoSupport AI: each unresolved ticket generates 2.4 follow-up messages** on
   average. [V] — CoSupport AI research.
 - **Each additional call required to resolve a single issue drops CSAT by

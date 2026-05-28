@@ -287,7 +287,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           The phrases your customers use in tickets are the phrases they type into Google — and your own volume tells you which ones matter most. Today your help-center page misses on wording: it answers in your internal product language, not the words customers search. We hand you their own search wording, validated by your queue, so the answer finally gets published in the same words customers search — not your internal jargon.
         </p>
         <p>
-          Gartner put it bluntly: <strong className="text-foreground">74%</strong> of the issues that reach a live agent could have been resolved in self-service — if the answer existed and was findable. Findable is the whole game, and findable means matching the words people search.
+          Service leaders surveyed by Gartner estimate that as much as <strong className="text-foreground">40%</strong> of the issues reaching a live agent could have been resolved in self-service — if the answer existed and was findable. Findable is the whole game, and findable means matching the words people search.
         </p>
         <p>
           And it is an asset, not a one-off reply. A published answer sits there for every future customer who searches that question — one page doing work your team would otherwise repeat by hand, so the next person with that question can find the answer instead of writing in.
