@@ -30,9 +30,9 @@ Then it disappears back into the queue.
 Next week, a different customer asks the same question. The answer has to be
 written again, from scratch, by someone who already wrote it the week before.
 
-Gartner found that 74% of customer issues that reach a live agent could have
-been resolved through self-service — if the relevant knowledge article existed
-or was findable.
+Service leaders surveyed by Gartner estimate that as much as 40% of customer
+issues that reach a live agent could have been resolved through self-service —
+if the relevant knowledge article existed or was findable.
 
 The current method for figuring out which articles to write is mostly
 guesswork. Scan the tags. Ask agents what they see a lot. Look at the loudest

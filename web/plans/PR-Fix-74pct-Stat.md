@@ -30,12 +30,22 @@ Slice phase: Product polish
 2. **`sourced-facts-extract.md`:** retract the 74% entry as misattributed (with the
    primary-source finding) and point to the 20–40% leader figure (Tier 2 #8) as the
    citable replacement, so the bad stat can't be reused.
+3. **Retract the same misattributed 74% in the 4 other source docs** that still
+   carried it (owner MAJOR — the "can't be reused" goal isn't met if drafts keep
+   it): `The_Friction_Multiplier.md`, `body-copy-data-brief.md`,
+   `body-copy-outline.md`, `body-copy-section-1.md` (a near-final copy draft). Each
+   → the corrected 40% leader estimate. Left the **unrelated** 74% stats in those
+   files untouched (74% agent burnout; 74% Zendesk repeat-info frustration).
 
 ### Files touched
 
 - `web/plans/PR-Fix-74pct-Stat.md` — this plan doc (new)
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — SEO 74%→40% line
 - `SEO-Ticket-Deflection-Template-Docs/sourced-facts-extract.md` — retract 74% misattribution
+- `SEO-Ticket-Deflection-Template-Docs/The_Friction_Multiplier.md` — 74%→40% (self-service)
+- `SEO-Ticket-Deflection-Template-Docs/body-copy-data-brief.md` — 74%→40% (self-service)
+- `SEO-Ticket-Deflection-Template-Docs/body-copy-outline.md` — 74%→40% (self-service)
+- `SEO-Ticket-Deflection-Template-Docs/body-copy-section-1.md` — 74%→40% (self-service)
 
 ## Mechanism
 
@@ -62,9 +72,10 @@ Parked hardening: none.
 ## Verification
 
 - `tsc --noEmit` = 0; `npm run lint` = 0 (clean); `npm run build` green.
-- No `74%` remains anywhere in `web/src/`.
+- No `74%` remains anywhere in `web/src/`; no misattributed Gartner-self-service 74%
+  remains in any source doc (only the unrelated burnout / Zendesk 74% stats kept).
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape + files-touched
-  3 == 3 + diff-size).
+  7 == 7 + diff-size).
 
 ## Estimated diff size
 
@@ -72,7 +83,8 @@ Parked hardening: none.
 |---|---|
 | landingConfig-v2 SEO line | ~2 |
 | sourced-facts-extract.md retraction | ~14 |
-| this plan doc | ~70 |
-| **Total** | ~86 |
+| 4 other source docs (74%→40%) | ~12 |
+| this plan doc | ~80 |
+| **Total** | ~108 |
 
 Well under the 400-LOC soft cap.
