@@ -24,8 +24,11 @@ sections of the landing page. Pulled from three research briefs
   requires 2.3 contacts. Source: Lorikeet 2026 synthesis. **[E]**
 - 40–60% of inbound volume is repetitive queries. 70% in B2C. Source:
   Industry synthesis. **[E]**
-- Gartner: 74% of issues reaching live agents could've been resolved via
-  self-service if the article existed. Source: Gartner / CoSupport AI. **[M]**
+- Service leaders estimate as much as 40% of issues reaching live agents
+  could've been resolved via self-service if the article existed. Source:
+  Gartner / Devin Poole, 2019 leader survey. **[M, leader estimate]**
+  (Corrected 2026-05-28: the prior "74% — Gartner/CoSupport AI" was a
+  misattributed vendor chatbot rate, not a Gartner study. Do not reuse.)
 - Each additional call drops CSAT 16%. Source: SQM Group. **[M]**
 - 1% FCR improvement = 1% operating cost reduction. Source: SQM Group. **[M]**
 

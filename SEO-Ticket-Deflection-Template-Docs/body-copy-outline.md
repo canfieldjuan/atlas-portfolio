@@ -19,7 +19,7 @@ they know it's bad, but they don't know how bad.
 | Para | Topic | Key data | Tactic |
 |---|---|---|---|
 | 1 | The cost gap | Gartner: $1.84 vs $13.50 (7.3x). HDI: $22.00 vs $2.93. 80–100x across full journey. | Lead with the number. Ogilvy: "The consumer isn't a moron, she's your wife." Respect the reader's intelligence with hard data. |
-| 2 | The repeat loop | 40–60% of volume is repetitive. 74% of issues could've been self-served. The 6-step guesswork workflow. The 5-step repeat loop. | Name the loop they're stuck in. Schwartz: "The reader already has this problem. You're just articulating it." |
+| 2 | The repeat loop | 40–60% of volume is repetitive. Leaders estimate up to 40% of live volume could've been self-served. The 6-step guesswork workflow. The 5-step repeat loop. | Name the loop they're stuck in. Schwartz: "The reader already has this problem. You're just articulating it." |
 | 3 | The agent cost | Salesforce: 39% of time servicing customers. 5 hrs/week lost. "Mind-numbing repetition" (NICE). 90 seconds typing / 10 minutes context-switching. | Move from abstract cost → human experience. Make it visceral. |
 | 4 | The burnout chain → attrition | 31–45% turnover. $10K–$20K/replacement. 74% burnout. 90% say repetition kills morale. | Connect the dots: repetition → burnout → turnover → cost. |
 | 5 | The customer cost + blindspot | Gartner: 14% self-service resolution. 94% vs 4% repurchase intent (low vs high effort). Leaders estimate 60% self-service demand, actual is 81%. 28-point proactivity perception gap. | Close the loop. Problem is bigger than they think. |
