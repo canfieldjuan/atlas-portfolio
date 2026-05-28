@@ -316,7 +316,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
             <>The customer-term-to-doc-term mismatches making existing answers hard to find.</>,
             <>The exact search terms your customers use — the keywords your help-center pages should target.</>,
             <>Source tickets and quoted evidence behind every recommendation.</>,
-            <>A drafted, publishable answer for every gap your tickets already solve — built from language your team used to resolve it, no AI.</>,
+            <>A drafted, publishable answer for every gap your tickets already solve — built from language your team used to resolve it, 100% deterministic, no AI.</>,
             <>A flagged &ldquo;no proven answer yet&rdquo; list — the frequent questions you have never cracked, so you know where to write next.</>,
           ]}
         />

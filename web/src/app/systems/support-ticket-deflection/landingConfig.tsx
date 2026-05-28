@@ -112,7 +112,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     includes: [
       `Every recurring question, ranked by how often it was asked (typically 50+)`,
       `Customer wording clusters — the long-tail keywords needed to rank`,
-      `A drafted, publishable answer for every gap your tickets already solve — no AI, built from your team's own replies`,
+      `A drafted, publishable answer for every gap your tickets already solve — your team's own resolved replies, 100% deterministic, no AI`,
       `A "no proven answer yet" list — the frequent questions you have not cracked`,
       `Priority ranking and source ticket IDs on every finding`,
     ],
@@ -159,7 +159,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `What about private customer data?`,
-    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first. If it cannot, upload the CSV anyway and we remove private data in the intake step before model processing. No model training, no fine-tuning, no sharing.`,
+    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first. If it cannot, upload the CSV anyway and we remove private data in the intake step before any processing. The analysis is 100% deterministic — no AI, no model training, no fine-tuning, no sharing.`,
   },
   {
     q: `Why use customer wording?`,
