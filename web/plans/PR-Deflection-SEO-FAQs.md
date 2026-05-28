@@ -30,7 +30,7 @@ page and re-introducing the automation/AI framing #116 just removed).
    - "Will this help if our knowledge base is not working?" → *knowledge base not working / failing*
    - "Why is our self-service resolution rate so low?" → *self-service failure rate* (ties to the Gartner 73/14)
    - "How is this different from a chatbot or AI agent?" → *chatbot / AI agent resolution rate* (handled on-brand: deterministic, not a bot)
-2. **Meta keywords** (`layout.tsx`) — added 11 deflection/knowledge-gap terms for the
+2. **Meta keywords** (`layout.tsx`) — added 10 deflection/knowledge-gap terms for the
    ad-planning inventory (`keyword-inventory.md` source of truth). Held the
    chatbot/AI-agent terms OUT of the meta tag (re-adding "AI" terms invites the
    review flag #116 fixed, and the tag doesn't affect organic anyway — FAQ #4 carries
@@ -61,6 +61,11 @@ page and re-introducing the automation/AI framing #116 just removed).
 - **Excluded ~75% of the ad keywords** (FAQ-schema-generator + automation-software +
   the `rockwell software downloads` junk) as off-page-intent; flagged the ad-campaign
   mismatch to the operator separately.
+- **Dropped "support automation" from the meta (owner MAJOR)** — it contradicted
+  this PR's own FAQ #1 ("Nothing is automated") and the stated automation-cluster
+  exclusion above. Removing it makes the metadata consistent with the body. (The
+  pre-existing "Zendesk help center automation" at L7 is the same bucket, left
+  untouched as out-of-scope.)
 
 ## Deferred
 
@@ -88,7 +93,7 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | 4 FAQ entries | ~16 |
-| 11 meta keywords | ~11 |
+| 10 meta keywords | ~10 |
 | this plan doc | ~75 |
 | **Total** | ~102 |
 

@@ -25,7 +25,6 @@ export const metadata = generatePageMetadata({
     "reduce repeat tickets",
     "ticket deflection tools",
     "support deflection software",
-    "support automation",
     "self-service failure rate",
     "knowledge base failing",
     "knowledge base not working",
