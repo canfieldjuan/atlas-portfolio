@@ -14,13 +14,13 @@ export const metadata = generatePageMetadata({
     "Zendesk help center automation",
     "ranked support ticket analysis",
     "support ticket self service",
-    "AI help doc generator",
+    "help doc generator",
     "customer question ranking",
     "self service support answers",
-    "AI content operations",
-    "AI content pipeline",
-    "evidence backed AI content",
-    "structured AI content workflow",
+    "support content operations",
+    "deterministic content pipeline",
+    "evidence backed help content",
+    "structured help content workflow",
   ],
 });
 

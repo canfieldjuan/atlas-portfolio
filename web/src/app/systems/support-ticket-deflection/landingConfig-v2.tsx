@@ -234,7 +234,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           Export a CSV from Zendesk, Intercom, Help Scout, or any desk that gives you one. That file already contains the language customers use, the answers agents write, and the evidence needed to rank what should be fixed first.
         </p>
         <p>
-          Within 24 hours you get a ranked fix list: repeat-question clusters, customer-term-to-doc-term gaps, source-ticket evidence, and a drafted FAQ for each gap. You review, edit, and publish what you approve.
+          Within 24 hours you get a ranked fix list: every repeat-question cluster ordered by frequency, customer-term-to-doc-term gaps, source-ticket evidence, a drafted FAQ for every gap your tickets already answer, and a flagged list of the ones they do not. You review, edit, and publish what you approve.
         </p>
       </CopyBlock>
     ),
@@ -316,7 +316,8 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
             <>The customer-term-to-doc-term mismatches making existing answers hard to find.</>,
             <>The exact search terms your customers use — the keywords your help-center pages should target.</>,
             <>Source tickets and quoted evidence behind every recommendation.</>,
-            <>A drafted FAQ for each high-priority gap, built from language your team already used to resolve the issue.</>,
+            <>A drafted, publishable answer for every gap your tickets already solve — built from language your team used to resolve it, 100% deterministic, no AI.</>,
+            <>A flagged &ldquo;no proven answer yet&rdquo; list — the frequent questions you have never cracked, so you know where to write next.</>,
           ]}
         />
         <p>
