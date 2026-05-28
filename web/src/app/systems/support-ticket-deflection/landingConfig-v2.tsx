@@ -153,7 +153,10 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          Gartner benchmarked the gap plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, routine questions get dramatically more expensive the moment they reach a human queue.
+          <strong className="text-foreground">73%</strong> of your customers try to answer their own question before they ever contact you. Only <strong className="text-foreground">14%</strong> succeed (Gartner). The answer usually exists — it is just not written in the words they searched for. Every ticket in your queue is a record of those exact words.
+        </p>
+        <p>
+          That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. However you cut it, a question gets dramatically more expensive the moment it reaches a human queue.
         </p>
         <p>
           The volume is not hypothetical. Industry benchmarks consistently put repetitive support volume at 40% to 60% of the inbox. Gartner also found that 74% of issues that reach a live agent could have been resolved through self-service if the answer existed and was findable.
@@ -178,13 +181,9 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
             <>The same grind drives burnout, low morale, and the turnover costs leaders budget around instead of removing — Insignia.</>,
           ]}
         />
-        <p>The customer cost is worse:</p>
-        <SectionList
-          items={[
-            <><strong className="text-foreground">73%</strong> of customers attempt self-service, but only <strong className="text-foreground">14%</strong> fully resolve there — the rest arrive in the queue frustrated (Gartner).</>,
-            <>Low-effort customers intend to repurchase <strong className="text-foreground">94%</strong> of the time; high-effort, only <strong className="text-foreground">4%</strong> (CEB, <em>The Effortless Experience</em>).</>,
-          ]}
-        />
+        <p>
+          And the customers who never find the answer do not just cost more to handle — they leave. CEB found <strong className="text-foreground">94%</strong> of low-effort customers intend to repurchase, against only <strong className="text-foreground">4%</strong> of high-effort ones (<em>The Effortless Experience</em>).
+        </p>
       </CopyBlock>
     ),
   },
@@ -215,7 +214,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           Within 24 hours you get a ranked fix list: repeat-question clusters, customer-term-to-doc-term gaps, source-ticket evidence, and a drafted FAQ for each gap. You review, edit, and publish what you approve.
         </p>
         <p>
-          That is what makes the SEO angle practical rather than theoretical. Customers already told you what they search for in their ticket language. When your published answer finally matches that wording, Google and your help center stop missing the query.
+          That fix list is also your SEO list. The phrases customers use in tickets are the phrases they type into Google, and your own volume already tells you which ones matter most. Publish the answer in that language and the page becomes the result for that search — the customer finds it and never opens the ticket. You review and publish, so the visibility is yours to earn; the keywords are validated by your queue.
         </p>
       </CopyBlock>
     ),
