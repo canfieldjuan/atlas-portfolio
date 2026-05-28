@@ -21,9 +21,11 @@ Slice phase: Product polish
 `landingConfig.tsx` (the shared `pricingTiers` + `pricingFaqs`):
 1. **Snapshot tier** → single anchor "**top 5**" (was "5-10"), ranked by frequency.
 2. **Full Report tier** `includes` → "**every** recurring question, ranked by how
-   often asked (typically 50+)" (was "25-50"); "a drafted answer for **every gap
-   your tickets already solve** — no AI" (was "3-5 answers"); new **"no proven
-   answer yet" list**; "priority ranking + source ticket IDs."
+   often asked (typically 50+)" (was "25-50"); wording-clusters bullet now names
+   the payoff — "the long-tail keywords needed to rank" (an SEO observation, not a
+   ranking promise — consistent with the claims doctrine); "a drafted answer for
+   **every gap your tickets already solve** — no AI" (was "3-5 answers"); new
+   **"no proven answer yet" list**; "priority ranking + source ticket IDs."
 3. **FAQ** (snapshot + full-report answers) → matched to the above.
 
 `landingConfig-v2.tsx` (narrative alignment):

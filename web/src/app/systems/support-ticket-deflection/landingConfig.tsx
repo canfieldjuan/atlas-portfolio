@@ -111,7 +111,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
       `For the first 3–6 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
       `Every recurring question, ranked by how often it was asked (typically 50+)`,
-      `Customer wording clusters`,
+      `Customer wording clusters — the long-tail keywords needed to rank`,
       `A drafted, publishable answer for every gap your tickets already solve — no AI, built from your team's own replies`,
       `A "no proven answer yet" list — the frequent questions you have not cracked`,
       `Priority ranking and source ticket IDs on every finding`,
