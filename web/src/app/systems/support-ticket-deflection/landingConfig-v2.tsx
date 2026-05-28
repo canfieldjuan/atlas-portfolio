@@ -214,7 +214,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           Within 24 hours you get a ranked fix list: repeat-question clusters, customer-term-to-doc-term gaps, source-ticket evidence, and a drafted FAQ for each gap. You review, edit, and publish what you approve.
         </p>
         <p>
-          That fix list is also your SEO list. The phrases customers use in tickets are the phrases they type into Google, and your own volume already tells you which ones matter most. Publish the answer in that language and the page becomes the result for that search — the customer finds it and never opens the ticket. You review and publish, so the visibility is yours to earn; the keywords are validated by your queue.
+          That fix list is also your SEO list. The phrases customers use in tickets are the phrases they type into Google, and your own volume tells you which ones matter most. Publish the answer in that language and your page finally matches the search instead of missing it on wording — which is how a help-center page gets found, and how a question gets answered before it turns into a ticket. You review and publish, so the visibility is yours to earn; the keywords are already validated by your queue.
         </p>
       </CopyBlock>
     ),
