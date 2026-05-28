@@ -36,9 +36,6 @@ Slice phase: Product polish
 - `web/plans/PR-Fix-74pct-Stat.md` — this plan doc (new)
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — SEO 74%→40% line
 - `SEO-Ticket-Deflection-Template-Docs/sourced-facts-extract.md` — retract 74% misattribution
-- `.gitignore` — adds `.env` / `.env.local` (rides along: the local-secret protection
-  added earlier this session when the OpenRouter key was placed at repo root; not
-  yet committed, included here so it isn't lost — unrelated to the stat fix)
 
 ## Mechanism
 
