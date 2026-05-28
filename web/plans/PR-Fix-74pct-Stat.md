@@ -46,6 +46,7 @@ Slice phase: Product polish
 - `SEO-Ticket-Deflection-Template-Docs/body-copy-data-brief.md` — 74%→40% (self-service)
 - `SEO-Ticket-Deflection-Template-Docs/body-copy-outline.md` — 74%→40% (self-service)
 - `SEO-Ticket-Deflection-Template-Docs/body-copy-section-1.md` — 74%→40% (self-service)
+- `web/plans/PR-SEO-Section.md` — annotate the #112 plan's 74% references as retracted (historical record kept, reuse blocked)
 
 ## Mechanism
 
@@ -72,10 +73,13 @@ Parked hardening: none.
 ## Verification
 
 - `tsc --noEmit` = 0; `npm run lint` = 0 (clean); `npm run build` green.
-- No `74%` remains anywhere in `web/src/`; no misattributed Gartner-self-service 74%
-  remains in any source doc (only the unrelated burnout / Zendesk 74% stats kept).
+- **Repo-wide** grep (`74%` / "could have been resolved", all `*.md`/`*.ts`/`*.tsx`):
+  no misattributed Gartner-self-service 74% remains anywhere — in `web/src/`, the
+  source docs, OR the plan docs (the #112 `PR-SEO-Section.md` references are
+  annotated as retracted). Only the unrelated 74% stats remain (agent burnout;
+  Zendesk repeat-info frustration in `compass_artifact…`).
 - `bash scripts/pre_push_audit.sh origin/main` green (plan shape + files-touched
-  7 == 7 + diff-size).
+  8 == 8 + diff-size).
 
 ## Estimated diff size
 

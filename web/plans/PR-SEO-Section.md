@@ -29,6 +29,9 @@ Slice phase: Product polish
    fix list).
 3. **Moved the Gartner 74% findability stat** from the `problemAgitation` volume
    line into the SEO section as its documented proof — it's a findability stat, so
+   <!-- RETRACTED 2026-05-28: the "Gartner 74%" was misattributed (a CoSupport AI
+   vendor chatbot rate, not a Gartner study) and was replaced with the 40% leader
+   estimate in PR-Fix-74pct-Stat.md (#121). Do not reuse the 74% figure. -->
    it belongs to the findability argument, and this avoids citing it in two places.
 
 Result: SEO now lands as **hero → first content beat → offer bullet → its own
@@ -56,7 +59,9 @@ section** (with sourced proof), instead of a weave plus a buried mechanism aside
   ship." Ranking/being-found stays the reader's inference. Avoided the
   guarantee-leaning "written to be found" shape (the cousin of the "becomes THE
   result" line Codex P2'd on #110).
-- **Ogilvy** — documented proof is sourced (Gartner 74%); specific, no hype.
+- **Ogilvy** — documented proof is sourced (Gartner 74% — RETRACTED 2026-05-28 as
+  misattributed; now the 40% leader estimate, see PR-Fix-74pct-Stat.md / #121);
+  specific, no hype.
 - **Kept the weave** (hero/first-beat/offer) — the section is *in addition to* it,
   per the operator ("not just its own section" = both).
 
