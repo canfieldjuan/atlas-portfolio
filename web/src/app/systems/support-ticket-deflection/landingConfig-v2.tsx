@@ -366,16 +366,16 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       <CopyBlock>
         <SectionList
           items={[
-            <>Nothing goes live without you. The system does not publish or touch your help center.</>,
+            <>You control everything. Nothing goes live without your approval. The system does not publish or touch your help center.</>,
             <>Every finding is verifiable. If it appears in the report, it is backed by a real ticket and a real quote.</>,
-            <>There is no per-resolution pricing, no hidden rollout, and no AI talking to your customers.</>,
-            <>The workflow is short: upload a CSV, receive the report, review the drafts, publish what you approve.</>,
+            <>No hidden costs or surprises. No per-resolution pricing, no hidden rollout, and no AI talking to your customers.</>,
+            <>Simple workflow: upload a CSV, receive the report, review the drafts, publish what you approve.</>,
           ]}
         />
         <div className="rounded-xl border border-border bg-surface p-5">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-[10px] font-mono uppercase tracking-widest text-foreground/55">
             <CircleHelp className="h-4 w-4" />
-            What you are not buying
+            What you&rsquo;re not buying
           </div>
           <p className="text-sm leading-relaxed text-foreground/68">
             Not a chatbot. Not a replacement for agents. Not a black-box content writer. This is a ticket-history analysis that turns repeated questions into reviewed self-service.
