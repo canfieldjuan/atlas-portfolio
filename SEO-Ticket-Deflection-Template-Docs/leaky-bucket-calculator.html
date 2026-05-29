@@ -235,7 +235,7 @@
       </details>
 
       <p class="mt-6 text-[11px] text-[var(--text-muted)] leading-relaxed font-mono">
-        All calculations update in real time. Benchmarks drawn from HDI, MetricNet, SQM Group, Forrester, and SaaS Capital. Adjust assumptions to match your environment.
+        All calculations update in real time. Benchmarks drawn from Gartner, HDI, MetricNet, SQM Group, Forrester, and SaaS Capital. Adjust assumptions to match your environment.
       </p>
     </section>
 
@@ -373,8 +373,8 @@
     burnoutModifierPct: 70,
     currentSelfServicePct: 14,
     targetAIDeflectionPct: 50,
-    humanTicketCost: 22,
-    selfServeTicketCost: 0
+    humanTicketCost: 13.5,
+    selfServeTicketCost: 1.84
   };
 
   // Assumption overrides applied per preset (external presets fall back to DEFAULT_ASSUMPTIONS).
@@ -490,12 +490,12 @@
     {
       id: "humanTicketCost", label: "Human-Handled Ticket Cost",
       min: 1, max: 200, step: 0.5, format: "currency",
-      tip: "Fully loaded cost per human-resolved ticket. SaaS support benchmark: <code>$18-$35</code>. Default <code>$22</code>. <strong>Used in:</strong> <code>C_e</code>"
+      tip: "Median assisted-contact cost from Gartner 2024. Default <code>$13.50</code>. <strong>Used in:</strong> <code>C_e</code>"
     },
     {
       id: "selfServeTicketCost", label: "Self-Served Ticket Cost",
       min: 0, max: 50, step: 0.1, format: "currency",
-      tip: "Marginal cost when a ticket self-resolves via docs — ~<code>$0</code> in a deterministic system (no per-answer inference to pay for). <strong>Used in:</strong> <code>C_s</code>"
+      tip: "Median self-service contact cost from Gartner 2024. Default <code>$1.84</code>. <strong>Used in:</strong> <code>C_s</code>"
     }
   ];
 
@@ -854,15 +854,15 @@
       burnoutModifierPct: 70,
       currentSelfServicePct: 14,
       targetAIDeflectionPct: 50,
-      humanTicketCost: 22,
-      selfServeTicketCost: 1
+      humanTicketCost: 13.5,
+      selfServeTicketCost: 1.84
     };
     const result = calculateMetrics(testInput);
     const expected = {
       hourlyRate: 33.65,
       annualContextLeakage: 403846.15,
       burnoutAttritionTax: 270480.00,
-      reclaimableBudget: 544320.00
+      reclaimableBudget: 302227.20
     };
     const tolerance = 0.01;
     function assertClose(label, actual, expectedValue) {
