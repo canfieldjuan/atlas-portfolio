@@ -338,20 +338,24 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   },
   offer: {
     label: 'WHAT YOU GET',
-    title: 'A report your team can act on this week.',
+    title: 'A ranked fix list for the repeat questions already costing you tickets.',
     content: (
       <CopyBlock>
         <p>
-          You do not have to guess how much of your queue is repeat work. The report counts it — the exact number of times each question recurred in your own tickets — so the opportunity is a number you can see, not a percentage we promise.
+          You do not need another dashboard or another vague benchmark. You need to know which repeated questions are costing support time, what words customers use when they ask, and which answers your team should publish first.
         </p>
+        <p>
+          The report counts the exact number of times each question recurred in your own tickets, so the opportunity is visible in your queue, not hidden behind a percentage.
+        </p>
+        <p>Here&rsquo;s what you get:</p>
         <SectionList
           items={[
-            <>A ranked list of the repeat questions your customers keep asking, in their own words — highest-volume first.</>,
-            <>The customer-term-to-doc-term mismatches making existing answers hard to find.</>,
-            <>The exact search terms your customers use — the keywords your help-center pages should target.</>,
-            <>Source tickets and quoted evidence behind every recommendation.</>,
-            <>A drafted, publishable answer for every gap your tickets already solve — built from language your team used to resolve it, 100% deterministic, no AI.</>,
-            <>A flagged &ldquo;no proven answer yet&rdquo; list — the frequent questions you have never cracked, so you know where to write next.</>,
+            <><strong className="text-foreground">Ranked repeat questions:</strong> your customers&rsquo; most frequent questions, in their own words, ordered by ticket volume.</>,
+            <><strong className="text-foreground">Customer-term-to-doc-term mismatches:</strong> the language gaps that make existing answers hard to find.</>,
+            <><strong className="text-foreground">Exact search terms:</strong> the phrases customers use, so your help-center pages can include the words people actually search.</>,
+            <><strong className="text-foreground">Source tickets and evidence:</strong> the ticket IDs and quoted proof behind every recommendation.</>,
+            <><strong className="text-foreground">Review-ready FAQ drafts:</strong> for every gap your tickets already solve, built from resolved replies your team already used. The output is 100% deterministic, with no LLM-generated answers.</>,
+            <><strong className="text-foreground">&ldquo;No proven answer yet&rdquo; list:</strong> frequent questions your tickets do not answer confidently, so you know where to write next.</>,
           ]}
         />
         <p>
