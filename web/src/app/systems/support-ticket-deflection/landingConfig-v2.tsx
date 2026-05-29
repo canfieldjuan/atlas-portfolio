@@ -338,7 +338,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   },
   offer: {
     label: 'WHAT YOU GET',
-    title: 'A ranked fix list for the repeat questions already costing you tickets.',
+    title: 'Data-Backed Fixes for Your Costliest Repeat Question',
     content: (
       <CopyBlock>
         <p>
