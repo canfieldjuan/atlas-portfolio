@@ -27,6 +27,11 @@ type Offer = {
   title: string;
   tagline: string;
   summary: string;
+  previewLabel: string;
+  previewRows: Array<{
+    label: string;
+    value: string;
+  }>;
   points: string[];
   price: string;
   href: string;
@@ -43,6 +48,12 @@ const offers: Offer[] = [
     tagline: 'Turn closed tickets into ranked self-service answers.',
     summary:
       'Analyzes 3–6 months of closed support tickets and returns a ranked list of repeat questions — in the words customers actually use — with draft answers your team reviews and publishes.',
+    previewLabel: 'Output preview',
+    previewRows: [
+      { label: 'Top repeat question', value: 'How do I export my CSV?' },
+      { label: 'Intent group', value: 'Billing change questions' },
+      { label: 'Draft answer', value: '5-step help-center entry' },
+    ],
     points: [
       'Repeat-question clustering by customer intent',
       'Volume-ranked deflection opportunities',
@@ -61,6 +72,12 @@ const offers: Offer[] = [
     tagline: 'Keep the system tuned as your business changes.',
     summary:
       'Monthly retainer that keeps a live Content Ops workflow aligned with new data, new offers, and shifting customer language — without re-scoping a new project every quarter.',
+    previewLabel: 'Monthly queue',
+    previewRows: [
+      { label: 'Prompt tune', value: 'New offer language added' },
+      { label: 'Campaign expansion', value: 'Support-page updates' },
+      { label: 'Review note', value: 'What changed and why' },
+    ],
     points: [
       'Prompt and template tuning each month',
       'Campaign and page expansion',
@@ -211,6 +228,23 @@ export default function AiContentOpsHubPage() {
                 <h2 className="text-xl font-semibold text-foreground mb-1">{offer.title}</h2>
                 <p className="text-sm text-primary/80 font-medium mb-3">{offer.tagline}</p>
                 <p className="text-sm text-foreground/60 leading-relaxed mb-5">{offer.summary}</p>
+
+                <div className="rounded-lg border border-border bg-surface/70 p-4 mb-5">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/35 mb-3">
+                    {offer.previewLabel}
+                  </div>
+                  <div className="space-y-2.5">
+                    {offer.previewRows.map((row) => (
+                      <div
+                        key={`${offer.title}-${row.label}`}
+                        className="flex items-start justify-between gap-4 text-xs"
+                      >
+                        <span className="text-foreground/40">{row.label}</span>
+                        <span className="max-w-[12rem] text-right font-medium text-foreground/70">{row.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 {/* bullets */}
                 <ul className="space-y-2 mb-6">
