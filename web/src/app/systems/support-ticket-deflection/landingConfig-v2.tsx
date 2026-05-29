@@ -342,20 +342,15 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          You do not need another dashboard or another vague benchmark. You need to know which repeated questions are costing support time, what words customers use when they ask, and which answers your team should publish first.
+          The report pinpoints which repeat questions are draining your team&rsquo;s support time, ranked by your own ticket history.
         </p>
-        <p>
-          The report counts the exact number of times each question recurred in your own tickets, so the opportunity is visible in your queue, not hidden behind a percentage.
-        </p>
-        <p>Here&rsquo;s what you get:</p>
+        <p>For each question, you&rsquo;ll see:</p>
         <SectionList
           items={[
-            <><strong className="text-foreground">Ranked repeat questions:</strong> your customers&rsquo; most frequent questions, in their own words, ordered by ticket volume.</>,
-            <><strong className="text-foreground">Customer-term-to-doc-term mismatches:</strong> the language gaps that make existing answers hard to find.</>,
-            <><strong className="text-foreground">Exact search terms:</strong> the phrases customers use, so your help-center pages can include the words people actually search.</>,
-            <><strong className="text-foreground">Source tickets and evidence:</strong> the ticket IDs and quoted proof behind every recommendation.</>,
-            <><strong className="text-foreground">Review-ready FAQ drafts:</strong> for every gap your tickets already solve, built from resolved replies your team already used. The output is 100% deterministic, with no LLM-generated answers.</>,
-            <><strong className="text-foreground">&ldquo;No proven answer yet&rdquo; list:</strong> frequent questions your tickets do not answer confidently, so you know where to write next.</>,
+            <><strong className="text-foreground">Customer wording:</strong> the exact phrases customers use.</>,
+            <><strong className="text-foreground">Documentation gap:</strong> where your current answers fall short.</>,
+            <><strong className="text-foreground">Source tickets:</strong> the evidence behind each finding.</>,
+            <><strong className="text-foreground">FAQ draft or no-proven-answer flag:</strong> for questions your tickets already solve, ready-to-review answers built from resolved replies. If tickets do not support an answer, the report marks &ldquo;no proven answer yet&rdquo; instead. The output is 100% deterministic, with no LLM-generated answers.</>,
           ]}
         />
         <p>
