@@ -238,7 +238,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     body:
       'Upload 3–6 months of support tickets. In 24 hours, get a ranked list of repeat questions, the wording gaps you’re missing, and ready-to-publish FAQ drafts.',
     cta: {
-      label: 'Find my repeat-ticket gaps',
+      label: 'Upload your tickets — get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
     },
   },
