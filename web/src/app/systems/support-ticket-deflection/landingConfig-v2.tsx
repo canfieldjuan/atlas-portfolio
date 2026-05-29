@@ -232,7 +232,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="h-3 w-3" />,
-    title: 'Your support tickets already contain the keywords your help center is missing.',
+    title: 'Stop guessing search terms. Customers are handing them to you in every support ticket.',
     intro:
       'Stop guessing what customers search for. We mine your support tickets for the exact words they use and draft FAQs your team can review.',
     body:
