@@ -14,6 +14,7 @@ import {
   type DiagnosticPipelineStage,
   type DiagnosticPricingTier,
 } from './LandingPrimitives';
+import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 
 // ── Config type ────────────────────────────────────────────────────────────
 
@@ -49,6 +50,11 @@ export type DeflectionLandingPageConfig = {
     processTitle: string;
     processDescription: string;
     stages: DiagnosticPipelineStage[];
+  };
+  demo: {
+    label: string;
+    title: string;
+    description: string;
   };
   seoVisibility: {
     label: string;
@@ -201,6 +207,21 @@ export function DeflectionLandingPage({
           </div>
 
           <Pipeline stages={config.mechanism.stages} />
+        </section>
+
+        {/* ── Demo ─────────────────────────────────────────────────── */}
+        <section className="section-band">
+          <div className="max-w-3xl mb-10">
+            <SectionLabel>{config.demo.label}</SectionLabel>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
+              {config.demo.title}
+            </h2>
+            <p className="text-foreground/65 leading-relaxed">
+              {config.demo.description}
+            </p>
+          </div>
+
+          <DeflectionDemo />
         </section>
 
         {/* ── Offer ─────────────────────────────────────────────────── */}
