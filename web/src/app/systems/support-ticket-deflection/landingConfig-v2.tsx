@@ -401,9 +401,9 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   pricing: {
     id: 'pricing',
     label: 'PRICING',
-    title: 'Start free. Pay when the queue proves the opportunity is real.',
+    title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.',
     description:
-      'The free snapshot is enough to confirm whether your old tickets are hiding deflectable work. If the pattern is there, the full report gives your team the ranked list and drafts to act on it.',
+      'The free snapshot shows whether your tickets contain enough repeated questions to justify the full report. If the pattern is real, the full report gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
     tiers: pricingTiers,
     constraintLabel: 'WHAT IS NOT INCLUDED',
     exclusions: [
