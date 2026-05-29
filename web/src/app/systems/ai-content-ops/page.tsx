@@ -7,96 +7,150 @@ import {
   CheckCircle2,
   Database,
   FileText,
-  GitCompare,
+  Layers,
   LayoutTemplate,
-  Mail,
-  Megaphone,
   Repeat,
+  Search,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
 
-// Content Ops hub: the umbrella over productized content offers. Cards link to
-// the live wedge routes (link-first); route-nesting + the demo page are later
-// slices. Headings use the real text-foreground token directly — the old
-// white-text utility and its globals.css !important remap are gone.
+// Content Ops hub — product gallery layout.
+// Hero is tight; offers drive the page; coming-soon stubs signal roadmap.
 
 type Offer = {
   icon: React.ReactNode;
-  label: string;
+  category: string;
+  accent: string;         // tailwind bg class for the top accent bar
   title: string;
+  tagline: string;
   summary: string;
   points: string[];
+  price: string;
   href: string;
   hrefLabel: string;
-  status: string;
+  status: 'live' | 'coming-soon';
 };
 
 const offers: Offer[] = [
   {
-    icon: <BarChart3 className="w-6 h-6" />,
-    label: 'SUPPORT OPERATIONS',
+    icon: <BarChart3 className="w-5 h-5" />,
+    category: 'SUPPORT OPERATIONS',
+    accent: 'bg-primary',
     title: 'Support Ticket Deflection Report',
+    tagline: 'Turn closed tickets into ranked self-service answers.',
     summary:
-      'Turns the last 3–6 months of closed support tickets into ranked repeat questions, the wording customers actually use, and self-service answers your team reviews and publishes.',
+      'Analyzes 3–6 months of closed support tickets and returns a ranked list of repeat questions — in the words customers actually use — with draft answers your team reviews and publishes.',
     points: [
       'Repeat-question clustering by customer intent',
       'Volume-ranked deflection opportunities',
       'Draft answers with source-ticket traceability',
     ],
+    price: 'Starts at $2,500',
     href: '/systems/support-ticket-deflection',
-    hrefLabel: 'View the Deflection Report',
-    status: 'Available now',
+    hrefLabel: 'Explore the Report',
+    status: 'live',
   },
   {
-    icon: <Repeat className="w-6 h-6" />,
-    label: 'ONGOING SERVICE',
+    icon: <Repeat className="w-5 h-5" />,
+    category: 'ONGOING SERVICE',
+    accent: 'bg-primary',
     title: 'Ongoing Optimization',
+    tagline: 'Keep the system tuned as your business changes.',
     summary:
-      'Keeps a live Content Ops system useful as your data, offers, and campaigns change — recurring refreshes instead of a one-time build.',
+      'Monthly retainer that keeps a live Content Ops workflow aligned with new data, new offers, and shifting customer language — without re-scoping a new project every quarter.',
     points: [
-      'Quarterly refreshes against new data',
+      'Prompt and template tuning each month',
       'Campaign and page expansion',
-      'Review-state and quality upkeep',
+      'Monthly performance review + async support',
     ],
+    price: 'Starts at $2,500 / mo',
     href: '/systems/ai-content-ops/ongoing-support',
-    hrefLabel: 'View Ongoing Optimization',
-    status: 'Available now',
+    hrefLabel: 'Explore Ongoing Optimization',
+    status: 'live',
   },
 ];
 
-const produces = [
-  { icon: <FileText className="w-5 h-5" />, label: 'SEO pages & blog drafts' },
-  { icon: <GitCompare className="w-5 h-5" />, label: 'Comparison & alternative pages' },
-  { icon: <Mail className="w-5 h-5" />, label: 'Email & campaign variants' },
-  { icon: <LayoutTemplate className="w-5 h-5" />, label: 'Landing-page copy' },
-  { icon: <Megaphone className="w-5 h-5" />, label: 'Repurposed social & briefs' },
-  { icon: <CheckCircle2 className="w-5 h-5" />, label: 'Operator review queue with claim notes' },
+const comingSoon: Array<{
+  icon: React.ReactNode;
+  category: string;
+  title: string;
+  tagline: string;
+}> = [
+  {
+    icon: <Search className="w-5 h-5" />,
+    category: 'SEARCH & AEO',
+    title: 'Customer-Language SEO Pack',
+    tagline: 'Pages ranked on the exact phrases your buyers type.',
+  },
+  {
+    icon: <LayoutTemplate className="w-5 h-5" />,
+    category: 'CONVERSION',
+    title: 'Comparison & Alternative Pages',
+    tagline: 'High-intent pages built from real competitive positioning.',
+  },
+  {
+    icon: <Layers className="w-5 h-5" />,
+    category: 'CONTENT PIPELINE',
+    title: 'Blog & SEO Draft Engine',
+    tagline: 'Evidence-backed article drafts from your own product data.',
+  },
 ];
+
+const howItWorks = [
+  {
+    step: '01',
+    icon: <Database className="w-5 h-5" />,
+    label: 'Structured data in',
+    detail: 'Support tickets, reviews, sales notes, product docs.',
+  },
+  {
+    step: '02',
+    icon: <Zap className="w-5 h-5" />,
+    label: 'AI extraction + synthesis',
+    detail: 'Signals clustered, patterns ranked, drafts generated.',
+  },
+  {
+    step: '03',
+    icon: <CheckCircle2 className="w-5 h-5" />,
+    label: 'Human review queue',
+    detail: 'Your team approves before anything publishes.',
+  },
+];
+
+const auditHref = buildAuditHref({
+  interest: 'content-generation',
+  source: 'content-ops-hub',
+  offer: 'content-ops-audit',
+});
 
 export default function AiContentOpsHubPage() {
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-6xl mx-auto">
+
+        {/* ── Hero ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mb-16"
+          transition={{ duration: 0.5 }}
+          className="mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
-            <Database className="w-3 h-3" />
-            <span>CONTENT OPERATIONS</span>
+            <Sparkles className="w-3 h-3" />
+            <span>AI CONTENT OPERATIONS</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground mb-6">
-            One content system. Focused offers you can start with today.
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground mb-4 max-w-2xl">
+            Productized content systems built from your own data.
           </h1>
-          <p className="text-lg text-foreground/60 leading-relaxed">
-            Content Ops turns your own business data — support tickets, customer wording, product docs, sales notes — into publish-ready content your team reviews and approves. Instead of one giant build, you start with a focused offer that solves a specific problem, then expand.
+          <p className="text-lg text-foreground/55 mb-8 max-w-xl">
+            Pick a focused offer, see value fast, then expand.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href={buildAuditHref({ interest: 'content-generation', source: 'content-ops-hub', offer: 'content-ops-audit' })}
+              href={auditHref}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
               Start a Content Ops Audit
@@ -104,7 +158,7 @@ export default function AiContentOpsHubPage() {
             </Link>
             <Link
               href="/systems/support-ticket-deflection"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/80"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/70"
             >
               See the live offer
               <ArrowRight className="w-4 h-4" />
@@ -112,108 +166,176 @@ export default function AiContentOpsHubPage() {
           </div>
         </motion.div>
 
+        {/* ── Section label ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.08 }}
-          className="mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="flex items-center gap-3 mb-6"
         >
-          <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-1">
-            START HERE
-          </div>
-          <h2 className="text-2xl font-semibold text-foreground">Productized offers</h2>
+          <div className="text-[10px] font-mono text-foreground/35 tracking-widest">AVAILABLE NOW</div>
+          <div className="flex-1 h-px bg-border" />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-16">
-          {offers.map((offer, index) => (
+        {/* ── Live product cards ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+          {offers.map((offer, i) => (
             <motion.section
               key={offer.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.12 + index * 0.08 }}
-              className="glass rounded-xl p-8 border border-border flex flex-col"
+              transition={{ duration: 0.5, delay: 0.15 + i * 0.1 }}
+              className="glass rounded-xl border border-border flex flex-col overflow-hidden group hover:shadow-[var(--primary-glow)] hover:border-primary/25 transition-all duration-300"
             >
-              <div className="flex items-center justify-between mb-5">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                  {offer.icon}
+              {/* accent bar */}
+              <div className={`h-1 w-full ${offer.accent} opacity-70`} />
+
+              <div className="p-7 flex flex-col flex-1">
+                {/* top row */}
+                <div className="flex items-start justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      {offer.icon}
+                    </div>
+                    <div className="text-[10px] font-mono text-primary/70 tracking-widest leading-tight">
+                      {offer.category}
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary/80 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-pulse" />
+                    Live
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/70" />
-                  {offer.status}
-                </span>
+
+                {/* content */}
+                <h2 className="text-xl font-semibold text-foreground mb-1">{offer.title}</h2>
+                <p className="text-sm text-primary/80 font-medium mb-3">{offer.tagline}</p>
+                <p className="text-sm text-foreground/60 leading-relaxed mb-5">{offer.summary}</p>
+
+                {/* bullets */}
+                <ul className="space-y-2 mb-6">
+                  {offer.points.map((point) => (
+                    <li key={point} className="flex items-start gap-2 text-sm text-foreground/65">
+                      <CheckCircle2 className="w-4 h-4 text-primary/60 shrink-0 mt-0.5" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* footer */}
+                <div className="mt-auto flex items-center justify-between pt-5 border-t border-border">
+                  <span className="text-sm font-semibold text-foreground">{offer.price}</span>
+                  <Link
+                    href={offer.href}
+                    className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:text-primary/75 transition-colors group-hover:gap-2.5"
+                  >
+                    {offer.hrefLabel}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
               </div>
-              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-                {offer.label}
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">{offer.title}</h3>
-              <p className="text-sm text-foreground/60 leading-relaxed mb-5">{offer.summary}</p>
-              <div className="space-y-2 mb-6">
-                {offer.points.map((point) => (
-                  <p key={point} className="flex items-start gap-2 text-sm text-foreground/65 leading-relaxed">
-                    <CheckCircle2 className="w-4 h-4 text-primary/70 shrink-0 mt-0.5" />
-                    {point}
-                  </p>
-                ))}
-              </div>
-              <Link
-                href={offer.href}
-                className="mt-auto inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors font-medium"
-              >
-                {offer.hrefLabel}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
             </motion.section>
           ))}
         </div>
 
+        {/* ── Coming soon label ── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+          className="flex items-center gap-3 mb-6 mt-12"
+        >
+          <div className="text-[10px] font-mono text-foreground/35 tracking-widest">COMING SOON</div>
+          <div className="flex-1 h-px bg-border" />
+        </motion.div>
+
+        {/* ── Coming soon stub cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-20">
+          {comingSoon.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 + i * 0.07 }}
+              className="rounded-xl border border-border bg-surface/60 p-6 flex flex-col relative overflow-hidden"
+            >
+              {/* subtle top accent */}
+              <div className="h-px w-full bg-border absolute top-0 left-0" />
+
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-lg bg-foreground/5 text-foreground/35 flex items-center justify-center">
+                  {item.icon}
+                </div>
+                <div className="text-[10px] font-mono text-foreground/30 tracking-widest">
+                  {item.category}
+                </div>
+              </div>
+              <h3 className="text-base font-semibold text-foreground/50 mb-1">{item.title}</h3>
+              <p className="text-sm text-foreground/35 leading-relaxed">{item.tagline}</p>
+
+              <div className="mt-4 inline-flex items-center gap-1.5 text-[10px] font-mono tracking-widest text-foreground/30 uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
+                In roadmap
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ── How the engine works ── */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.26 }}
-          className="glass rounded-xl p-8 border border-border mb-16"
+          transition={{ duration: 0.5, delay: 0.55 }}
+          className="mb-16"
         >
-          <div className="max-w-2xl mb-8">
-            <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-              THE BROADER SYSTEM
-            </div>
-            <h2 className="text-2xl font-semibold text-foreground mb-3">
-              The same engine produces more than one report.
-            </h2>
-            <p className="text-sm text-foreground/60 leading-relaxed">
-              Each offer above is one shape of the same Content Ops system: structured business data in, evidence-backed and human-reviewed content out. As offers prove out, the system expands to the rest of what your team has to publish.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {produces.map((item) => (
-              <div key={item.label} className="rounded-lg border border-border bg-surface p-5 flex items-start gap-3">
-                <span className="text-primary shrink-0 mt-0.5">{item.icon}</span>
-                <p className="text-sm text-foreground/70 leading-relaxed">{item.label}</p>
+          <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-6">HOW IT WORKS</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {howItWorks.map((step, i) => (
+              <div
+                key={step.step}
+                className="rounded-xl border border-border bg-surface p-6 flex gap-4 items-start"
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  {step.icon}
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-foreground/35 tracking-widest mb-1">STEP {step.step}</div>
+                  <p className="text-sm font-semibold text-foreground mb-1">{step.label}</p>
+                  <p className="text-xs text-foreground/50 leading-relaxed">{step.detail}</p>
+                </div>
+                {i < howItWorks.length - 1 && (
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 text-border">
+                    <ArrowRight className="w-3 h-3" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </motion.section>
 
+        {/* ── Audit CTA ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.34 }}
+          transition={{ duration: 0.5, delay: 0.65 }}
           className="rounded-xl border border-primary/20 bg-primary/5 p-10 text-center shadow-[var(--primary-glow)]"
         >
           <FileText className="w-8 h-8 text-primary mx-auto mb-5" />
           <h2 className="text-2xl font-semibold text-foreground mb-3">
             Not sure which offer fits? Start with the audit.
           </h2>
-          <p className="text-foreground/60 mb-8 max-w-2xl mx-auto">
-            The audit looks at your data, your sources, and what your team has to publish, then recommends the offer that returns value fastest — before any larger build is priced.
+          <p className="text-foreground/55 mb-8 max-w-xl mx-auto text-sm leading-relaxed">
+            The audit looks at your data sources and publishing needs, then recommends the offer that returns value fastest — before any larger build is priced.
           </p>
           <Link
-            href={buildAuditHref({ interest: 'content-generation', source: 'content-ops-hub-cta', offer: 'content-ops-audit' })}
+            href={auditHref}
             className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
           >
             Start a Content Ops Audit
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
+
       </div>
     </main>
   );
