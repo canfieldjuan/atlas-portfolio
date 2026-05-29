@@ -386,10 +386,10 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   },
   finalCta: {
     label: 'START HERE',
-    title: 'See what your tickets are telling you.',
+    title: 'Find the gaps fueling your ticket volume.',
     body: [
-      'Upload your CSV. Get the repeat questions, wording gaps, and drafted answers in 24 hours.',
-      'If the pattern is not there, the snapshot will make that clear. If it is, you will know what to publish first.',
+      'Every day you wait, your team spends hours answering the same preventable questions. Upload your CSV today, and within 24 hours, you will see exactly which repeat questions and wording gaps are costing you the most time — complete with publishable drafts.',
+      'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to reduce your queue.',
     ],
     cta: {
       label: 'Upload your tickets — get a free Deflection Snapshot',
