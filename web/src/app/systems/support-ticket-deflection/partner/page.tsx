@@ -28,6 +28,7 @@ const partnerConfig = {
   ...landingPageConfigV2,
   problemAgitation: makeProblemAgitation(),
   problemCost: makeProblemCost(), // no calculator link in the partner funnel
+  calculator: undefined, // keep the partner funnel focused on the partner offer
   pricing: { ...landingPageConfigV2.pricing, tiers: partnerPricingTiers },
 };
 

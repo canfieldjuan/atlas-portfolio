@@ -20,8 +20,8 @@ const ANNUAL_WORK_HOURS = 2080;
 const CONTEXT_MINUTES_PER_REPEAT = 10;
 const REPLACEMENT_COST = 46000;
 const BURNOUT_TURNOVER_SHARE = 0.7;
-const HUMAN_TICKET_COST = 22;
-const SELF_SERVE_TICKET_COST = 0;
+const HUMAN_TICKET_COST = 13.5;
+const SELF_SERVE_TICKET_COST = 1.84;
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
