@@ -26,13 +26,16 @@ Slice phase: Product polish
    and Insignia burnout/morale/turnover proof points.
 5. Rewrite the customer-effort close while preserving the 94% / 4% CEB
    repurchase-intent proof point.
-6. Keep hero, Broken Loop, offer, pricing, FAQ, intake, layout, and structured
+6. Reconcile the source-doc attribution for the $1.84 / $13.50 benchmark where
+   it conflicts with the primary Gartner abstract.
+7. Keep hero, Broken Loop, offer, pricing, FAQ, intake, layout, and structured
    data unchanged.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Cost-Copy.md` — this plan doc (new)
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — update What It Costs copy
+- `SEO-Ticket-Deflection-Template-Docs/The_Friction_Multiplier.md` — reconcile the $1.84 / $13.50 source attribution
 
 ## Mechanism
 
@@ -41,6 +44,8 @@ Slice phase: Product polish
   calculator link and the partner page still omits it.
 - Keep the existing paragraph, optional link, list, and closing paragraph
   structure.
+- Update the one conflicting source-doc sentence that attributed the Gartner
+  $1.84 / $13.50 benchmark to Fullview.
 
 ## Intentional
 
@@ -74,13 +79,20 @@ Parked hardening: none.
 - `npm --prefix web run build` — passed.
 - `rg -n "Repeat questions are an operating cost line\.|That wording gap is expensive\. Gartner benchmarked it plainly|Multiply that by your own repeat volume and the cost is a number you can run, not one we promise|That repetition taxes the team twice|The same grind drives burnout|And the customers who never find the answer do not just cost more to handle" web`
   — no stale old What It Costs strings remain.
+- Primary-source attribution check — Gartner's public abstract for "Benchmarks
+  to Assess Your Customer Service Costs" states median cost per contact is
+  $1.84 for self-service and $13.50 for assisted channels.
+- `rg -n "Fullview|benchmarks compiled by Fullview|Fullview reveal" SEO-Ticket-Deflection-Template-Docs`
+  — no conflicting Fullview attribution remains for the $1.84 / $13.50
+  benchmark.
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
 | `landingConfig-v2.tsx` What It Costs copy | ~15 |
-| this plan doc | ~90 |
-| **Total** | ~105 |
+| `The_Friction_Multiplier.md` attribution reconciliation | ~2 |
+| this plan doc | ~105 |
+| **Total** | ~122 |
 
 Under the 400-LOC soft cap.
