@@ -28,6 +28,7 @@ product-gallery layout:
 ### Files touched
 
 - `web/src/app/systems/ai-content-ops/page.tsx` — full rewrite of the page body
+- `web/plans/PR-Content-Ops-Product-Gallery.md` — this plan doc
 
 ## Mechanism
 
@@ -79,5 +80,8 @@ Both should return 0 results after the rewrite.
 
 | File | ~LOC |
 |---|---|
-| `web/src/app/systems/ai-content-ops/page.tsx` | ~160 |
-| **Total** | ~160 |
+| `web/src/app/systems/ai-content-ops/page.tsx` | ~205 (net additions after full rewrite) |
+| `web/plans/PR-Content-Ops-Product-Gallery.md` | ~88 |
+| **Total** | ~405 |
+
+Over the 400-LOC soft cap by a small margin. The majority is a full page rewrite replacing 100 LOC of old code with 305 LOC of new gallery layout — indivisible as a product-gallery conversion.
