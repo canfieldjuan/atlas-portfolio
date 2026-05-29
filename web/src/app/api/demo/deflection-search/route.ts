@@ -57,7 +57,8 @@ function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
     typeof top.question !== 'string' ||
     typeof top.answer_summary !== 'string' ||
     typeof top.ticket_count !== 'number' ||
-    !Array.isArray(top.source_ids)
+    !Array.isArray(top.source_ids) ||
+    top.source_ids.some((id) => typeof id !== 'string')
   ) {
     throw new Error('Atlas returned a malformed deflection result');
   }
@@ -72,6 +73,11 @@ function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
     id: top.faq_id,
     intent: titleCase(top.topic),
     phrases: [],
+    customerWording: top.question,
+    documentationGap:
+      'The compact search result identifies the repeat question and cited tickets; full wording-gap detail appears in the report.',
+    sourceIds: top.source_ids,
+    evidenceStatus: summary.length > 0 ? 'resolution_evidence' : 'draft_needs_review',
     ticketVolumeInSample: top.ticket_count,
     sourceCount: top.source_ids.length,
     improved: {

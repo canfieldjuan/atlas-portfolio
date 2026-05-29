@@ -38,6 +38,13 @@ export type DeflectionIssue = {
   intent: string;
   /** Phrases a customer actually types — used by the LOCAL matcher only. */
   phrases: string[];
+  /** Customer-facing wording surfaced from the ticket/search evidence. */
+  customerWording: string;
+  /** Plain-language description of why the existing docs are hard to find. */
+  documentationGap: string;
+  /** Source ticket ids cited by the finding. */
+  sourceIds: string[];
+  evidenceStatus: 'resolution_evidence' | 'draft_needs_review';
   /** The actionable answer the Report would publish (Atlas `question` + `answer_summary`). */
   improved: DeflectionDoc;
 
@@ -57,6 +64,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 1,
     intent: 'Reporting friction',
     phrases: ['how do i export attribution reports', 'export attribution reports', 'export reports', 'csv export missing fields', 'download report', 'export to csv'],
+    customerWording: 'How do I export attribution report?',
+    documentationGap: 'Customers search for "export"; existing docs tend to say "download report." Add export phrasing to the FAQ heading and answer.',
+    sourceIds: ['search-export-1', 'ticket-export-2', 'ticket-export-3'],
+    evidenceStatus: 'draft_needs_review',
     ticketVolumeInSample: 8,
     sourceCount: 8,
     improved: {
@@ -73,6 +84,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 2,
     intent: 'Integration setup',
     phrases: ['where can i see failed webhook delivery attempts', 'failed webhook deliveries', 'webhook delivery log', 'webhook retries', 'retry a webhook', 'webhook not firing'],
+    customerWording: 'Where can I see failed webhook delivery attempts?',
+    documentationGap: 'Customers ask for failed deliveries and retries; docs often bury this under integration logs.',
+    sourceIds: ['webhook-fail-1', 'webhook-retry-2', 'webhook-log-3'],
+    evidenceStatus: 'resolution_evidence',
     ticketVolumeInSample: 7,
     sourceCount: 7,
     improved: {
@@ -89,6 +104,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 3,
     intent: 'Data import',
     phrases: ['which csv columns are required for account imports', 'required csv columns', 'account import columns', 'import errors', 'csv import template', 'import accounts'],
+    customerWording: 'Which CSV columns are required for account imports?',
+    documentationGap: 'Customers look for required CSV columns; docs frame the same task as an account import template.',
+    sourceIds: ['import-columns-1', 'csv-template-2', 'import-error-3'],
+    evidenceStatus: 'resolution_evidence',
     ticketVolumeInSample: 4,
     sourceCount: 4,
     improved: {
@@ -105,6 +124,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 4,
     intent: 'Manual follow-up',
     phrases: ['how do i send workflow alerts to a different slack channel', 'workflow alerts slack channel', 'route alerts to slack', 'change slack channel', 'slack notifications', 'send alerts to slack'],
+    customerWording: 'How do I send workflow alerts to a different Slack channel?',
+    documentationGap: 'Customers ask to change Slack channels; docs describe notification routing and app permissions.',
+    sourceIds: ['slack-alert-1', 'slack-channel-2', 'slack-private-3'],
+    evidenceStatus: 'resolution_evidence',
     ticketVolumeInSample: 5,
     sourceCount: 5,
     improved: {
@@ -121,6 +144,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 5,
     intent: 'Billing & payments',
     phrases: ['where can i download invoices for the annual subscription', 'download invoices', 'download my invoice', 'where are my invoices', 'get a receipt', 'annual subscription invoice'],
+    customerWording: 'Where can I download invoices for the annual subscription?',
+    documentationGap: 'Customers ask for invoices, receipts, and annual-plan billing; docs split those terms across billing pages.',
+    sourceIds: ['invoice-download-1', 'annual-invoice-2', 'receipt-3'],
+    evidenceStatus: 'resolution_evidence',
     ticketVolumeInSample: 4,
     sourceCount: 4,
     improved: {
@@ -137,6 +164,10 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
     id: 6,
     intent: 'Permissions & access',
     phrases: ['how do i let managers edit workflows without full admin access', 'edit workflows without admin', 'limited admin access', 'custom roles', 'role permissions', 'transfer a seat'],
+    customerWording: 'How do I let managers edit workflows without full admin access?',
+    documentationGap: 'Customers ask for limited admin access; docs describe custom roles and workflow permissions separately.',
+    sourceIds: ['role-workflow-1', 'limited-admin-2', 'permissions-3'],
+    evidenceStatus: 'resolution_evidence',
     ticketVolumeInSample: 8,
     sourceCount: 8,
     improved: {
