@@ -243,7 +243,8 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     },
   },
   problemAgitation: makeProblemAgitation(),
-  problemCost: makeProblemCost('/systems/support-ticket-deflection/calculator'),
+  problemCost: makeProblemCost(),
+  calculator: true,
   currentWayVsThisWay: {
     label: 'WHY THE USUAL FIXES UNDERPERFORM',
     title: 'You probably already tried the obvious things.',

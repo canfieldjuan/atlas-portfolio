@@ -15,6 +15,7 @@ import {
   type DiagnosticPricingTier,
 } from './LandingPrimitives';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
+import { SupportTaxCalculator } from '@/components/deflection-demo/SupportTaxCalculator';
 
 // ── Config type ────────────────────────────────────────────────────────────
 
@@ -38,6 +39,7 @@ export type DeflectionLandingPageConfig = {
     title: string;
     content: ReactNode;
   };
+  calculator?: boolean;
   currentWayVsThisWay: {
     label: string;
     title: string;
@@ -175,6 +177,12 @@ export function DeflectionLandingPage({
             {config.problemCost.content}
           </div>
         </section>
+
+        {config.calculator && (
+          <section className="section-band">
+            <SupportTaxCalculator />
+          </section>
+        )}
 
         {/* ── Current Way vs This Way ───────────────────────────────── */}
         <section className="section-band section-band-muted">
