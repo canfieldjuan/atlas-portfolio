@@ -281,6 +281,12 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       { label: 'You review and publish', sub: 'Drafted FAQs • no auto-publish • nothing goes live without you' },
     ],
   },
+  demo: {
+    label: 'INTERACTIVE DEMO',
+    title: 'Try the report logic on a sample repeat question.',
+    description:
+      'Search the sample dataset to see the customer-facing answer the report would surface, the ticket demand behind it, and the evidence count your team would review before publishing.',
+  },
   seoVisibility: {
     label: 'SEO / SEARCH VISIBILITY',
     title: 'Every answer you publish is a page written in the words people actually search.',
