@@ -293,7 +293,7 @@ export default function AiContentOpsHubPage() {
             {howItWorks.map((step, i) => (
               <div
                 key={step.step}
-                className="rounded-xl border border-border bg-surface p-6 flex gap-4 items-start"
+                className="relative rounded-xl border border-border bg-surface p-6 flex gap-4 items-start"
               >
                 <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   {step.icon}

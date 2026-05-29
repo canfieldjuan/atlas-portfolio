@@ -24,6 +24,8 @@ product-gallery layout:
 4. A compact "How the engine works" strip replacing the current "Broader System"
    section — three steps, no separate glass card.
 5. Retain the bottom audit CTA section (unchanged).
+6. Anchor the "How the engine works" step arrows to each card so the connector
+   icons stay inside the process strip on desktop.
 
 ### Files touched
 
@@ -38,7 +40,8 @@ product-gallery layout:
   "Coming Soon" overlay badge and muted styling.
 - The hero drops from ~150 words of prose to ~30 words + two CTAs.
 - The "Broader System" section is replaced by a horizontal three-step process
-  strip that takes up one visual row instead of a full section.
+  strip that takes up one visual row instead of a full section; each step card
+  is positioned so the desktop connector arrow is anchored locally.
 - No layout, routing, metadata, or CSS files changed.
 
 ## Intentional
@@ -64,10 +67,12 @@ Parked hardening: none
 ```bash
 npm --prefix web run build
 npm --prefix web run lint
+bash scripts/local_pr_review.sh
 ```
 
 Visual check: `http://localhost:3000/systems/ai-content-ops` shows gallery grid
-with product cards and coming-soon stubs.
+with product cards, coming-soon stubs, and process arrows anchored to the step
+cards.
 
 Grep for stale hub copy strings:
 ```bash
