@@ -37,6 +37,7 @@ function SliderField({
   onChange,
   prefix,
   suffix,
+  compact = false,
 }: {
   label: string;
   hint: string;
@@ -47,6 +48,7 @@ function SliderField({
   onChange: (n: number) => void;
   prefix?: string;
   suffix?: string;
+  compact?: boolean;
 }) {
   const fieldId = useId();
 
@@ -61,7 +63,7 @@ function SliderField({
 
   return (
     <div>
-      <div className="mb-2 flex items-end justify-between gap-3">
+      <div className={`${compact ? 'mb-1.5' : 'mb-2'} flex items-end justify-between gap-3`}>
         <div>
           <label htmlFor={fieldId} className="text-sm font-medium text-foreground">
             {label}
@@ -83,7 +85,7 @@ function SliderField({
             onKeyDown={(event) => {
               if (event.key === 'Enter') event.currentTarget.blur();
             }}
-            className="w-24 rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm font-semibold tabular-nums text-foreground outline-none transition-colors focus:border-primary/60"
+            className={`${compact ? 'w-20 px-2.5 py-1.5' : 'w-24 px-3 py-2'} rounded-lg border border-border bg-surface text-right text-sm font-semibold tabular-nums text-foreground outline-none transition-colors focus:border-primary/60`}
           />
           {suffix && <span className="text-sm text-foreground/50">{suffix}</span>}
         </div>
@@ -109,12 +111,14 @@ function OutputCard({
   value,
   detail,
   tone = 'primary',
+  compact = false,
 }: {
   eyebrow: string;
   title: string;
   value: string;
   detail: string;
   tone?: 'primary' | 'danger' | 'success';
+  compact?: boolean;
 }) {
   const toneClass =
     tone === 'danger'
@@ -124,27 +128,35 @@ function OutputCard({
         : 'text-primary border-primary/25 bg-primary/[0.04]';
 
   return (
-    <article className={`rounded-xl border p-5 ${toneClass}`}>
-      <div className="mb-2 text-[10px] font-mono uppercase tracking-widest opacity-80">
+    <article className={`rounded-xl border ${compact ? 'p-4' : 'p-5'} ${toneClass}`}>
+      <div className={`${compact ? 'mb-1.5' : 'mb-2'} text-[10px] font-mono uppercase tracking-widest opacity-80`}>
         {eyebrow}
       </div>
-      <h3 className="mb-4 text-lg font-semibold tracking-tight text-foreground">{title}</h3>
-      <div className="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl">{value}</div>
-      <p className="mt-3 text-sm leading-relaxed text-foreground/62">{detail}</p>
+      <h3 className={`${compact ? 'mb-2 text-base' : 'mb-4 text-lg'} font-semibold tracking-tight text-foreground`}>
+        {title}
+      </h3>
+      <div className={`${compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'} font-semibold tracking-tight tabular-nums`}>
+        {value}
+      </div>
+      <p className={`${compact ? 'mt-2 text-xs' : 'mt-3 text-sm'} leading-relaxed text-foreground/62`}>
+        {detail}
+      </p>
     </article>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ label, value, compact = false }: { label: string; value: string; compact?: boolean }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-3">
+    <div className={`rounded-lg border border-border bg-surface ${compact ? 'p-2.5' : 'p-3'}`}>
       <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">{label}</div>
-      <div className="mt-1 text-lg font-semibold tabular-nums text-foreground">{value}</div>
+      <div className={`${compact ? 'text-base' : 'text-lg'} mt-1 font-semibold tabular-nums text-foreground`}>
+        {value}
+      </div>
     </div>
   );
 }
 
-export function SupportTaxCalculator() {
+export function SupportTaxCalculator({ compact = false }: { compact?: boolean }) {
   const [monthlyTickets, setMonthlyTickets] = useState(TICKETS.default);
   const [agents, setAgents] = useState(AGENTS.default);
   const [salary, setSalary] = useState(SALARY.default);
@@ -168,30 +180,30 @@ export function SupportTaxCalculator() {
   const totalVisibleLeak = annualContextLeak + annualAttritionTax + annualSelfServiceOpportunity;
 
   return (
-    <div className="glass rounded-2xl border border-border p-5 sm:p-7">
-      <div className="mb-7 max-w-3xl">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-mono uppercase tracking-widest text-primary">
+    <div className={`glass rounded-2xl border border-border ${compact ? 'p-4 sm:p-5' : 'p-5 sm:p-7'}`}>
+      <div className={`${compact ? 'mb-5' : 'mb-7'} max-w-3xl`}>
+        <div className={`${compact ? 'mb-3 text-[10px]' : 'mb-4 text-[11px]'} inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 font-mono uppercase tracking-widest text-primary`}>
           Leaky bucket calculator
         </div>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        <h2 className={`${compact ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-semibold tracking-tight text-foreground`}>
           See where repeated questions drain budget.
         </h2>
-        <p className="mt-3 leading-relaxed text-foreground/62">
+        <p className={`${compact ? 'mt-2 text-sm' : 'mt-3'} leading-relaxed text-foreground/62`}>
           Model three leaks most teams feel but rarely measure: context assembly, repetition-driven
           attrition, and the self-service opportunity hiding in repeat questions.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <section className="rounded-xl border border-border bg-surface p-5">
-          <div className="mb-6">
+      <div className={`${compact ? 'gap-4' : 'gap-6'} grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]`}>
+        <section className={`rounded-xl border border-border bg-surface ${compact ? 'p-4' : 'p-5'}`}>
+          <div className={compact ? 'mb-4' : 'mb-6'}>
             <h3 className="text-sm font-semibold text-foreground">Operating inputs</h3>
             <p className="mt-1 text-xs leading-relaxed text-foreground/50">
               Start with a B2B SaaS support baseline. Tune the assumptions to match your queue.
             </p>
           </div>
 
-          <div className="space-y-6">
+          <div className={compact ? 'space-y-4' : 'space-y-6'}>
             <SliderField
               label="Monthly ticket volume"
               hint="Closed tickets per month"
@@ -200,6 +212,7 @@ export function SupportTaxCalculator() {
               max={TICKETS.max}
               step={TICKETS.step}
               onChange={setMonthlyTickets}
+              compact={compact}
             />
             <SliderField
               label="Frontline support agents"
@@ -209,6 +222,7 @@ export function SupportTaxCalculator() {
               max={AGENTS.max}
               step={AGENTS.step}
               onChange={setAgents}
+              compact={compact}
             />
             <SliderField
               label="Average loaded salary"
@@ -219,6 +233,7 @@ export function SupportTaxCalculator() {
               max={SALARY.max}
               step={SALARY.step}
               onChange={setSalary}
+              compact={compact}
             />
             <SliderField
               label="Repeat-question share"
@@ -229,6 +244,7 @@ export function SupportTaxCalculator() {
               max={REPEAT.max}
               step={REPEAT.step}
               onChange={setRepeatPct}
+              compact={compact}
             />
             <SliderField
               label="Annual agent attrition"
@@ -239,6 +255,7 @@ export function SupportTaxCalculator() {
               max={ATTRITION.max}
               step={ATTRITION.step}
               onChange={setAttritionPct}
+              compact={compact}
             />
             <SliderField
               label="Current self-service resolution"
@@ -249,6 +266,7 @@ export function SupportTaxCalculator() {
               max={CURRENT_SELF_SERVICE.max}
               step={CURRENT_SELF_SERVICE.step}
               onChange={setCurrentSelfServicePct}
+              compact={compact}
             />
             <SliderField
               label="Target self-service resolution"
@@ -259,28 +277,29 @@ export function SupportTaxCalculator() {
               max={TARGET_SELF_SERVICE.max}
               step={TARGET_SELF_SERVICE.step}
               onChange={setTargetSelfServicePct}
+              compact={compact}
             />
           </div>
         </section>
 
-        <section className="space-y-4">
-          <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-5">
+        <section className={compact ? 'space-y-3' : 'space-y-4'}>
+          <div className={`rounded-xl border border-primary/30 bg-primary/[0.04] ${compact ? 'p-4' : 'p-5'}`}>
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary/80">
               Annual visible leak
             </div>
-            <div className="mt-2 text-5xl font-semibold tracking-tight tabular-nums text-primary">
+            <div className={`${compact ? 'text-3xl sm:text-4xl' : 'text-5xl'} mt-2 font-semibold tracking-tight tabular-nums text-primary`}>
               {usd(totalVisibleLeak)}
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/62">
+            <p className={`${compact ? 'mt-2 text-xs' : 'mt-3 text-sm'} leading-relaxed text-foreground/62`}>
               Directional budget exposed by the assumptions below. This is not a forecast of what
               the Deflection Report will save.
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <Metric label="Repeat tickets / mo" value={count(monthlyRepeatTickets)} />
-            <Metric label="Context hours / mo" value={count(monthlyContextHours)} />
-            <Metric label="Self-service delta" value={`${Math.round(selfServiceDelta * 100)}%`} />
+          <div className={`${compact ? 'gap-3' : 'gap-4'} grid md:grid-cols-3`}>
+            <Metric label="Repeat tickets / mo" value={count(monthlyRepeatTickets)} compact={compact} />
+            <Metric label="Context hours / mo" value={count(monthlyContextHours)} compact={compact} />
+            <Metric label="Self-service delta" value={`${Math.round(selfServiceDelta * 100)}%`} compact={compact} />
           </div>
 
           <OutputCard
@@ -288,6 +307,7 @@ export function SupportTaxCalculator() {
             title="Context assembly leak"
             value={usd(annualContextLeak)}
             detail={`Assumes ${CONTEXT_MINUTES_PER_REPEAT} minutes of context gathering for each repeat question before the agent can answer.`}
+            compact={compact}
           />
           <OutputCard
             eyebrow="Leak 02"
@@ -295,6 +315,7 @@ export function SupportTaxCalculator() {
             value={usd(annualAttritionTax)}
             detail={`Assumes ${Math.round(BURNOUT_TURNOVER_SHARE * 100)}% of attrition is tied to repetitive frontline support load and a ${usd(REPLACEMENT_COST)} replacement cost.`}
             tone="danger"
+            compact={compact}
           />
           <OutputCard
             eyebrow="Opportunity"
@@ -302,18 +323,19 @@ export function SupportTaxCalculator() {
             value={usd(annualSelfServiceOpportunity)}
             detail={`Shows the annual ticket cost affected if findable help-center pages move repeat questions from ${currentSelfServicePct}% to ${targetSelfServicePct}% self-service resolution.`}
             tone="success"
+            compact={compact}
           />
 
-          <div className="rounded-xl border border-border bg-surface p-5">
+          <div className={`rounded-xl border border-border bg-surface ${compact ? 'p-4' : 'p-5'}`}>
             <h3 className="text-sm font-semibold text-foreground">What to do with this number</h3>
-            <p className="mt-2 text-sm leading-relaxed text-foreground/62">
+            <p className={`${compact ? 'text-xs' : 'text-sm'} mt-2 leading-relaxed text-foreground/62`}>
               Upload 3-6 months of tickets. The free snapshot shows whether repeat questions are
               actually there, which customer wording is missing, and one review-ready FAQ draft
               built from resolved replies.
             </p>
             <Link
               href="/systems/support-ticket-deflection/intake"
-              className="group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-black transition-all hover:bg-primary/90"
+              className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
             >
               Upload tickets — get a free Deflection Snapshot
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
