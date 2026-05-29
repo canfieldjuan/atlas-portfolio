@@ -234,7 +234,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     eyebrowIcon: <Workflow className="h-3 w-3" />,
     title: 'Stop guessing search terms. Customers are handing them to you in every support ticket.',
     intro:
-      'Stop guessing what customers search for. We mine your support tickets for the exact words they use and draft FAQs your team can review.',
+      'We mine your support tickets for the exact phrases customers use and turn them into FAQ drafts your team can review.',
     body:
       'Upload 3–6 months of support tickets. In 24 hours, get a ranked list of repeat questions, the wording gaps you’re missing, and ready-to-publish FAQ drafts.',
     cta: {
