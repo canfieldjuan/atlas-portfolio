@@ -19,12 +19,12 @@ export default function SupportTicketDeflectionCalculatorPage() {
             <span>SUPPORT TICKET DEFLECTION · CALCULATOR</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground mb-6">
-            What are repeat tickets costing you?
+            Your repeat tickets are a leaky bucket.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Two numbers you already know — your monthly ticket volume and your cost per ticket —
-            turn into the annual cost of the repeat Tier-1 questions a self-service layer could
-            deflect. Adjust the repeat-rate assumption to your own reality.
+            Estimate the annual budget leaking through repeated questions, context gathering,
+            agent churn, and low self-service resolution. Then use your ticket history to find
+            the customer wording and FAQ drafts worth fixing first.
           </p>
         </div>
 
