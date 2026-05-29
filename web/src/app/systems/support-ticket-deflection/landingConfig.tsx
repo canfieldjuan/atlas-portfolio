@@ -143,63 +143,63 @@ export const pricingTiers: DiagnosticPricingTier[] = [
 export const pricingFaqs: { q: string; a: string }[] = [
   {
     q: `What do I get in the free snapshot?`,
-    a: `You get your top 5 repeat questions ranked by how often they were asked, a few examples of the words customers use, and one sample step-by-step self-service answer. It is enough to show whether your old tickets are worth turning into a full Support Ticket Deflection Report. It is not the full report.`,
+    a: `You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one sample self-service answer. It is enough to show whether the repeat pattern is real before you pay for the full report. It is not the full report.`,
   },
   {
     q: `What do I get in the full Deflection Report?`,
-    a: `The full report gives you the complete working list: every recurring question ranked by how often it was asked (typically 50+), customer wording clusters, a drafted self-service answer for every gap your tickets already solve, a "no proven answer yet" list for the questions you have not cracked, plus priority ranking and source ticket IDs.`,
+    a: `You get the working list: every recurring question ranked by volume, customer wording clusters, documentation gaps, source ticket IDs, review-ready drafts for gaps your tickets already solve, and a "no proven answer yet" list for frequent questions without enough answer evidence.`,
   },
   {
     q: `How many tickets should I export?`,
-    a: `Three to six months of closed tickets is the sweet spot. A few hundred is enough for the free snapshot to show whether repeat patterns are there; more history lets the full report rank the repeats more confidently. If the export is too thin, we will tell you what would make it useful.`,
+    a: `Three to six months of closed tickets is the sweet spot. A few hundred tickets is usually enough for the snapshot to show whether repeat patterns are there; more history helps the full report rank the repeats more confidently. If the export is too thin, we will say so.`,
   },
   {
     q: `What if my tickets are messy?`,
-    a: `Messy is fine. Customers do not ask questions in neat categories. We group tickets by what the customer was trying to do, not by perfect tags or clean labels.`,
+    a: `Messy is expected. Customers do not ask in clean tags or perfect categories. We group tickets by what the customer was trying to do and the words they used, not by how neatly the export is labeled.`,
   },
   {
     q: `What about private customer data?`,
-    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first — we recommend it; we do not need PII to find your repeat questions. Your file is deleted after 30 days. The analysis is 100% deterministic — no AI, no model training, no fine-tuning, no sharing.`,
+    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first — we recommend it. We do not need PII to find repeat questions. Your file is deleted after 30 days. The analysis is 100% deterministic — no AI, no model training, no fine-tuning, no sharing.`,
   },
   {
     q: `Why use customer wording?`,
-    a: `Because customers search for the problem in their own words. If they ask support one way and your help center says it another way, the answer can exist and still be hard to find.`,
+    a: `Because customers search in their own words. If support tickets say one thing and your help center says another, the answer can exist and still fail to surface. Customer wording closes that gap.`,
   },
   {
     q: `We just updated our help center — do we still need this?`,
-    a: `Maybe not, and the free snapshot will tell you. If your tickets show customers still asking things your updated docs already cover, the gap is usually wording: the answer exists, but not in the words customers search. If the snapshot does not find that, we will say so.`,
+    a: `Maybe not, and the free snapshot will tell you. If customers still ask questions your updated docs already cover, the gap is usually wording or findability. If the snapshot does not find a repeat pattern, it will say so.`,
   },
   {
     q: `How much editing will the answers need?`,
-    a: `Plan on light editing. Most teams adjust tone, add a product link, confirm the exact steps, and publish. The point is that you are not starting from a blank page.`,
+    a: `Plan on light review. Most teams confirm the steps, adjust tone, add product links, and approve the draft before publishing. You are not starting from a blank page, and nothing goes live without you.`,
   },
   {
     q: `What if we do not have enough tickets?`,
-    a: `Then we will tell you. The report works best when repeat questions show up clearly. If the export is too thin to be useful, we will not pretend there is a pattern that is not there.`,
+    a: `Then we will tell you. The report works best when repeat questions show up clearly. If the export is too thin or too scattered to support a useful finding, we will not pretend there is a pattern.`,
   },
   {
     q: `Do you replace our help desk?`,
-    a: `No. The report does not touch your help desk — Zendesk, Intercom, Help Scout, whatever you run — or your live support queue. It works from a CSV export and hands back self-service answers your team publishes in the help center you already use, so fewer repeat questions reach the desk in the first place.`,
+    a: `No. The report does not touch Zendesk, Intercom, Help Scout, or your live queue. It works from a CSV export and hands your team reviewed self-service work to publish in the help center you already control.`,
   },
   {
     q: `Do we have to sign up for quarterly reports?`,
-    a: `No. Start with the free snapshot. If the snapshot is useful, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep the help center updated as new repeat questions show up.`,
+    a: `No. Start with the free snapshot. If it shows a useful repeat-question pattern, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep updating the help center as new repeat questions appear.`,
   },
   {
     q: `How do you reduce repeat support tickets?`,
-    a: `We rank the questions your customers ask most, in their own words, and draft self-service answers from the replies your team already used to resolve them. You review and publish what you approve, so the next person with that question can find the answer instead of opening a ticket. Nothing is automated and nothing goes live without you.`,
+    a: `We identify the repeat questions customers ask most, capture the words they use, and draft self-service answers from replies your team already used. You review and publish what you approve, giving the next customer a better path before opening a ticket. No percentage is guaranteed.`,
   },
   {
     q: `Will this help if our knowledge base is not working?`,
-    a: `A knowledge base that is not working usually is not broken — the articles are not failing, they are written in your internal product language instead of the words customers search, so the answer never surfaces. We pull the exact wording from your tickets so your articles can be rewritten to match what people actually type. The answer often already exists; it just cannot be found.`,
+    a: `Usually yes. A struggling knowledge base often has a wording problem, not just a content problem. The answer may exist, but customers cannot find it because the article uses internal product language. We use ticket language to show what needs to be rewritten or added.`,
   },
   {
     q: `Why is our self-service resolution rate so low?`,
-    a: `Gartner found 73% of customers try self-service first, but only 14% resolve there — usually a wording gap, not a content gap. The answer is on the page, just not in the words they searched, so it never surfaces. Your tickets are the list of the exact terms your help center is missing.`,
+    a: `Often because the answer exists in the wrong words or is missing from the places customers search. Gartner found 73% of customers try self-service first, but only 14% fully resolve there. Your tickets show the terms and questions your self-service layer is missing.`,
   },
   {
     q: `How is this different from a chatbot or AI agent?`,
-    a: `A chatbot answers in the moment and can guess wrong; this does not answer anyone. It is a 100% deterministic analysis of your past tickets that hands your team drafted FAQ answers to review and publish. If your bot's resolution rate has plateaued, the gap is usually the underlying content — fix the answers and the bot improves too. No AI talks to your customers here.`,
+    a: `A chatbot answers customers in the moment and can guess wrong. This does not answer customers. It is a 100% deterministic analysis of past tickets that gives your team FAQ drafts and evidence to review. No AI talks to your customers here.`,
   },
 ];
 
