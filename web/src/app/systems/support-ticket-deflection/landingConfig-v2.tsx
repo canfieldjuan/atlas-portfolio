@@ -350,7 +350,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
             <><strong className="text-foreground">Customer wording:</strong> the exact phrases customers use.</>,
             <><strong className="text-foreground">Documentation gap:</strong> where your current answers fall short.</>,
             <><strong className="text-foreground">Source tickets:</strong> the evidence behind each finding.</>,
-            <><strong className="text-foreground">FAQ draft:</strong> ready-to-review answers for your team to publish.</>,
+            <><strong className="text-foreground">FAQ draft or no-proven-answer flag:</strong> for questions your tickets already solve, ready-to-review answers built from resolved replies. If tickets do not support an answer, the report marks &ldquo;no proven answer yet&rdquo; instead. The output is 100% deterministic, with no LLM-generated answers.</>,
           ]}
         />
         <p>
