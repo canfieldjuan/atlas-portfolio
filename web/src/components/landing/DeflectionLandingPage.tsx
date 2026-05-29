@@ -179,8 +179,8 @@ export function DeflectionLandingPage({
         </section>
 
         {config.calculator && (
-          <section className="section-band">
-            <SupportTaxCalculator />
+          <section className="section-band !py-12 md:!py-16">
+            <SupportTaxCalculator compact />
           </section>
         )}
 
