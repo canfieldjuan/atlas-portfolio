@@ -30,7 +30,6 @@ export type SupportTicketCsvIntakeCopy = {
   sourcePage: string;
   sourceOffer: string;
   snapshotName: string;
-  sampleOutputLabel: string;
   submitLabel: string;
 };
 
@@ -304,12 +303,12 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             UPLOAD YOUR CSV
           </div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-            One file. Five fields. 24 hours.
+            Upload your tickets. Get the repeat-question snapshot in 24 hours.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Upload a CSV export of the last 3–6 months of your closed support tickets. We send
-            back a free {copy.snapshotName}: the repeat questions we can see, customer wording
-            examples, and {copy.sampleOutputLabel}.
+            Send 3–6 months of closed support tickets. We&apos;ll rank the repeated questions,
+            surface the missing customer wording, and include a review-ready FAQ draft built
+            from resolved replies.
           </p>
         </div>
 
