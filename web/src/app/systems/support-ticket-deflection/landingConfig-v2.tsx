@@ -191,11 +191,14 @@ export function makeProblemCost(
 ): DeflectionLandingPageConfig['problemCost'] {
   return {
     label: 'WHAT IT COSTS',
-    title: 'Repeat questions are an operating cost line.',
+    title: 'Repeat questions are bleeding your support budget.',
     content: (
       <CopyBlock>
         <p>
-          That wording gap is expensive. Gartner benchmarked it plainly: a self-service resolution costs <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact — <strong className="text-foreground">$11.66 more every time</strong> a question you could have deflected reaches a person instead. Multiply that by your own repeat volume and the cost is a number you can run, not one we promise.
+          That wording gap is not a content problem. It is a cost leak. Gartner benchmarks self-service at <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. That is <strong className="text-foreground">$11.66 more</strong> every time a repeat question your help center could have answered reaches a person instead.
+        </p>
+        <p>
+          Run that against your own repeat volume. The cost is real, not theoretical.
         </p>
         {calculatorHref && (
           <div>
@@ -208,16 +211,16 @@ export function makeProblemCost(
             </Link>
           </div>
         )}
-        <p>That repetition taxes the team twice:</p>
+        <p>This is not just about money. It is what repeat work does to the team:</p>
         <SectionList
           items={[
             <>Agents spend only <strong className="text-foreground">39%</strong> of their time actually servicing customers — Salesforce.</>,
             <><strong className="text-foreground">Five hours a week</strong> disappear into repetitive tickets — Gorgias.</>,
-            <>The same grind drives burnout, low morale, and the turnover costs leaders budget around instead of removing — Insignia.</>,
+            <>The same grind contributes to burnout, low morale, and the turnover costs leaders keep budgeting around — Insignia.</>,
           ]}
         />
         <p>
-          And the customers who never find the answer do not just cost more to handle — they leave. CEB found <strong className="text-foreground">94%</strong> of low-effort customers intend to repurchase, against only <strong className="text-foreground">4%</strong> of high-effort ones (<em>The Effortless Experience</em>).
+          Customers feel the cost too. CEB found <strong className="text-foreground">94%</strong> of low-effort customers intend to repurchase, compared with only <strong className="text-foreground">4%</strong> of high-effort customers (<em>The Effortless Experience</em>). Every failed search adds effort before the conversation even starts.
         </p>
       </CopyBlock>
     ),
