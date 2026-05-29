@@ -9,7 +9,6 @@ export default function SupportTicketDeflectionIntakePage() {
         sourcePage: '/systems/support-ticket-deflection',
         sourceOffer: 'support-ticket-deflection-intake',
         snapshotName: 'Deflection Snapshot',
-        sampleOutputLabel: 'one sample self-service answer',
         submitLabel: 'Upload CSV — get your free Deflection Snapshot',
       }}
     />

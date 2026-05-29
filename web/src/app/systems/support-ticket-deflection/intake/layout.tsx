@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { generatePageMetadata } from '@/lib/seo';
 
 const baseMetadata = generatePageMetadata({
-  title: 'Upload Your CSV — Deflection Snapshot Intake',
+  title: 'Upload Your Tickets — Deflection Snapshot Intake',
   description:
-    'Upload a CSV export of your last 3–6 months of closed support tickets. We will send back a free Deflection Snapshot in 24 hours: repeat questions, customer wording, and one sample self-service answer.',
+    'Upload 3–6 months of closed support tickets. We will send back a free Deflection Snapshot in 24 hours: ranked repeat questions, missing customer wording, and one review-ready FAQ draft built from resolved replies.',
   path: '/systems/support-ticket-deflection/intake',
   keywords: [
     'Deflection Snapshot intake',
