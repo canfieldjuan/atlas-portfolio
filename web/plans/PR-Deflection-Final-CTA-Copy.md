@@ -25,6 +25,8 @@ Update only `landingPageConfigV2.finalCta.title` and `landingPageConfigV2.finalC
 
 The body uses urgency around repeated support work, but it stops short of guaranteeing a deflection percentage, ranking outcome, churn reduction, or queue reduction.
 
+The review follow-up softens "to reduce your queue" to "to start clearing the repeats" so the CTA stays purpose-oriented without promising an operational result.
+
 The copy says "publishable drafts" because the page already frames the workflow as review-first and the pricing exclusions keep "No auto-publishing" explicit.
 
 No new privacy, security, deletion, or PII-handling claim is introduced.
@@ -42,13 +44,13 @@ Parked hardening: none.
 - `npm run lint` from `web` — passed.
 - `npm run build` from `web` — passed; Next.js built all routes successfully.
 - `git diff --check` — passed.
-- `rg "See what your tickets are telling you|Upload your CSV\\. Get the repeat questions|If the pattern is not there|Find the gaps fueling your ticket volume|Every day you wait|If the repetition is not there" web/src web/plans` — confirmed the old active CTA strings are gone; the old title remains only in this plan's rationale.
+- `rg "See what your tickets are telling you|Upload your CSV\\. Get the repeat questions|If the pattern is not there|to reduce your queue|Find the gaps fueling your ticket volume|Every day you wait|If the repetition is not there|to start clearing the repeats" web/src web/plans` — confirmed the old active CTA strings are gone from page code; the old title and review-flagged phrase remain only in this plan's rationale/review note.
 - Browser check at `http://localhost:3000/systems/support-ticket-deflection` on the existing local dev server — desktop and 390px mobile views render the final CTA cleanly; `agent-browser errors` returned no page errors.
 
 ## Estimated diff size
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~54 |
+| Plan doc | ~56 |
 | Landing config copy | ~6 |
-| Total | ~60 |
+| Total | ~62 |
