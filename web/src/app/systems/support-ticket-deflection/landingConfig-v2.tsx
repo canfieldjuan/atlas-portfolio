@@ -236,7 +236,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     intro:
       'We mine your support tickets for the exact phrases customers use and turn them into FAQ drafts your team can review.',
     body:
-      'Upload 3–6 months of support tickets. In 24 hours, get a ranked list of repeat questions, the wording gaps you’re missing, and ready-to-publish FAQ drafts.',
+      'Upload 3–6 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
       label: 'Upload your tickets — get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
