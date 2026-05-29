@@ -190,7 +190,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
               {copy.backLabel}
             </Link>
 
-            <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[var(--primary-glow)]">
+            <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[var(--primary-glow)] mb-8">
               <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
@@ -243,6 +243,41 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 Privacy: we delete your CSV after 30 days. No model training, no third-party
                 sharing, no fine-tuning.
               </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-surface p-8 md:p-12 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-primary/60" />
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                OPTIONAL ADD-ON
+              </div>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-4">
+                Close the loop: Push answers back to {
+                  supportPlatform === 'zendesk' ? 'Zendesk as Macros' : 
+                  supportPlatform === 'intercom' ? 'Intercom as Saved Replies' : 
+                  supportPlatform === 'freshdesk' ? 'Freshdesk as Canned Responses' : 
+                  'your support tool'
+                }.
+              </h2>
+              <p className="text-foreground/70 leading-relaxed mb-4">
+                Right now, your pipeline runs one direction: we pull your tickets, cluster them, and generate verified FAQ answers for your public help center.
+              </p>
+              <p className="text-foreground/70 leading-relaxed mb-8">
+                <strong>Macro-writeback closes that loop.</strong> We take each verified question and answer pair that your team approves, and publish it directly back into your support tool. The question becomes the title, and the verified resolution becomes the body — ready for your agents to drop into tickets instantly. Same deterministic process, no auto-send.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4 border-t border-border pt-6">
+                <div className="flex-1 w-full flex items-baseline gap-2">
+                  <span className="text-xl font-semibold text-foreground">$499</span>
+                  <span className="text-sm text-foreground/50">one-time setup</span>
+                </div>
+                <a 
+                  href={`mailto:juan@juancanfield.com?subject=Macro-Writeback%20Add-on%20(${supportPlatform})`}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
+                >
+                  Add Macro-Writeback
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
         </main>
