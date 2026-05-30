@@ -122,6 +122,8 @@ option {
 
 .deflection-landing .section-band {
   background: #f7faf4;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
 .deflection-landing .section-band-muted {
@@ -142,5 +144,10 @@ option {
   .section-band {
     padding-top: 8rem;
     padding-bottom: 8rem;
+  }
+
+  .deflection-landing .section-band {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }
