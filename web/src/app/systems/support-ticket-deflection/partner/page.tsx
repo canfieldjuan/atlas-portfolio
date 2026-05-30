@@ -7,10 +7,10 @@ import { pricingTiers } from '../landingConfig';
 
 // Partner-priced twin of the public wedge (D-025): identical to the rewritten
 // landing except (1) the Full Deflection Report is $1,000 for the first 5 design
-// partners, and (2) the cost section drops the public /calculator link — its back
-// link returns to the public $1,500 page, which would leak a partner out of this
-// noindex funnel. This URL is shared only in outbound (never linked from the
-// public page); the noindex in layout.tsx keeps the $1,000 price out of search.
+// partners, and (2) the embedded public calculator is omitted to keep the
+// noindex partner funnel focused on the partner offer. This URL is shared only in
+// outbound (never linked from the public page); the noindex in layout.tsx keeps
+// the $1,000 price out of search.
 // Reuses landingPageConfigV2 + the shared pricingTiers so the rewritten wedge copy
 // + pricing edits propagate here automatically — no drift.
 const partnerPricingTiers: DiagnosticPricingTier[] = pricingTiers.map((tier) =>
@@ -27,7 +27,7 @@ const partnerPricingTiers: DiagnosticPricingTier[] = pricingTiers.map((tier) =>
 const partnerConfig = {
   ...landingPageConfigV2,
   problemAgitation: makeProblemAgitation(),
-  problemCost: makeProblemCost(), // no calculator link in the partner funnel
+  problemCost: makeProblemCost(),
   calculator: undefined, // keep the partner funnel focused on the partner offer
   pricing: { ...landingPageConfigV2.pricing, tiers: partnerPricingTiers },
 };
