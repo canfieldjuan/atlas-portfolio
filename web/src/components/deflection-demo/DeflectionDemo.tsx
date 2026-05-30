@@ -7,9 +7,8 @@ import {
   DEMO_CHIPS,
   searchDeflection,
   type DeflectionSearchSource,
-  type FAQTermMapping,
-  type TicketFAQItem,
 } from '@/lib/deflection-demo';
+import type { FAQTermMapping, TicketFAQItem } from '@/lib/deflection-report-contract';
 
 // Interactive demo: type a question a customer asks, see one TicketFAQItem-shaped
 // report finding beside the draft FAQ fields the team would review. Modular:
