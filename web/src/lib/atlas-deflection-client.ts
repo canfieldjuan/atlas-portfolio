@@ -109,8 +109,24 @@ export type ArtifactFetchResult =
   | { ok: true; artifact: FAQDeflectionReportArtifact }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
 
-function isStringArray(v: unknown): boolean {
-  return Array.isArray(v);
+// The render maps these arrays directly as React children (e.g.
+// `item.steps.map(s => <li>{s}</li>)`), so a non-string element (`[{}]`) throws
+// "Objects are not valid as a React child". Validate the elements, not just
+// array-ness.
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === 'string');
+}
+
+// The render reads mapping.{customer_term, documentation_term, suggestion}
+// without guards, so a `[null]` element would throw on property access.
+function isTermMapping(v: unknown): boolean {
+  if (typeof v !== 'object' || v === null) return false;
+  const m = v as Record<string, unknown>;
+  return (
+    typeof m.customer_term === 'string' &&
+    typeof m.documentation_term === 'string' &&
+    typeof m.suggestion === 'string'
+  );
 }
 
 // Validate the TicketFAQItem fields the report render reads — the render maps
@@ -131,7 +147,8 @@ function isRenderableItem(v: unknown): boolean {
     isStringArray(i.action_items) &&
     isStringArray(i.source_ids) &&
     isStringArray(i.source_labels) &&
-    Array.isArray(i.term_mappings)
+    Array.isArray(i.term_mappings) &&
+    i.term_mappings.every(isTermMapping)
   );
 }
 
