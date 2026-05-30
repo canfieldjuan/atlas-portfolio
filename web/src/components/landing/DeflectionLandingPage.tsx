@@ -128,7 +128,7 @@ export function DeflectionLandingPage({
           dangerouslySetInnerHTML={{ __html: jsonLdPayload(config.structuredData) }}
         />
       )}
-      <main className={`min-h-screen ${bare ? 'pt-16' : 'pt-32'} pb-20 px-6 relative z-10`}>
+      <main className={`deflection-landing min-h-screen ${bare ? 'pt-16' : 'pt-32'} pb-20 px-6 relative z-10`}>
         <div className="max-w-6xl mx-auto">
         {/* ── Hero ──────────────────────────────────────────────────── */}
         <section className="max-w-4xl">

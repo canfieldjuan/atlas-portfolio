@@ -120,6 +120,18 @@ option {
   background: var(--surface-accent);
 }
 
+.deflection-landing .section-band {
+  background: #f7faf4;
+}
+
+.deflection-landing .section-band-muted {
+  background: #eef4ea;
+}
+
+.deflection-landing .section-band-blue {
+  background: #edf3f5;
+}
+
 .gradient-text {
   background: linear-gradient(to right, var(--text-strong), var(--primary-dark));
   -webkit-background-clip: text;
