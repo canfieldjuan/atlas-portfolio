@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { DeflectionResultsPage } from '@/components/landing/DeflectionResultsPage';
 import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
 } from '@/lib/deflection-snapshot';
+import { fetchDeflectionSnapshot } from '@/lib/atlas-deflection-client';
 
 type PageProps = { params: Promise<{ requestId: string }> };
 
@@ -12,17 +14,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// TODO(gated slice): fetch the live snapshot from ATLAS by requestId.
-//   const res = await fetch(`${ATLAS_BASE}${deflectionSnapshotPath(requestId)}`, {
-//     headers: { Authorization: `Bearer ${ATLAS_B2B_JWT}` }, cache: 'no-store',
-//   });
-//   if (res.status === 404) notFound();
-//   return parseDeflectionSnapshot(await res.json());   // validate upstream shape
-// Until the ATLAS host + B2B JWT are configured, render the preview fixture so
-// the free-state page reviews like production.
+// Live snapshot from ATLAS when the service-account env is configured; the
+// preview fixture otherwise (local/preview deploys without secrets) so the page
+// still renders for review. 404 → notFound; upstream/parse failure → error page.
 async function getSnapshot(requestId: string): Promise<DeflectionSnapshot> {
-  void requestId; // used by the live fetch above; unused while on the fixture
-  return DEMO_DEFLECTION_SNAPSHOT;
+  const result = await fetchDeflectionSnapshot(requestId);
+  if (result.ok) return result.snapshot;
+  if (result.reason === 'not_configured') return DEMO_DEFLECTION_SNAPSHOT;
+  if (result.reason === 'not_found') notFound();
+  throw new Error('Could not load your snapshot right now. Please try again.');
 }
 
 export default async function DeflectionResultsRoute({ params }: PageProps) {

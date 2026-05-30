@@ -23,10 +23,10 @@ export type DeflectionSnapshot = {
   top_questions: DeflectionSnapshotQuestion[];
 };
 
-/** Path of the free snapshot endpoint for a request. account_id comes from the
- *  authenticated ATLAS scope — never passed here. */
+/** Path of the free snapshot endpoint for a request (appended to ATLAS_API_BASE_URL).
+ *  account_id comes from the authenticated ATLAS scope — never passed here. */
 export function deflectionSnapshotPath(requestId: string): string {
-  return `/content-ops/deflection-reports/${encodeURIComponent(requestId)}/snapshot`;
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/snapshot`;
 }
 
 // Preview fixture — used by the results route until the live endpoint + auth are
