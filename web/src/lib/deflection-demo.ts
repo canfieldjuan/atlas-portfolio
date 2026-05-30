@@ -182,8 +182,13 @@ export const DEMO_ISSUES: DeflectionIssue[] = [
   },
 ];
 
+export type DeflectionSearchSource = 'local' | 'atlas';
+
 /** Wire contract for `GET /api/demo/deflection-search` (see the route handler). */
-export type DeflectionSearchResponse = { match: DeflectionIssue | null };
+export type DeflectionSearchResponse = {
+  match: DeflectionIssue | null;
+  source: DeflectionSearchSource;
+};
 
 /**
  * Local illustrative matcher over `DEMO_ISSUES` (phrase exact/substring, then
@@ -226,15 +231,15 @@ export function matchLocal(query: string): DeflectionIssue | null {
  * debounces, guards out-of-order responses, and recovers from a rejection (a
  * non-ok response throws here and surfaces the component's retryable error state).
  */
-export async function searchDeflection(query: string): Promise<DeflectionIssue | null> {
+export async function searchDeflection(query: string): Promise<DeflectionSearchResponse> {
   const q = query.trim();
-  if (!q) return null;
+  if (!q) return { match: null, source: 'local' };
   const res = await fetch(`/api/demo/deflection-search?q=${encodeURIComponent(q)}`, {
     headers: { Accept: 'application/json' },
   });
   if (!res.ok) throw new Error(`deflection search failed: ${res.status}`);
   const data = (await res.json()) as DeflectionSearchResponse;
-  return data.match ?? null;
+  return data;
 }
 
 export const DEMO_CHIPS: string[] = [
