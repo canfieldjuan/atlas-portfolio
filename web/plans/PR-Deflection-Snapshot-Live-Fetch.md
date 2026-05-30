@@ -28,6 +28,9 @@ Slice phase: Functional validation
 3. **`results/[requestId]/page.tsx`** — `getSnapshot` now calls the client:
    `ok → render`, `not_configured → fixture` (local/preview without secrets),
    `not_found → notFound()`, `error → throw` (error page).
+4. **`results/[requestId]/error.tsx`** (new) — error boundary so the thrown
+   "could not load your snapshot" path renders inside the brand chrome (with a
+   `reset()` retry) instead of Next's default error UI.
 
 ### Files touched
 
@@ -35,6 +38,7 @@ Slice phase: Functional validation
 - `web/src/lib/atlas-deflection-client.ts` — server-only ATLAS snapshot client (new)
 - `web/src/lib/deflection-snapshot.ts` — `deflectionSnapshotPath` `/api/v1` prefix fix
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` — live `getSnapshot`
+- `web/src/app/systems/support-ticket-deflection/results/[requestId]/error.tsx` — branded error boundary (new)
 
 ## Mechanism
 
@@ -80,7 +84,8 @@ Parked hardening: none.
 | atlas-deflection-client.ts (new) | ~95 |
 | deflection-snapshot.ts path fix | ~2 |
 | results route getSnapshot | ~12 |
-| this plan doc | ~80 |
-| **Total** | ~189 |
+| error.tsx boundary (new) | ~50 |
+| this plan doc | ~90 |
+| **Total** | ~249 |
 
 Under the 400-LOC soft cap.
