@@ -8,6 +8,7 @@ import {
   searchDeflection,
   type DeflectionDoc,
   type DeflectionIssue,
+  type DeflectionSearchSource,
 } from '@/lib/deflection-demo';
 
 // Interactive demo: type a question a customer asks, see the actionable answer
@@ -18,6 +19,11 @@ import {
 // Numbers are illustrative until wired to Atlas; never a guaranteed result.
 
 type Phase = 'idle' | 'searching' | 'result' | 'no-match' | 'error';
+
+const resultSourceLabel: Record<DeflectionSearchSource, string> = {
+  local: 'Illustrative · sample dataset',
+  atlas: 'Atlas-backed · approved data',
+};
 
 function MatchBar({ score }: { score: number }) {
   return (
@@ -174,6 +180,7 @@ export function DeflectionDemo() {
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [issue, setIssue] = useState<DeflectionIssue | null>(null);
+  const [resultSource, setResultSource] = useState<DeflectionSearchSource>('local');
   // Monotonic request id: each search bumps it; a resolved response only updates
   // state if it is still the latest. Guards against out-of-order async results
   // once searchDeflection is wired to a real backend fetch.
@@ -188,20 +195,23 @@ export function DeflectionDemo() {
     if (!q) {
       setPhase('idle');
       setIssue(null);
+      setResultSource('local');
       return;
     }
     setPhase('searching');
     try {
       const found = await searchDeflection(q);
       if (reqId !== reqRef.current) return; // superseded by a newer search
-      setIssue(found);
-      setPhase(found ? 'result' : 'no-match');
+      setIssue(found.match);
+      setResultSource(found.source);
+      setPhase(found.match ? 'result' : 'no-match');
     } catch {
       // Once searchDeflection is a real fetch, a network/API failure rejects
       // here — recover to a visible, retryable state instead of freezing on
       // 'searching' with an unhandled rejection.
       if (reqId !== reqRef.current) return;
       setIssue(null);
+      setResultSource('local');
       setPhase('error');
     }
   }
@@ -218,6 +228,7 @@ export function DeflectionDemo() {
     if (!raw.trim()) {
       setPhase('idle');
       setIssue(null);
+      setResultSource('local');
       return;
     }
     debounceRef.current = setTimeout(() => void runSearch(raw), 220);
@@ -331,7 +342,7 @@ export function DeflectionDemo() {
               {issue.intent}: ranked finding and draft FAQ
             </h2>
             <span className="text-[11px] font-mono uppercase tracking-widest text-foreground/40">
-              Illustrative · sample dataset
+              {resultSourceLabel[resultSource]}
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -47,7 +47,7 @@ function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
   // A missing/renamed `results` is a contract break → surface it (502), not a
   // silent no-match. An empty array is a genuine no-match.
   if (!Array.isArray(results)) throw new Error('Atlas response missing results[]');
-  if (results.length === 0) return { match: null };
+  if (results.length === 0) return { match: null, source: 'atlas' };
 
   const items = results as AtlasFaqResult[];
   const top = items[0];
@@ -90,18 +90,18 @@ function mapAtlasMatch(raw: unknown): DeflectionSearchResponse {
       actions: ['View the full answer', 'Contact support'],
     },
   };
-  return { match };
+  return { match, source: 'atlas' };
 }
 
 export async function GET(request: NextRequest) {
   try {
     const q = (request.nextUrl.searchParams.get('q') ?? '').trim().slice(0, MAX_Q);
-    if (!q) return NextResponse.json({ match: null });
+    if (!q) return NextResponse.json({ match: null, source: 'local' });
 
     const baseUrl = process.env.DEFLECTION_SEARCH_ATLAS_BASE_URL?.trim();
     if (!baseUrl) {
       // No Atlas configured → local illustrative dataset.
-      return NextResponse.json({ match: matchLocal(q) });
+      return NextResponse.json({ match: matchLocal(q), source: 'local' });
     }
 
     const token = process.env.DEFLECTION_SEARCH_ATLAS_AUTH_TOKEN?.trim();

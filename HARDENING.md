@@ -58,13 +58,15 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 - Found during: PR-Intake-Direct-Blob.
 - Resolved: Operator added a **Vercel Firewall (WAF) rate-limit rule** 2026-05-27 — per-IP, Request Path starts-with `/api/gap-report-intake/` AND method POST → Rate Limit 10 req / 60s → Deny (429). Edge-enforced, covers both `/upload` + `/record`. **Handled at the edge by design — there is NO app-level limiter in code** (repo has no rate-limit infra, and the WAF rule needs no backing store). If the WAF rule is ever removed, this re-opens; the code fallback would be `@upstash/ratelimit` (Vercel KV / Upstash) in both routes.
 
-### DEFLECTION-BADGE-1 — result badge is a static "Illustrative · sample dataset"
+### DEFLECTION-BADGE-1 — RESOLVED — result badge is a static "Illustrative · sample dataset"
 - File/location: `web/src/components/deflection-demo/DeflectionDemo.tsx` (the `phase === 'result'` header badge).
 - Description: The result-block badge is hard-coded "Illustrative · sample dataset" — correct while the demo answers from the local dataset, but once `DEFLECTION_SEARCH_ATLAS_BASE_URL` is set and the route returns real Atlas rows it mislabels real data. Fix needs a `source: 'local' | 'atlas'` flag on the search response so the component labels accordingly.
 - Why it matters: avoids labeling real customer data "illustrative" (or vice-versa) once the env is live. Cosmetic until then.
 - Effort: S
 - Category: polish
 - Found during: PR-Deflection-Atlas-Wiring (3c).
+- Resolved: PR-Deflection-Demo-Source-Badge adds `source: 'local' | 'atlas'` to
+  successful demo-search responses and renders the result badge from that source.
 
 ## 2026-05-23
 
