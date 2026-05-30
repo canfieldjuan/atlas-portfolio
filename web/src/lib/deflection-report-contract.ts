@@ -85,5 +85,5 @@ export type FAQDeflectionReportArtifact = {
 };
 
 export function deflectionArtifactPath(requestId: string): string {
-  return `/content-ops/deflection-reports/${encodeURIComponent(requestId)}/artifact`;
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/artifact`;
 }

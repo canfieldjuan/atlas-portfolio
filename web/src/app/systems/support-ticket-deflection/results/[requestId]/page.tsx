@@ -6,7 +6,10 @@ import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
 } from '@/lib/deflection-snapshot';
-import { fetchDeflectionSnapshot } from '@/lib/atlas-deflection-client';
+import {
+  fetchDeflectionSnapshot,
+  fetchDeflectionArtifact,
+} from '@/lib/atlas-deflection-client';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
 type PageProps = { params: Promise<{ requestId: string }> };
@@ -32,14 +35,13 @@ async function getSnapshot(requestId: string): Promise<DeflectionSnapshot> {
   throw new Error('Could not load your snapshot right now. Please try again.');
 }
 
-// TODO(artifact hydration): fetch the paid artifact from ATLAS before the
-// snapshot. Expected behavior once configured:
-//   200 -> render DeflectionReportArtifactPage
-//   403 -> paid artifact locked; render DeflectionResultsPage snapshot
-//   404 -> no artifact yet; render DeflectionResultsPage snapshot
+// Fetch the paid-gated full report before the snapshot:
+//   200 (ok)        -> render DeflectionReportArtifactPage (unlocked)
+//   403 (locked)    -> null -> fall through to the snapshot + unlock CTA
+//   404 / error / not_configured -> null -> snapshot (graceful; logged server-side)
 async function getArtifact(requestId: string): Promise<FAQDeflectionReportArtifact | null> {
-  void requestId;
-  return null;
+  const result = await fetchDeflectionArtifact(requestId);
+  return result.ok ? result.artifact : null;
 }
 
 export default async function DeflectionResultsRoute({ params }: PageProps) {
