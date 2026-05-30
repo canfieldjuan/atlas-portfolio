@@ -50,8 +50,10 @@ Slice phase: Functional validation
 
 ## Intentional
 
-- **Fixture fallback on `not_configured`** keeps preview deploys (no secrets)
-  rendering for review; live everywhere the env is set.
+- **Fixture fallback on `not_configured` is LOCAL-DEV ONLY** (`NODE_ENV !== 'production'`)
+  — keeps `npm run dev` rendering without secrets. In any deployed build a missing
+  config is a misconfiguration that fails loudly (error page), never silently serving
+  demo data as the buyer's real snapshot (Codex P2). Live everywhere the env is set.
 - **Did NOT touch** the artifact/full-report render (a parallel slice) or the intake
   submit wiring (Slice A2) — kept tightly scoped to the snapshot fetch to minimize
   collision with the concurrent artifact-render work.
