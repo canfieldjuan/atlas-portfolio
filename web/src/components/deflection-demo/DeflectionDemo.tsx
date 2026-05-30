@@ -6,17 +6,17 @@ import { Check, Loader2, Search, X } from 'lucide-react';
 import {
   DEMO_CHIPS,
   searchDeflection,
-  type DeflectionDoc,
-  type DeflectionIssue,
   type DeflectionSearchSource,
+  type FAQTermMapping,
+  type TicketFAQItem,
 } from '@/lib/deflection-demo';
 
-// Interactive demo: type a question a customer asks, see the actionable answer
-// the Support Ticket Deflection Report would publish, beside the real demand
-// behind it — the ticket volume for the issue and the source tickets cited as
-// evidence. Modular: all data/search comes from
+// Interactive demo: type a question a customer asks, see one TicketFAQItem-shaped
+// report finding beside the draft FAQ fields the team would review. Modular:
+// all data/search comes from
 // `@/lib/deflection-demo` (the backend seam); this component only renders.
-// Numbers are illustrative until wired to Atlas; never a guaranteed result.
+// The free snapshot page renders a smaller shape; this card demonstrates the
+// paid report drill-down item.
 
 type Phase = 'idle' | 'searching' | 'result' | 'no-match' | 'error';
 
@@ -25,15 +25,11 @@ const resultSourceLabel: Record<DeflectionSearchSource, string> = {
   atlas: 'Atlas-backed · approved data',
 };
 
-function MatchBar({ score }: { score: number }) {
-  return (
-    <div className="h-1.5 w-full rounded-full bg-foreground/10 overflow-hidden">
-      <div className="h-full rounded-full bg-primary" style={{ width: `${score}%` }} />
-    </div>
-  );
+function titleCase(value: string) {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function EvidenceStatus({ status }: { status: DeflectionIssue['evidenceStatus'] }) {
+function EvidenceStatus({ status }: { status: TicketFAQItem['answer_evidence_status'] }) {
   const label = status === 'resolution_evidence' ? 'Resolved-answer evidence' : 'Draft needs review';
 
   return (
@@ -44,24 +40,24 @@ function EvidenceStatus({ status }: { status: DeflectionIssue['evidenceStatus'] 
   );
 }
 
-function SourceIds({
+function SourceEvidence({
   sourceIds,
-  sourceCount,
+  sourceLabels,
 }: {
   sourceIds: string[];
-  sourceCount: number;
+  sourceLabels: string[];
 }) {
-  const visibleSourceIds = sourceIds.slice(0, 4);
-  const omittedSourceCount = Math.max(0, sourceCount - visibleSourceIds.length);
+  const visibleSources = (sourceLabels.length > 0 ? sourceLabels : sourceIds).slice(0, 4);
+  const omittedSourceCount = Math.max(0, sourceIds.length - visibleSources.length);
 
   return (
     <div className="flex flex-wrap gap-2">
-      {visibleSourceIds.map((sourceId) => (
+      {visibleSources.map((source, index) => (
         <span
-          key={sourceId}
+          key={`${source}-${index}`}
           className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-mono text-foreground/55"
         >
-          {sourceId}
+          {source}
         </span>
       ))}
       {omittedSourceCount > 0 && (
@@ -73,24 +69,64 @@ function SourceIds({
   );
 }
 
-function ReportFindingCard({ issue }: { issue: DeflectionIssue }) {
+function TermMappings({ mappings }: { mappings: FAQTermMapping[] }) {
+  if (mappings.length === 0) return null;
+
+  return (
+    <div>
+      <div className="mb-2 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+        Customer words vs doc words
+      </div>
+      <div className="space-y-2">
+        {mappings.slice(0, 3).map((mapping) => (
+          <div
+            key={`${mapping.customer_term}-${mapping.documentation_term}`}
+            className="rounded-lg border border-border bg-surface p-3"
+          >
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <div className="mb-1 font-mono uppercase tracking-widest text-[9px] text-foreground/35">
+                  Customer term
+                </div>
+                <div className="font-medium text-foreground">&ldquo;{mapping.customer_term}&rdquo;</div>
+              </div>
+              <div>
+                <div className="mb-1 font-mono uppercase tracking-widest text-[9px] text-foreground/35">
+                  Current docs say
+                </div>
+                <div className="font-medium text-foreground/70">
+                  &ldquo;{mapping.documentation_term}&rdquo;
+                </div>
+              </div>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+              {mapping.suggestion}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReportFindingCard({ item }: { item: TicketFAQItem }) {
   return (
     <div className="flex flex-col rounded-xl border border-primary/30 bg-primary/[0.04] p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/45">
           Report finding
         </span>
-        <EvidenceStatus status={issue.evidenceStatus} />
+        <EvidenceStatus status={item.answer_evidence_status} />
       </div>
 
       <h3 className="mb-4 text-base font-semibold leading-snug text-foreground">
-        {issue.intent}
+        {titleCase(item.topic)}
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-border bg-surface p-3">
           <div className="text-2xl font-semibold tabular-nums text-foreground">
-            {issue.ticketVolumeInSample.toLocaleString()}
+            {item.ticket_count.toLocaleString()}
           </div>
           <div className="mt-1 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             Repeat tickets
@@ -98,7 +134,7 @@ function ReportFindingCard({ issue }: { issue: DeflectionIssue }) {
         </div>
         <div className="rounded-lg border border-border bg-surface p-3">
           <div className="text-2xl font-semibold tabular-nums text-primary">
-            {issue.sourceCount.toLocaleString()}
+            {item.source_ids.length.toLocaleString()}
           </div>
           <div className="mt-1 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             Source tickets
@@ -112,37 +148,24 @@ function ReportFindingCard({ issue }: { issue: DeflectionIssue }) {
             Customer wording
           </div>
           <p className="text-sm leading-relaxed text-foreground/75">
-            &ldquo;{issue.customerWording}&rdquo;
+            &ldquo;{item.question}&rdquo;
           </p>
         </div>
 
-        <div>
-          <div className="mb-1 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
-            Documentation gap
-          </div>
-          <p className="text-sm leading-relaxed text-foreground/65">{issue.documentationGap}</p>
-        </div>
+        <TermMappings mappings={item.term_mappings} />
 
         <div>
           <div className="mb-2 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             Source evidence
           </div>
-          <SourceIds sourceIds={issue.sourceIds} sourceCount={issue.sourceCount} />
+          <SourceEvidence sourceIds={item.source_ids} sourceLabels={item.source_labels} />
         </div>
-      </div>
-
-      <div className="mb-3">
-        <div className="mb-1 mt-5 flex items-center justify-between text-[11px] text-foreground/45">
-          <span>{issue.improved.matchLabel}</span>
-          <span className="font-mono">{issue.improved.matchScore}%</span>
-        </div>
-        <MatchBar score={issue.improved.matchScore} />
       </div>
     </div>
   );
 }
 
-function FaqDraftCard({ doc }: { doc: DeflectionDoc }) {
+function FaqDraftCard({ item }: { item: TicketFAQItem }) {
   return (
     <div className="flex flex-col rounded-xl border border-border bg-surface p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -150,20 +173,25 @@ function FaqDraftCard({ doc }: { doc: DeflectionDoc }) {
           FAQ draft
         </span>
         <span className="rounded-full border border-border px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
-          {doc.format}
+          {item.steps.length} steps
         </span>
       </div>
-      <h3 className="mb-3 text-base font-semibold leading-snug text-foreground">{doc.title}</h3>
+      <h3 className="mb-3 text-base font-semibold leading-snug text-foreground">{item.question}</h3>
+      <p className="mb-4 text-sm leading-relaxed text-foreground/65">{item.answer}</p>
       <ol className="space-y-1.5 mb-4">
-        {doc.body.split('\n').map((step, i) => (
+        {item.steps.map((step, i) => (
           <li key={i} className="flex gap-2 text-sm text-foreground/70 leading-relaxed">
             <span className="font-mono text-xs text-primary/70 mt-0.5">{i + 1}.</span>
             {step}
           </li>
         ))}
       </ol>
+      <div className="mb-4 rounded-lg border border-border bg-background/40 p-3 text-xs leading-relaxed text-foreground/60">
+        <span className="font-medium text-foreground/75">When to contact support: </span>
+        {item.when_to_contact_support}
+      </div>
       <div className="mt-auto flex flex-wrap gap-2 pt-1">
-        {doc.actions.map((action) => (
+        {item.action_items.map((action) => (
           <span
             key={action}
             className="text-xs px-3 py-1.5 rounded-md border border-primary/30 text-primary"
@@ -179,7 +207,7 @@ function FaqDraftCard({ doc }: { doc: DeflectionDoc }) {
 export function DeflectionDemo() {
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
-  const [issue, setIssue] = useState<DeflectionIssue | null>(null);
+  const [item, setItem] = useState<TicketFAQItem | null>(null);
   const [resultSource, setResultSource] = useState<DeflectionSearchSource>('local');
   // Monotonic request id: each search bumps it; a resolved response only updates
   // state if it is still the latest. Guards against out-of-order async results
@@ -194,7 +222,7 @@ export function DeflectionDemo() {
     const reqId = ++reqRef.current;
     if (!q) {
       setPhase('idle');
-      setIssue(null);
+      setItem(null);
       setResultSource('local');
       return;
     }
@@ -202,7 +230,7 @@ export function DeflectionDemo() {
     try {
       const found = await searchDeflection(q);
       if (reqId !== reqRef.current) return; // superseded by a newer search
-      setIssue(found.match);
+      setItem(found.match);
       setResultSource(found.source);
       setPhase(found.match ? 'result' : 'no-match');
     } catch {
@@ -210,7 +238,7 @@ export function DeflectionDemo() {
       // here — recover to a visible, retryable state instead of freezing on
       // 'searching' with an unhandled rejection.
       if (reqId !== reqRef.current) return;
-      setIssue(null);
+      setItem(null);
       setResultSource('local');
       setPhase('error');
     }
@@ -227,7 +255,7 @@ export function DeflectionDemo() {
     reqRef.current++;
     if (!raw.trim()) {
       setPhase('idle');
-      setIssue(null);
+      setItem(null);
       setResultSource('local');
       return;
     }
@@ -305,7 +333,7 @@ export function DeflectionDemo() {
       {phase === 'idle' && (
         <p className="text-sm text-foreground/50 leading-relaxed px-1">
           Pick a question above. You&apos;ll see the kind of report finding your team would review:
-          customer wording, the documentation gap, source-ticket evidence, and a drafted FAQ.
+          customer wording, term mappings, source-ticket evidence, and a drafted FAQ.
         </p>
       )}
 
@@ -330,7 +358,7 @@ export function DeflectionDemo() {
         </div>
       )}
 
-      {phase === 'result' && issue && (
+      {phase === 'result' && item && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -339,15 +367,15 @@ export function DeflectionDemo() {
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2 px-1">
             <h2 className="text-lg font-semibold text-foreground">
-              {issue.intent}: ranked finding and draft FAQ
+              {titleCase(item.topic)}: ranked finding and draft FAQ
             </h2>
             <span className="text-[11px] font-mono uppercase tracking-widest text-foreground/40">
               {resultSourceLabel[resultSource]}
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ReportFindingCard issue={issue} />
-            <FaqDraftCard doc={issue.improved} />
+            <ReportFindingCard item={item} />
+            <FaqDraftCard item={item} />
           </div>
         </motion.div>
       )}
