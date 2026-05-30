@@ -34,7 +34,7 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## 2026-05-28
 
-### DEFLECTION-INTAKE-PII-1 — raw CSV (with PII) uploaded to a PUBLIC Vercel Blob before any redaction
+### DEFLECTION-INTAKE-PII-1 — RESOLVED — raw CSV (with PII) uploaded to a PUBLIC Vercel Blob before any redaction
 - File/location: `web/src/components/landing/SupportTicketCsvIntakePage.tsx:100-116` (the `upload(...)` call with `access: 'public'`), esp. `:115`.
 - Description: The browser uploads the raw CSV directly to Vercel Blob with `access: 'public'` before any server step runs, and there is no PII-redaction code anywhere in the intake path (`web/src/lib/`, `web/src/app/api/gap-report-intake/`). If a customer cannot strip PII before upload, their raw file (names / emails / phone numbers) lands at a publicly-reachable Blob URL for the 30-day retention window — gated only by URL obscurity (timestamp + company slug), not auth. The prior copy claimed "we drop PII in our intake step"; PR #116 removed that false claim (now recommends self-stripping) but does not change the storage.
 - Why it matters: confirmed live customer-PII-in-public-storage. PR #116 stopped the copy from *lying* about it, but the exposure itself remains — security + data-truthfulness.
@@ -42,6 +42,10 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 - Category: security
 - Found during: PR-Offer-Spec (#116) — Codex P1. Also tracked as issue #117.
 - Fix: upload raw CSVs to a PRIVATE / token-gated Blob store (not `access: 'public'`), and/or redact PII before the Blob upload (client-side or a pre-store server step); then the privacy copy can be made strong again. Given it is confirmed-live customer PII, prioritize over routine parking and consider interim mitigation.
+- Resolved: PR-Private-Deflection-CSV-Uploads changes the client upload to
+  `access: 'private'`, stops emailing the blob URL as a public download link, and
+  adds an authenticated `/admin/intake/gap-report/[requestId]/csv` route that
+  streams the private blob with the server-side Blob token.
 
 ## 2026-05-25
 

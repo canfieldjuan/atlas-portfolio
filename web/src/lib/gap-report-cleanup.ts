@@ -30,8 +30,8 @@ function errorMessage(error: unknown) {
 }
 
 async function deleteBlob(url: string) {
-  // Same public-store token as the intake routes — new CSVs land in the public
-  // store, so cleanup must target it or the 30-day retention promise silently fails.
+  // Same intake-store token as the upload routes — cleanup must target the store
+  // that receives private CSVs or the 30-day retention promise silently fails.
   await del(url, { token: gapReportBlobToken() });
 }
 

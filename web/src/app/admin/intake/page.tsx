@@ -1,11 +1,16 @@
 import { cookies } from 'next/headers';
-import { Lock, LogOut, Mail, ShieldCheck } from 'lucide-react';
+import { Download, FileText, Lock, LogOut, Mail, ShieldCheck } from 'lucide-react';
 import { ADMIN_INTAKE_COOKIE, adminIntakeConfigured, verifyAdminIntakeCookie } from '@/lib/admin-intake-auth';
 import {
   auditIntakeDatabaseConfigured,
   listAuditIntakeRecords,
   type AuditIntakeSummaryRow,
 } from '@/lib/audit-intake-database';
+import {
+  gapReportDatabaseConfigured,
+  listGapReportSubmissions,
+  type GapReportSummaryRow,
+} from '@/lib/gap-report-intake-database';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,9 +58,9 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
         <p className="mb-3 text-[10px] font-mono tracking-[0.25em] text-primary uppercase">
           Private Admin
         </p>
-        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">Audit intake queue</h1>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">Intake queue</h1>
         <p className="mb-8 text-sm leading-relaxed text-foreground/60">
-          Enter the admin intake token to view recent portfolio audit submissions.
+          Enter the admin intake token to view recent audit requests and deflection CSV submissions.
         </p>
 
         {!adminIntakeConfigured() ? (
@@ -151,6 +156,55 @@ function SubmissionCard({ row }: { row: AuditIntakeSummaryRow }) {
   );
 }
 
+function GapReportSubmissionCard({ row }: { row: GapReportSummaryRow }) {
+  return (
+    <article className="rounded-2xl border border-border bg-surface p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="mb-2 text-[10px] font-mono tracking-[0.2em] text-primary uppercase">
+            {formatDate(row.submittedAt)}
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">{row.companyName}</h2>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-foreground/55">
+            <span className="rounded-full border border-border px-3 py-1">
+              {row.supportPlatform || 'platform not specified'}
+            </span>
+            <span className="rounded-full border border-border px-3 py-1">
+              {row.sourceOffer || 'no offer source'}
+            </span>
+            <span className="rounded-full border border-border px-3 py-1">
+              {row.notificationStatus}
+            </span>
+          </div>
+          <p className="mt-4 break-all font-mono text-xs text-foreground/35">
+            {row.requestId}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border bg-surface p-4 text-sm text-foreground/65 lg:min-w-80">
+          <div className="mb-3 flex items-center gap-2 text-foreground">
+            <Mail className="h-4 w-4 text-primary" />
+            <a href={`mailto:${row.email}`} className="hover:text-primary">
+              {row.email}
+            </a>
+          </div>
+          <div className="mb-4 flex items-center gap-2 break-all text-foreground/55">
+            <FileText className="h-4 w-4 shrink-0 text-primary" />
+            {row.csvFilename}
+          </div>
+          <a
+            href={`/admin/intake/gap-report/${row.requestId}/csv`}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-black transition-colors hover:bg-primary/90"
+          >
+            <Download className="h-4 w-4" />
+            Download CSV
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default async function AdminIntakePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const cookieStore = await cookies();
@@ -161,6 +215,7 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
   }
 
   const rows = await listAuditIntakeRecords(50);
+  const gapReportRows = await listGapReportSubmissions(25);
 
   return (
     <main className="min-h-screen px-6 pb-20 pt-32">
@@ -172,11 +227,12 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
               Private Queue
             </p>
             <h1 className="mb-3 text-4xl font-semibold tracking-tight text-foreground">
-              Audit intake submissions
+              Intake submissions
             </h1>
             <p className="max-w-2xl text-sm leading-relaxed text-foreground/60">
-              Recent portfolio audit requests persisted in the dedicated Neon intake database. This
-              view is read-only and intentionally separate from the Atlas B2B CRM event stream.
+              Recent portfolio audit requests and deflection CSV submissions persisted in the
+              dedicated Neon intake database. This view is read-only and intentionally separate
+              from the Atlas B2B CRM event stream.
             </p>
           </div>
           <form action="/admin/intake/logout" method="post">
@@ -187,22 +243,51 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
           </form>
         </div>
 
-        {!auditIntakeDatabaseConfigured() ? (
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100">
-            Configure <code>AUDIT_INTAKE_DATABASE_URL</code> or <code>DATABASE_URL</code> before
-            using the intake database.
-          </div>
-        ) : rows.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface p-8 text-sm text-foreground/60">
-            No audit requests have been persisted yet.
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {rows.map((row) => (
-              <SubmissionCard key={row.requestId} row={row} />
-            ))}
-          </div>
-        )}
+        <div className="space-y-12">
+          <section>
+            <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">
+              Deflection CSV submissions
+            </h2>
+            {!gapReportDatabaseConfigured() ? (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100">
+                Configure <code>GAP_REPORT_DATABASE_URL</code> or <code>DATABASE_URL</code> before
+                using deflection CSV downloads.
+              </div>
+            ) : gapReportRows.length === 0 ? (
+              <div className="rounded-xl border border-border bg-surface p-8 text-sm text-foreground/60">
+                No deflection CSV submissions have been persisted yet.
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {gapReportRows.map((row) => (
+                  <GapReportSubmissionCard key={row.requestId} row={row} />
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section>
+            <h2 className="mb-4 text-xl font-semibold tracking-tight text-foreground">
+              Audit intake submissions
+            </h2>
+            {!auditIntakeDatabaseConfigured() ? (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100">
+                Configure <code>AUDIT_INTAKE_DATABASE_URL</code> or <code>DATABASE_URL</code> before
+                using the audit intake database.
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="rounded-xl border border-border bg-surface p-8 text-sm text-foreground/60">
+                No audit requests have been persisted yet.
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {rows.map((row) => (
+                  <SubmissionCard key={row.requestId} row={row} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </section>
     </main>
   );

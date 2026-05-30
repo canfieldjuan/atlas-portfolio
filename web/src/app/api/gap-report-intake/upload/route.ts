@@ -22,7 +22,8 @@ export async function POST(request: Request) {
     const json = await handleUpload({
       request,
       body,
-      // Target the public deflection Blob store, not the project default.
+      // Target the deflection intake Blob store explicitly. The client creates a
+      // private blob; this token only grants a scoped upload after validation.
       token: gapReportBlobToken(),
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         if (!pathname.startsWith('gap-report-csvs/')) {

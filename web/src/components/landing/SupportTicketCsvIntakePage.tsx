@@ -111,7 +111,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         `gap-report-csvs/${Date.now()}-${companySlug}/${safeFilename}`,
         file,
         {
-          access: 'public',
+          access: 'private',
           handleUploadUrl: '/api/gap-report-intake/upload',
           clientPayload: JSON.stringify(metadata),
         }
