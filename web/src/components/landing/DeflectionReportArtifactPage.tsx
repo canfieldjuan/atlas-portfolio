@@ -16,59 +16,174 @@ function cleanMarkdownText(value: string) {
     .trim();
 }
 
+function isPipeTableRow(line: string) {
+  return line.startsWith('|') && line.endsWith('|') && line.slice(1, -1).includes('|');
+}
+
+function isPipeSeparatorRow(line: string) {
+  return /^\|?(\s*:?-{3,}:?\s*\|)+\s*$/.test(line);
+}
+
+function parsePipeCells(line: string) {
+  return line
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map(cleanMarkdownText);
+}
+
 function MarkdownDeliverable({ markdown }: { markdown: string }) {
   const lines = markdown.split(/\r?\n/).map((line) => line.trim());
+  const blocks: Array<
+    | { kind: 'space'; key: number }
+    | { kind: 'heading'; key: number; level: 2 | 3 | 4; text: string }
+    | { kind: 'paragraph'; key: number; text: string }
+    | { kind: 'ordered'; key: number; items: string[] }
+    | { kind: 'unordered'; key: number; items: string[] }
+    | { kind: 'table'; key: number; rows: string[][] }
+  > = [];
+
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+
+    if (!line) {
+      blocks.push({ kind: 'space', key: index });
+      continue;
+    }
+
+    if (isPipeTableRow(line)) {
+      const rows: string[][] = [];
+      while (index < lines.length && isPipeTableRow(lines[index])) {
+        if (!isPipeSeparatorRow(lines[index])) rows.push(parsePipeCells(lines[index]));
+        index++;
+      }
+      index--;
+      if (rows.length > 0) blocks.push({ kind: 'table', key: index, rows });
+      continue;
+    }
+
+    if (line.startsWith('### ')) {
+      blocks.push({ kind: 'heading', key: index, level: 4, text: cleanMarkdownText(line.slice(4)) });
+      continue;
+    }
+
+    if (line.startsWith('## ')) {
+      blocks.push({ kind: 'heading', key: index, level: 3, text: cleanMarkdownText(line.slice(3)) });
+      continue;
+    }
+
+    if (line.startsWith('# ')) {
+      blocks.push({ kind: 'heading', key: index, level: 2, text: cleanMarkdownText(line.slice(2)) });
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items: string[] = [];
+      while (index < lines.length && /^\d+\.\s+/.test(lines[index])) {
+        items.push(cleanMarkdownText(lines[index].replace(/^\d+\.\s+/, '')));
+        index++;
+      }
+      index--;
+      blocks.push({ kind: 'ordered', key: index, items });
+      continue;
+    }
+
+    if (line.startsWith('- ')) {
+      const items: string[] = [];
+      while (index < lines.length && lines[index].startsWith('- ')) {
+        items.push(cleanMarkdownText(lines[index].slice(2)));
+        index++;
+      }
+      index--;
+      blocks.push({ kind: 'unordered', key: index, items });
+      continue;
+    }
+
+    blocks.push({ kind: 'paragraph', key: index, text: cleanMarkdownText(line) });
+  }
 
   return (
     <article className="rounded-2xl border border-border bg-surface p-6 md:p-8">
-      {lines.map((line, index) => {
-        if (!line) return <div key={`space-${index}`} className="h-3" />;
+      {blocks.map((block) => {
+        if (block.kind === 'space') return <div key={`space-${block.key}`} className="h-3" />;
 
-        if (line.startsWith('### ')) {
+        if (block.kind === 'heading' && block.level === 2) {
           return (
-            <h3 key={index} className="mt-6 text-lg font-semibold text-foreground first:mt-0">
-              {cleanMarkdownText(line.slice(4))}
-            </h3>
-          );
-        }
-
-        if (line.startsWith('## ')) {
-          return (
-            <h2 key={index} className="mt-8 text-2xl font-semibold text-foreground first:mt-0">
-              {cleanMarkdownText(line.slice(3))}
+            <h2 key={block.key} className="mt-8 text-3xl font-semibold tracking-tight text-foreground first:mt-0">
+              {block.text}
             </h2>
           );
         }
 
-        if (line.startsWith('# ')) {
+        if (block.kind === 'heading' && block.level === 3) {
           return (
-            <h1 key={index} className="text-3xl font-semibold tracking-tight text-foreground">
-              {cleanMarkdownText(line.slice(2))}
-            </h1>
+            <h3 key={block.key} className="mt-8 text-2xl font-semibold text-foreground first:mt-0">
+              {block.text}
+            </h3>
           );
         }
 
-        if (/^\d+\.\s+/.test(line)) {
+        if (block.kind === 'heading') {
           return (
-            <p key={index} className="mt-2 text-sm leading-relaxed text-foreground/70">
-              <span className="font-mono text-primary/75">{line.match(/^\d+/)?.[0]}.</span>{' '}
-              {cleanMarkdownText(line.replace(/^\d+\.\s+/, ''))}
-            </p>
+            <h4 key={block.key} className="mt-6 text-lg font-semibold text-foreground first:mt-0">
+              {block.text}
+            </h4>
           );
         }
 
-        if (line.startsWith('- ')) {
+        if (block.kind === 'ordered') {
           return (
-            <p key={index} className="mt-2 flex gap-2 text-sm leading-relaxed text-foreground/70">
-              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
-              <span>{cleanMarkdownText(line.slice(2))}</span>
-            </p>
+            <ol key={block.key} className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-foreground/70">
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          );
+        }
+
+        if (block.kind === 'unordered') {
+          return (
+            <ul key={block.key} className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-foreground/70">
+              {block.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        if (block.kind === 'table') {
+          const [header, ...body] = block.rows;
+          return (
+            <div key={block.key} className="mt-4 overflow-x-auto rounded-xl border border-border">
+              <table className="min-w-full border-collapse text-left text-sm">
+                <thead className="bg-background/50 text-foreground">
+                  <tr>
+                    {header.map((cell, cellIndex) => (
+                      <th key={`${cell}-${cellIndex}`} className="border-b border-border px-3 py-2 font-semibold">
+                        {cell}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {body.map((row, rowIndex) => (
+                    <tr key={`${block.key}-${rowIndex}`} className="border-t border-border/70">
+                      {row.map((cell, cellIndex) => (
+                        <td key={`${cell}-${cellIndex}`} className="px-3 py-2 text-foreground/70">
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           );
         }
 
         return (
-          <p key={index} className="mt-3 text-sm leading-relaxed text-foreground/70 first:mt-0">
-            {cleanMarkdownText(line)}
+          <p key={block.key} className="mt-3 text-sm leading-relaxed text-foreground/70 first:mt-0">
+            {block.text}
           </p>
         );
       })}

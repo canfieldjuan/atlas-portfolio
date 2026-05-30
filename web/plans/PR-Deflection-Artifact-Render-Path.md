@@ -82,6 +82,7 @@ Parked hardening: none.
 ## Verification
 
 - `rg -n "export type (FAQDeflectionReportArtifact|TicketFAQMarkdownResult|TicketFAQItem|FAQTermMapping)|deflectionArtifactPath|DeflectionReportArtifactPage|getArtifact|dangerouslySetInnerHTML" web/src/lib/deflection-report-contract.ts web/src/lib/deflection-demo.ts web/src/components/deflection-demo/DeflectionDemo.tsx web/src/components/landing/DeflectionReportArtifactPage.tsx web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` - expected shared contract, artifact path, renderer, and route-branch references found; no `dangerouslySetInnerHTML` reference appears.
+- `rg -n "isPipeTableRow|isPipeSeparatorRow|<table|<ol|<ul|<h1|dangerouslySetInnerHTML" web/src/components/landing/DeflectionReportArtifactPage.tsx` - pipe-table branch, semantic lists, and the page-level `<h1>` are present; markdown headings are demoted under it; no `dangerouslySetInnerHTML` reference appears.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
 - `git diff --check` - passed.
@@ -94,9 +95,9 @@ Parked hardening: none.
 | Plan doc | ~103 |
 | Shared contract | ~89 |
 | Demo imports | ~10 |
-| Artifact renderer | ~341 |
+| Artifact renderer | ~456 |
 | Results route | ~15 |
-| Total | ~596 |
+| Total | ~711 |
 
 This is over the 400-LOC soft cap because the renderer needs enough structure to
 make the paid artifact path meaningful without wiring payment or live ATLAS
