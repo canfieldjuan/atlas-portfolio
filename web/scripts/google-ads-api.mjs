@@ -152,6 +152,51 @@ export async function googleAdsSearch(accessToken, apiVersion, customerId, query
   }
 }
 
+// Keyword Planner ideas + search volume. Read-only: POSTs a seed to
+// KeywordPlanIdeaService.generateKeywordIdeas and returns the result rows
+// (`text` + `keywordIdeaMetrics`). Same fail-closed pagination contract as
+// googleAdsSearch — refuse to silently truncate.
+export async function generateKeywordIdeas(accessToken, apiVersion, customerId, requestBody, options = {}) {
+  const label = options.errorLabel || 'Google Ads keyword ideas';
+  const maxPages = Math.max(1, Math.min(options.maxPages || GOOGLE_ADS_SEARCH_MAX_PAGES, GOOGLE_ADS_SEARCH_MAX_PAGES));
+  const aggregated = [];
+  let pageToken = '';
+  let pagesFetched = 0;
+
+  while (true) {
+    pagesFetched += 1;
+    const body = pageToken ? { ...requestBody, pageToken } : requestBody;
+    const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}:generateKeywordIdeas`, {
+      method: 'POST',
+      headers: googleAdsHeaders(accessToken, true),
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`${label} failed (${response.status}): ${await parseGoogleError(response, options)}`);
+    }
+
+    const payload = await response.json();
+    if (Array.isArray(payload.results)) {
+      aggregated.push(...payload.results);
+    }
+
+    const nextPageToken = payload.nextPageToken || '';
+    if (!nextPageToken) {
+      return aggregated;
+    }
+    if (nextPageToken === pageToken) {
+      throw new Error(
+        `${label} returned the same nextPageToken twice in a row; refusing to risk silent truncation.`,
+      );
+    }
+    if (pagesFetched >= maxPages) {
+      throw new Error(`${label} exceeded the ${maxPages}-page safety cap; refusing to follow more pages.`);
+    }
+    pageToken = nextPageToken;
+  }
+}
+
 export async function mutateGoogleAds(accessToken, apiVersion, customerId, collection, operations) {
   const response = await fetch(`https://googleads.googleapis.com/${apiVersion}/customers/${customerId}/${collection}:mutate`, {
     method: 'POST',

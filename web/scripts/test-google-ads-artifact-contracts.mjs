@@ -330,6 +330,30 @@ assert.deepEqual(googleAdsMalformedPreflightPayload.errors, [
   'GOOGLE_ADS_CUSTOMER_ID must contain at least one digit.',
 ]);
 
+// Keyword-ideas dry-run builds the generateKeywordIdeas request body without API calls.
+const keywordIdeasDryRun = runScript(
+  'generate-google-ads-keyword-ideas.mjs',
+  ['--keywords', 'ticket deflection,reduce support tickets', '--dry-run', '--json'],
+  0,
+  { env: { GOOGLE_ADS_CUSTOMER_ID: '1234567890' } },
+);
+const keywordIdeasPayload = JSON.parse(keywordIdeasDryRun.stdout);
+assert.equal(keywordIdeasPayload.mode, 'KEYWORD_IDEAS_DRY_RUN');
+assert.equal(keywordIdeasPayload.apiCalls, false);
+assert.equal(keywordIdeasPayload.mutations, false);
+assert.equal(keywordIdeasPayload.artifactVersion, GOOGLE_ADS_ARTIFACT_VERSIONS.KEYWORD_IDEAS);
+assert.equal(keywordIdeasPayload.requestBody.keywordPlanNetwork, 'GOOGLE_SEARCH');
+assert.deepEqual(keywordIdeasPayload.requestBody.geoTargetConstants, ['geoTargetConstants/2840']);
+assert.equal(keywordIdeasPayload.requestBody.language, 'languageConstants/1000');
+assert.deepEqual(keywordIdeasPayload.requestBody.keywordSeed.keywords, [
+  'ticket deflection',
+  'reduce support tickets',
+]);
+
+// Missing seed fails closed.
+const keywordIdeasNoSeed = runScript('generate-google-ads-keyword-ideas.mjs', ['--json'], 1);
+assert.equal(JSON.parse(keywordIdeasNoSeed.stdout).ok, false);
+
 assert.deepEqual(
   validateArtifactFreshness(
     { generatedAt: '2026-04-07T10:00:00.000Z' },
