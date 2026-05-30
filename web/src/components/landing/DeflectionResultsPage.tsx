@@ -18,6 +18,8 @@ export function DeflectionResultsPage({
 }) {
   const { summary, top_questions } = snapshot;
   const maxFreq = top_questions.reduce((m, q) => Math.max(m, q.weighted_frequency), 0) || 1;
+  const firstLockedRank = top_questions.length + 1;
+  const hasMoreQuestions = summary.generated > top_questions.length;
 
   function handleUnlock() {
     // TODO(gated slice): create a server-side Stripe Checkout Session with
@@ -97,13 +99,17 @@ export function DeflectionResultsPage({
             In your full report
           </div>
           <ul className="space-y-3 text-sm leading-relaxed text-foreground/70">
-            <li className="flex items-start gap-3">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
-              <span>
-                <strong className="text-foreground">#6–#{summary.generated}</strong>, ranked
-                the same way — every recurring question in your tickets.
-              </span>
-            </li>
+            {hasMoreQuestions && (
+              <li className="flex items-start gap-3">
+                <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
+                <span>
+                  <strong className="text-foreground">
+                    #{firstLockedRank}–#{summary.generated}
+                  </strong>
+                  , ranked the same way — every recurring question in your tickets.
+                </span>
+              </li>
+            )}
             <li className="flex items-start gap-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
               <span>
