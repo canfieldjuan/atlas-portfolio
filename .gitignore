@@ -15,3 +15,6 @@ __pycache__/
 # Local secrets (never commit)
 .env
 .env.local
+
+# Git worktrees created inside the repo (parallel sessions) — never commit
+/worktrees/
