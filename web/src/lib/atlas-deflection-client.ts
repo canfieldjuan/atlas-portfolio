@@ -144,8 +144,13 @@ function parseArtifact(v: unknown): FAQDeflectionReportArtifact | null {
   if (
     !s ||
     typeof s.generated !== 'number' ||
+    typeof s.drafted_answer_count !== 'number' ||
+    typeof s.no_proven_answer_count !== 'number' ||
+    typeof s.ticket_source_count !== 'number' ||
     typeof s.top_question !== 'string' ||
-    typeof s.top_opportunity_score !== 'number'
+    typeof s.top_opportunity_score !== 'number' ||
+    typeof s.output_checks !== 'object' ||
+    s.output_checks === null
   ) {
     return null;
   }
