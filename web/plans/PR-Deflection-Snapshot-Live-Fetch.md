@@ -29,6 +29,13 @@ Slice phase: Functional validation
    `ok → render`, `not_configured → fixture` (local/preview without secrets),
    `not_found → notFound()`, `error → throw` (error page).
 
+### Files touched
+
+- `web/plans/PR-Deflection-Snapshot-Live-Fetch.md` — this plan doc (new)
+- `web/src/lib/atlas-deflection-client.ts` — server-only ATLAS snapshot client (new)
+- `web/src/lib/deflection-snapshot.ts` — `deflectionSnapshotPath` `/api/v1` prefix fix
+- `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` — live `getSnapshot`
+
 ## Mechanism
 
 - Server-only by usage: the client is imported only by the server route, and
