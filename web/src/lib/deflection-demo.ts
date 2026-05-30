@@ -8,50 +8,7 @@
 // The interactive demo renders one TicketFAQItem-shaped finding at a time. The
 // free snapshot page intentionally uses the smaller DeflectionSnapshot shape in
 // `deflection-snapshot.ts`.
-
-export type FAQTermMapping = {
-  customer_term: string;
-  documentation_term: string;
-  suggestion: string;
-  source_id_count: number;
-  zero_result_source_count: number;
-  failure_risk_score: number;
-  failure_risk_signals: string[];
-  opportunity_score: number;
-  first_source_id: string;
-};
-
-export type TicketFAQItem = {
-  topic: string;
-  question: string;
-  question_source: 'customer_wording' | 'source_policy';
-  summary: string;
-
-  frequency: number;
-  weighted_frequency: number;
-  ticket_count: number;
-  opportunity_score: number;
-  failure_risk_score: number;
-  failure_risk_signals: string[];
-
-  answer: string;
-  steps: string[];
-  action_items: string[];
-  answer_evidence_status: 'resolution_evidence' | 'draft_needs_review';
-  resolution_source_count: number;
-  when_to_contact_support: string;
-
-  evidence_quotes: string[];
-  source_ids: string[];
-  source_labels: string[];
-  source_type_counts: Record<string, number>;
-  weighted_source_volume_by_type: Record<string, number>;
-
-  term_mappings: FAQTermMapping[];
-
-  evidence_count: number;
-  displayed_evidence_count: number;
-};
+import type { TicketFAQItem } from '@/lib/deflection-report-contract';
 
 type DemoTicketFAQItem = TicketFAQItem & {
   /** Local matcher metadata only. Not part of the rendered report contract. */

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { DeflectionReportArtifactPage } from '@/components/landing/DeflectionReportArtifactPage';
 import { DeflectionResultsPage } from '@/components/landing/DeflectionResultsPage';
 import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
 } from '@/lib/deflection-snapshot';
+import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
 type PageProps = { params: Promise<{ requestId: string }> };
 
@@ -25,8 +27,21 @@ async function getSnapshot(requestId: string): Promise<DeflectionSnapshot> {
   return DEMO_DEFLECTION_SNAPSHOT;
 }
 
+// TODO(artifact hydration): fetch the paid artifact from ATLAS before the
+// snapshot. Expected behavior once configured:
+//   200 -> render DeflectionReportArtifactPage
+//   403 -> paid artifact locked; render DeflectionResultsPage snapshot
+//   404 -> no artifact yet; render DeflectionResultsPage snapshot
+async function getArtifact(requestId: string): Promise<FAQDeflectionReportArtifact | null> {
+  void requestId;
+  return null;
+}
+
 export default async function DeflectionResultsRoute({ params }: PageProps) {
   const { requestId } = await params;
+  const artifact = await getArtifact(requestId);
+  if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
+
   const snapshot = await getSnapshot(requestId);
   return <DeflectionResultsPage snapshot={snapshot} />;
 }
