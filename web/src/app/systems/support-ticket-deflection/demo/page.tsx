@@ -24,15 +24,14 @@ export default function SupportTicketDeflectionDemoPage() {
             If customers keep asking it, the answer isn&apos;t where they&apos;re looking.
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Type a question your customers keep asking. You&apos;ll see the actionable answer the
-            Support Ticket Deflection Report would have your team publish — beside the real demand
-            behind it: how often it&apos;s asked, the risk it carries, and what customers actually say.
+            Type a question your customers keep asking. You&apos;ll see the report finding your
+            team would review beside the drafted FAQ fields it returns: how often it&apos;s asked,
+            the wording gap, the source evidence, and the answer draft.
           </p>
           <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
             The demand numbers are real — ticket and source counts from a labeled-synthetic B2B-SaaS
-            sample run through the generator. The answers are illustrative finished FAQs: this is what
-            a published answer looks like, while your Report gives you drafts from your own ticket
-            export to review and refine.
+            sample. The card is shaped like the product report item: customer terms, documentation
+            terms, evidence, and draft FAQ fields your team reviews before publishing.
           </p>
         </div>
 
@@ -50,7 +49,8 @@ export default function SupportTicketDeflectionDemoPage() {
             </h2>
             <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
               Upload a CSV of your last 3–6 months of closed tickets. We send back a free Deflection
-              Snapshot: your top repeat questions, the wording customers use, and a sample answer.
+              Snapshot: your top repeat questions, the wording customers use, and the paid report
+              fields waiting behind the unlock.
             </p>
             <Link
               href="/systems/support-ticket-deflection/intake"
