@@ -16,10 +16,9 @@ export function isSupportPlatform(value: unknown): value is SupportPlatform {
 
 export const GAP_REPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// The atlas-portfolio project has multiple Vercel Blob stores connected, so the
-// default BLOB_READ_WRITE_TOKEN resolves to the wrong (private) store. This intake
-// uses the public deflection store explicitly via its prefixed token; falls back
-// to the default if the store setup is ever consolidated to a single store.
+// The atlas-portfolio project has multiple Vercel Blob stores connected. This
+// intake targets the deflection CSV store explicitly via its prefixed token; it
+// falls back to the default if the store setup is ever consolidated to one store.
 // Returns undefined when neither is set, so the SDK surfaces its own "no token"
 // error rather than us masking it. One source of truth for both intake routes.
 export function gapReportBlobToken(): string | undefined {
@@ -188,7 +187,8 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
     'CSV',
     `Filename: ${record.csvFilename}`,
     `Size: ${formatBytes(record.csvSizeBytes)}`,
-    `Download: ${record.csvBlobUrl}`,
+    `Private blob reference: ${record.csvBlobUrl}`,
+    'Download: open /admin/intake and use the authenticated CSV link for this request.',
     '',
     offer.notificationFooter,
   ].join('\n');

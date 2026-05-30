@@ -34,8 +34,8 @@ export async function POST(request: Request) {
 
   // head() uses our store's token, so it only resolves blobs we own; this is the
   // authoritative check that the reported URL is a real upload in our namespace.
-  // Same explicit public-store token as /upload, so the ownership check runs
-  // against the store the CSV was actually uploaded to.
+  // Same explicit intake-store token as /upload, so the ownership check runs
+  // against the store the private CSV was actually uploaded to.
   try {
     await head(blobUrl, { token: gapReportBlobToken() });
   } catch {
