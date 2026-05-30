@@ -50,5 +50,5 @@ export default async function DeflectionResultsRoute({ params }: PageProps) {
   if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
 
   const snapshot = await getSnapshot(requestId);
-  return <DeflectionResultsPage snapshot={snapshot} />;
+  return <DeflectionResultsPage snapshot={snapshot} requestId={requestId} />;
 }
