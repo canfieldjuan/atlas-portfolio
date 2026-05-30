@@ -38,10 +38,19 @@ function EvidenceStatus({ status }: { status: DeflectionIssue['evidenceStatus'] 
   );
 }
 
-function SourceIds({ sourceIds }: { sourceIds: string[] }) {
+function SourceIds({
+  sourceIds,
+  sourceCount,
+}: {
+  sourceIds: string[];
+  sourceCount: number;
+}) {
+  const visibleSourceIds = sourceIds.slice(0, 4);
+  const omittedSourceCount = Math.max(0, sourceCount - visibleSourceIds.length);
+
   return (
     <div className="flex flex-wrap gap-2">
-      {sourceIds.slice(0, 4).map((sourceId) => (
+      {visibleSourceIds.map((sourceId) => (
         <span
           key={sourceId}
           className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-mono text-foreground/55"
@@ -49,9 +58,9 @@ function SourceIds({ sourceIds }: { sourceIds: string[] }) {
           {sourceId}
         </span>
       ))}
-      {sourceIds.length > 4 && (
+      {omittedSourceCount > 0 && (
         <span className="rounded-md border border-border bg-surface px-2.5 py-1 text-[11px] font-mono text-foreground/45">
-          +{sourceIds.length - 4} more
+          +{omittedSourceCount} more
         </span>
       )}
     </div>
@@ -112,7 +121,7 @@ function ReportFindingCard({ issue }: { issue: DeflectionIssue }) {
           <div className="mb-2 text-[10px] font-mono uppercase tracking-widest text-foreground/40">
             Source evidence
           </div>
-          <SourceIds sourceIds={issue.sourceIds} />
+          <SourceIds sourceIds={issue.sourceIds} sourceCount={issue.sourceCount} />
         </div>
       </div>
 

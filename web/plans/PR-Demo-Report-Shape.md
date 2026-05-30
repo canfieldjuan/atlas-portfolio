@@ -46,6 +46,11 @@ presentation changes from "answer card beside signals" into two cards:
 - a draft FAQ card showing the review-ready question, answer steps, and action
   items.
 
+The source-evidence chip row may show only a short preview of source ids. Its
+omitted-count badge is derived from the finding's `sourceCount`, not from the
+preview array length, so the visible evidence preview stays consistent with the
+advertised source-ticket count.
+
 ## Intentional
 
 - No page-order change yet; the demo placement after "How it works" is kept
@@ -66,9 +71,10 @@ presentation changes from "answer card beside signals" into two cards:
 ## Verification
 
 - `rg -n "What the Report would publish|Why this matters|answer to publish|ticket demand behind it|Report finding|FAQ draft|documentationGap|sourceIds|customerWording" web/src` — confirmed the old result-card framing is absent and the report-shape fields render in the demo.
+- `rg -n "function SourceIds|omittedSourceCount|sourceCount=|\+\{omittedSourceCount\}" web/src/components/deflection-demo/DeflectionDemo.tsx` — confirmed the evidence preview's `+N more` indicator is derived from `sourceCount`, addressing the review P2 for local samples where `sourceIds` is a preview list.
 - `npm --prefix web run lint` — passed.
 - `npm --prefix web run build` — passed; `/systems/support-ticket-deflection`, `/demo`, and the API route compiled successfully.
-- Browser check of `/systems/support-ticket-deflection` with the `export attribution reports` demo chip on desktop and 390px mobile — rendered `Report finding`, `FAQ draft`, `Customer wording`, `Documentation gap`, and `Source evidence`; no framework overlay, no browser errors, and no horizontal overflow.
+- Browser check of `/systems/support-ticket-deflection` with the `export attribution reports` demo chip on desktop and 390px mobile — rendered `Report finding`, `FAQ draft`, `Customer wording`, `Documentation gap`, and `Source evidence`; the 8-source sample now shows three visible source ids plus `+5 more`; no framework overlay, no browser errors, and no horizontal overflow.
 - `git diff --check` — passed.
 - `bash scripts/local_pr_review.sh` — passed.
 
@@ -76,11 +82,11 @@ presentation changes from "answer card beside signals" into two cards:
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~85 |
+| Plan doc | ~90 |
 | Demo contract and sample fields | ~45 |
 | Route adapter contract mapping | ~10 |
-| Demo result renderer | ~150 |
+| Demo result renderer | ~170 |
 | Landing demo description | ~4 |
-| Total | ~295 |
+| Total | ~320 |
 
 Under the 400-LOC soft cap.
