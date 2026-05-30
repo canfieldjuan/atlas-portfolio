@@ -2,14 +2,12 @@
 
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   CircleHelp,
   FileSearch,
   ShieldCheck,
   Workflow,
 } from 'lucide-react';
-import Link from 'next/link';
 import { Fragment, type ReactNode } from 'react';
 import { type DeflectionLandingPageConfig } from '@/components/landing/DeflectionLandingPage';
 import {
@@ -152,11 +150,6 @@ function ProofCards() {
   );
 }
 
-// The calculator link is parameterized so it renders only on the public page.
-// The partner-priced twin (partner/page.tsx) reuses this config but passes no
-// href to the cost section: the public /calculator's back link returns to the
-// public $1,500 page, which would leak a design partner out of the noindex
-// $1,000 funnel.
 export function makeProblemAgitation(): DeflectionLandingPageConfig['problemAgitation'] {
   return {
     label: 'THE BROKEN LOOP',
@@ -186,9 +179,7 @@ export function makeProblemAgitation(): DeflectionLandingPageConfig['problemAgit
   };
 }
 
-export function makeProblemCost(
-  calculatorHref?: string,
-): DeflectionLandingPageConfig['problemCost'] {
+export function makeProblemCost(): DeflectionLandingPageConfig['problemCost'] {
   return {
     label: 'WHAT IT COSTS',
     title: 'Repeat questions are bleeding your support budget.',
@@ -200,17 +191,6 @@ export function makeProblemCost(
         <p>
           Run that against your own repeat volume. The cost is real, not theoretical.
         </p>
-        {calculatorHref && (
-          <div>
-            <Link
-              href={calculatorHref}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition-colors"
-            >
-              Run the numbers on your own volume
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        )}
         <p>This is not just about money. It is what repeat work does to the team:</p>
         <SectionList
           items={[
