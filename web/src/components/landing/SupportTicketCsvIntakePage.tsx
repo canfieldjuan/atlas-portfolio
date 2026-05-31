@@ -24,6 +24,12 @@ type FormErrors = Partial<{
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 50;
 const CSV_UPLOAD_CONTENT_TYPES = new Set(['text/csv', 'application/csv', 'application/vnd.ms-excel']);
+const REPORT_REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+
+function deflectionResultsHref(reportRequestId: string | undefined) {
+  if (!reportRequestId || !REPORT_REQUEST_ID_RE.test(reportRequestId)) return null;
+  return `/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+}
 
 export type SupportTicketCsvIntakeCopy = {
   backHref: string;
@@ -146,6 +152,18 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         return;
       }
 
+      const resultsHref = deflectionResultsHref(payload.reportRequestId);
+      if (resultsHref) {
+        trackFaqReportCsvSubmitted({
+          supportPlatform,
+          sourcePage: copy.sourcePage,
+          sourceOffer: copy.sourceOffer,
+          status: 'submitted',
+        });
+        window.location.assign(resultsHref);
+        return;
+      }
+
       setSubmission({
         phase: 'success',
         requestId: payload.requestId || '',
@@ -187,9 +205,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     const hasInternalWarning = submission.warnings.some(
       (warning) => !warning.toLowerCase().includes('customer confirmation')
     );
-    const resultsHref = submission.reportRequestId
-      ? `/systems/support-ticket-deflection/results/${encodeURIComponent(submission.reportRequestId)}`
-      : null;
+    const resultsHref = deflectionResultsHref(submission.reportRequestId);
 
     return (
       <>
