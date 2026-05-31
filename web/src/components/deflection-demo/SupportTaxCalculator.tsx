@@ -329,7 +329,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
           <div className={`rounded-xl border border-border bg-surface ${compact ? 'p-4' : 'p-5'}`}>
             <h3 className="text-sm font-semibold text-foreground">What to do with this number</h3>
             <p className={`${compact ? 'text-xs' : 'text-sm'} mt-2 leading-relaxed text-foreground/62`}>
-              Upload 3-6 months of tickets. The free snapshot shows whether repeat questions are
+              Upload 3 months of tickets. The free snapshot shows whether repeat questions are
               actually there, which customer wording is missing, and one review-ready FAQ draft
               built from resolved replies.
             </p>
@@ -337,7 +337,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               href="/systems/support-ticket-deflection/intake"
               className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
             >
-              Upload tickets — get a free Deflection Snapshot
+              Upload tickets, get a free Deflection Snapshot
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

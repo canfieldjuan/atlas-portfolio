@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { generatePageMetadata } from '@/lib/seo';
 
 const baseMetadata = generatePageMetadata({
-  title: 'Upload Your Tickets — Deflection Snapshot Intake',
+  title: 'Upload Your Tickets, Deflection Snapshot Intake',
   description:
-    'Upload 3–6 months of closed support tickets. We will send back a free Deflection Snapshot in 24 hours: ranked repeat questions, missing customer wording, and one review-ready FAQ draft built from resolved replies.',
+    'Upload 3 months of closed support tickets. We will send back a free Deflection Snapshot in 24 hours: ranked repeat questions, missing customer wording, and one review-ready FAQ draft built from resolved replies.',
   path: '/systems/support-ticket-deflection/intake',
   keywords: [
     'Deflection Snapshot intake',
@@ -15,7 +15,7 @@ const baseMetadata = generatePageMetadata({
   ],
 });
 
-// Conversion pages should not surface in organic search — they're always
+// Conversion pages should not surface in organic search, they're always
 // reached via the marketing page or a direct outreach link. noindex prevents
 // Google from ranking the intake form for unrelated queries.
 export const metadata: Metadata = {

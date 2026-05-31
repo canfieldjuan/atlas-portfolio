@@ -14,7 +14,7 @@ export default function SupportTicketDeflectionPlaybookPage() {
           Back to Support Ticket Deflection
         </Link>
 
-        {/* Hook — self-contained for a cold visitor who never saw the wedge. */}
+        {/* Hook, self-contained for a cold visitor who never saw the wedge. */}
         <header className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
             <span>SUPPORT TICKET DEFLECTION · PLAYBOOK</span>
@@ -23,7 +23,7 @@ export default function SupportTicketDeflectionPlaybookPage() {
             Your users can Google it. So why are they opening a ticket?
           </h1>
           <p className="text-lg text-foreground/60 leading-relaxed">
-            Ten questions every SaaS support team gets — the docs-y article that quietly creates a
+            Ten questions every SaaS support team gets, the docs-y article that quietly creates a
             ticket, and the rewrite that deflects it. Google reads what a customer <em>meant</em> and
             hands them the next action; most help centers are organized by your taxonomy, in your
             jargon. The gap between those two is your ticket volume. Here&apos;s where it leaks, and
@@ -48,7 +48,7 @@ export default function SupportTicketDeflectionPlaybookPage() {
                   <X className="w-3 h-3" /> What most help centers serve
                 </div>
                 <p className="text-sm text-foreground/55 leading-relaxed">
-                  <span className="text-foreground/70">{entry.servedToday}</span> — {entry.whyItFails}
+                  <span className="text-foreground/70">{entry.servedToday}</span>, {entry.whyItFails}
                 </p>
               </div>
 
@@ -82,19 +82,19 @@ export default function SupportTicketDeflectionPlaybookPage() {
             href="/systems/support-ticket-deflection/demo"
             className="inline-flex items-center justify-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
-            See it on a real question — try the live demo
+            See it on a real question, try the live demo
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
-        {/* Snapshot CTA — the money step. */}
+        {/* Snapshot CTA, the money step. */}
         <div className="mt-10 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center shadow-[var(--primary-glow)]">
           <FileText className="w-7 h-7 text-primary mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">
             Run this on your own help center
           </h2>
           <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
-            Upload a CSV of your last 3–6 months of closed tickets. We send back a free Deflection
+            Upload a CSV of your last 3 months of closed tickets. We send back a free Deflection
             Snapshot: your top repeat questions, the wording customers use, and a sample rewrite.
           </p>
           <Link

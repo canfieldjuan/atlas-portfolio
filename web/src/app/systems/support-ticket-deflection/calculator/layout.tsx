@@ -1,7 +1,7 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Leaky Bucket Calculator — repeat ticket cost estimate",
+  title: "Leaky Bucket Calculator, repeat ticket cost estimate",
   description:
     "Estimate the annual budget leaking through repeated support questions, context gathering, agent churn, and low self-service resolution.",
   path: "/systems/support-ticket-deflection/calculator",

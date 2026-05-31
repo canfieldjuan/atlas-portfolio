@@ -1,9 +1,9 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Support Ticket Deflection Report — Cut Repeat Support Tickets",
+  title: "Support Ticket Deflection Report: Cut Repeat Support Tickets",
   description:
-    "The Support Ticket Deflection Report turns your last 3–6 months of support tickets into repeat-ticket rankings, customer wording, and self-service answers your team can review and publish.",
+    "The Support Ticket Deflection Report turns your last 3 months of support tickets into repeat-ticket rankings, customer wording, and self-service answers your team can review and publish.",
   path: "/systems/support-ticket-deflection",
   keywords: [
     "support ticket deflection",

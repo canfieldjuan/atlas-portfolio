@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Your users can Google it. So why are they opening a ticket?",
   description:
-    "Ten questions every SaaS support team gets — the docs-y help-center article that quietly creates a ticket, and the customer-language rewrite that deflects it.",
+    "Ten questions every SaaS support team gets, the docs-y help-center article that quietly creates a ticket, and the customer-language rewrite that deflects it.",
   path: "/systems/support-ticket-deflection/playbook",
   keywords: [
     "support ticket deflection playbook",
