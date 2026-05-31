@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/systems/support-ticket-deflection/demo`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/systems/support-ticket-deflection/playbook`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/systems/support-ticket-deflection/calculator`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/systems/support-ticket-deflection/support-tax`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/systems/atlas-llm-gateway`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/proof`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
