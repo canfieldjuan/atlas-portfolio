@@ -159,4 +159,19 @@ Configure this secret in Production and Preview before using the page:
 ADMIN_INTAKE_TOKEN=
 ```
 
+## Support Ticket Deflection Checkout
+
+The deflection results page creates one-time Stripe Checkout Sessions from a
+server route. Configure a restricted Stripe API key with the minimum Checkout
+Sessions write permission:
+
+```text
+ATLAS_SAAS_STRIPE_RAK=
+ATLAS_ACCOUNT_ID=
+```
+
+`ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
+validation. Full live `sk_live_` keys are rejected; production should use an
+`rk_live_` restricted key.
+
 Use a long random value. Do not put this token in links or query strings.

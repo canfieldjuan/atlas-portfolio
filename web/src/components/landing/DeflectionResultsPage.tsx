@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { ArrowRight, Lock, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
@@ -11,9 +12,11 @@ const CALCULATOR_HREF = '/systems/support-ticket-deflection/calculator';
 // the full report is unlocked server-side by ATLAS after payment (gated slice).
 export function DeflectionResultsPage({
   snapshot,
+  requestId,
   companyName,
 }: {
   snapshot: DeflectionSnapshot;
+  requestId: string;
   companyName?: string;
 }) {
   const { summary, top_questions } = snapshot;
@@ -21,12 +24,45 @@ export function DeflectionResultsPage({
   const firstLockedRank = top_questions.length + 1;
   const hasMoreQuestions = summary.generated > top_questions.length;
 
-  function handleUnlock() {
-    // TODO(gated slice): create a server-side Stripe Checkout Session with
-    // metadata { source: 'content_ops_deflection_report', account_id, request_id },
-    // mode: 'payment', amount_total >= 150000, currency: 'usd', then redirect.
-    // Stripe's checkout.session.completed webhook -> ATLAS flips the paid flag;
-    // on return we probe GET /artifact (200 unlock / 403 keep CTA).
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Ask our server to create a Stripe Checkout Session, then hand the browser to
+  // Stripe's hosted page. ATLAS flips the paid flag from the webhook; on return
+  // the results page re-probes GET /artifact and renders the full report once
+  // unlocked. `alreadyPaid` means the webhook already landed — just reload.
+  async function handleUnlock() {
+    setLoading(true);
+    setError(null);
+    const attemptId =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    try {
+      const res = await fetch('/api/deflection-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, attemptId }),
+      });
+      const data = (await res.json()) as {
+        url?: string;
+        alreadyPaid?: boolean;
+        error?: string;
+      };
+      if (data.alreadyPaid) {
+        window.location.reload();
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setError(data.error ?? 'Could not start checkout. Please try again.');
+      setLoading(false);
+    } catch {
+      setError('Could not start checkout. Please try again.');
+      setLoading(false);
+    }
   }
 
   return (
@@ -150,11 +186,18 @@ export function DeflectionResultsPage({
           <button
             type="button"
             onClick={handleUnlock}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white hover:bg-primary-dark transition-colors"
+            disabled={loading}
+            aria-busy={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Unlock the full report — $1,500
-            <ArrowRight className="h-4 w-4" />
+            {loading ? 'Starting checkout…' : 'Unlock the full report — $1,500'}
+            {!loading && <ArrowRight className="h-4 w-4" />}
           </button>
+          {error && (
+            <p role="alert" className="text-sm text-red-500 mt-3">
+              {error}
+            </p>
+          )}
           <p className="text-xs text-foreground/45 mt-3">
             One-time. No subscription. <FileText className="inline h-3 w-3" /> Full report
             delivered instantly.
