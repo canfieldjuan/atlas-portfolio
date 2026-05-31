@@ -72,6 +72,24 @@ try {
     { ok: true },
   );
 
+  resetStore();
+  const cappedStoreConfig = { scope: 'unit', limit: 2, windowMs: 60_000 };
+  for (let index = 0; index < 1_000; index += 1) {
+    assert.deepEqual(
+      consumeDeflectionRateLimit(testHeaders('203.0.113.20'), `random-report-${index}`, cappedStoreConfig),
+      { ok: true },
+    );
+  }
+  assert.deepEqual(
+    consumeDeflectionRateLimit(testHeaders('203.0.113.20'), 'random-report-over-cap', cappedStoreConfig),
+    { ok: false, retryAfterSeconds: 60 },
+  );
+  now += 60_000;
+  assert.deepEqual(
+    consumeDeflectionRateLimit(testHeaders('203.0.113.20'), 'random-report-after-expiry', cappedStoreConfig),
+    { ok: true },
+  );
+
   console.log('Deflection rate-limit tests passed.');
 } finally {
   Date.now = originalNow;

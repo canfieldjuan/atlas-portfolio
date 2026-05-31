@@ -23,6 +23,7 @@ Slice phase: Production hardening
 2. Apply a stricter bucket to `POST /api/deflection-checkout`.
 3. Apply a looser bucket to `GET /api/deflection-report-status`, sized so the
    #161 success-return poll can complete without tripping itself.
+4. Enroll the focused helper regression in the existing pre-push CI workflow.
 
 ### Files touched
 
@@ -32,6 +33,7 @@ Slice phase: Production hardening
 - `web/scripts/test-deflection-rate-limit.mjs` - focused helper regression test
   (new)
 - `web/package.json` - adds the focused test script
+- `.github/workflows/pre_push_audit.yml` - runs the focused helper test in CI
 - `web/src/app/api/deflection-checkout/route.ts` - checkout throttle before
   ATLAS/Stripe calls
 - `web/src/app/api/deflection-report-status/route.ts` - status throttle before
@@ -49,8 +51,10 @@ Buckets:
   `ip + requestId`.
 - Status polling: `40` attempts per `60` seconds for a given `ip + requestId`.
 
-On limit hit, the routes return `429` with generic copy and do not call ATLAS or
-Stripe.
+On per-key limit hit, the routes return `429` with generic copy and do not call
+ATLAS or Stripe. The helper also caps live per-process buckets after pruning
+expired entries, so syntactically valid random request ids cannot grow the
+process map without bound.
 
 ## Intentional
 
@@ -61,6 +65,9 @@ Stripe.
   calls during the success-return finalization window.
 - The limit key includes `requestId`; this avoids one report's finalization poll
   blocking another report from the same office/network.
+- The live bucket cap fails closed for new buckets during a burst. That can
+  temporarily block fresh report ids on the same warm instance, but bounds memory
+  without evicting legitimate active buckets.
 
 ## Deferred
 
@@ -85,10 +92,11 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | rate-limit helper | ~60 |
-| focused helper test + script entry | ~85 |
+| focused helper test + script entry | ~105 |
+| CI test enrollment | ~5 |
 | checkout route hook | ~15 |
 | status route hook | ~15 |
 | this plan doc | ~85 |
-| **Total** | ~260 |
+| **Total** | ~310 |
 
-Actual diff: 6 files, +278 / -0.
+Actual diff: 7 files, +321 / -0.

@@ -13,6 +13,8 @@ type DeflectionRateLimitResult =
   | { ok: true }
   | { ok: false; retryAfterSeconds: number };
 
+const MAX_ACTIVE_RATE_LIMIT_BUCKETS = 1000;
+
 declare global {
   // Best-effort, per-process throttle for public paid-flow endpoints.
   // Serverless can run many instances, so edge/KV rate limiting remains stronger.
@@ -35,10 +37,19 @@ function clientIdentifier(headers: Headers) {
 }
 
 function pruneExpired(limitStore: Map<string, DeflectionRateLimitEntry>, now: number) {
-  if (limitStore.size < 1000) return;
+  if (limitStore.size < MAX_ACTIVE_RATE_LIMIT_BUCKETS) return;
   for (const [key, entry] of limitStore) {
     if (entry.resetAt <= now) limitStore.delete(key);
   }
+}
+
+function nextRetryAfterSeconds(limitStore: Map<string, DeflectionRateLimitEntry>, now: number) {
+  let resetAt = Number.POSITIVE_INFINITY;
+  for (const entry of limitStore.values()) {
+    resetAt = Math.min(resetAt, entry.resetAt);
+  }
+  if (!Number.isFinite(resetAt)) return 1;
+  return Math.max(1, Math.ceil((resetAt - now) / 1000));
 }
 
 export function consumeDeflectionRateLimit(
@@ -53,6 +64,9 @@ export function consumeDeflectionRateLimit(
   const key = `${config.scope}:${clientIdentifier(headers)}:${requestId}`;
   const current = limitStore.get(key);
   if (!current || current.resetAt <= now) {
+    if (limitStore.size >= MAX_ACTIVE_RATE_LIMIT_BUCKETS) {
+      return { ok: false, retryAfterSeconds: nextRetryAfterSeconds(limitStore, now) };
+    }
     limitStore.set(key, { count: 1, resetAt: now + config.windowMs });
     return { ok: true };
   }
