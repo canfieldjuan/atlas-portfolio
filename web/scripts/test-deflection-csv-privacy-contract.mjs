@@ -43,6 +43,11 @@ assertIncludes(
   'Privacy: we delete the uploaded CSV and submission record after 30 days.',
   'CSV confirmation retention copy',
 );
+assert.ok(
+  intakeLib.indexOf('process.env.BLOB_READ_WRITE_TOKEN?.trim()') <
+    intakeLib.indexOf('process.env.ticke_deflection_blob_READ_WRITE_TOKEN?.trim()'),
+  'CSV Blob token resolver prefers the private-capable default store before the legacy public store',
+);
 
 assertIncludes(adminCsvRoute, 'verifyAdminIntakeCookie', 'admin CSV auth');
 assertIncludes(adminCsvRoute, "access: 'private'", 'admin CSV private Blob read');

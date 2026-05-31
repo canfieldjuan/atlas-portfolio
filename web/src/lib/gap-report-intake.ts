@@ -17,15 +17,15 @@ export function isSupportPlatform(value: unknown): value is SupportPlatform {
 
 export const GAP_REPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// The atlas-portfolio project has multiple Vercel Blob stores connected. This
-// intake targets the deflection CSV store explicitly via its prefixed token; it
-// falls back to the default if the store setup is ever consolidated to one store.
+// The atlas-portfolio project has multiple Vercel Blob stores connected. The
+// raw CSV intake uses private blobs, so prefer the private-capable default store
+// and keep the legacy prefixed store only as a fallback for older environments.
 // Returns undefined when neither is set, so the SDK surfaces its own "no token"
-// error rather than us masking it. One source of truth for both intake routes.
+// error rather than us masking it. One source of truth for all CSV Blob routes.
 export function gapReportBlobToken(): string | undefined {
   return (
-    process.env.ticke_deflection_blob_READ_WRITE_TOKEN?.trim() ||
     process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+    process.env.ticke_deflection_blob_READ_WRITE_TOKEN?.trim() ||
     undefined
   );
 }
