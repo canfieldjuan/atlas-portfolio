@@ -11,6 +11,8 @@
 // itself. We talk to Stripe's REST API directly (form-encoded) to avoid adding
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
+import { SITE_URL } from '@/lib/seo';
+
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 const FETCH_TIMEOUT_MS = 10_000;
@@ -41,12 +43,8 @@ function stripeConfig(): { apiKey: string; accountId: string } | null {
   return { apiKey, accountId };
 }
 
-// `origin` is the absolute site origin the route derives from the inbound
-// request (e.g. https://juancanfield.com); used to build the post-checkout
-// return URLs back to this report's results page.
 export async function createDeflectionCheckoutSession(
   requestId: string,
-  origin: string,
   attemptId: string,
 ): Promise<CheckoutResult> {
   const config = stripeConfig();
@@ -55,13 +53,7 @@ export async function createDeflectionCheckoutSession(
     return { ok: false, reason: 'invalid_request' };
   }
 
-  let base: string;
-  try {
-    base = new URL(origin).origin;
-  } catch {
-    return { ok: false, reason: 'invalid_request' };
-  }
-  const resultsUrl = `${base}${RESULTS_PATH}/${encodeURIComponent(requestId)}`;
+  const resultsUrl = `${SITE_URL}${RESULTS_PATH}/${encodeURIComponent(requestId)}`;
 
   // The webhook is the trust path, so we don't need the session id echoed back —
   // the results page only re-probes GET /artifact. (Dropping `session_id` also

@@ -46,8 +46,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const origin = new URL(request.url).origin;
-  const result = await createDeflectionCheckoutSession(requestId, origin, attemptId);
+  const result = await createDeflectionCheckoutSession(requestId, attemptId);
   if (!result.ok) {
     const status = result.reason === 'invalid_request' ? 400 : 500;
     return NextResponse.json({ error: 'Could not start checkout.' }, { status });

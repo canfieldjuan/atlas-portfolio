@@ -23,8 +23,8 @@ results page then hydrates the full report from `GET /artifact`.
 Slice phase: Vertical slice
 
 1. **`src/lib/deflection-checkout.ts`** (new, server-only) —
-   `createDeflectionCheckoutSession(requestId, origin, attemptId)`: POSTs
-   Stripe's REST `/v1/checkout/sessions` (form-encoded, no SDK dep),
+   `createDeflectionCheckoutSession(requestId, attemptId)`: POSTs Stripe's REST
+   `/v1/checkout/sessions` (form-encoded, no SDK dep),
    `mode=payment`, inline `price_data` (`usd`, `150000`), session metadata
    `{source, account_id, request_id}`, success/cancel URLs back to the report.
    Fail-closed: bounded request id + attempt id, 10s timeout, generic errors
@@ -56,6 +56,9 @@ Slice phase: Vertical slice
   existing test-mode `ATLAS_SAAS_STRIPE_SECRET_KEY` can still drive preview
   validation, but full live `sk_live_` keys are rejected; production should use
   an `rk_live_` restricted key.
+- Return URLs are built from the canonical `SITE_URL`
+  (`https://juancanfield.com`), not the inbound request origin, so the buyer's
+  post-payment redirect cannot be host-spoofed.
 - Metadata lives on the **session** (`source=content_ops_deflection_report`,
   `account_id`, `request_id`) — exactly what ATLAS's webhook handler reads.
 - The Stripe REST call pins `Stripe-Version: 2026-05-27.dahlia` and sends
@@ -124,4 +127,4 @@ Parked hardening: none.
 | this plan doc | ~110 |
 | **Total** | ~342 |
 
-Actual diff is 6 files, +370 / -10.
+Actual diff is 6 files, +364 / -10.
