@@ -1,6 +1,7 @@
 // SERVER-ONLY by convention — import this only from route handlers / server
-// components, never a client component. It reads `ATLAS_SAAS_STRIPE_SECRET_KEY`
-// and `ATLAS_ACCOUNT_ID` (non-NEXT_PUBLIC_ env vars, never bundled for the
+// components, never a client component. It reads `ATLAS_SAAS_STRIPE_RAK`
+// (preferred), the test-mode fallback `ATLAS_SAAS_STRIPE_SECRET_KEY`, and
+// `ATLAS_ACCOUNT_ID` (non-NEXT_PUBLIC_ env vars, never bundled for the
 // browser even if mis-imported).
 //
 // Creates the one-time $1,500 Backlog Report unlock as a Stripe Checkout
@@ -26,11 +27,17 @@ export type CheckoutResult =
   | { ok: true; url: string }
   | { ok: false; reason: 'not_configured' | 'invalid_request' | 'error' };
 
-function stripeConfig(): { secretKey: string; accountId: string } | null {
-  const secretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
+function stripeConfig(): { apiKey: string; accountId: string } | null {
+  const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
+  const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
+  const apiKey = restrictedKey || legacyTestSecretKey;
   const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
-  if (!secretKey || !accountId) return null;
-  return { secretKey, accountId };
+  if (!apiKey || !accountId) return null;
+  if (apiKey.startsWith('sk_live_')) {
+    console.error('stripe checkout create: full live secret key is not accepted');
+    return null;
+  }
+  return { apiKey, accountId };
 }
 
 // `origin` is the absolute site origin the route derives from the inbound
@@ -77,7 +84,7 @@ export async function createDeflectionCheckoutSession(
     const res = await fetch(STRIPE_SESSIONS_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${config.secretKey}`,
+        Authorization: `Bearer ${config.apiKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
         'Stripe-Version': STRIPE_API_VERSION,
         // Scoped per request id: a double-click or retry reuses the same session

@@ -12,9 +12,8 @@ const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 //   200 (already unlocked) -> { alreadyPaid: true }  (don't double-charge)
 //   404 (no such report)   -> 404                    (don't sell a phantom)
 //   403 (exists, unpaid)   -> create the session     (the expected path)
-//   error/not_configured   -> create the session     (transient ATLAS hiccup;
-//     a Stripe paid event with no matching report is rejected + retried by
-//     ATLAS per the contract, so creating the session is still safe)
+//   error/not_configured   -> 503                    (could be already paid but
+//     unparsable; fail closed rather than risk a duplicate charge)
 export async function POST(request: Request) {
   let requestId: string;
   try {
@@ -31,6 +30,12 @@ export async function POST(request: Request) {
   if (artifact.ok) return NextResponse.json({ alreadyPaid: true });
   if (artifact.reason === 'not_found') {
     return NextResponse.json({ error: 'Report not found.' }, { status: 404 });
+  }
+  if (artifact.reason !== 'locked') {
+    return NextResponse.json(
+      { error: 'Could not start checkout. Please try again.' },
+      { status: 503 },
+    );
   }
 
   const origin = new URL(request.url).origin;
