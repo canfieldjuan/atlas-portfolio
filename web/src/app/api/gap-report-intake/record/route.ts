@@ -5,6 +5,7 @@ import {
   parseGapReportMetadata,
   recordGapReportSubmission,
 } from '@/lib/gap-report-intake';
+import { submitDeflectionReportCsv } from '@/lib/atlas-deflection-client';
 
 export const runtime = 'nodejs';
 
@@ -54,12 +55,31 @@ export async function POST(request: Request) {
       sourcePage: meta.value.sourcePage,
       sourceOffer: meta.value.sourceOffer,
     });
+    const warnings = [...result.warnings];
+    let reportRequestId: string | undefined;
+
+    if (meta.value.sourceOffer === 'support-ticket-deflection-intake') {
+      const submit = await submitDeflectionReportCsv({
+        csvBlobUrl: blobUrl,
+        csvFilename: meta.value.csvFilename,
+        companyName: meta.value.companyName,
+        contactEmail: meta.value.email,
+        supportPlatform: meta.value.supportPlatform,
+      });
+
+      if (submit.ok) {
+        reportRequestId = submit.requestId;
+      } else {
+        warnings.push('Deflection report was not generated immediately.');
+      }
+    }
 
     return NextResponse.json({
       ok: true,
       requestId: result.requestId,
-      status: result.status,
-      warnings: result.warnings,
+      reportRequestId,
+      status: warnings.length > 0 ? 'submitted_with_warnings' : result.status,
+      warnings,
       estimatedResponseHours: 24,
     });
   } catch (error) {

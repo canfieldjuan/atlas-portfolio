@@ -10,7 +10,7 @@ import { SUPPORT_PLATFORM_OPTIONS, type SupportPlatform } from '@/lib/gap-report
 type SubmissionStatus =
   | { phase: 'idle' }
   | { phase: 'submitting' }
-  | { phase: 'success'; requestId: string; warnings: string[] }
+  | { phase: 'success'; requestId: string; reportRequestId?: string; warnings: string[] }
   | { phase: 'error'; message: string };
 
 type FormErrors = Partial<{
@@ -127,7 +127,13 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         body: JSON.stringify({ ...metadata, blobUrl: blob.url }),
       });
       const payload = (await response.json().catch(() => null)) as
-        | { ok: boolean; requestId?: string; warnings?: string[]; error?: string }
+        | {
+            ok: boolean;
+            requestId?: string;
+            reportRequestId?: string;
+            warnings?: string[];
+            error?: string;
+          }
         | null;
 
       if (!response.ok || !payload || !payload.ok) {
@@ -143,6 +149,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
       setSubmission({
         phase: 'success',
         requestId: payload.requestId || '',
+        reportRequestId: payload.reportRequestId,
         warnings: payload.warnings || [],
       });
       trackFaqReportCsvSubmitted({
@@ -180,6 +187,9 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     const hasInternalWarning = submission.warnings.some(
       (warning) => !warning.toLowerCase().includes('customer confirmation')
     );
+    const resultsHref = submission.reportRequestId
+      ? `/systems/support-ticket-deflection/results/${encodeURIComponent(submission.reportRequestId)}`
+      : null;
 
     return (
       <>
@@ -198,19 +208,42 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-                CSV received.
+                {resultsHref ? 'Your snapshot is ready.' : 'CSV received.'}
               </h1>
-              <p className="text-foreground/70 leading-relaxed mb-3">
-                We have your file. Your confirmation email is on the way to{' '}
-                <span className="text-foreground">{email}</span>, and the free {copy.snapshotName} will be
-                sent there within 24 hours.
-              </p>
-              <p className="text-foreground/65 leading-relaxed mb-6">
-                No next step is needed from you right now.
-              </p>
+              {resultsHref ? (
+                <>
+                  <p className="text-foreground/70 leading-relaxed mb-6">
+                    We generated the free {copy.snapshotName} from your CSV. Your confirmation
+                    email is also on the way to <span className="text-foreground">{email}</span>.
+                  </p>
+                  <Link
+                    href={resultsHref}
+                    className="mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-black transition-all hover:bg-primary/90"
+                  >
+                    View free snapshot
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-foreground/70 leading-relaxed mb-3">
+                    We have your file. Your confirmation email is on the way to{' '}
+                    <span className="text-foreground">{email}</span>, and the free {copy.snapshotName} will be
+                    sent there within 24 hours.
+                  </p>
+                  <p className="text-foreground/65 leading-relaxed mb-6">
+                    No next step is needed from you right now.
+                  </p>
+                </>
+              )}
               {submission.requestId && (
                 <p className="text-xs font-mono text-foreground/45 mb-2">
                   Reference: {submission.requestId}
+                </p>
+              )}
+              {submission.reportRequestId && (
+                <p className="text-xs font-mono text-foreground/45 mb-2">
+                  Report: {submission.reportRequestId}
                 </p>
               )}
               {confirmationWarning && (

@@ -7,6 +7,8 @@ import {
   deflectionArtifactPath,
   type FAQDeflectionReportArtifact,
 } from '@/lib/deflection-report-contract';
+import { get } from '@vercel/blob';
+import { gapReportBlobToken, type SupportPlatform } from '@/lib/gap-report-intake';
 
 // SERVER-ONLY by convention — import this only from server components / route
 // handlers, never a client component. It reads `ATLAS_B2B_JWT` (a non-NEXT_PUBLIC_
@@ -108,6 +110,104 @@ export async function fetchDeflectionSnapshot(
 export type ArtifactFetchResult =
   | { ok: true; artifact: FAQDeflectionReportArtifact }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
+
+export type DeflectionSubmitResult =
+  | { ok: true; requestId: string }
+  | {
+      ok: false;
+      reason: 'not_configured' | 'blob_not_found' | 'invalid_response' | 'rejected' | 'error';
+    };
+
+export type DeflectionSubmitInput = {
+  csvBlobUrl: string;
+  csvFilename: string;
+  companyName: string;
+  contactEmail: string;
+  supportPlatform: SupportPlatform;
+};
+
+const DEFLECTION_SUBMIT_PATH = '/api/v1/content-ops/deflection-reports/submit';
+const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
+  zendesk: 'zendesk',
+  intercom: 'intercom',
+  freshdesk: 'other',
+  helpscout: 'help_scout',
+  other: 'other',
+};
+
+function safeCsvFilename(filename: string) {
+  const safe = filename.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120) || 'support-tickets.csv';
+  return safe.toLowerCase().endsWith('.csv') ? safe : `${safe}.csv`;
+}
+
+function parseSubmitRequestId(v: unknown): string | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const requestId = (v as Record<string, unknown>).request_id;
+  return typeof requestId === 'string' && REQUEST_ID_RE.test(requestId) ? requestId : null;
+}
+
+// Submit a private intake CSV to ATLAS without exposing the Blob URL to ATLAS or
+// the browser. This is intentionally server-only: it reads the private Blob with
+// the app's Blob token, then forwards raw CSV bytes as multipart form data.
+export async function submitDeflectionReportCsv(
+  input: DeflectionSubmitInput,
+): Promise<DeflectionSubmitResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+
+  let csvBlob: Blob;
+  try {
+    const blob = await get(input.csvBlobUrl, {
+      access: 'private',
+      token: gapReportBlobToken(),
+      useCache: false,
+    });
+    if (!blob || blob.statusCode !== 200 || !blob.stream) {
+      return { ok: false, reason: 'blob_not_found' };
+    }
+    const csvBytes = await new Response(blob.stream).arrayBuffer();
+    csvBlob = new Blob([csvBytes], { type: blob.blob.contentType || 'text/csv' });
+  } catch (err) {
+    console.error('deflection submit blob read error:', err instanceof Error ? err.message : err);
+    return { ok: false, reason: 'blob_not_found' };
+  }
+
+  const form = new FormData();
+  form.set('csv_file', csvBlob, safeCsvFilename(input.csvFilename));
+  form.set('support_platform', SUPPORT_PLATFORM_SUBMIT_VALUE[input.supportPlatform]);
+  form.set('company_name', input.companyName);
+  form.set('contact_email', input.contactEmail);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${DEFLECTION_SUBMIT_PATH}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.jwt}`,
+        Accept: 'application/json',
+      },
+      body: form,
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      console.error(`deflection submit failed: HTTP ${res.status}`);
+      return { ok: false, reason: 'rejected' };
+    }
+    const requestId = parseSubmitRequestId(await res.json());
+    if (!requestId) {
+      console.error('deflection submit: upstream shape rejected');
+      return { ok: false, reason: 'invalid_response' };
+    }
+    return { ok: true, requestId };
+  } catch (err) {
+    console.error('deflection submit error:', err instanceof Error ? err.message : err);
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // The render maps these arrays directly as React children (e.g.
 // `item.steps.map(s => <li>{s}</li>)`), so a non-string element (`[{}]`) throws
