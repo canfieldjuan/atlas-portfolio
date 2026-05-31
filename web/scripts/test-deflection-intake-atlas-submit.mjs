@@ -193,6 +193,11 @@ try {
     intakePage.includes('/systems/support-ticket-deflection/results/'),
     'intake success links to results route',
   );
+  assert.ok(intakePage.includes('deflectionResultsHref'), 'intake validates report id before URL use');
+  assert.ok(
+    intakePage.includes('window.location.assign(resultsHref)'),
+    'successful ATLAS submit redirects to results route',
+  );
   assert.ok(intakePage.includes('View free snapshot'), 'intake success has results CTA');
 
   console.log('Deflection intake ATLAS submit tests passed.');
