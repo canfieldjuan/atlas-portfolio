@@ -8,7 +8,7 @@ import {
   type FAQDeflectionReportArtifact,
 } from '@/lib/deflection-report-contract';
 import { get } from '@vercel/blob';
-import { gapReportBlobToken, type SupportPlatform } from '@/lib/gap-report-intake';
+import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@/lib/gap-report-intake';
 
 // SERVER-ONLY by convention — import this only from server components / route
 // handlers, never a client component. It reads `ATLAS_B2B_JWT` (a non-NEXT_PUBLIC_
@@ -146,6 +146,28 @@ function parseSubmitRequestId(v: unknown): string | null {
   return typeof requestId === 'string' && REQUEST_ID_RE.test(requestId) ? requestId : null;
 }
 
+async function getPrivateCsvBlob(url: string) {
+  const tokens = gapReportBlobTokens();
+  const readTokens = tokens.length > 0 ? tokens : [gapReportBlobToken()];
+  let lastError: unknown;
+
+  for (const token of readTokens) {
+    try {
+      const blob = await get(url, {
+        access: 'private',
+        token,
+        useCache: false,
+      });
+      if (blob && blob.statusCode === 200 && blob.stream) return blob;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return null;
+}
+
 // Submit a private intake CSV to ATLAS without exposing the Blob URL to ATLAS or
 // the browser. This is intentionally server-only: it reads the private Blob with
 // the app's Blob token, then forwards raw CSV bytes as multipart form data.
@@ -157,14 +179,8 @@ export async function submitDeflectionReportCsv(
 
   let csvBlob: Blob;
   try {
-    const blob = await get(input.csvBlobUrl, {
-      access: 'private',
-      token: gapReportBlobToken(),
-      useCache: false,
-    });
-    if (!blob || blob.statusCode !== 200 || !blob.stream) {
-      return { ok: false, reason: 'blob_not_found' };
-    }
+    const blob = await getPrivateCsvBlob(input.csvBlobUrl);
+    if (!blob) return { ok: false, reason: 'blob_not_found' };
     const csvBytes = await new Response(blob.stream).arrayBuffer();
     csvBlob = new Blob([csvBytes], { type: blob.blob.contentType || 'text/csv' });
   } catch (err) {

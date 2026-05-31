@@ -17,17 +17,27 @@ export function isSupportPlatform(value: unknown): value is SupportPlatform {
 
 export const GAP_REPORT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function cleanBlobToken(value: string | undefined) {
+  const token = value?.trim();
+  return token || undefined;
+}
+
 // The atlas-portfolio project has multiple Vercel Blob stores connected. The
 // raw CSV intake uses private blobs, so prefer the private-capable default store
 // and keep the legacy prefixed store only as a fallback for older environments.
+// The ordered list lets URL-based reads/deletes retry legacy CSV blobs created
+// before the private-store switch.
+export function gapReportBlobTokens(): string[] {
+  return [
+    cleanBlobToken(process.env.BLOB_READ_WRITE_TOKEN),
+    cleanBlobToken(process.env.ticke_deflection_blob_READ_WRITE_TOKEN),
+  ].filter((token, index, tokens): token is string => Boolean(token) && tokens.indexOf(token) === index);
+}
+
 // Returns undefined when neither is set, so the SDK surfaces its own "no token"
-// error rather than us masking it. One source of truth for all CSV Blob routes.
+// error rather than us masking it. One source of truth for new CSV Blob writes.
 export function gapReportBlobToken(): string | undefined {
-  return (
-    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
-    process.env.ticke_deflection_blob_READ_WRITE_TOKEN?.trim() ||
-    undefined
-  );
+  return gapReportBlobTokens()[0];
 }
 
 export type GapReportMetadata = {

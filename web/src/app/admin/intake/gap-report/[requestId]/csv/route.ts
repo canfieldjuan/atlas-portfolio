@@ -5,7 +5,7 @@ import {
   ADMIN_INTAKE_COOKIE,
   verifyAdminIntakeCookie,
 } from '@/lib/admin-intake-auth';
-import { gapReportBlobToken } from '@/lib/gap-report-intake';
+import { gapReportBlobToken, gapReportBlobTokens } from '@/lib/gap-report-intake';
 import { getGapReportSubmissionByRequestId } from '@/lib/gap-report-intake-database';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +20,28 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 function attachmentFilename(filename: string) {
   const safe = filename.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120) || 'support-tickets.csv';
   return safe.toLowerCase().endsWith('.csv') ? safe : `${safe}.csv`;
+}
+
+async function getPrivateCsvBlob(url: string) {
+  const tokens = gapReportBlobTokens();
+  const readTokens = tokens.length > 0 ? tokens : [gapReportBlobToken()];
+  let lastError: unknown;
+
+  for (const token of readTokens) {
+    try {
+      const blob = await get(url, {
+        access: 'private',
+        token,
+        useCache: false,
+      });
+      if (blob && blob.statusCode === 200 && blob.stream) return blob;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return null;
 }
 
 export async function GET(_request: Request, context: RouteContext) {
@@ -40,11 +62,7 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: 'Submission not found.' }, { status: 404 });
   }
 
-  const blob = await get(submission.csvBlobUrl, {
-    access: 'private',
-    token: gapReportBlobToken(),
-    useCache: false,
-  });
+  const blob = await getPrivateCsvBlob(submission.csvBlobUrl);
 
   if (!blob || blob.statusCode !== 200 || !blob.stream) {
     return NextResponse.json({ error: 'CSV blob not found.' }, { status: 404 });

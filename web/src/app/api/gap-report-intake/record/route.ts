@@ -2,12 +2,29 @@ import { head } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import {
   gapReportBlobToken,
+  gapReportBlobTokens,
   parseGapReportMetadata,
   recordGapReportSubmission,
 } from '@/lib/gap-report-intake';
 import { submitDeflectionReportCsv } from '@/lib/atlas-deflection-client';
 
 export const runtime = 'nodejs';
+
+async function hasOwnedBlob(blobUrl: string) {
+  const tokens = gapReportBlobTokens();
+  const readTokens = tokens.length > 0 ? tokens : [gapReportBlobToken()];
+
+  for (const token of readTokens) {
+    try {
+      await head(blobUrl, { token });
+      return true;
+    } catch {
+      // Try the next configured store token before rejecting the upload.
+    }
+  }
+
+  return false;
+}
 
 // Records a deflection-intake submission after the client has uploaded the CSV
 // directly to Vercel Blob (see /upload). The client reports the blob URL; we
@@ -37,9 +54,7 @@ export async function POST(request: Request) {
   // authoritative check that the reported URL is a real upload in our namespace.
   // Same explicit intake-store token as /upload, so the ownership check runs
   // against the store the private CSV was actually uploaded to.
-  try {
-    await head(blobUrl, { token: gapReportBlobToken() });
-  } catch {
+  if (!(await hasOwnedBlob(blobUrl))) {
     return NextResponse.json({ ok: false, error: 'Upload not found.' }, { status: 400 });
   }
 
