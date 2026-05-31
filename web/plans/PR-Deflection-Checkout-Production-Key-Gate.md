@@ -21,36 +21,39 @@ actually provisioned.
 
 Slice phase: Production hardening
 
-1. Reject the `sk_test_` fallback when `VERCEL_ENV=production`.
-2. Preserve `sk_test_` fallback for local and Vercel preview deployments.
-3. Add focused regression coverage for production rejection and preview fallback.
+1. Reject test-mode Checkout keys when `VERCEL_ENV=production`.
+2. Preserve test-mode fallback for local and Vercel preview deployments.
+3. Return the documented `503` when Checkout is not configured.
+4. Add focused regression coverage for production rejection, preview fallback,
+   and route-level `not_configured` status.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Checkout-Production-Key-Gate.md` - this plan doc
   (new)
 - `web/src/lib/deflection-checkout.ts` - production fallback guard
+- `web/src/app/api/deflection-checkout/route.ts` - `not_configured` status code
 - `web/scripts/test-deflection-checkout.mjs` - focused guard coverage
 - `web/README.md` - production key posture note
 
 ## Mechanism
 
-`stripeConfig()` already chooses `ATLAS_SAAS_STRIPE_RAK` first. This slice only
-changes the fallback branch: when no restricted key is present and
-`VERCEL_ENV=production`, `stripeConfig()` returns `null` before accepting
+`stripeConfig()` already chooses `ATLAS_SAAS_STRIPE_RAK` first. In production,
+the selected restricted key must start with `rk_live_`; without a restricted
+key, the fallback branch returns `null` before accepting
 `ATLAS_SAAS_STRIPE_SECRET_KEY`.
 
 That means the public Checkout route returns its existing generic `503` instead
 of creating a test-mode Stripe session on the live site. Preview/local
-deployments keep the `sk_test_` path for verification.
+deployments keep the test-mode path for verification.
 
 ## Intentional
 
 - Use `VERCEL_ENV`, not `NODE_ENV`, because Next production builds also run with
   `NODE_ENV=production` in local/preview contexts where the test fallback is
   useful.
-- No change to `rk_` handling: production works once the restricted key and
-  Price ID are configured.
+- Production requires `rk_live_`; preview/local can still use `rk_test_` or
+  `sk_test_` for verification.
 - No user-facing copy change in the route; the existing generic Checkout failure
   copy remains the fail-closed behavior.
 
@@ -72,10 +75,10 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| checkout lib | ~8 |
-| checkout test | ~20 |
+| checkout lib + route | ~12 |
+| checkout test | ~45 |
 | README docs | ~3 |
 | this plan doc | ~80 |
-| **Total** | ~111 |
+| **Total** | ~140 |
 
-Actual diff: 4 files, +101 / -0.
+Actual diff: 5 files, +176 / -1.
