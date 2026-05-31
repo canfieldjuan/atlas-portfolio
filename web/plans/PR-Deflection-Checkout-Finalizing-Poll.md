@@ -52,9 +52,9 @@ error/not_configured -> 503
 The client only polls after Stripe returns with `checkout=success`. A successful
 unlock navigates to `window.location.pathname` so the server component reruns
 without the query string and renders the paid artifact. If the webhook is still
-not visible after the bounded polling window, the CTA returns with a generic
-error message; a subsequent click still goes through the #160 double-charge
-guard.
+not visible after the bounded polling window, the paid unlock CTA stays disabled
+and the buyer gets a refresh-only status check. Once the page has seen
+`checkout=success`, it never transitions back to a new Checkout creation state.
 
 ## Intentional
 
@@ -63,6 +63,9 @@ guard.
 - No optimistic paid render. The paid artifact only appears after
   `GET /artifact` returns 200 through the existing server-side parser.
 - The endpoint does not expose artifact content, only locked/unlocked state.
+- The post-success timeout does not re-enable Checkout. The UI is the only layer
+  that knows Stripe already returned successfully while ATLAS may still be
+  finalizing the webhook.
 
 ## Deferred
 
@@ -92,4 +95,4 @@ Parked hardening: none.
 | this plan doc | ~80 |
 | **Total** | ~185 |
 
-Actual diff is 4 files, +183 / -8.
+Actual diff is 4 files, +201 / -8.

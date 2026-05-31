@@ -30,6 +30,7 @@ export function DeflectionResultsPage({
 
   const [loading, setLoading] = useState(false);
   const [finalizing, setFinalizing] = useState(checkoutStatus === 'success');
+  const [finalizingTimedOut, setFinalizingTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export function DeflectionResultsPage({
       if (cancelled) return;
       if (attempt >= FINALIZING_ATTEMPTS) {
         setFinalizing(false);
+        setFinalizingTimedOut(true);
         setError('Payment received. Your report is finalizing. Refresh in a moment.');
         return;
       }
@@ -228,21 +230,32 @@ export function DeflectionResultsPage({
           <button
             type="button"
             onClick={handleUnlock}
-            disabled={loading || finalizing}
+            disabled={loading || finalizing || finalizingTimedOut}
             aria-busy={loading || finalizing}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {finalizing
               ? 'Finalizing report…'
+              : finalizingTimedOut
+                ? 'Payment received'
               : loading
                 ? 'Starting checkout…'
                 : 'Unlock the full report — $1,500'}
-            {!loading && !finalizing && <ArrowRight className="h-4 w-4" />}
+            {!loading && !finalizing && !finalizingTimedOut && <ArrowRight className="h-4 w-4" />}
           </button>
           {error && (
             <p role="alert" className="text-sm text-red-500 mt-3">
               {error}
             </p>
+          )}
+          {finalizingTimedOut && (
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-3 inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground/75 hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              Refresh to check status
+            </button>
           )}
           <p className="text-xs text-foreground/45 mt-3">
             One-time. No subscription. <FileText className="inline h-3 w-3" /> Full report
