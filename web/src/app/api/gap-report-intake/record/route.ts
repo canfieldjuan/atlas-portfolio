@@ -44,18 +44,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await recordGapReportSubmission({
-      name: meta.value.name,
-      email: meta.value.email,
-      companyName: meta.value.companyName,
-      supportPlatform: meta.value.supportPlatform,
-      csvBlobUrl: blobUrl,
-      csvFilename: meta.value.csvFilename,
-      csvSizeBytes: meta.value.csvSizeBytes,
-      sourcePage: meta.value.sourcePage,
-      sourceOffer: meta.value.sourceOffer,
-    });
-    const warnings = [...result.warnings];
+    const warnings: string[] = [];
     let reportRequestId: string | undefined;
 
     if (meta.value.sourceOffer === 'support-ticket-deflection-intake') {
@@ -73,6 +62,20 @@ export async function POST(request: Request) {
         warnings.push('Deflection report was not generated immediately.');
       }
     }
+
+    const result = await recordGapReportSubmission({
+      name: meta.value.name,
+      email: meta.value.email,
+      companyName: meta.value.companyName,
+      supportPlatform: meta.value.supportPlatform,
+      csvBlobUrl: blobUrl,
+      csvFilename: meta.value.csvFilename,
+      csvSizeBytes: meta.value.csvSizeBytes,
+      sourcePage: meta.value.sourcePage,
+      sourceOffer: meta.value.sourceOffer,
+      reportRequestId,
+    });
+    warnings.push(...result.warnings);
 
     return NextResponse.json({
       ok: true,
