@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { runDeflectionBrowserUploadSmoke } from './smoke-deflection-browser-upload.mjs';
 
 const baseOptions = {
@@ -41,6 +42,24 @@ function makeFetchMock(responses) {
   };
   fetchImpl.calls = calls;
   return fetchImpl;
+}
+
+async function runCli(args) {
+  const child = spawn(process.execPath, [new URL('./smoke-deflection-browser-upload.mjs', import.meta.url).pathname, ...args], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', (chunk) => {
+    stdout += chunk;
+  });
+  child.stderr.on('data', (chunk) => {
+    stderr += chunk;
+  });
+  const code = await new Promise((resolve) => {
+    child.on('close', resolve);
+  });
+  return { code, stdout, stderr };
 }
 
 async function run(options, uploadResponse, recordResponses, extra = {}) {
@@ -97,6 +116,28 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
   const recordBody = JSON.parse(fetchImpl.calls[0].init.body);
   assert.equal(recordBody.blobUrl.includes('/gap-report-csvs/'), true);
   assert.equal(recordBody.email, 'ops@example.com');
+}
+
+{
+  const result = await runCli([
+    '--base-url',
+    '--csv',
+    '/tmp/support-export.csv',
+    '--company',
+    'Effingham Office Maids',
+    '--email',
+    'ops@example.com',
+    '--platform',
+    'helpscout',
+    '--json',
+  ]);
+  assert.equal(result.code, 1);
+  assert.equal(result.stderr, '');
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.ok, false);
+  assert.equal(payload.error, 'Refusing to continue without --base-url <url>.');
+  assert.equal(payload.apiCalls, false);
+  assert.equal(payload.mutations, false);
 }
 
 {

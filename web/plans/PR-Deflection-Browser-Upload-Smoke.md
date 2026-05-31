@@ -62,6 +62,8 @@ The local smoke only supplies a CSV and public lead metadata.
   and failure envelopes without touching Vercel Blob or ATLAS.
 - The smoke validates `reportRequestId` rather than fetching the hosted results
   page; that render path is already covered by the hosted-results smoke.
+- A bare `--base-url` fails instead of falling back to production because this
+  smoke can create deployed intake side effects.
 
 ## Deferred
 
@@ -74,7 +76,8 @@ Parked hardening: none.
 
 ## Verification
 
-- `npm --prefix web run test:deflection-browser-upload-smoke` - passed.
+- `npm --prefix web run test:deflection-browser-upload-smoke` - passed after
+  adding the bare `--base-url` regression case.
 - `npm --prefix web run smoke:deflection-browser-upload -- --csv /home/juan-canfield/Desktop/deflection-test-upload.csv --company "Effingham Office Maids" --email ops@example.com --platform helpscout --json --output /tmp/deflection-browser-upload-smoke.json` - attempted against `https://juancanfield.com`; the smoke reached the upload-token leg but failed with `Vercel Blob: Failed to retrieve the client token`. A direct safe probe to `/api/gap-report-intake/upload` then returned HTTP 429 from the existing Vercel WAF rate-limit rule after repeated attempts.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
@@ -84,11 +87,11 @@ Parked hardening: none.
 
 | Area | LOC |
 |---|---:|
-| Plan doc | ~98 |
-| Smoke script | ~319 |
-| Mocked test | ~237 |
+| Plan doc | ~105 |
+| Smoke script | ~326 |
+| Mocked test | ~269 |
 | Package/workflow enrollment | ~6 |
-| Total | ~660 |
+| Total | ~706 |
 
 This is over the 400-LOC soft cap because the smoke needs CLI validation,
 structured failure envelopes, and mocked branch coverage in the same slice that

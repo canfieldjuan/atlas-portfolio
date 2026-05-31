@@ -276,6 +276,12 @@ async function main() {
   if (isBareFlag(parsed, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
+  if (isBareFlag(parsed, '--base-url')) {
+    fail('Refusing to continue without --base-url <url>.', outputJson, {
+      apiCalls: false,
+      mutations: false,
+    });
+  }
   const missing = requiredOptions(parsed);
   if (missing.length > 0) {
     fail('Deflection browser upload smoke is missing required options.', outputJson, {
