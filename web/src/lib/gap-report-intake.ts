@@ -1,4 +1,5 @@
 import { persistGapReportSubmission } from './gap-report-intake-database';
+import { SITE_URL } from './seo';
 
 const SUPPORT_PLATFORMS = [
   'zendesk',
@@ -106,6 +107,7 @@ export type GapReportSubmissionInput = {
   csvSizeBytes?: number;
   sourcePage?: string;
   sourceOffer?: string;
+  reportRequestId?: string;
 };
 
 export type GapReportSubmissionRecord = GapReportSubmissionInput & {
@@ -169,13 +171,24 @@ function formatBytes(bytes: number | undefined) {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+const DEFLECTION_REPORT_REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+
+function deflectionResultsUrl(reportRequestId: string | undefined) {
+  if (!reportRequestId || !DEFLECTION_REPORT_REQUEST_ID_RE.test(reportRequestId)) {
+    return null;
+  }
+  return `${SITE_URL}/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+}
+
 function buildNotificationText(record: GapReportSubmissionRecord) {
   const offer = intakeOfferCopy(record.sourceOffer);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
 
   return [
     offer.notificationHeading,
     '',
     `Request ID: ${record.requestId}`,
+    ...(resultsUrl ? [`Report request ID: ${record.reportRequestId}`, `Results: ${resultsUrl}`] : []),
     `Submitted: ${record.submittedAt}`,
     '',
     `Name: ${record.name || 'Not provided'}`,
@@ -197,16 +210,20 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
 function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
   const offer = intakeOfferCopy(record.sourceOffer);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
 
   return [
     firstName ? `Hi ${firstName},` : 'Hi,',
     '',
     `We received your CSV for ${record.companyName}.`,
+    ...(resultsUrl ? ['', `Your free ${offer.snapshotName} is ready:`, resultsUrl] : []),
     '',
     'What happens next:',
     '1. We review the support tickets you uploaded.',
     '2. We look for repeat questions and the words customers use when they get stuck.',
-    `3. We send your free ${offer.snapshotName} to this email within 24 hours.`,
+    resultsUrl
+      ? `3. If we find more data issues, we will follow up at this email.`
+      : `3. We send your free ${offer.snapshotName} to this email within 24 hours.`,
     '',
     'No next step is needed from you right now.',
     '',
