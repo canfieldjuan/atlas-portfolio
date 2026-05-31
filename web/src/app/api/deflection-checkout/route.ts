@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createDeflectionCheckoutSession } from '@/lib/deflection-checkout';
 import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
+import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
+const CHECKOUT_RATE_LIMIT = {
+  scope: 'deflection-checkout',
+  limit: 5,
+  windowMs: 10 * 60 * 1000,
+};
 
 // Creates a Stripe Checkout Session for the $1,500 Backlog Report unlock and
 // returns its hosted URL for the client to redirect to. Before charging, we
@@ -32,6 +38,17 @@ export async function POST(request: Request) {
     attemptId = body.attemptId;
   } catch {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
+  }
+
+  const rateLimit = consumeDeflectionRateLimit(request.headers, requestId, CHECKOUT_RATE_LIMIT);
+  if (!rateLimit.ok) {
+    return NextResponse.json(
+      { error: 'Too many checkout attempts. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      },
+    );
   }
 
   const artifact = await fetchDeflectionArtifact(requestId);

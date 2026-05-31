@@ -1,14 +1,31 @@
 import { NextResponse } from 'next/server';
 import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
+import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+const STATUS_RATE_LIMIT = {
+  scope: 'deflection-report-status',
+  limit: 40,
+  windowMs: 60 * 1000,
+};
 
 export async function GET(request: Request) {
   const requestId = new URL(request.url).searchParams.get('requestId') ?? '';
   if (!REQUEST_ID_RE.test(requestId)) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
+  }
+
+  const rateLimit = consumeDeflectionRateLimit(request.headers, requestId, STATUS_RATE_LIMIT);
+  if (!rateLimit.ok) {
+    return NextResponse.json(
+      { error: 'Too many status checks. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      },
+    );
   }
 
   const result = await fetchDeflectionArtifact(requestId);
