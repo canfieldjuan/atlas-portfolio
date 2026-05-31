@@ -15,6 +15,7 @@ import { SITE_URL } from '@/lib/seo';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
+const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const FETCH_TIMEOUT_MS = 10_000;
 const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 // Pin the Stripe API version so the response (and downstream event) shape can't
@@ -30,17 +31,52 @@ export type CheckoutResult =
   | { ok: true; url: string }
   | { ok: false; reason: 'not_configured' | 'invalid_request' | 'error' };
 
-function stripeConfig(): { apiKey: string; accountId: string } | null {
+type StripeCheckoutConfig = {
+  apiKey: string;
+  accountId: string;
+  priceId: string | null;
+};
+
+function configuredPriceId() {
+  const priceId = process.env.STRIPE_DEFLECTION_REPORT_PRICE_ID?.trim();
+  if (!priceId) return null;
+  if (!PRICE_ID_RE.test(priceId)) {
+    console.error('stripe checkout create: configured price id is invalid');
+    return null;
+  }
+  return priceId;
+}
+
+function stripeConfig(): StripeCheckoutConfig | null {
   const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
   const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
-  const apiKey = restrictedKey || legacyTestSecretKey;
   const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
-  if (!apiKey || !accountId) return null;
-  if (apiKey.startsWith('sk_live_')) {
+  if (!accountId) return null;
+
+  if (restrictedKey) {
+    if (!restrictedKey.startsWith('rk_')) {
+      console.error('stripe checkout create: restricted key must start with rk_');
+      return null;
+    }
+    const priceId = configuredPriceId();
+    if (!priceId) {
+      console.error('stripe checkout create: configured price id is required for restricted keys');
+      return null;
+    }
+    return { apiKey: restrictedKey, accountId, priceId };
+  }
+
+  if (!legacyTestSecretKey) return null;
+  if (legacyTestSecretKey.startsWith('sk_live_')) {
     console.error('stripe checkout create: full live secret key is not accepted');
     return null;
   }
-  return { apiKey, accountId };
+  if (!legacyTestSecretKey.startsWith('sk_test_')) {
+    console.error('stripe checkout create: fallback secret key must be test-mode');
+    return null;
+  }
+
+  return { apiKey: legacyTestSecretKey, accountId, priceId: configuredPriceId() };
 }
 
 export async function createDeflectionCheckoutSession(
@@ -63,12 +99,16 @@ export async function createDeflectionCheckoutSession(
   form.set('success_url', `${resultsUrl}?checkout=success`);
   form.set('cancel_url', `${resultsUrl}?checkout=cancel`);
   form.set('line_items[0][quantity]', '1');
-  form.set('line_items[0][price_data][currency]', 'usd');
-  form.set('line_items[0][price_data][unit_amount]', String(UNIT_AMOUNT_CENTS));
-  form.set(
-    'line_items[0][price_data][product_data][name]',
-    'Support Ticket Deflection — Backlog Report',
-  );
+  if (config.priceId) {
+    form.set('line_items[0][price]', config.priceId);
+  } else {
+    form.set('line_items[0][price_data][currency]', 'usd');
+    form.set('line_items[0][price_data][unit_amount]', String(UNIT_AMOUNT_CENTS));
+    form.set(
+      'line_items[0][price_data][product_data][name]',
+      'Support Ticket Deflection — Backlog Report',
+    );
+  }
   // ATLAS reads these three off the session in its webhook handler.
   form.set('metadata[source]', 'content_ops_deflection_report');
   form.set('metadata[account_id]', config.accountId);
