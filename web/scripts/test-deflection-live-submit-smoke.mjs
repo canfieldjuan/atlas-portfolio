@@ -43,6 +43,9 @@ function makeFetchMock(responses) {
     if (!next) {
       throw new Error(`unexpected fetch: ${url}`);
     }
+    if (next.reject) {
+      throw new Error(next.reject);
+    }
     if (next.body === undefined) {
       return new Response(null, { status: next.status });
     }
@@ -129,6 +132,20 @@ async function run(options, responses, extra = {}) {
 }
 
 {
+  const { result, fetchImpl } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { reject: 'network reset' },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.requestId, 'content-ops-unit-123');
+  assert.equal(result.apiCalls, true);
+  assert.equal(result.mutations, true);
+  assert.equal(result.error, 'ATLAS snapshot fetch failed before an HTTP response.');
+  assert.equal(fetchImpl.calls.length, 2);
+}
+
+{
   const { result } = await run(baseOptions, [
     { status: 200, body: { request_id: 'content-ops-unit-123' } },
     { status: 200, body: { summary: { generated: '3' }, top_questions: [] } },
@@ -147,6 +164,21 @@ async function run(options, responses, extra = {}) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'artifact');
   assert.equal(result.error, 'Expected locked artifact HTTP 403, got HTTP 200.');
+}
+
+{
+  const { result, fetchImpl } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: snapshotPayload() },
+    { reject: 'tls failure' },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'artifact');
+  assert.equal(result.requestId, 'content-ops-unit-123');
+  assert.equal(result.apiCalls, true);
+  assert.equal(result.mutations, true);
+  assert.equal(result.error, 'ATLAS artifact fetch failed before an HTTP response.');
+  assert.equal(fetchImpl.calls.length, 3);
 }
 
 {

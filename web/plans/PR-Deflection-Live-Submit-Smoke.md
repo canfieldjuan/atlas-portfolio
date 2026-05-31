@@ -82,6 +82,10 @@ Parked hardening: none.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
+- Reviewer P2 follow-up: post-submit snapshot/artifact transport failures now
+  return stage-specific results with `requestId`, `apiCalls: true`, and
+  `mutations: true`; regression covered in
+  `test:deflection-live-submit-smoke`.
 
 ## Estimated diff size
 

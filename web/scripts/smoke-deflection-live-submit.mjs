@@ -213,10 +213,22 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   }
 
   const snapshotUrl = `${envStatus.baseUrl}/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/snapshot`;
-  const snapshotResponse = await fetchImpl(snapshotUrl, {
-    headers: authHeaders(envStatus.jwt),
-    cache: 'no-store',
-  });
+  let snapshotResponse;
+  try {
+    snapshotResponse = await fetchImpl(snapshotUrl, {
+      headers: authHeaders(envStatus.jwt),
+      cache: 'no-store',
+    });
+  } catch {
+    return {
+      ok: false,
+      error: 'ATLAS snapshot fetch failed before an HTTP response.',
+      stage: 'snapshot',
+      requestId,
+      apiCalls: true,
+      mutations: true,
+    };
+  }
   if (!snapshotResponse.ok) {
     return {
       ok: false,
@@ -241,10 +253,22 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   }
 
   const artifactUrl = `${envStatus.baseUrl}/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/artifact`;
-  const artifactResponse = await fetchImpl(artifactUrl, {
-    headers: authHeaders(envStatus.jwt),
-    cache: 'no-store',
-  });
+  let artifactResponse;
+  try {
+    artifactResponse = await fetchImpl(artifactUrl, {
+      headers: authHeaders(envStatus.jwt),
+      cache: 'no-store',
+    });
+  } catch {
+    return {
+      ok: false,
+      error: 'ATLAS artifact fetch failed before an HTTP response.',
+      stage: 'artifact',
+      requestId,
+      apiCalls: true,
+      mutations: true,
+    };
+  }
   if (artifactResponse.status !== 403) {
     return {
       ok: false,
