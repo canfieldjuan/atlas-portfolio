@@ -7,13 +7,17 @@ import ts from 'typescript';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-checkout-'));
 const sourceUrl = new URL('../src/lib/deflection-checkout.ts', import.meta.url);
+const routeSourceUrl = new URL('../src/app/api/deflection-checkout/route.ts', import.meta.url);
 const compiledPath = join(testDir, 'deflection-checkout.cjs');
+const compiledRoutePath = join(testDir, 'deflection-checkout-route.cjs');
 const seoStubDir = join(testDir, 'node_modules', '@', 'lib');
+const nextStubDir = join(testDir, 'node_modules', 'next');
 const ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
+  'VERCEL_ENV',
 ];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
@@ -52,7 +56,12 @@ function restoreEnv() {
 
 try {
   await mkdir(seoStubDir, { recursive: true });
+  await mkdir(nextStubDir, { recursive: true });
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
+  await writeFile(
+    join(nextStubDir, 'server.js'),
+    "exports.NextResponse = { json: (body, init) => Response.json(body, init) };\n",
+  );
 
   const source = await readFile(sourceUrl, 'utf8');
   const compiled = ts.transpileModule(source, {
@@ -85,6 +94,33 @@ try {
 
   installFetchMock();
   resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+    VERCEL_ENV: 'production',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+    VERCEL_ENV: 'preview',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].headers.Authorization, 'Bearer rk_test_unit_restricted');
+
+  installFetchMock();
+  resetEnv({
     ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
   });
@@ -98,6 +134,7 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
     ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'preview',
   });
   assert.deepEqual(
     await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
@@ -110,6 +147,18 @@ try {
 
   installFetchMock();
   resetEnv({
+    ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'production',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
+
+  installFetchMock();
+  resetEnv({
     ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_live_unit_secret',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
@@ -119,6 +168,37 @@ try {
     { ok: false, reason: 'not_configured' },
   );
   assert.equal(calls.length, 0);
+
+  await writeFile(
+    join(seoStubDir, 'atlas-deflection-client.js'),
+    "exports.fetchDeflectionArtifact = async () => ({ ok: false, reason: 'locked' });\n",
+  );
+  await writeFile(
+    join(seoStubDir, 'deflection-checkout.js'),
+    "exports.createDeflectionCheckoutSession = async () => ({ ok: false, reason: 'not_configured' });\n",
+  );
+  await writeFile(
+    join(seoStubDir, 'deflection-rate-limit.js'),
+    "exports.consumeDeflectionRateLimit = () => ({ ok: true });\n",
+  );
+  const routeSource = await readFile(routeSourceUrl, 'utf8');
+  const compiledRoute = ts.transpileModule(routeSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(compiledRoutePath, compiledRoute.outputText);
+  const { POST } = require(compiledRoutePath);
+  const routeResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: 'request-123', attemptId: 'attempt-12345678' }),
+    }),
+  );
+  assert.equal(routeResponse.status, 503);
+  assert.deepEqual(await routeResponse.json(), { error: 'Could not start checkout.' });
 
   console.log('Deflection checkout tests passed.');
 } finally {

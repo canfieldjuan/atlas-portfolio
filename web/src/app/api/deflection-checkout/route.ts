@@ -65,7 +65,8 @@ export async function POST(request: Request) {
 
   const result = await createDeflectionCheckoutSession(requestId, attemptId);
   if (!result.ok) {
-    const status = result.reason === 'invalid_request' ? 400 : 500;
+    const status =
+      result.reason === 'invalid_request' ? 400 : result.reason === 'not_configured' ? 503 : 500;
     return NextResponse.json({ error: 'Could not start checkout.' }, { status });
   }
   return NextResponse.json({ url: result.url });

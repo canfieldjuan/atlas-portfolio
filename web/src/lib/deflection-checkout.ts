@@ -58,6 +58,10 @@ function stripeConfig(): StripeCheckoutConfig | null {
       console.error('stripe checkout create: restricted key must start with rk_');
       return null;
     }
+    if (process.env.VERCEL_ENV === 'production' && !restrictedKey.startsWith('rk_live_')) {
+      console.error('stripe checkout create: live restricted key is required in production');
+      return null;
+    }
     const priceId = configuredPriceId();
     if (!priceId) {
       console.error('stripe checkout create: configured price id is required for restricted keys');
@@ -67,6 +71,10 @@ function stripeConfig(): StripeCheckoutConfig | null {
   }
 
   if (!legacyTestSecretKey) return null;
+  if (process.env.VERCEL_ENV === 'production') {
+    console.error('stripe checkout create: restricted key is required in production');
+    return null;
+  }
   if (legacyTestSecretKey.startsWith('sk_live_')) {
     console.error('stripe checkout create: full live secret key is not accepted');
     return null;
