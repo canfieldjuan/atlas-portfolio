@@ -29,7 +29,7 @@ export default function SupportTicketDeflectionDemoPage() {
             the wording gap, the source evidence, and the answer draft.
           </p>
           <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
-            The demand numbers are real — ticket and source counts from a labeled-synthetic B2B-SaaS
+            The demand numbers are real, ticket and source counts from a labeled-synthetic B2B-SaaS
             sample. The card is shaped like the product report item: customer terms, documentation
             terms, evidence, and draft FAQ fields your team reviews before publishing.
           </p>
@@ -41,14 +41,14 @@ export default function SupportTicketDeflectionDemoPage() {
           <SupportTaxCalculator />
           <HowItWorks />
 
-          {/* Bottom CTA (kept) — hoisted here so how-it-works reads before it. */}
+          {/* Bottom CTA (kept), hoisted here so how-it-works reads before it. */}
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center shadow-[var(--primary-glow)]">
             <FileText className="w-7 h-7 text-primary mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">
               See this run on your own tickets
             </h2>
             <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
-              Upload a CSV of your last 3–6 months of closed tickets. We send back a free Deflection
+              Upload a CSV of your last 3 months of closed tickets. We send back a free Deflection
               Snapshot: your top repeat questions, the wording customers use, and the paid report
               fields waiting behind the unlock.
             </p>
@@ -56,7 +56,7 @@ export default function SupportTicketDeflectionDemoPage() {
               href="/systems/support-ticket-deflection/intake"
               className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
             >
-              Upload your CSV — get a free Snapshot
+              Upload your CSV, get a free Snapshot
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
