@@ -13,6 +13,10 @@
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const FETCH_TIMEOUT_MS = 10_000;
 const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
+// Pin the Stripe API version so the response (and downstream event) shape can't
+// drift when Stripe changes the account default. The official SDK pins this
+// automatically; talking to the REST API directly, we set it ourselves.
+const STRIPE_API_VERSION = '2026-05-27.dahlia';
 // $1,500 one-time, in cents. The contract floor is 150000; we set exactly that.
 // Server-set so the client can never lower the price.
 const UNIT_AMOUNT_CENTS = 150_000;
@@ -75,6 +79,10 @@ export async function createDeflectionCheckoutSession(
       headers: {
         Authorization: `Bearer ${config.secretKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Stripe-Version': STRIPE_API_VERSION,
+        // Scoped per request id: a double-click or retry reuses the same session
+        // instead of creating duplicates. (Stripe idempotency keys live ~24h.)
+        'Idempotency-Key': `deflection-checkout-${requestId}`,
       },
       body: form.toString(),
       cache: 'no-store',
