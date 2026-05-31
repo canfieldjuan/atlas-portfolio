@@ -34,11 +34,15 @@ export function DeflectionResultsPage({
   async function handleUnlock() {
     setLoading(true);
     setError(null);
+    const attemptId =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     try {
       const res = await fetch('/api/deflection-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId }),
+        body: JSON.stringify({ requestId, attemptId }),
       });
       const data = (await res.json()) as {
         url?: string;

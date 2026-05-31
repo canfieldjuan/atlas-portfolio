@@ -12,6 +12,7 @@
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 const FETCH_TIMEOUT_MS = 10_000;
 const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 // Pin the Stripe API version so the response (and downstream event) shape can't
@@ -46,10 +47,13 @@ function stripeConfig(): { apiKey: string; accountId: string } | null {
 export async function createDeflectionCheckoutSession(
   requestId: string,
   origin: string,
+  attemptId: string,
 ): Promise<CheckoutResult> {
   const config = stripeConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
-  if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'invalid_request' };
+  if (!REQUEST_ID_RE.test(requestId) || !ATTEMPT_ID_RE.test(attemptId)) {
+    return { ok: false, reason: 'invalid_request' };
+  }
 
   let base: string;
   try {
@@ -87,9 +91,9 @@ export async function createDeflectionCheckoutSession(
         Authorization: `Bearer ${config.apiKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
         'Stripe-Version': STRIPE_API_VERSION,
-        // Scoped per request id: a double-click or retry reuses the same session
-        // instead of creating duplicates. (Stripe idempotency keys live ~24h.)
-        'Idempotency-Key': `deflection-checkout-${requestId}`,
+        // Scoped per click attempt: concurrent retries reuse the same session,
+        // while later explicit retries can recover from a cached Stripe failure.
+        'Idempotency-Key': `deflection-checkout-${requestId}-${attemptId}`,
       },
       body: form.toString(),
       cache: 'no-store',

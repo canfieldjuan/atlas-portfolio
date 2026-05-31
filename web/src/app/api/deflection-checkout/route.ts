@@ -5,6 +5,7 @@ import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
 export const runtime = 'nodejs';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 
 // Creates a Stripe Checkout Session for the $1,500 Backlog Report unlock and
 // returns its hosted URL for the client to redirect to. Before charging, we
@@ -16,12 +17,19 @@ const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 //     unparsable; fail closed rather than risk a duplicate charge)
 export async function POST(request: Request) {
   let requestId: string;
+  let attemptId: string;
   try {
-    const body = (await request.json()) as { requestId?: unknown };
-    if (typeof body.requestId !== 'string' || !REQUEST_ID_RE.test(body.requestId)) {
+    const body = (await request.json()) as { requestId?: unknown; attemptId?: unknown };
+    if (
+      typeof body.requestId !== 'string' ||
+      !REQUEST_ID_RE.test(body.requestId) ||
+      typeof body.attemptId !== 'string' ||
+      !ATTEMPT_ID_RE.test(body.attemptId)
+    ) {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
     }
     requestId = body.requestId;
+    attemptId = body.attemptId;
   } catch {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
@@ -39,7 +47,7 @@ export async function POST(request: Request) {
   }
 
   const origin = new URL(request.url).origin;
-  const result = await createDeflectionCheckoutSession(requestId, origin);
+  const result = await createDeflectionCheckoutSession(requestId, origin, attemptId);
   if (!result.ok) {
     const status = result.reason === 'invalid_request' ? 400 : 500;
     return NextResponse.json({ error: 'Could not start checkout.' }, { status });

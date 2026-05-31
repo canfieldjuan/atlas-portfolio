@@ -23,20 +23,21 @@ results page then hydrates the full report from `GET /artifact`.
 Slice phase: Vertical slice
 
 1. **`src/lib/deflection-checkout.ts`** (new, server-only) —
-   `createDeflectionCheckoutSession(requestId, origin)`: POSTs Stripe's REST
-   `/v1/checkout/sessions` (form-encoded, no SDK dep), `mode=payment`, inline
-   `price_data` (`usd`, `150000`), session metadata
+   `createDeflectionCheckoutSession(requestId, origin, attemptId)`: POSTs
+   Stripe's REST `/v1/checkout/sessions` (form-encoded, no SDK dep),
+   `mode=payment`, inline `price_data` (`usd`, `150000`), session metadata
    `{source, account_id, request_id}`, success/cancel URLs back to the report.
-   Fail-closed: bounded request id, 10s timeout, generic errors (never leaks the
-   Stripe key or Stripe's error body), pinned Stripe API version, and
-   request-id-scoped idempotency.
-2. **`src/app/api/deflection-checkout/route.ts`** (new) — `POST {requestId}`.
-   Double-charge guard: probe `GET /artifact` first — `200` → `{alreadyPaid}`,
-   `404` → `404`, `403 locked` → create the session, any other probe result →
-   `503` fail-closed.
+   Fail-closed: bounded request id + attempt id, 10s timeout, generic errors
+   (never leaks the Stripe key or Stripe's error body), pinned Stripe API
+   version, and attempt-scoped idempotency.
+2. **`src/app/api/deflection-checkout/route.ts`** (new) —
+   `POST {requestId, attemptId}`. Double-charge guard: probe `GET /artifact`
+   first — `200` → `{alreadyPaid}`, `404` → `404`, `403 locked` → create the
+   session, any other probe result → `503` fail-closed.
 3. **`src/components/landing/DeflectionResultsPage.tsx`** — take a `requestId`
-   prop; replace the stub with an async `handleUnlock` that POSTs to the route
-   and redirects to Stripe (loading + error state on the button).
+   prop; replace the stub with an async `handleUnlock` that generates an
+   attempt id per click, POSTs to the route, and redirects to Stripe (loading +
+   error state on the button).
 4. **`.../results/[requestId]/page.tsx`** — pass `requestId` to the component.
 
 ### Files touched
@@ -58,8 +59,10 @@ Slice phase: Vertical slice
 - Metadata lives on the **session** (`source=content_ops_deflection_report`,
   `account_id`, `request_id`) — exactly what ATLAS's webhook handler reads.
 - The Stripe REST call pins `Stripe-Version: 2026-05-27.dahlia` and sends
-  `Idempotency-Key: deflection-checkout-{requestId}` so duplicate submissions
-  reuse the same Checkout Session.
+  `Idempotency-Key: deflection-checkout-{requestId}-{attemptId}`. Duplicate
+  submissions inside one click attempt reuse the same Checkout Session, while a
+  later explicit retry gets a fresh key so a transient Stripe failure is not
+  cached against the report for a day.
 - `success_url` omits `session_id`: the webhook is the trust path, and the
   results page only re-probes `GET /artifact`, so the session id is never needed
   back (also sidesteps the `{CHECKOUT_SESSION_ID}` literal-template pitfall).
@@ -95,8 +98,9 @@ Parked hardening: none.
 
 - `npm run lint` = 0; `npm run build` compiles the new route + lib + component.
 - Review hardening: Checkout creation now fails closed unless the artifact probe
-  returns `locked`; Stripe calls include `Stripe-Version` and `Idempotency-Key`;
-  env docs prefer `ATLAS_SAAS_STRIPE_RAK` and reject full live `sk_live_` keys.
+  returns `locked`; Stripe calls include `Stripe-Version` and an
+  attempt-scoped `Idempotency-Key`; env docs prefer `ATLAS_SAAS_STRIPE_RAK` and
+  reject full live `sk_live_` keys.
 - `rg "payment_method_types|transient ATLAS error as|ATLAS_SAAS_STRIPE_SECRET_KEY \\+ ATLAS_ACCOUNT_ID" src README.md plans/PR-Deflection-Stripe-Checkout.md` - no stale unsafe Checkout guidance remains.
 - `rg "sk_live_" src README.md plans/PR-Deflection-Stripe-Checkout.md` - remaining matches are the explicit live-secret rejection and RAK production guidance.
 - The Checkout Session create path is exercised against the live test-mode key
@@ -114,10 +118,10 @@ Parked hardening: none.
 |---|---|
 | deflection-checkout.ts (lib) | ~105 |
 | deflection-checkout route | ~55 |
-| DeflectionResultsPage wiring | ~50 |
+| DeflectionResultsPage wiring | ~55 |
 | page.tsx prop pass | ~2 |
 | README docs | ~15 |
 | this plan doc | ~110 |
-| **Total** | ~337 |
+| **Total** | ~342 |
 
-Actual diff is 6 files, +346 / -10.
+Actual diff is 6 files, +370 / -10.
