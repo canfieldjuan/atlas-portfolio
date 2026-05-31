@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Lock, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
 
 const CALCULATOR_HREF = '/systems/support-ticket-deflection/calculator';
+const FINALIZING_ATTEMPTS = 10;
+const FINALIZING_INTERVAL_MS = 1500;
 
 // Free-state results page. Renders ONLY the DeflectionSnapshot (summary + top
 // questions). Drafts/evidence/source IDs are never present in this payload —
@@ -14,10 +16,12 @@ export function DeflectionResultsPage({
   snapshot,
   requestId,
   companyName,
+  checkoutStatus,
 }: {
   snapshot: DeflectionSnapshot;
   requestId: string;
   companyName?: string;
+  checkoutStatus?: 'success' | 'cancel';
 }) {
   const { summary, top_questions } = snapshot;
   const maxFreq = top_questions.reduce((m, q) => Math.max(m, q.weighted_frequency), 0) || 1;
@@ -25,7 +29,45 @@ export function DeflectionResultsPage({
   const hasMoreQuestions = summary.generated > top_questions.length;
 
   const [loading, setLoading] = useState(false);
+  const [finalizing, setFinalizing] = useState(checkoutStatus === 'success');
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (checkoutStatus !== 'success') return undefined;
+
+    let cancelled = false;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+
+    async function poll(attempt: number) {
+      try {
+        const res = await fetch(
+          `/api/deflection-report-status?requestId=${encodeURIComponent(requestId)}`,
+          { cache: 'no-store' },
+        );
+        const data = (await res.json()) as { status?: string };
+        if (!cancelled && res.ok && data.status === 'unlocked') {
+          window.location.replace(window.location.pathname);
+          return;
+        }
+      } catch {
+        // Keep polling inside the bounded success-return window.
+      }
+
+      if (cancelled) return;
+      if (attempt >= FINALIZING_ATTEMPTS) {
+        setFinalizing(false);
+        setError('Payment received. Your report is finalizing. Refresh in a moment.');
+        return;
+      }
+      timeout = setTimeout(() => void poll(attempt + 1), FINALIZING_INTERVAL_MS);
+    }
+
+    timeout = setTimeout(() => void poll(1), 500);
+    return () => {
+      cancelled = true;
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [checkoutStatus, requestId]);
 
   // Ask our server to create a Stripe Checkout Session, then hand the browser to
   // Stripe's hosted page. ATLAS flips the paid flag from the webhook; on return
@@ -186,12 +228,16 @@ export function DeflectionResultsPage({
           <button
             type="button"
             onClick={handleUnlock}
-            disabled={loading}
-            aria-busy={loading}
+            disabled={loading || finalizing}
+            aria-busy={loading || finalizing}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Starting checkout…' : 'Unlock the full report — $1,500'}
-            {!loading && <ArrowRight className="h-4 w-4" />}
+            {finalizing
+              ? 'Finalizing report…'
+              : loading
+                ? 'Starting checkout…'
+                : 'Unlock the full report — $1,500'}
+            {!loading && !finalizing && <ArrowRight className="h-4 w-4" />}
           </button>
           {error && (
             <p role="alert" className="text-sm text-red-500 mt-3">

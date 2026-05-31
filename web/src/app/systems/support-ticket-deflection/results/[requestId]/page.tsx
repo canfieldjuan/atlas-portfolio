@@ -12,7 +12,10 @@ import {
 } from '@/lib/atlas-deflection-client';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
-type PageProps = { params: Promise<{ requestId: string }> };
+type PageProps = {
+  params: Promise<{ requestId: string }>;
+  searchParams?: Promise<{ checkout?: string | string[] }>;
+};
 
 // Per-request results page — never indexed.
 export const metadata: Metadata = {
@@ -44,11 +47,23 @@ async function getArtifact(requestId: string): Promise<FAQDeflectionReportArtifa
   return result.ok ? result.artifact : null;
 }
 
-export default async function DeflectionResultsRoute({ params }: PageProps) {
+function checkoutStatus(value: string | string[] | undefined): 'success' | 'cancel' | undefined {
+  const checkout = Array.isArray(value) ? value[0] : value;
+  return checkout === 'success' || checkout === 'cancel' ? checkout : undefined;
+}
+
+export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const artifact = await getArtifact(requestId);
   if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
 
   const snapshot = await getSnapshot(requestId);
-  return <DeflectionResultsPage snapshot={snapshot} requestId={requestId} />;
+  const query = searchParams ? await searchParams : undefined;
+  return (
+    <DeflectionResultsPage
+      snapshot={snapshot}
+      requestId={requestId}
+      checkoutStatus={checkoutStatus(query?.checkout)}
+    />
+  );
 }
