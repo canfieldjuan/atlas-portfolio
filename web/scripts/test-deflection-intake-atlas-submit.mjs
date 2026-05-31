@@ -86,7 +86,11 @@ try {
   );
   await writeFile(
     join(libStubDir, 'gap-report-intake.js'),
-    "exports.gapReportBlobToken = () => 'vercel_blob_rw_unit';\n",
+    [
+      "exports.gapReportBlobToken = () => 'vercel_blob_rw_unit';",
+      "exports.gapReportBlobTokens = () => ['vercel_blob_rw_unit'];",
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(blobStubDir, 'index.js'),

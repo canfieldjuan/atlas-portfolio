@@ -15,7 +15,7 @@ uses `access: 'private'`, the resolver must prefer the private-capable default
 `BLOB_READ_WRITE_TOKEN` store. This is production hardening because it restores
 the private PII upload contract already marked resolved in `HARDENING.md`.
 
-The final diff is 407 LOC, just over the 400-LOC soft cap, because the review
+The final diff is 412 LOC, just over the 400-LOC soft cap, because the review
 fix has to keep legacy-store access for every URL-based Blob path in the same
 slice: `/record` ownership checks, admin reads, ATLAS submit reads, tracked
 cleanup deletes, orphan cleanup listing, and the regression fixture.
@@ -42,6 +42,7 @@ Slice phase: Production hardening
 - `web/src/lib/atlas-deflection-client.ts` - ATLAS submit CSV read token fallback.
 - `web/src/lib/gap-report-cleanup.ts` - tracked/orphaned Blob cleanup token fallback.
 - `web/scripts/test-deflection-csv-privacy-contract.mjs` - resolver precedence and cleanup fallback contract.
+- `web/scripts/test-deflection-intake-atlas-submit.mjs` - ATLAS submit test stub for the plural token helper.
 
 ## Mechanism
 
@@ -87,6 +88,8 @@ Parked hardening: none.
   `put()` with `BLOB_READ_WRITE_TOKEN` succeeds.
 - `npm --prefix web run test:deflection-csv-privacy` - passed after adding the
   cleanup fallback regression fixture.
+- `npm --prefix web run test:deflection-intake-atlas-submit` - passed after
+  adding the plural token helper to the test stub.
 - `npm --prefix web run lint` - passed after the review fix.
 - `npm --prefix web run build` - passed after the review fix.
 - `rg -n -U "process\.env\.ticke_deflection_blob_READ_WRITE_TOKEN\?\.trim\(\) \|\|\n\s*process\.env\.BLOB_READ_WRITE_TOKEN\?\.trim\(\)" web/src web/scripts web/plans/PR-Deflection-Private-Blob-Token.md || true` - no stale old resolver order found.
@@ -100,4 +103,5 @@ Parked hardening: none.
 | Token resolver/list helper | ~28 |
 | URL operation fallback call sites | ~155 |
 | CSV privacy fallback fixture | ~126 |
-| Total | ~407 |
+| ATLAS submit test stub | ~5 |
+| Total | ~412 |
