@@ -1,5 +1,5 @@
 import { del, list } from '@vercel/blob';
-import { gapReportBlobToken } from './gap-report-intake';
+import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
   gapReportDatabaseConfigured,
@@ -30,9 +30,22 @@ function errorMessage(error: unknown) {
 }
 
 async function deleteBlob(url: string) {
-  // Same intake-store token as the upload routes — cleanup must target the store
-  // that receives private CSVs or the 30-day retention promise silently fails.
-  await del(url, { token: gapReportBlobToken() });
+  const tokens = gapReportBlobTokens();
+  if (tokens.length === 0) {
+    await del(url, { token: undefined });
+    return;
+  }
+
+  let lastError: unknown;
+  for (const token of tokens) {
+    try {
+      await del(url, { token });
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
 }
 
 async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
@@ -86,30 +99,37 @@ async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
 
 async function cleanupOrphanedBlobs(cutoff: Date, limit: number) {
   const errors: string[] = [];
-  let cursor: string | undefined;
   let deletedOrphanedBlobs = 0;
+  const seen = new Set<string>();
+  const tokens = gapReportBlobTokens();
+  const listTokens = tokens.length > 0 ? tokens : [gapReportBlobToken()];
 
-  do {
-    const page = await list({
-      prefix: GAP_REPORT_BLOB_PREFIX,
-      limit,
-      cursor,
-      token: gapReportBlobToken(),
-    });
+  for (const token of listTokens) {
+    let cursor: string | undefined;
 
-    for (const blob of page.blobs) {
-      if (blob.uploadedAt >= cutoff) continue;
+    do {
+      const page = await list({
+        prefix: GAP_REPORT_BLOB_PREFIX,
+        limit,
+        cursor,
+        token,
+      });
 
-      try {
-        await deleteBlob(blob.url);
-        deletedOrphanedBlobs += 1;
-      } catch (error) {
-        errors.push(`Failed to delete orphaned blob ${blob.pathname}: ${errorMessage(error)}`);
+      for (const blob of page.blobs) {
+        if (blob.uploadedAt >= cutoff || seen.has(blob.url)) continue;
+        seen.add(blob.url);
+
+        try {
+          await deleteBlob(blob.url);
+          deletedOrphanedBlobs += 1;
+        } catch (error) {
+          errors.push(`Failed to delete orphaned blob ${blob.pathname}: ${errorMessage(error)}`);
+        }
       }
-    }
 
-    cursor = page.hasMore ? page.cursor : undefined;
-  } while (cursor);
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+  }
 
   return { deletedOrphanedBlobs, errors };
 }
