@@ -168,10 +168,12 @@ Sessions write permission:
 ```text
 ATLAS_SAAS_STRIPE_RAK=
 ATLAS_ACCOUNT_ID=
+STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
-validation. Full live `sk_live_` keys are rejected; production should use an
-`rk_live_` restricted key.
+validation and can still use inline test `price_data` when the Price ID is not
+set. Full live `sk_live_` keys are rejected; production should use an `rk_live_`
+restricted key plus the configured `price_...` value.
 
 Use a long random value. Do not put this token in links or query strings.

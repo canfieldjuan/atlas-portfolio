@@ -39,5 +39,8 @@ jobs:
       - name: ESLint (web)
         run: npm --prefix web run lint
 
+      - name: Deflection checkout tests
+        run: npm --prefix web run test:deflection-checkout
+
       - name: Deflection rate-limit tests
         run: npm --prefix web run test:deflection-rate-limit
