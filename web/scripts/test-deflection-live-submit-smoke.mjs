@@ -121,6 +121,16 @@ async function run(options, responses, extra = {}) {
 }
 
 {
+  const { result, fetchImpl } = await run(baseOptions, [{ reject: 'connection reset' }]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'submit');
+  assert.equal(result.apiCalls, true);
+  assert.equal(result.mutations, true);
+  assert.equal(result.error, 'ATLAS submit failed before an HTTP response.');
+  assert.equal(fetchImpl.calls.length, 1);
+}
+
+{
   const { result, fetchImpl } = await run(baseOptions, [
     { status: 200, body: { request_id: 'content-ops-unit-123' } },
     { status: 500, body: { error: 'upstream failed' } },
@@ -149,6 +159,30 @@ async function run(options, responses, extra = {}) {
   const { result } = await run(baseOptions, [
     { status: 200, body: { request_id: 'content-ops-unit-123' } },
     { status: 200, body: { summary: { generated: '3' }, top_questions: [] } },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.error, 'ATLAS snapshot response shape was rejected.');
+}
+
+{
+  const badSnapshot = snapshotPayload();
+  badSnapshot.top_questions = [null];
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: badSnapshot },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.error, 'ATLAS snapshot response shape was rejected.');
+}
+
+{
+  const badSnapshot = snapshotPayload();
+  badSnapshot.top_questions = [{ rank: 1, question: 'Missing fields' }];
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: badSnapshot },
   ]);
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'snapshot');

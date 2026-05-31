@@ -86,6 +86,10 @@ Parked hardening: none.
   return stage-specific results with `requestId`, `apiCalls: true`, and
   `mutations: true`; regression covered in
   `test:deflection-live-submit-smoke`.
+- Reviewer P2 follow-up 2: submit transport failures now return structured
+  `stage: "submit"` results with `apiCalls: true` / `mutations: true`, and
+  snapshot `top_questions[]` elements are shape-validated before the smoke can
+  pass; both branches are covered in `test:deflection-live-submit-smoke`.
 
 ## Estimated diff size
 

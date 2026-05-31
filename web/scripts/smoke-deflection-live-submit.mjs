@@ -93,6 +93,16 @@ function parseSubmitPayload(payload) {
   return typeof requestId === 'string' && REQUEST_ID_RE.test(requestId) ? requestId : null;
 }
 
+function isSnapshotQuestion(value) {
+  if (!value || typeof value !== 'object') return false;
+  return (
+    typeof value.rank === 'number' &&
+    typeof value.question === 'string' &&
+    typeof value.customer_wording === 'string' &&
+    typeof value.weighted_frequency === 'number'
+  );
+}
+
 function parseSnapshotPayload(payload) {
   if (!payload || typeof payload !== 'object') return null;
   const summary = payload.summary;
@@ -106,6 +116,7 @@ function parseSnapshotPayload(payload) {
     return null;
   }
   if (!Array.isArray(topQuestions)) return null;
+  if (!topQuestions.every(isSnapshotQuestion)) return null;
   return {
     generated: summary.generated,
     draftedAnswerCount: summary.drafted_answer_count,
@@ -185,12 +196,23 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   form.set('contact_email', options.contactEmail);
 
   const submitUrl = `${envStatus.baseUrl}${SUBMIT_PATH}`;
-  const submitResponse = await fetchImpl(submitUrl, {
-    method: 'POST',
-    headers: authHeaders(envStatus.jwt),
-    body: form,
-    cache: 'no-store',
-  });
+  let submitResponse;
+  try {
+    submitResponse = await fetchImpl(submitUrl, {
+      method: 'POST',
+      headers: authHeaders(envStatus.jwt),
+      body: form,
+      cache: 'no-store',
+    });
+  } catch {
+    return {
+      ok: false,
+      error: 'ATLAS submit failed before an HTTP response.',
+      stage: 'submit',
+      apiCalls: true,
+      mutations: true,
+    };
+  }
   if (!submitResponse.ok) {
     return {
       ok: false,
