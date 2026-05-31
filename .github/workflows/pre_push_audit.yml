@@ -42,5 +42,8 @@ jobs:
       - name: Deflection checkout tests
         run: npm --prefix web run test:deflection-checkout
 
+      - name: Deflection CSV privacy contract
+        run: npm --prefix web run test:deflection-csv-privacy
+
       - name: Deflection rate-limit tests
         run: npm --prefix web run test:deflection-rate-limit

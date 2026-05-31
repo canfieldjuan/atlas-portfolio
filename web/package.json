@@ -27,6 +27,7 @@
     "test:google-ads-api": "node scripts/test-google-ads-api.mjs",
     "test:google-ads-artifacts": "node scripts/test-google-ads-artifact-contracts.mjs",
     "test:deflection-checkout": "node scripts/test-deflection-checkout.mjs",
+    "test:deflection-csv-privacy": "node scripts/test-deflection-csv-privacy-contract.mjs",
     "test:deflection-rate-limit": "node scripts/test-deflection-rate-limit.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
