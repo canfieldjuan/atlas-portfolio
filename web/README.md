@@ -175,6 +175,8 @@ STRIPE_DEFLECTION_REPORT_PRICE_ID=
 validation and can still use inline test `price_data` when the Price ID is not
 set. Full live `sk_live_` keys are rejected; production should use an `rk_live_`
 restricted key plus the configured `price_...` value.
+Production deployments reject the `sk_test_` fallback and require the restricted
+key path.
 
 The configured Price must be active, `usd`, and `unit_amount >= 150000` so it
 matches the ATLAS webhook unlock floor.

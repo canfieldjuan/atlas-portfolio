@@ -67,6 +67,10 @@ function stripeConfig(): StripeCheckoutConfig | null {
   }
 
   if (!legacyTestSecretKey) return null;
+  if (process.env.VERCEL_ENV === 'production') {
+    console.error('stripe checkout create: restricted key is required in production');
+    return null;
+  }
   if (legacyTestSecretKey.startsWith('sk_live_')) {
     console.error('stripe checkout create: full live secret key is not accepted');
     return null;

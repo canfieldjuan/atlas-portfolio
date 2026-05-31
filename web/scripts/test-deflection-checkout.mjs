@@ -14,6 +14,7 @@ const ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
+  'VERCEL_ENV',
 ];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
@@ -98,6 +99,7 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
     ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'preview',
   });
   assert.deepEqual(
     await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
@@ -107,6 +109,18 @@ try {
   assert.equal(calls[0].headers.Authorization, 'Bearer sk_test_unit_secret');
   assert.equal(calls[0].body.get('line_items[0][price_data][unit_amount]'), '150000');
   assert.equal(calls[0].body.has('line_items[0][price]'), false);
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'production',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
