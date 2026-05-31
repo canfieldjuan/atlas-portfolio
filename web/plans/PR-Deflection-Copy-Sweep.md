@@ -42,12 +42,20 @@ Slice phase: Product polish
 - `web/src/app/systems/support-ticket-deflection/partner/layout.tsx` — SEO meta
 - `web/src/app/systems/support-ticket-deflection/partner/page.tsx` — partner note
 - `web/src/app/systems/support-ticket-deflection/calculator/layout.tsx` — SEO title
+- `web/src/components/landing/SupportTicketCsvIntakePage.tsx` — intake body copy + platform dropdown placeholder
+- `web/src/components/deflection-demo/HowItWorks.tsx` — demo step copy
+- `web/src/components/deflection-demo/SupportTaxCalculator.tsx` — calculator copy + CTA label
+- `web/src/components/deflection-demo/DeflectionDemo.tsx` — demo empty/error-state copy
 
 ## Mechanism
 
 - Global, exact-string recast of `" — "` → `", "` (a handful of SEO titles read
   as "X, Y", which is acceptable) and `"3-6 month"` → `"3 month"`. Copy and
-  JSX-text only: no logic, no links/CTAs (hrefs unchanged), no component changes.
+  JSX-text only: no logic, no links/CTAs (hrefs unchanged), no behavior changes.
+- Scope follows the import graph, not just the route directory: the deflection
+  routes render shared components in `web/src/components/landing/` and
+  `web/src/components/deflection-demo/`, so those are swept too. `//` code
+  comments and `results/*` are left as-is.
 - The `15-75-person` en-dash is a real numeric range, not a stylistic dash, so it
   is intentionally preserved.
 
@@ -64,6 +72,10 @@ Slice phase: Product polish
 
 - No copy rewrite beyond punctuation and the ticket-window number.
 - The actual outreach copy (LinkedIn + cold email) is separate work.
+- Non-deflection surfaces with their own "3-6 months" (`systems/page.tsx`,
+  `ai-content-ops/page.tsx`) are out of scope for this deflection sweep.
+
+Parked hardening: none.
 
 ## Verification
 
@@ -77,7 +89,8 @@ Slice phase: Product polish
 
 | Area | LOC (added + deleted) |
 |---|---|
-| em-dash + 3-6 sweep (11 files) | ~136 |
+| em-dash + 3-6 sweep (11 route files) | ~136 |
+| shared rendered components (4 files) | ~26 |
 | hero re-anchor (v2) | ~26 |
-| this plan doc | ~60 |
-| **Total** | ~222 |
+| this plan doc | ~75 |
+| **Total** | ~263 |

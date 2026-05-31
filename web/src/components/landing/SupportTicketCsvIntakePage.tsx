@@ -265,7 +265,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 Right now, your pipeline runs one direction: we pull your tickets, cluster them, and generate verified FAQ answers for your public help center.
               </p>
               <p className="text-foreground/70 leading-relaxed mb-8">
-                <strong>Macro-writeback closes that loop.</strong> We take each verified question and answer pair that your team approves, and publish it directly back into your support tool. The question becomes the title, and the verified resolution becomes the body — ready for your agents to drop into tickets instantly. Same deterministic process, no auto-send.
+                <strong>Macro-writeback closes that loop.</strong> We take each verified question and answer pair that your team approves, and publish it directly back into your support tool. The question becomes the title, and the verified resolution becomes the body, ready for your agents to drop into tickets instantly. Same deterministic process, no auto-send.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-4 border-t border-border pt-6">
@@ -310,7 +310,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             Upload your tickets. Get the repeat-question snapshot in 24 hours.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Send 3–6 months of closed support tickets. We&apos;ll rank the repeated questions,
+            Send 3 months of closed support tickets. We&apos;ll rank the repeated questions,
             surface the missing customer wording, and include a review-ready FAQ draft built
             from resolved replies.
           </p>
@@ -426,7 +426,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
               }
             >
-              <option value="">— Select your support platform —</option>
+              <option value="">Select your support platform</option>
               {SUPPORT_PLATFORM_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
@@ -479,9 +479,9 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             <p id="csv-hint" className="mt-2 text-xs text-foreground/50 leading-relaxed">
               Subject lines and ticket bodies are enough. A few hundred closed tickets can
               work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Strip PII before
-              uploading if your export tool can — we recommend it; we don&apos;t need names or
+              uploading if your export tool can, we recommend it; we don&apos;t need names or
               emails to find your repeat questions. Files are deleted after 30 days, and the
-              analysis is 100% deterministic — no AI.
+              analysis is 100% deterministic, no AI.
             </p>
           </div>
 
