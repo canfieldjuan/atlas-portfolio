@@ -194,9 +194,9 @@ export function makeProblemCost(): DeflectionLandingPageConfig['problemCost'] {
         <p>This is not just about money. It is what repeat work does to the team:</p>
         <SectionList
           items={[
-            <>Agents spend only <strong className="text-foreground">39%</strong> of their time actually servicing customers — Salesforce.</>,
-            <><strong className="text-foreground">Five hours a week</strong> disappear into repetitive tickets — Gorgias.</>,
-            <>The same grind contributes to burnout, low morale, and the turnover costs leaders keep budgeting around — Insignia.</>,
+            <>Agents spend only <strong className="text-foreground">39%</strong> of their time actually servicing customers, per Salesforce.</>,
+            <><strong className="text-foreground">Five hours a week</strong> disappear into repetitive tickets, per Gorgias.</>,
+            <>The same grind contributes to burnout, low morale, and the turnover costs leaders keep budgeting around, per Insignia.</>,
           ]}
         />
         <p>
@@ -212,13 +212,13 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="h-3 w-3" />,
-    title: 'Stop guessing search terms. Customers are handing them to you in every support ticket.',
+    title: 'Is your Help Center deflecting tickets, or quietly creating more work?',
     intro:
-      'We mine your support tickets for the exact phrases customers use and turn them into FAQ drafts your team can review.',
+      'We read your support tickets, find the repeat questions your Help Center keeps missing, and hand your team review-ready FAQ drafts.',
     body:
-      'Upload 3–6 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
+      'Upload 3 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
-      label: 'Upload your tickets — get a free Deflection Snapshot',
+      label: 'Upload your tickets, get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
     },
   },
@@ -257,7 +257,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     processDescription:
       'The report isolates the questions worth fixing, shows the exact wording gap behind each one, and returns drafts your team can ship without starting from a blank page.',
     stages: [
-      { label: 'Upload your tickets', sub: 'CSV export • 3–6 months • no integration' },
+      { label: 'Upload your tickets', sub: 'CSV export • 3 months • no integration' },
       { label: 'We rank the repeat questions', sub: 'Question clusters • wording gaps • source-ticket evidence' },
       { label: 'You review and publish', sub: 'Drafted FAQs • no auto-publish • nothing goes live without you' },
     ],
@@ -274,13 +274,13 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     content: (
       <CopyBlock>
         <p>
-          The phrases your customers use in tickets are the phrases they type into Google — and your own volume tells you which ones matter most. Today your help-center page misses on wording: it answers in your internal product language, not the words customers search. We hand you their own search wording, validated by your queue, so the answer finally gets published in the same words customers search — not your internal jargon.
+          The phrases your customers use in tickets are the phrases they type into Google, and your own volume tells you which ones matter most. Today your help-center page misses on wording: it answers in your internal product language, not the words customers search. We hand you their own search wording, validated by your queue, so the answer finally gets published in the same words customers search, not your internal jargon.
         </p>
         <p>
-          Service leaders surveyed by Gartner estimate that as much as <strong className="text-foreground">40%</strong> of the issues reaching a live agent could have been resolved in self-service — if the answer existed and was findable. Findable is the whole game, and findable means matching the words people search.
+          Service leaders surveyed by Gartner estimate that as much as <strong className="text-foreground">40%</strong> of the issues reaching a live agent could have been resolved in self-service, if the answer existed and was findable. Findable is the whole game, and findable means matching the words people search.
         </p>
         <p>
-          And it is an asset, not a one-off reply. A published answer sits there for every future customer who searches that question — one page doing work your team would otherwise repeat by hand, so the next person with that question can find the answer instead of writing in.
+          And it is an asset, not a one-off reply. A published answer sits there for every future customer who searches that question, one page doing work your team would otherwise repeat by hand, so the next person with that question can find the answer instead of writing in.
         </p>
         <p>
           You review and publish every word, so the visibility is yours to earn. We supply the keywords and the drafts; what gets found is the work you ship.
@@ -375,11 +375,11 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     label: 'START HERE',
     title: 'Find the gaps fueling your ticket volume.',
     body: [
-      'Every day you wait, your team spends hours answering the same preventable questions. Upload your CSV today, and within 24 hours, you will see exactly which repeat questions and wording gaps are costing you the most time — complete with publishable drafts.',
+      'Every day you wait, your team spends hours answering the same preventable questions. Upload your CSV today, and within 24 hours, you will see exactly which repeat questions and wording gaps are costing you the most time, complete with publishable drafts.',
       'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to start clearing the repeats.',
     ],
     cta: {
-      label: 'Upload your tickets — get a free Deflection Snapshot',
+      label: 'Upload your tickets, get a free Deflection Snapshot',
       href: GAP_REPORT_INTAKE_HREF,
     },
     privacy:
