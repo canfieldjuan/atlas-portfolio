@@ -22,6 +22,8 @@ const cleanupLib = await source('src/lib/gap-report-cleanup.ts');
 const landingConfig = await source('src/app/systems/support-ticket-deflection/landingConfig.tsx');
 
 assertIncludes(intakePage, "access: 'private'", 'CSV client upload');
+assertIncludes(intakePage, 'contentType,', 'CSV client upload content type');
+assertIncludes(intakePage, 'CSV_UPLOAD_CONTENT_TYPES', 'CSV client upload content type allow-list');
 assertNotIncludes(intakePage, "access: 'public'", 'CSV client upload');
 assertIncludes(intakePage, 'Privacy: we delete your CSV after 30 days', 'CSV intake confirmation copy');
 

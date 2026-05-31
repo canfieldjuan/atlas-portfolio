@@ -23,6 +23,7 @@ type FormErrors = Partial<{
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 50;
+const CSV_UPLOAD_CONTENT_TYPES = new Set(['text/csv', 'application/csv', 'application/vnd.ms-excel']);
 
 export type SupportTicketCsvIntakeCopy = {
   backHref: string;
@@ -107,11 +108,14 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           .replace(/(^-|-$)/g, '')
           .slice(0, 40) || 'unknown';
       const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
+      const fileContentType = file.type.toLowerCase();
+      const contentType = CSV_UPLOAD_CONTENT_TYPES.has(fileContentType) ? fileContentType : 'text/csv';
       const blob = await upload(
         `gap-report-csvs/${Date.now()}-${companySlug}/${safeFilename}`,
         file,
         {
           access: 'private',
+          contentType,
           handleUploadUrl: '/api/gap-report-intake/upload',
           clientPayload: JSON.stringify(metadata),
         }
