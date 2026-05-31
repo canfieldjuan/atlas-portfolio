@@ -42,6 +42,9 @@ jobs:
       - name: Deflection checkout tests
         run: npm --prefix web run test:deflection-checkout
 
+      - name: Deflection browser upload smoke tests
+        run: npm --prefix web run test:deflection-browser-upload-smoke
+
       - name: Deflection CSV privacy contract
         run: npm --prefix web run test:deflection-csv-privacy
 
