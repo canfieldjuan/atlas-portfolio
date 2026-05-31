@@ -176,4 +176,7 @@ validation and can still use inline test `price_data` when the Price ID is not
 set. Full live `sk_live_` keys are rejected; production should use an `rk_live_`
 restricted key plus the configured `price_...` value.
 
+The configured Price must be active, `usd`, and `unit_amount >= 150000` so it
+matches the ATLAS webhook unlock floor.
+
 Use a long random value. Do not put this token in links or query strings.

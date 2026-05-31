@@ -65,7 +65,8 @@ configured, so existing local/preview validation remains easy. Full live
 ## Deferred
 
 - Provisioning the live restricted key and Price ID in Vercel remains an
-  operator/deploy step.
+  operator/deploy step. The README now names the required Price shape:
+  active, `usd`, and `unit_amount >= 150000`.
 - Live Stripe Checkout smoke with the restricted key remains deferred until the
   env values are present in the deployed project.
 
@@ -89,4 +90,4 @@ Parked hardening: none.
 | this plan doc | ~80 |
 | **Total** | ~256 |
 
-Actual diff: 6 files, +279 / -13.
+Actual diff: 6 files, +283 / -13.
