@@ -10,6 +10,13 @@ const baseOptions = {
   name: 'Ops Lead',
   baseUrl: 'https://portfolio.example.com/',
 };
+const LOCKED_RESULTS_HTML = [
+  '<main>',
+  '<span>YOUR DEFLECTION SNAPSHOT</span>',
+  '<h1>We found 12 deflection opportunities</h1>',
+  '<a>Unlock your full Backlog Report</a>',
+  '</main>',
+].join('');
 
 function csvReader() {
   return Buffer.from('ticket_id,subject,body\n1,Export reports,How do I export reports?\n');
@@ -38,6 +45,9 @@ function makeFetchMock(responses) {
     const next = responses.shift();
     if (!next) throw new Error(`unexpected fetch: ${url}`);
     if (next.reject) throw new Error(next.reject);
+    if (next.kind === 'html') {
+      return new Response(next.body ?? '', { status: next.status });
+    }
     return Response.json(next.body ?? null, { status: next.status });
   };
   fetchImpl.calls = calls;
@@ -116,6 +126,66 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
   const recordBody = JSON.parse(fetchImpl.calls[0].init.body);
   assert.equal(recordBody.blobUrl.includes('/gap-report-csvs/'), true);
   assert.equal(recordBody.email, 'ops@example.com');
+}
+
+{
+  const { result, fetchImpl } = await run(
+    { ...baseOptions, verifyResults: true },
+    {},
+    [
+      {
+        status: 200,
+        body: {
+          ok: true,
+          requestId: '11111111-1111-4111-8111-111111111111',
+          reportRequestId: 'content-ops-unit-123',
+          warnings: [],
+        },
+      },
+      { status: 200, kind: 'html', body: LOCKED_RESULTS_HTML },
+    ],
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.resultsVerified, true);
+  assert.deepEqual(result.resultMarkers, {
+    snapshotBadge: true,
+    headline: true,
+    unlockCta: true,
+  });
+  assert.equal(fetchImpl.calls.length, 2);
+  assert.equal(
+    fetchImpl.calls[1].url,
+    'https://portfolio.example.com/systems/support-ticket-deflection/results/content-ops-unit-123',
+  );
+  assert.equal(fetchImpl.calls[1].init.cache, 'no-store');
+}
+
+{
+  const { result } = await run(
+    { ...baseOptions, verifyResults: true },
+    {},
+    [
+      {
+        status: 200,
+        body: {
+          ok: true,
+          requestId: '11111111-1111-4111-8111-111111111111',
+          reportRequestId: 'content-ops-unit-123',
+          warnings: [],
+        },
+      },
+      {
+        status: 200,
+        kind: 'html',
+        body: LOCKED_RESULTS_HTML.replace('Unlock your full Backlog Report', 'Thanks'),
+      },
+    ],
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'results');
+  assert.equal(result.reportRequestId, 'content-ops-unit-123');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['unlockCta']);
 }
 
 {

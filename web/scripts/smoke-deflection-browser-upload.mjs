@@ -3,6 +3,7 @@ import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { upload as blobUpload } from '@vercel/blob/client';
 import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
+import { runDeflectionHostedResultsSmoke } from './smoke-deflection-hosted-results.mjs';
 
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const UPLOAD_PATH = '/api/gap-report-intake/upload';
@@ -25,6 +26,7 @@ Usage:
 Options:
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
   --name <name>      Lead name (default: Deflection Browser Smoke)
+  --verify-results   Fetch the returned hosted results page and verify markers
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
 
@@ -132,6 +134,7 @@ export async function runDeflectionBrowserUploadSmoke(options, deps = {}) {
   const email = String(options.email || '').trim();
   const platform = String(options.platform || '').trim();
   const name = String(options.name || 'Deflection Browser Smoke').trim();
+  const verifyResults = options.verifyResults === true;
   const optionErrors = validateOptions({ csvPath, companyName, email, platform, baseUrl });
 
   if (optionErrors.length > 0) {
@@ -249,6 +252,32 @@ export async function runDeflectionBrowserUploadSmoke(options, deps = {}) {
   }
 
   const url = resultsUrl(baseUrl, recordPayload.reportRequestId);
+  let resultMarkers;
+  if (verifyResults) {
+    const hostedResult = await runDeflectionHostedResultsSmoke(
+      {
+        requestId: recordPayload.reportRequestId,
+        baseUrl,
+      },
+      {
+        fetchImpl,
+        now,
+      },
+    );
+    if (!hostedResult.ok) {
+      return {
+        ok: false,
+        error: hostedResult.error,
+        stage: 'results',
+        apiCalls: true,
+        mutations: true,
+        reportRequestId: recordPayload.reportRequestId,
+        resultsUrl: url,
+        missing: hostedResult.missing,
+      };
+    }
+    resultMarkers = hostedResult.markers;
+  }
   return {
     ok: true,
     mode: 'DEFLECTION_BROWSER_UPLOAD_SMOKE',
@@ -258,6 +287,8 @@ export async function runDeflectionBrowserUploadSmoke(options, deps = {}) {
     requestId: recordPayload.requestId,
     reportRequestId: recordPayload.reportRequestId,
     resultsUrl: url,
+    resultsVerified: verifyResults,
+    resultMarkers,
     blobHost: new URL(blobUrl).hostname,
     blobPathname: blob.pathname || pathname,
     warnings: recordPayload.warnings,
@@ -298,6 +329,7 @@ async function main() {
     platform: parsed.values.get('--platform'),
     name: parsed.values.get('--name') || 'Deflection Browser Smoke',
     baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
+    verifyResults: parsed.flags.has('--verify-results'),
   });
   const artifactPath = outputPath
     ? await writeJsonArtifact(outputPath, result, { includeOutputPath: false })
