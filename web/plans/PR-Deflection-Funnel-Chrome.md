@@ -5,8 +5,9 @@
 The Support Ticket Deflection landing page is already a focused conversion page,
 but adjacent funnel routes still inherit the global menu and footer. That gives
 visitors broad escape paths after they click into the demo, calculator, or
-intake flow. The campaign should keep buyers inside the offer path and leave the
-page-level CTAs as the intentional navigation.
+intake flow. The partner-priced page is also a noindex-focused offer twin, so it
+should follow the same chrome rules. The campaign should keep buyers inside the
+offer path and leave the page-level CTAs as the intentional navigation.
 
 ## Scope (this PR)
 
@@ -15,7 +16,8 @@ Slice phase: Product polish
 1. Centralize global chrome hiding through the existing `shouldHideChrome`
    helper.
 2. Hide global navigation and footer on the support-ticket-deflection landing,
-   demo, calculator, support-tax calculator, intake, and results routes.
+   demo, calculator, support-tax calculator, intake, partner, and results
+   routes.
 3. Keep route-level links and CTAs unchanged, including the demo's calculator
    link and each page's back/intake links.
 4. Do not change offer copy, calculator behavior, intake behavior, metadata, or
@@ -58,7 +60,7 @@ Parked hardening: none.
 
 - `bash scripts/local_pr_review.sh` - passed; includes plan-doc audits, drift
   audit, ESLint, Next build, and `git diff --check`.
-- `rg -n "BARE_ROUTES|BARE_PREFIXES|/systems/support-ticket-deflection($|/(demo|calculator|support-tax|intake|results/))|shouldHideChrome" web/src/components/SiteChrome.tsx web/src/lib/no-chrome-routes.ts`
+- `rg -n "BARE_ROUTES|BARE_PREFIXES|/systems/support-ticket-deflection($|/(demo|calculator|support-tax|intake|partner|results/))|shouldHideChrome" web/src/components/SiteChrome.tsx web/src/lib/no-chrome-routes.ts`
   - confirmed `SiteChrome` uses `shouldHideChrome`, the deflection funnel routes
     and results prefix live in `no-chrome-routes.ts`, and no local
     `BARE_ROUTES` / `BARE_PREFIXES` list remains.

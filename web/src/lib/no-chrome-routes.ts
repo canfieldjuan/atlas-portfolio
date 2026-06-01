@@ -10,6 +10,7 @@ export const NO_CHROME_ROUTES = [
   '/systems/support-ticket-deflection/calculator',
   '/systems/support-ticket-deflection/support-tax',
   '/systems/support-ticket-deflection/intake',
+  '/systems/support-ticket-deflection/partner',
 ] as const;
 
 const NO_CHROME_PREFIXES = ['/systems/support-ticket-deflection/results/'] as const;
