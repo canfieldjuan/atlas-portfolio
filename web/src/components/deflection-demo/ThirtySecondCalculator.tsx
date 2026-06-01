@@ -44,7 +44,9 @@ function SliderField({
   const commit = (input: HTMLInputElement) => {
     const n = Number(input.value);
     if (input.value.trim() !== '' && Number.isFinite(n)) {
-      onChange(clamp(Math.round(n / step) * step, min, max));
+      const nextValue = clamp(Math.round(n / step) * step, min, max);
+      onChange(nextValue);
+      input.value = String(nextValue);
     } else {
       input.value = String(value);
     }
