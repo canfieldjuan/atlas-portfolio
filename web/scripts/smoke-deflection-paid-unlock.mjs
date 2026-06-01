@@ -37,6 +37,7 @@ Options:
   --vercel-curl               Route hosted requests through "vercel curl"
   --vercel-deployment <id|url> Deployment for vercel curl (default: --base-url)
   --allow-live-checkout       Do not fail closed on cs_live_ Checkout URLs
+  --require-unlocked          Fail if the report is locked instead of creating Checkout
   --json                      Print machine-readable JSON
   --output <path>             Write the smoke artifact JSON
 
@@ -292,6 +293,7 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
   const maxWaitMs = parsePositiveInteger(options.maxWaitMs, DEFAULT_MAX_WAIT_MS);
   const pollMs = parsePositiveInteger(options.pollMs, DEFAULT_POLL_MS);
   const allowLiveCheckout = options.allowLiveCheckout === true;
+  const requireUnlocked = options.requireUnlocked === true;
 
   if (!REQUEST_ID_RE.test(requestId)) {
     return { ok: false, error: 'Paid unlock smoke request id is invalid.', apiCalls: false };
@@ -314,6 +316,18 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
   let checkout = null;
   let unlockPolls = 0;
   if (firstStatus.status === 'locked') {
+    if (requireUnlocked) {
+      return {
+        ok: false,
+        error: 'Paid unlock smoke requires an already-unlocked report.',
+        stage: 'status',
+        apiCalls: true,
+        requestId,
+        attemptId,
+        initialStatus: firstStatus.status,
+        requireUnlocked,
+      };
+    }
     checkout = await createCheckout(fetchImpl, baseUrl, requestId, attemptId);
     if (!checkout.ok) {
       return { ...checkout, ok: false, stage: 'checkout', apiCalls: true, requestId, attemptId };
@@ -383,6 +397,7 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
     initialStatus: firstStatus.status,
     checkoutMode: checkout?.checkoutMode,
     checkoutUrl: checkout?.checkoutUrl,
+    requireUnlocked,
     unlockPolls,
     resultsUrl: render.url,
     markers: render.markers,
@@ -427,6 +442,7 @@ async function main() {
     maxWaitMs: parsed.values.get('--max-wait-ms'),
     pollMs: parsed.values.get('--poll-ms'),
     allowLiveCheckout: parsed.flags.has('--allow-live-checkout'),
+    requireUnlocked: parsed.flags.has('--require-unlocked'),
   }, {
     ...(fetchImpl ? { fetchImpl } : {}),
     onAwaitingPayment: async (artifact) => {

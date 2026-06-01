@@ -111,8 +111,22 @@ It must not include the locked CTA marker:
 
 - `Unlock your full Backlog Report`
 
-Verify both the protected preview and the canonical production URL when the same
-report is expected to be visible on production:
+For production post-payment validation, use `--require-unlocked` so the smoke
+fails closed if the webhook has not unlocked the report yet. This mode verifies
+the hosted paid render and will not create another live Checkout Session:
+
+```bash
+npm --prefix web run smoke:deflection-paid-unlock -- \
+  --request-id "$REQUEST_ID" \
+  --base-url https://juancanfield.com \
+  --require-unlocked \
+  --json \
+  --output /tmp/deflection-paid-unlock-prod-render.json
+```
+
+For lower-level manual inspection, verify both the protected preview and the
+canonical production URL when the same report is expected to be visible on
+production:
 
 ```bash
 vercel curl "/systems/support-ticket-deflection/results/$REQUEST_ID" \
