@@ -16,6 +16,21 @@ this smoke.
 - ATLAS is deployed with the current Stripe webhook signing secret. During
   rotation, ATLAS can accept a comma-separated list of old and new
   `ATLAS_SAAS_STRIPE_WEBHOOK_SECRET` values.
+- Before adding or rotating the production Checkout env, validate the candidate
+  values locally:
+
+  ```bash
+  npm --prefix web run check:deflection-checkout-env -- \
+    --environment production \
+    --env-file /tmp/atlas-portfolio-prod-candidate.env
+  ```
+
+  Production must have `ATLAS_SAAS_STRIPE_RAK=rk_live_...`,
+  `ATLAS_ACCOUNT_ID`, and `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...`. A
+  legacy `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure
+  production checkout. After the RAK is stored as a Vercel sensitive env var,
+  `vercel env pull` will not reveal its value again; use the hosted Checkout
+  smoke after redeploy to prove the deployed value can create a session.
 - The portfolio preview has:
   - `ATLAS_B2B_SERVICE_TOKEN`
   - `ATLAS_SAAS_STRIPE_SECRET_KEY` or a least-privilege test restricted key
