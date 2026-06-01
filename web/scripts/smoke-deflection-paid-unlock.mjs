@@ -219,6 +219,7 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
   const nowMs = deps.nowMs || (() => Date.now());
   const sleepImpl = deps.sleepImpl || ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   const makeAttemptId = deps.makeAttemptId || (() => randomUUID());
+  const onAwaitingPayment = deps.onAwaitingPayment || (async () => {});
 
   const requestId = String(options.requestId || '').trim();
   const attemptId = String(options.attemptId || makeAttemptId()).trim();
@@ -265,6 +266,17 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
       };
     }
     if (!checkout.alreadyPaid) {
+      await onAwaitingPayment({
+        ok: true,
+        mode: 'DEFLECTION_PAID_UNLOCK_SMOKE',
+        stage: 'awaiting_payment',
+        apiCalls: true,
+        checkedAt: now(),
+        requestId,
+        attemptId,
+        checkoutUrl: checkout.checkoutUrl,
+        checkoutMode: checkout.checkoutMode,
+      });
       const unlocked = await waitForUnlock({
         fetchImpl,
         baseUrl,
@@ -338,6 +350,14 @@ async function main() {
     maxWaitMs: parsed.values.get('--max-wait-ms'),
     pollMs: parsed.values.get('--poll-ms'),
     allowLiveCheckout: parsed.flags.has('--allow-live-checkout'),
+  }, {
+    onAwaitingPayment: async (artifact) => {
+      console.log(`Test-mode Checkout URL: ${artifact.checkoutUrl}`);
+      console.log('Complete payment in another window; polling for unlock...');
+      if (outputPath) {
+        await writeJsonArtifact(outputPath, artifact, { includeOutputPath: false });
+      }
+    },
   });
   const artifactPath = outputPath
     ? await writeJsonArtifact(outputPath, result, { includeOutputPath: false })

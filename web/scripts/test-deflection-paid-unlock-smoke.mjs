@@ -29,9 +29,11 @@ function makeFetchMock(responses) {
   return fetchImpl;
 }
 
-function run(options, responses) {
+function run(options, responses, deps = {}) {
   let clock = 0;
   const fetchImpl = makeFetchMock(responses);
+  const awaitingPayment = [];
+  const externalAwaitingPayment = deps.onAwaitingPayment;
   return runDeflectionPaidUnlockSmoke(
     {
       requestId: REQUEST_ID,
@@ -49,8 +51,13 @@ function run(options, responses) {
       sleepImpl: async (ms) => {
         clock += ms;
       },
+      ...deps,
+      onAwaitingPayment: async (artifact) => {
+        awaitingPayment.push({ artifact, fetchCallsBeforePoll: fetchImpl.calls.length });
+        if (externalAwaitingPayment) await externalAwaitingPayment(artifact);
+      },
     },
-  ).then((result) => ({ result, fetchImpl }));
+  ).then((result) => ({ result, fetchImpl, awaitingPayment }));
 }
 
 {
@@ -74,7 +81,7 @@ function run(options, responses) {
 }
 
 {
-  const { result, fetchImpl } = await run({}, [
+  const { result, fetchImpl, awaitingPayment } = await run({}, [
     { status: 200, body: { status: 'locked' } },
     { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
     { status: 200, body: { status: 'locked' } },
@@ -87,6 +94,12 @@ function run(options, responses) {
   assert.equal(result.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_unit');
   assert.equal(result.unlockPolls, 2);
   assert.equal(fetchImpl.calls.length, 5);
+  assert.equal(awaitingPayment.length, 1);
+  assert.equal(awaitingPayment[0].fetchCallsBeforePoll, 2);
+  assert.equal(awaitingPayment[0].artifact.stage, 'awaiting_payment');
+  assert.equal(awaitingPayment[0].artifact.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_unit');
+  assert.equal(awaitingPayment[0].artifact.requestId, REQUEST_ID);
+  assert.equal(awaitingPayment[0].artifact.attemptId, ATTEMPT_ID);
   assert.equal(fetchImpl.calls[1].init.method, 'POST');
   assert.deepEqual(JSON.parse(fetchImpl.calls[1].init.body), {
     requestId: REQUEST_ID,

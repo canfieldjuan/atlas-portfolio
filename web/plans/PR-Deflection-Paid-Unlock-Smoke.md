@@ -73,6 +73,11 @@ fetches the results page and verifies:
 
 It also rejects the unpaid CTA marker `Unlock your full Backlog Report`.
 
+For operator-completed test-mode Checkout, the smoke emits the test Checkout URL
+and writes an `awaiting_payment` artifact before entering the unlock poll loop.
+That gives the operator the URL during the polling window instead of only after a
+timeout or final result.
+
 ## Intentional
 
 - The smoke does not use a Stripe secret key, fake a webhook, or call the
@@ -94,6 +99,8 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-paid-unlock-smoke` - passed.
+- Mock coverage verifies the `awaiting_payment` hook fires after Checkout
+  creation and before the first unlock poll.
 - `npm --prefix web run smoke:deflection-paid-unlock -- --request-id content-ops-e50579a505b6470c99f86f04a5184f69 --json --output /tmp/deflection-paid-unlock-smoke.json` - failed closed as expected because the deployed route returned a live-mode `cs_live_...` Checkout URL.
 - `npm --prefix web run lint` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
