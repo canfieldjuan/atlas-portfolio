@@ -37,6 +37,7 @@ this smoke.
     --request-id "$REQUEST_ID" \
     --base-url https://juancanfield.com \
     --expect-mode live \
+    --require-checkout-session \
     --json \
     --output /tmp/deflection-hosted-checkout-prod.json
   ```

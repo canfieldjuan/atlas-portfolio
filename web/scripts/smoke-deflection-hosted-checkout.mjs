@@ -19,6 +19,7 @@ Options:
   --attempt-id <id>  Explicit attempt id (default: generated)
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
   --expect-mode <m>  Expected Checkout mode: any, live, or test (default: any)
+  --require-checkout-session  Fail if the report is already paid and no new Checkout Session is created
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
 
@@ -84,6 +85,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
   const attemptId = String(options.attemptId || makeAttemptId()).trim();
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const expectedMode = String(options.expectMode || 'any').trim().toLowerCase();
+  const requireCheckoutSession = options.requireCheckoutSession === true;
 
   if (!REQUEST_ID_RE.test(requestId)) {
     return {
@@ -156,6 +158,19 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
   }
 
   if (body?.alreadyPaid === true) {
+    if (requireCheckoutSession) {
+      return {
+        ok: false,
+        error: 'Hosted Checkout route returned already_paid before creating a Checkout Session.',
+        stage: 'checkout_session',
+        apiCalls: true,
+        requestId,
+        attemptId,
+        url,
+        expectedMode,
+        requireCheckoutSession,
+      };
+    }
     return {
       ok: true,
       mode: 'DEFLECTION_HOSTED_CHECKOUT_SMOKE',
@@ -165,6 +180,8 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       requestId,
       attemptId,
       url,
+      expectedMode,
+      requireCheckoutSession,
     };
   }
 
@@ -220,6 +237,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
     checkoutUrl: body.url,
     checkoutMode,
     expectedMode,
+    requireCheckoutSession,
   };
 }
 
@@ -251,6 +269,7 @@ async function main() {
     attemptId: parsed.values.get('--attempt-id'),
     baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
     expectMode: parsed.values.get('--expect-mode') || 'any',
+    requireCheckoutSession: parsed.flags.has('--require-checkout-session'),
   });
   const artifactPath = outputPath
     ? await writeJsonArtifact(outputPath, result, { includeOutputPath: false })
