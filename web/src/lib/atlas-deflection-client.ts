@@ -29,7 +29,7 @@ export type SnapshotFetchResult =
 
 function atlasConfig(): { baseUrl: string; token: string } | null {
   const baseUrl = process.env.ATLAS_API_BASE_URL?.trim().replace(/\/$/, '');
-  const token = process.env.ATLAS_B2B_SERVICE_TOKEN?.trim() || process.env.ATLAS_B2B_JWT?.trim();
+  const token = process.env.ATLAS_B2B_SERVICE_TOKEN?.trim();
   if (!baseUrl || !token) return null;
   return { baseUrl, token };
 }

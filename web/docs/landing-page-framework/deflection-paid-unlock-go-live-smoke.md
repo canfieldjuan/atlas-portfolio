@@ -20,6 +20,8 @@ this smoke.
   - `ATLAS_B2B_SERVICE_TOKEN`
   - `ATLAS_SAAS_STRIPE_SECRET_KEY` or a least-privilege test restricted key
   - no Preview-scoped live `ATLAS_SAAS_STRIPE_RAK`
+- The old `ATLAS_B2B_JWT` fallback is retired for the deflection funnel; do not
+  use it for new preview or production validation.
 - Stripe CLI is authenticated or has a test key supplied through the local
   shell environment. Never paste the key into the fixture file or command
   history.
