@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { runDeflectionPaidUnlockSmoke } from './smoke-deflection-paid-unlock.mjs';
+import {
+  makeVercelCurlFetch,
+  runDeflectionPaidUnlockSmoke,
+} from './smoke-deflection-paid-unlock.mjs';
 
 const REQUEST_ID = 'content-ops-unit-123';
 const ATTEMPT_ID = 'attempt-unit-12345678';
@@ -217,6 +220,100 @@ function run(options, responses, deps = {}) {
   assert.equal(result.stage, 'render');
   assert.equal(result.error, 'Paid results page did not render the unlocked report.');
   assert.deepEqual(result.missing, ['fullReportBadge']);
+}
+
+{
+  const execCalls = [];
+  const fetchImpl = makeVercelCurlFetch({
+    deployment: 'https://atlas-portfolio-preview.vercel.app',
+    cwd: '/tmp/portfolio',
+    execFileImpl: async (command, args, options) => {
+      execCalls.push({ command, args, options });
+      return {
+        stdout: '{"status":"locked"}\n__ATLAS_HTTP_STATUS__:200',
+      };
+    },
+  });
+  const response = await fetchImpl(
+    'https://atlas-portfolio-preview.vercel.app/api/deflection-report-status?requestId=content-ops-unit-123',
+    { headers: { Accept: 'application/json' } },
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { status: 'locked' });
+  assert.equal(execCalls.length, 1);
+  assert.equal(execCalls[0].command, 'vercel');
+  assert.deepEqual(execCalls[0].args, [
+    'curl',
+    '/api/deflection-report-status?requestId=content-ops-unit-123',
+    '--deployment',
+    'https://atlas-portfolio-preview.vercel.app',
+    '--',
+    '--request',
+    'GET',
+    '--silent',
+    '--show-error',
+    '--write-out',
+    '\n__ATLAS_HTTP_STATUS__:%{http_code}',
+    '--header',
+    'Accept: application/json',
+  ]);
+  assert.equal(execCalls[0].options.cwd, '/tmp/portfolio');
+}
+
+{
+  const execCalls = [];
+  const fetchImpl = makeVercelCurlFetch({
+    deployment: 'atlas-portfolio-preview',
+    execFileImpl: async (command, args) => {
+      execCalls.push({ command, args });
+      return {
+        stdout: '{"url":"https://checkout.stripe.com/c/pay/cs_test_unit"}\n__ATLAS_HTTP_STATUS__:201',
+      };
+    },
+  });
+  const response = await fetchImpl('https://portfolio.example.com/api/deflection-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestId: REQUEST_ID, attemptId: ATTEMPT_ID }),
+  });
+
+  assert.equal(response.status, 201);
+  assert.deepEqual(await response.json(), {
+    url: 'https://checkout.stripe.com/c/pay/cs_test_unit',
+  });
+  assert.deepEqual(execCalls[0].args.slice(-4), [
+    '--header',
+    'Content-Type: application/json',
+    '--data-binary',
+    JSON.stringify({ requestId: REQUEST_ID, attemptId: ATTEMPT_ID }),
+  ]);
+}
+
+{
+  const fetchImpl = makeVercelCurlFetch({
+    deployment: 'atlas-portfolio-preview',
+    execFileImpl: async () => ({
+      stdout: '{"error":"Protected deployment"}\n__ATLAS_HTTP_STATUS__:401',
+    }),
+  });
+  const response = await fetchImpl('https://portfolio.example.com/api/deflection-checkout');
+
+  assert.equal(response.ok, false);
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: 'Protected deployment' });
+}
+
+{
+  const fetchImpl = makeVercelCurlFetch({
+    deployment: 'atlas-portfolio-preview',
+    execFileImpl: async () => ({ stdout: '{"status":"locked"}' }),
+  });
+
+  await assert.rejects(
+    () => fetchImpl('https://portfolio.example.com/api/deflection-report-status'),
+    /vercel curl did not return an HTTP status marker/,
+  );
 }
 
 {

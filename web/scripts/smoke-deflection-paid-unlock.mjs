@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto';
+import { execFile as execFileCallback } from 'node:child_process';
+import { promisify } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli-helpers.mjs';
 
+const execFile = promisify(execFileCallback);
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
@@ -10,6 +13,7 @@ const STATUS_PATH = '/api/deflection-report-status';
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 const DEFAULT_MAX_WAIT_MS = 120_000;
 const DEFAULT_POLL_MS = 5_000;
+const VERCEL_CURL_STATUS_MARKER = '__ATLAS_HTTP_STATUS__:';
 const REQUIRED_PAID_MARKERS = [
   { key: 'fullReportBadge', label: 'FULL DEFLECTION REPORT' },
   { key: 'paidHeadline', label: 'Your paid report is ready to review.' },
@@ -30,6 +34,8 @@ Options:
   --base-url <url>            Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
   --max-wait-ms <ms>          Unlock polling timeout (default: ${DEFAULT_MAX_WAIT_MS})
   --poll-ms <ms>              Unlock polling interval (default: ${DEFAULT_POLL_MS})
+  --vercel-curl               Route hosted requests through "vercel curl"
+  --vercel-deployment <id|url> Deployment for vercel curl (default: --base-url)
   --allow-live-checkout       Do not fail closed on cs_live_ Checkout URLs
   --json                      Print machine-readable JSON
   --output <path>             Write the smoke artifact JSON
@@ -57,6 +63,65 @@ function normalizeBaseUrl(value) {
   } catch {
     return null;
   }
+}
+
+function headerPairs(headers) {
+  if (!headers) return [];
+  if (headers instanceof Headers) return [...headers.entries()];
+  if (Array.isArray(headers)) {
+    return headers.map(([name, value]) => [String(name), String(value)]);
+  }
+  return Object.entries(headers).map(([name, value]) => [String(name), String(value)]);
+}
+
+function parseVercelCurlOutput(stdout) {
+  const raw = String(stdout ?? '');
+  const markerIndex = raw.lastIndexOf(VERCEL_CURL_STATUS_MARKER);
+  if (markerIndex < 0) {
+    throw new Error('vercel curl did not return an HTTP status marker.');
+  }
+  const body = raw.slice(0, markerIndex).replace(/\n$/, '');
+  const status = Number(raw.slice(markerIndex + VERCEL_CURL_STATUS_MARKER.length).trim());
+  if (!Number.isInteger(status) || status < 100 || status > 599) {
+    throw new Error('vercel curl returned an invalid HTTP status.');
+  }
+  return { body, status };
+}
+
+export function makeVercelCurlFetch({ deployment, execFileImpl = execFile, cwd = process.cwd() } = {}) {
+  const targetDeployment = String(deployment || '').trim();
+  if (!targetDeployment) {
+    throw new Error('vercel curl transport requires a deployment id or URL.');
+  }
+
+  return async function vercelCurlFetch(url, init = {}) {
+    const parsed = new URL(String(url));
+    const method = String(init.method || 'GET').toUpperCase();
+    const args = [
+      'curl',
+      `${parsed.pathname}${parsed.search}`,
+      '--deployment',
+      targetDeployment,
+      '--',
+      '--request',
+      method,
+      '--silent',
+      '--show-error',
+      '--write-out',
+      `\n${VERCEL_CURL_STATUS_MARKER}%{http_code}`,
+    ];
+
+    for (const [name, value] of headerPairs(init.headers)) {
+      args.push('--header', `${name}: ${value}`);
+    }
+    if (init.body !== undefined && init.body !== null) {
+      args.push('--data-binary', String(init.body));
+    }
+
+    const { stdout } = await execFileImpl('vercel', args, { cwd, maxBuffer: 8 * 1024 * 1024 });
+    const result = parseVercelCurlOutput(stdout);
+    return new Response(result.body, { status: result.status });
+  };
 }
 
 function parsePositiveInteger(value, fallback) {
@@ -342,15 +407,28 @@ async function main() {
   if (isBareFlag(parsed, '--base-url')) {
     fail('Refusing to continue without --base-url <url>.', outputJson, { apiCalls: false });
   }
+  if (isBareFlag(parsed, '--vercel-deployment')) {
+    fail('Refusing to continue without --vercel-deployment <id|url>.', outputJson, {
+      apiCalls: false,
+    });
+  }
 
+  const baseUrl = parsed.values.get('--base-url') || DEFAULT_BASE_URL;
+  const useVercelCurl = parsed.flags.has('--vercel-curl');
+  const fetchImpl = useVercelCurl
+    ? makeVercelCurlFetch({
+      deployment: parsed.values.get('--vercel-deployment') || baseUrl,
+    })
+    : undefined;
   const result = await runDeflectionPaidUnlockSmoke({
     requestId: parsed.values.get('--request-id'),
     attemptId: parsed.values.get('--attempt-id'),
-    baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
+    baseUrl,
     maxWaitMs: parsed.values.get('--max-wait-ms'),
     pollMs: parsed.values.get('--poll-ms'),
     allowLiveCheckout: parsed.flags.has('--allow-live-checkout'),
   }, {
+    ...(fetchImpl ? { fetchImpl } : {}),
     onAwaitingPayment: async (artifact) => {
       console.log(`Test-mode Checkout URL: ${artifact.checkoutUrl}`);
       console.log('Complete payment in another window; polling for unlock...');
