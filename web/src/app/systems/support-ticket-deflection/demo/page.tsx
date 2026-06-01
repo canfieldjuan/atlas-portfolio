@@ -1,7 +1,6 @@
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
-import { SupportTaxCalculator } from '@/components/deflection-demo/SupportTaxCalculator';
 import { HowItWorks } from '@/components/deflection-demo/HowItWorks';
 
 export default function SupportTicketDeflectionDemoPage() {
@@ -38,7 +37,27 @@ export default function SupportTicketDeflectionDemoPage() {
         <DeflectionDemo />
 
         <div className="mt-16 space-y-16">
-          <SupportTaxCalculator />
+          <div className="rounded-2xl border border-border bg-surface p-6">
+            <div className="max-w-2xl">
+              <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+                Calculator
+              </div>
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                Want to size the repeat-ticket cost?
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/60">
+                Use the full calculator when you need the budget case. This demo stays focused on
+                the report fields your team would review.
+              </p>
+              <Link
+                href="/systems/support-ticket-deflection/calculator"
+                className="group mt-5 inline-flex items-center justify-center gap-2 rounded-md border border-border px-5 py-3 text-sm font-medium text-foreground transition hover:border-primary/45 hover:text-primary"
+              >
+                Open the full calculator
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </div>
           <HowItWorks />
 
           {/* Bottom CTA (kept), hoisted here so how-it-works reads before it. */}
