@@ -15,7 +15,7 @@ const intakePageUrl = new URL(
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
-const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN', 'ATLAS_B2B_JWT'];
+const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN'];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
 const originalConsoleError = console.error;
@@ -112,7 +112,6 @@ try {
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
     ATLAS_B2B_SERVICE_TOKEN: 'service_token_unit',
-    ATLAS_B2B_JWT: 'jwt_unit',
   });
   resetCalls();
   assert.deepEqual(
@@ -140,24 +139,6 @@ try {
   assert.equal(fetchCalls[0].body.get('contact_email'), 'lead@acme.example');
   assert.equal(fetchCalls[0].body.get('csv_file').name, 'unit_tickets.csv');
 
-  resetCalls();
-  resetEnv({
-    ATLAS_API_BASE_URL: 'https://atlas.example.com/',
-    ATLAS_B2B_JWT: 'jwt_unit',
-  });
-  assert.deepEqual(
-    await submitDeflectionReportCsv({
-      csvBlobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
-      csvFilename: 'freshdesk.csv',
-      companyName: 'Acme Co.',
-      contactEmail: 'lead@acme.example',
-      supportPlatform: 'freshdesk',
-    }),
-    { ok: true, requestId: 'content-ops-unit-123' },
-  );
-  assert.equal(fetchCalls[0].headers.Authorization, 'Bearer jwt_unit');
-  assert.equal(fetchCalls[0].body.get('support_platform'), 'other');
-
   resetEnv({});
   resetCalls();
   assert.deepEqual(
@@ -175,20 +156,22 @@ try {
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com',
-    ATLAS_B2B_JWT: 'jwt_unit',
+    ATLAS_B2B_SERVICE_TOKEN: 'service_token_unit',
   });
   resetCalls();
   fetchPayload = { request_id: '../../bad' };
   assert.deepEqual(
     await submitDeflectionReportCsv({
       csvBlobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
-      csvFilename: 'unit.csv',
+      csvFilename: 'freshdesk.csv',
       companyName: 'Acme Co.',
       contactEmail: 'lead@acme.example',
-      supportPlatform: 'intercom',
+      supportPlatform: 'freshdesk',
     }),
     { ok: false, reason: 'invalid_response' },
   );
+  assert.equal(fetchCalls[0].headers.Authorization, 'Bearer service_token_unit');
+  assert.equal(fetchCalls[0].body.get('support_platform'), 'other');
   assert.ok(
     consoleErrors.some((entry) => entry.includes('deflection submit: upstream shape rejected')),
     'invalid submit response is logged generically',

@@ -32,7 +32,7 @@ Options:
 
 Required env:
   ATLAS_API_BASE_URL
-  ATLAS_B2B_SERVICE_TOKEN or ATLAS_B2B_JWT
+  ATLAS_B2B_SERVICE_TOKEN
 
 Safety:
   This submits a CSV to deployed ATLAS and verifies snapshot 200 + artifact 403.
@@ -81,9 +81,9 @@ function validateOptions({ csvPath, companyName, contactEmail, platform }) {
 function validateEnv(env) {
   const missing = [];
   const baseUrl = cleanBaseUrl(env.ATLAS_API_BASE_URL);
-  const token = String(env.ATLAS_B2B_SERVICE_TOKEN || env.ATLAS_B2B_JWT || '').trim();
+  const token = String(env.ATLAS_B2B_SERVICE_TOKEN || '').trim();
   if (!baseUrl) missing.push('ATLAS_API_BASE_URL');
-  if (!token) missing.push('ATLAS_B2B_SERVICE_TOKEN or ATLAS_B2B_JWT');
+  if (!token) missing.push('ATLAS_B2B_SERVICE_TOKEN');
   return { ok: missing.length === 0, missing, baseUrl, token };
 }
 
