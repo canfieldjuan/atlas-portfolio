@@ -15,7 +15,7 @@ const intakePageUrl = new URL(
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
-const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_JWT'];
+const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN', 'ATLAS_B2B_JWT'];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
 const originalConsoleError = console.error;
@@ -111,6 +111,7 @@ try {
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
+    ATLAS_B2B_SERVICE_TOKEN: 'service_token_unit',
     ATLAS_B2B_JWT: 'jwt_unit',
   });
   resetCalls();
@@ -132,7 +133,7 @@ try {
     fetchCalls[0].url,
     'https://atlas.example.com/api/v1/content-ops/deflection-reports/submit',
   );
-  assert.equal(fetchCalls[0].headers.Authorization, 'Bearer jwt_unit');
+  assert.equal(fetchCalls[0].headers.Authorization, 'Bearer service_token_unit');
   assert.equal(fetchCalls[0].headers['Content-Type'], undefined);
   assert.equal(fetchCalls[0].body.get('support_platform'), 'help_scout');
   assert.equal(fetchCalls[0].body.get('company_name'), 'Acme Co.');
@@ -140,6 +141,10 @@ try {
   assert.equal(fetchCalls[0].body.get('csv_file').name, 'unit_tickets.csv');
 
   resetCalls();
+  resetEnv({
+    ATLAS_API_BASE_URL: 'https://atlas.example.com/',
+    ATLAS_B2B_JWT: 'jwt_unit',
+  });
   assert.deepEqual(
     await submitDeflectionReportCsv({
       csvBlobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
@@ -150,6 +155,7 @@ try {
     }),
     { ok: true, requestId: 'content-ops-unit-123' },
   );
+  assert.equal(fetchCalls[0].headers.Authorization, 'Bearer jwt_unit');
   assert.equal(fetchCalls[0].body.get('support_platform'), 'other');
 
   resetEnv({});

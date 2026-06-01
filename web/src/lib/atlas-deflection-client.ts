@@ -11,8 +11,9 @@ import { get } from '@vercel/blob';
 import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@/lib/gap-report-intake';
 
 // SERVER-ONLY by convention — import this only from server components / route
-// handlers, never a client component. It reads `ATLAS_B2B_JWT` (a non-NEXT_PUBLIC_
-// env var, so it is never bundled for the browser even if mis-imported).
+// handlers, never a client component. It reads non-NEXT_PUBLIC_ service
+// credentials, so the bearer token is never bundled for the browser even if
+// mis-imported.
 // ATLAS client for the deflection funnel: reads the service-account credentials
 // from env and fetches the free snapshot (GET /snapshot) and the paid-gated full
 // report (GET /artifact → 200 unlocked / 403 locked). Go-live-gate discipline:
@@ -26,11 +27,11 @@ export type SnapshotFetchResult =
   | { ok: true; snapshot: DeflectionSnapshot }
   | { ok: false; reason: 'not_configured' | 'not_found' | 'error' };
 
-function atlasConfig(): { baseUrl: string; jwt: string } | null {
+function atlasConfig(): { baseUrl: string; token: string } | null {
   const baseUrl = process.env.ATLAS_API_BASE_URL?.trim().replace(/\/$/, '');
-  const jwt = process.env.ATLAS_B2B_JWT?.trim();
-  if (!baseUrl || !jwt) return null;
-  return { baseUrl, jwt };
+  const token = process.env.ATLAS_B2B_SERVICE_TOKEN?.trim() || process.env.ATLAS_B2B_JWT?.trim();
+  if (!baseUrl || !token) return null;
+  return { baseUrl, token };
 }
 
 function isQuestion(v: unknown): v is DeflectionSnapshotQuestion {
@@ -81,7 +82,7 @@ export async function fetchDeflectionSnapshot(
   try {
     const res = await fetch(`${config.baseUrl}${deflectionSnapshotPath(requestId)}`, {
       headers: {
-        Authorization: `Bearer ${config.jwt}`,
+        Authorization: `Bearer ${config.token}`,
         Accept: 'application/json',
       },
       cache: 'no-store',
@@ -200,7 +201,7 @@ export async function submitDeflectionReportCsv(
     const res = await fetch(`${config.baseUrl}${DEFLECTION_SUBMIT_PATH}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${config.jwt}`,
+        Authorization: `Bearer ${config.token}`,
         Accept: 'application/json',
       },
       body: form,
@@ -317,7 +318,7 @@ export async function fetchDeflectionArtifact(
   try {
     const res = await fetch(`${config.baseUrl}${deflectionArtifactPath(requestId)}`, {
       headers: {
-        Authorization: `Bearer ${config.jwt}`,
+        Authorization: `Bearer ${config.token}`,
         Accept: 'application/json',
       },
       cache: 'no-store',

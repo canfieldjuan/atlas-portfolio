@@ -32,7 +32,7 @@ Options:
 
 Required env:
   ATLAS_API_BASE_URL
-  ATLAS_B2B_JWT
+  ATLAS_B2B_SERVICE_TOKEN or ATLAS_B2B_JWT
 
 Safety:
   This submits a CSV to deployed ATLAS and verifies snapshot 200 + artifact 403.
@@ -81,10 +81,10 @@ function validateOptions({ csvPath, companyName, contactEmail, platform }) {
 function validateEnv(env) {
   const missing = [];
   const baseUrl = cleanBaseUrl(env.ATLAS_API_BASE_URL);
-  const jwt = String(env.ATLAS_B2B_JWT || '').trim();
+  const token = String(env.ATLAS_B2B_SERVICE_TOKEN || env.ATLAS_B2B_JWT || '').trim();
   if (!baseUrl) missing.push('ATLAS_API_BASE_URL');
-  if (!jwt) missing.push('ATLAS_B2B_JWT');
-  return { ok: missing.length === 0, missing, baseUrl, jwt };
+  if (!token) missing.push('ATLAS_B2B_SERVICE_TOKEN or ATLAS_B2B_JWT');
+  return { ok: missing.length === 0, missing, baseUrl, token };
 }
 
 function parseSubmitPayload(payload) {
@@ -133,9 +133,9 @@ async function jsonOrNull(response) {
   }
 }
 
-function authHeaders(jwt) {
+function authHeaders(token) {
   return {
-    Authorization: `Bearer ${jwt}`,
+    Authorization: `Bearer ${token}`,
     Accept: 'application/json',
   };
 }
@@ -200,7 +200,7 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   try {
     submitResponse = await fetchImpl(submitUrl, {
       method: 'POST',
-      headers: authHeaders(envStatus.jwt),
+      headers: authHeaders(envStatus.token),
       body: form,
       cache: 'no-store',
     });
@@ -238,7 +238,7 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   let snapshotResponse;
   try {
     snapshotResponse = await fetchImpl(snapshotUrl, {
-      headers: authHeaders(envStatus.jwt),
+      headers: authHeaders(envStatus.token),
       cache: 'no-store',
     });
   } catch {
@@ -278,7 +278,7 @@ export async function runDeflectionLiveSubmitSmoke(options, deps = {}) {
   let artifactResponse;
   try {
     artifactResponse = await fetchImpl(artifactUrl, {
-      headers: authHeaders(envStatus.jwt),
+      headers: authHeaders(envStatus.token),
       cache: 'no-store',
     });
   } catch {
