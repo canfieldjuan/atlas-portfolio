@@ -5,13 +5,24 @@
 
 export const NO_CHROME_ROUTES = [
   '/systems/ai-content-ops',
+  '/systems/support-ticket-deflection',
+  '/systems/support-ticket-deflection/demo',
+  '/systems/support-ticket-deflection/calculator',
+  '/systems/support-ticket-deflection/support-tax',
+  '/systems/support-ticket-deflection/intake',
 ] as const;
+
+const NO_CHROME_PREFIXES = ['/systems/support-ticket-deflection/results/'] as const;
 
 type NoChromeRoute = (typeof NO_CHROME_ROUTES)[number];
 
 export function shouldHideChrome(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
-  return (NO_CHROME_ROUTES as readonly string[]).includes(pathname);
+  const normalized = pathname.replace(/(.)\/+$/, '$1');
+  return (
+    (NO_CHROME_ROUTES as readonly string[]).includes(normalized) ||
+    NO_CHROME_PREFIXES.some((prefix) => normalized.startsWith(prefix))
+  );
 }
 
 // Convenience re-exports for components that need the typed list.
