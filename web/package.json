@@ -28,6 +28,7 @@
     "smoke:deflection-hosted-results": "node scripts/smoke-deflection-hosted-results.mjs",
     "smoke:deflection-live-submit": "node scripts/smoke-deflection-live-submit.mjs",
     "smoke:deflection-paid-unlock": "node scripts/smoke-deflection-paid-unlock.mjs",
+    "smoke:deflection-public-reachability": "node scripts/smoke-deflection-public-reachability.mjs",
     "check:deflection-checkout-env": "node scripts/check-deflection-checkout-env.mjs",
     "test:ads-helpers": "node scripts/test-advertising-cli-helpers.mjs",
     "test:google-ads-api": "node scripts/test-google-ads-api.mjs",
@@ -41,6 +42,7 @@
     "test:deflection-intake-atlas-submit": "node scripts/test-deflection-intake-atlas-submit.mjs",
     "test:deflection-live-submit-smoke": "node scripts/test-deflection-live-submit-smoke.mjs",
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
+    "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
     "test:deflection-csv-privacy": "node scripts/test-deflection-csv-privacy-contract.mjs",
     "test:deflection-rate-limit": "node scripts/test-deflection-rate-limit.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
