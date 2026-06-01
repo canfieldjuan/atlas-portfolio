@@ -31,6 +31,15 @@ this smoke.
   production checkout. After the RAK is stored as a Vercel sensitive env var,
   `vercel env pull` will not reveal its value again; use the hosted Checkout
   smoke after redeploy to prove the deployed value can create a session.
+
+  ```bash
+  npm --prefix web run smoke:deflection-hosted-checkout -- \
+    --request-id "$REQUEST_ID" \
+    --base-url https://juancanfield.com \
+    --expect-mode live \
+    --json \
+    --output /tmp/deflection-hosted-checkout-prod.json
+  ```
 - The portfolio preview has:
   - `ATLAS_B2B_SERVICE_TOKEN`
   - `ATLAS_SAAS_STRIPE_SECRET_KEY` or a least-privilege test restricted key

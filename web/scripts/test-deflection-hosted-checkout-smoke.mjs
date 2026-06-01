@@ -40,6 +40,8 @@ async function run(options, response) {
   assert.equal(result.requestId, REQUEST_ID);
   assert.equal(result.attemptId, ATTEMPT_ID);
   assert.equal(result.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_unit');
+  assert.equal(result.checkoutMode, 'test');
+  assert.equal(result.expectedMode, 'any');
   assert.equal(fetchImpl.calls.length, 1);
   assert.equal(fetchImpl.calls[0].url, 'https://portfolio.example.com/api/deflection-checkout');
   assert.equal(fetchImpl.calls[0].init.method, 'POST');
@@ -52,12 +54,38 @@ async function run(options, response) {
 
 {
   const { result } = await run(
-    { requestId: REQUEST_ID, attemptId: ATTEMPT_ID, baseUrl: 'https://portfolio.example.com' },
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expectMode: 'test' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.checkoutMode, 'test');
+  assert.equal(result.expectedMode, 'test');
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expectMode: 'live' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_live_unit' } },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.checkoutMode, 'live');
+  assert.equal(result.expectedMode, 'live');
+}
+
+{
+  const { result } = await run(
+    {
+      requestId: REQUEST_ID,
+      attemptId: ATTEMPT_ID,
+      baseUrl: 'https://portfolio.example.com',
+      expectMode: 'live',
+    },
     { status: 200, body: { alreadyPaid: true } },
   );
   assert.equal(result.ok, true);
   assert.equal(result.status, 'already_paid');
   assert.equal(result.checkoutUrl, undefined);
+  assert.equal(result.checkoutMode, undefined);
 }
 
 {
@@ -84,6 +112,18 @@ async function run(options, response) {
 
 {
   const { result, fetchImpl } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com', expectMode: 'banana' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'Hosted Checkout smoke expected mode is invalid.');
+  assert.equal(result.apiCalls, false);
+  assert.equal(result.expectedMode, 'banana');
+  assert.equal(fetchImpl.calls.length, 0);
+}
+
+{
+  const { result, fetchImpl } = await run(
     { requestId: REQUEST_ID, baseUrl: 'http://evil.example.com' },
     { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
   );
@@ -102,6 +142,31 @@ async function run(options, response) {
   assert.equal(result.stage, 'checkout');
   assert.equal(result.error, 'Hosted Checkout route failed with HTTP 503.');
   assert.equal(fetchImpl.calls.length, 1);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com', expectMode: 'live' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'checkout_mode');
+  assert.equal(result.error, 'Hosted Checkout route returned test mode, expected live.');
+  assert.equal(result.checkoutMode, 'test');
+  assert.equal(result.expectedMode, 'live');
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/session-without-mode' } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'checkout_mode');
+  assert.equal(
+    result.error,
+    'Hosted Checkout route returned a Stripe URL without a Checkout Session id.',
+  );
 }
 
 {
