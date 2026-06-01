@@ -34,13 +34,16 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## 2026-06-01
 
-### DEFLECTION-CALC-INPUT-RESYNC-1 — sibling calculators can show out-of-range typed values after clamp
+### DEFLECTION-CALC-INPUT-RESYNC-1 — RESOLVED — sibling calculators can show out-of-range typed values after clamp
 - File/location: `web/src/components/deflection-demo/SupportTaxCalculator.tsx` and `web/src/components/deflection-demo/ThirtySecondCalculator.tsx`.
 - Description: The sibling calculator number-input commit patterns clamp out-of-range typed values into state but do not always write the clamped value back to the DOM input. If the clamped value equals current state, React can skip re-render and leave the visible typed value out of sync with slider/output state.
 - Why it matters: a user can type an out-of-range value, blur, and see an input value that does not match the computed calculator output.
 - Effort: S
 - Category: polish
 - Found during: PR-Deflection-Mini-Calculator review (#180).
+- Resolved: PR-Deflection-Calculator-Input-Resync writes the clamped value back
+  to the visible number input in both sibling calculator components after
+  calling `onChange`.
 
 ## 2026-05-28
 
