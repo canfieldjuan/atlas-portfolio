@@ -10,6 +10,7 @@ const baseOptions = {
 
 const baseEnv = {
   ATLAS_API_BASE_URL: 'https://atlas.example.com/',
+  ATLAS_B2B_SERVICE_TOKEN: 'service_token_unit',
   ATLAS_B2B_JWT: 'jwt_unit',
 };
 
@@ -85,7 +86,7 @@ async function run(options, responses, extra = {}) {
     fetchImpl.calls[0].url,
     'https://atlas.example.com/api/v1/content-ops/deflection-reports/submit',
   );
-  assert.equal(fetchImpl.calls[0].init.headers.Authorization, 'Bearer jwt_unit');
+  assert.equal(fetchImpl.calls[0].init.headers.Authorization, 'Bearer service_token_unit');
   assert.equal(fetchImpl.calls[0].init.headers['Content-Type'], undefined);
   assert.equal(fetchImpl.calls[0].init.body.get('support_platform'), 'help_scout');
   assert.equal(fetchImpl.calls[0].init.body.get('company_name'), 'Effingham Office Maids');
@@ -102,10 +103,29 @@ async function run(options, responses, extra = {}) {
 }
 
 {
+  const { result, fetchImpl } = await run(
+    baseOptions,
+    [
+      { status: 200, body: { request_id: 'content-ops-unit-123' } },
+      { status: 200, body: snapshotPayload() },
+      { status: 403 },
+    ],
+    {
+      env: {
+        ATLAS_API_BASE_URL: 'https://atlas.example.com/',
+        ATLAS_B2B_JWT: 'jwt_unit',
+      },
+    },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(fetchImpl.calls[0].init.headers.Authorization, 'Bearer jwt_unit');
+}
+
+{
   const { result, fetchImpl } = await run(baseOptions, [], { env: {} });
   assert.equal(result.ok, false);
   assert.equal(result.error, 'Deflection live submit smoke environment is incomplete.');
-  assert.deepEqual(result.missing, ['ATLAS_API_BASE_URL', 'ATLAS_B2B_JWT']);
+  assert.deepEqual(result.missing, ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN or ATLAS_B2B_JWT']);
   assert.equal(fetchImpl.calls.length, 0);
 }
 
