@@ -15,7 +15,7 @@ import {
   type DiagnosticPricingTier,
 } from './LandingPrimitives';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
-import { SupportTaxCalculator } from '@/components/deflection-demo/SupportTaxCalculator';
+import { SupportTaxMiniCalculator } from '@/components/deflection-demo/SupportTaxMiniCalculator';
 
 // ── Config type ────────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ export function DeflectionLandingPage({
 
         {config.calculator && (
           <section className="section-band !py-12 md:!py-16">
-            <SupportTaxCalculator compact />
+            <SupportTaxMiniCalculator />
           </section>
         )}
 
