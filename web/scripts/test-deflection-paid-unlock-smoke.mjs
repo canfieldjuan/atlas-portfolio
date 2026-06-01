@@ -84,6 +84,30 @@ function run(options, responses, deps = {}) {
 }
 
 {
+  const { result, fetchImpl } = await run({ requireUnlocked: true }, [
+    { status: 200, body: { status: 'unlocked' } },
+    { status: 200, kind: 'html', body: PAID_HTML },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.initialStatus, 'unlocked');
+  assert.equal(result.requireUnlocked, true);
+  assert.equal(result.checkoutUrl, undefined);
+  assert.equal(fetchImpl.calls.length, 2);
+}
+
+{
+  const { result, fetchImpl } = await run({ requireUnlocked: true }, [
+    { status: 200, body: { status: 'locked' } },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'status');
+  assert.equal(result.initialStatus, 'locked');
+  assert.equal(result.requireUnlocked, true);
+  assert.equal(result.error, 'Paid unlock smoke requires an already-unlocked report.');
+  assert.equal(fetchImpl.calls.length, 1);
+}
+
+{
   const { result, fetchImpl, awaitingPayment } = await run({}, [
     { status: 200, body: { status: 'locked' } },
     { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
