@@ -6,6 +6,7 @@ const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const CHECKOUT_PATH = '/api/deflection-checkout';
+const EXPECTED_MODES = new Set(['any', 'live', 'test']);
 
 function printUsage() {
   console.log(`Deflection hosted Checkout smoke
@@ -17,6 +18,7 @@ Usage:
 Options:
   --attempt-id <id>  Explicit attempt id (default: generated)
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
+  --expect-mode <m>  Expected Checkout mode: any, live, or test (default: any)
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
 
@@ -54,6 +56,18 @@ function isStripeCheckoutUrl(value) {
   }
 }
 
+function classifyCheckoutMode(value) {
+  if (!isStripeCheckoutUrl(value)) return null;
+  const url = new URL(value);
+  const sessionId = url.pathname
+    .split('/')
+    .map((segment) => decodeURIComponent(segment))
+    .find((segment) => segment.startsWith('cs_live_') || segment.startsWith('cs_test_'));
+  if (sessionId?.startsWith('cs_live_')) return 'live';
+  if (sessionId?.startsWith('cs_test_')) return 'test';
+  return null;
+}
+
 async function jsonOrNull(response) {
   try {
     return await response.json();
@@ -69,6 +83,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
   const requestId = String(options.requestId || '').trim();
   const attemptId = String(options.attemptId || makeAttemptId()).trim();
   const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const expectedMode = String(options.expectMode || 'any').trim().toLowerCase();
 
   if (!REQUEST_ID_RE.test(requestId)) {
     return {
@@ -96,6 +111,16 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       attemptId,
     };
   }
+  if (!EXPECTED_MODES.has(expectedMode)) {
+    return {
+      ok: false,
+      error: 'Hosted Checkout smoke expected mode is invalid.',
+      apiCalls: false,
+      requestId,
+      attemptId,
+      expectedMode,
+    };
+  }
 
   const url = `${baseUrl}${CHECKOUT_PATH}`;
   let response;
@@ -117,7 +142,6 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       url,
     };
   }
-
   const body = await jsonOrNull(response);
   if (!response.ok) {
     return {
@@ -155,6 +179,34 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       url,
     };
   }
+  const checkoutMode = classifyCheckoutMode(body.url);
+  if (!checkoutMode) {
+    return {
+      ok: false,
+      error: 'Hosted Checkout route returned a Stripe URL without a Checkout Session id.',
+      stage: 'checkout_mode',
+      apiCalls: true,
+      requestId,
+      attemptId,
+      url,
+      checkoutUrl: body.url,
+      expectedMode,
+    };
+  }
+  if (expectedMode !== 'any' && checkoutMode !== expectedMode) {
+    return {
+      ok: false,
+      error: `Hosted Checkout route returned ${checkoutMode} mode, expected ${expectedMode}.`,
+      stage: 'checkout_mode',
+      apiCalls: true,
+      requestId,
+      attemptId,
+      url,
+      checkoutUrl: body.url,
+      checkoutMode,
+      expectedMode,
+    };
+  }
 
   return {
     ok: true,
@@ -166,6 +218,8 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
     attemptId,
     url,
     checkoutUrl: body.url,
+    checkoutMode,
+    expectedMode,
   };
 }
 
@@ -181,6 +235,11 @@ async function main() {
   if (isBareFlag(parsed, '--output')) {
     fail('Refusing to continue without --output <path>.', outputJson);
   }
+  if (isBareFlag(parsed, '--expect-mode')) {
+    fail('Refusing to continue without --expect-mode <mode>.', outputJson, {
+      apiCalls: false,
+    });
+  }
   if (isBareFlag(parsed, '--request-id') || !parsed.values.get('--request-id')?.trim()) {
     fail('Deflection hosted Checkout smoke is missing --request-id.', outputJson, {
       apiCalls: false,
@@ -191,6 +250,7 @@ async function main() {
     requestId: parsed.values.get('--request-id'),
     attemptId: parsed.values.get('--attempt-id'),
     baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
+    expectMode: parsed.values.get('--expect-mode') || 'any',
   });
   const artifactPath = outputPath
     ? await writeJsonArtifact(outputPath, result, { includeOutputPath: false })
@@ -209,6 +269,9 @@ async function main() {
   console.log(`Request id: ${result.requestId}`);
   if (result.checkoutUrl) {
     console.log(`Checkout URL: ${result.checkoutUrl}`);
+  }
+  if (result.checkoutMode) {
+    console.log(`Checkout mode: ${result.checkoutMode}`);
   }
   if (artifactPath) {
     console.log(`Smoke artifact: ${artifactPath}`);
