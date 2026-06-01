@@ -86,6 +86,29 @@ async function run(options, response) {
   assert.equal(result.status, 'already_paid');
   assert.equal(result.checkoutUrl, undefined);
   assert.equal(result.checkoutMode, undefined);
+  assert.equal(result.expectedMode, 'live');
+  assert.equal(result.requireCheckoutSession, false);
+}
+
+{
+  const { result } = await run(
+    {
+      requestId: REQUEST_ID,
+      attemptId: ATTEMPT_ID,
+      baseUrl: 'https://portfolio.example.com',
+      expectMode: 'live',
+      requireCheckoutSession: true,
+    },
+    { status: 200, body: { alreadyPaid: true } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'checkout_session');
+  assert.equal(
+    result.error,
+    'Hosted Checkout route returned already_paid before creating a Checkout Session.',
+  );
+  assert.equal(result.expectedMode, 'live');
+  assert.equal(result.requireCheckoutSession, true);
 }
 
 {
