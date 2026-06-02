@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, Lock, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
+import {
+  buildDeflectionCheckoutDiagnostic,
+  recordDeflectionCheckoutDiagnostic,
+} from '@/lib/deflection-checkout-diagnostics';
 
 const CALCULATOR_HREF = '/systems/support-ticket-deflection/calculator';
 const FINALIZING_ATTEMPTS = 10;
@@ -78,6 +82,7 @@ export function DeflectionResultsPage({
   async function handleUnlock() {
     setLoading(true);
     setError(null);
+    const startedAt = Date.now();
     const attemptId =
       typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()
@@ -93,17 +98,51 @@ export function DeflectionResultsPage({
         alreadyPaid?: boolean;
         error?: string;
       };
+      recordDeflectionCheckoutDiagnostic(
+        buildDeflectionCheckoutDiagnostic({
+          phase: 'checkout_response',
+          requestId,
+          attemptId,
+          elapsedMs: Date.now() - startedAt,
+          responseOk: res.ok,
+          responseStatus: res.status,
+          alreadyPaid: data.alreadyPaid,
+          error: data.error,
+          url: data.url,
+        }),
+      );
       if (data.alreadyPaid) {
         window.location.reload();
         return;
       }
       if (data.url) {
+        recordDeflectionCheckoutDiagnostic(
+          buildDeflectionCheckoutDiagnostic({
+            phase: 'checkout_redirect',
+            requestId,
+            attemptId,
+            elapsedMs: Date.now() - startedAt,
+            responseOk: res.ok,
+            responseStatus: res.status,
+            url: data.url,
+          }),
+        );
         window.location.href = data.url;
         return;
       }
       setError(data.error ?? 'Could not start checkout. Please try again.');
       setLoading(false);
-    } catch {
+    } catch (err) {
+      recordDeflectionCheckoutDiagnostic(
+        buildDeflectionCheckoutDiagnostic({
+          phase: 'checkout_response',
+          requestId,
+          attemptId,
+          elapsedMs: Date.now() - startedAt,
+          responseOk: false,
+          error: err instanceof Error ? err.message : 'checkout fetch failed',
+        }),
+      );
       setError('Could not start checkout. Please try again.');
       setLoading(false);
     }
