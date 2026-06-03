@@ -24,7 +24,7 @@ const FINALIZING_ATTEMPTS = 10;
 const FINALIZING_INTERVAL_MS = 1500;
 const DEFAULT_ASSISTED_CONTACT_COST = 13.5;
 const ASSISTED_CONTACT_COST_MIN = 5;
-const ASSISTED_CONTACT_COST_MAX = 40;
+const ASSISTED_CONTACT_COST_MAX = 75;
 const ASSISTED_CONTACT_COST_STEP = 0.5;
 
 function clamp(n: number, min: number, max: number) {
@@ -350,9 +350,6 @@ export function DeflectionResultsPage({
   const hasMoreQuestions = locked_questions.length > 0 || summary.generated > top_questions.length;
   const fullTeaser = teaser.full_answer;
   const teaserPreviews = teaser.previews;
-  const visibleCustomerPhrases = Array.from(
-    new Set(top_questions.map((q) => q.customer_wording.trim()).filter(Boolean)),
-  );
   const sourceWindow =
     summary.source_date_start && summary.source_date_end && summary.source_window_days
       ? {
@@ -493,6 +490,12 @@ export function DeflectionResultsPage({
   const totalQuestions = summary.drafted_answer_count + summary.no_proven_answer_count || 1;
   const draftedPercent = Math.round((summary.drafted_answer_count / totalQuestions) * 100);
   const unprovenPercent = 100 - draftedPercent;
+  const annualSupportTaxEstimate =
+    summary.repeat_ticket_count > 0
+      ? sourceWindow
+        ? (summary.repeat_ticket_count * assistedContactCost * 365) / sourceWindow.source_window_days
+        : summary.repeat_ticket_count * assistedContactCost * 12
+      : null;
 
   return (
     <main className="min-h-screen pt-16 pb-20 px-6 relative z-10">
@@ -577,87 +580,57 @@ export function DeflectionResultsPage({
           />
         )}
 
-        {visibleCustomerPhrases.length > 0 && (
-          <section
-            className="mb-10 rounded-2xl border border-border bg-surface p-6"
-            aria-labelledby="phrase-list-heading"
-          >
-            <div className="mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-              <Search className="h-3.5 w-3.5" />
-              <span>Help-desk SEO targeting list</span>
-            </div>
-            <h2 id="phrase-list-heading" className="text-2xl font-semibold tracking-tight text-foreground">
-              These are the phrases customers already use when they need an answer.
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/65">
-              Use them as help-center headings, internal-search synonyms, and FAQ wording.
-              ATLAS mined these phrases from the tickets you uploaded; it does not claim
-              keyword volume, search rank, or traffic.
-            </p>
-            <ol className="mt-5 flex flex-wrap gap-2">
-              {visibleCustomerPhrases.map((phrase, index) => (
-                <li
-                  key={`${index}-${phrase}`}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background/45 px-3.5 py-2 transition-all duration-200 hover:border-primary/30 hover:bg-background/60"
-                >
-                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary">
-                    #{index + 1}
-                  </span>
-                  <span className="text-sm font-medium leading-none text-foreground/76">
-                    &ldquo;{phrase}&rdquo;
-                  </span>
-                </li>
-              ))}
-            </ol>
-            <p className="mt-5 text-xs leading-relaxed text-foreground/45">
-              The full report keeps going past the free rows: complete phrase list,
-              ranked backlog, drafted answers, and the questions your team still needs
-              to resolve before publishing.
-            </p>
-          </section>
-        )}
-
-        {/* ── Free: top questions, ranked ────────────────────────── */}
-        <p className="text-[10px] font-mono uppercase tracking-widest text-primary/80 mb-4">
-          Your top {top_questions.length}, ranked by measured repeat-ticket count
-        </p>
-        <ol className="space-y-3 mb-10">
-          {top_questions.map((q) => (
-            <li
-              key={q.rank}
-              className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
-            >
-              <span className="font-mono text-sm text-primary font-bold mt-0.5 w-6 shrink-0 text-center">
-                #{q.rank}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-foreground font-semibold leading-snug">{q.question}</p>
-                <p className="text-xs text-foreground/50 mt-1">
-                  target phrase from your tickets: &ldquo;{q.customer_wording}&rdquo;
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-foreground/50">
-                  Hit your queue <strong className="text-foreground/70">{count(q.ticket_count)}</strong>{' '}
-                  times in this upload, possibly costing{' '}
-                  <strong className="text-foreground/70">
-                    {usd(q.ticket_count * assistedContactCost)}
-                  </strong>{' '}
-                  at {costLabel(assistedContactCost)} per assisted contact.
-                </p>
-              </div>
-              <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
-                <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
-                  {count(q.ticket_count)}x
+        <section className="mb-10" aria-labelledby="ranked-question-heading">
+          <div className="mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+            <Search className="h-3.5 w-3.5" />
+            <span>Help-desk SEO targeting list</span>
+          </div>
+          <h2 id="ranked-question-heading" className="text-2xl font-semibold tracking-tight text-foreground">
+            Your top {top_questions.length}, ranked by measured repeat-ticket count.
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-foreground/65">
+            Each card includes the exact phrase customers used in your tickets, so your
+            team can write help-center titles and search wording around real demand. ATLAS
+            does not claim keyword volume, search rank, or traffic.
+          </p>
+          <ol className="mt-5 space-y-3">
+            {top_questions.map((q) => (
+              <li
+                key={q.rank}
+                className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
+              >
+                <span className="font-mono text-sm text-primary font-bold mt-0.5 w-6 shrink-0 text-center">
+                  #{q.rank}
                 </span>
-                <div className="mt-2 h-1.5 w-24 rounded-full bg-border overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
-                    style={{ width: `${Math.round((q.ticket_count / maxTicketCount) * 100)}%` }}
-                  />
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground font-semibold leading-snug">{q.question}</p>
+                  <p className="text-xs text-foreground/50 mt-1">
+                    target phrase from your tickets: &ldquo;{q.customer_wording}&rdquo;
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-foreground/50">
+                    Hit your queue <strong className="text-foreground/70">{count(q.ticket_count)}</strong>{' '}
+                    times in this upload, possibly costing{' '}
+                    <strong className="text-foreground/70">
+                      {usd(q.ticket_count * assistedContactCost)}
+                    </strong>{' '}
+                    at {costLabel(assistedContactCost)} per assisted contact.
+                  </p>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ol>
+                <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
+                  <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
+                    {count(q.ticket_count)}x
+                  </span>
+                  <div className="mt-2 h-1.5 w-24 rounded-full bg-border overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
+                      style={{ width: `${Math.round((q.ticket_count / maxTicketCount) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         {locked_questions.length > 0 && (
           <section className="mb-10" aria-labelledby="locked-question-heading">
@@ -747,7 +720,7 @@ export function DeflectionResultsPage({
                   Complete customer-phrase list
                 </strong>{' '}
                 for help-center headings, internal-search synonyms, and FAQ wording.
-                No bought keyword data or rank claims.
+                No bought keyword data, volume, rank, or traffic claims.
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -824,8 +797,22 @@ export function DeflectionResultsPage({
             </div>
 
             <div className="flex flex-col justify-center border-t border-primary/20 pt-6 md:col-span-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+              {annualSupportTaxEstimate !== null && (
+                <div className="mb-5 rounded-xl border border-primary/25 bg-background/50 p-4 text-center">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/45">
+                    Estimated annual support tax
+                  </div>
+                  <div className="mt-1 text-3xl font-extrabold tabular-nums tracking-tight text-foreground">
+                    {usd(annualSupportTaxEstimate)}
+                  </div>
+                  <p className="mt-1 text-[11px] leading-snug text-foreground/50">
+                    Slider-driven estimate at {costLabel(assistedContactCost)} per assisted contact,
+                    not a savings guarantee.
+                  </p>
+                </div>
+              )}
               <div className="text-center mb-4">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time payment</div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time report price</div>
                 <div className="text-4xl font-extrabold text-foreground mt-1">$1,500</div>
                 <div className="text-xs text-foreground/50 mt-1">No monthly subscription. Yours to keep.</div>
               </div>
