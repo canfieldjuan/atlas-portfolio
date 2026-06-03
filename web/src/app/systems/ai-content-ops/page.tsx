@@ -42,15 +42,15 @@ const offers: Offer[] = [
     title: 'Support Ticket Deflection Report',
     tagline: 'Turn closed tickets into ranked self-service answers.',
     summary:
-      'Analyzes 3–6 months of closed support tickets and returns a ranked list of repeat questions — in the words customers actually use — with draft answers your team reviews and publishes.',
+      'Analyzes 3 months of closed support tickets, returns a ranked list of repeat questions in the words customers actually use, with draft answers your team reviews and publishes.',
     points: [
       'Repeat-question clustering by customer intent',
       'Volume-ranked deflection opportunities',
       'Draft answers with source-ticket traceability',
     ],
-    price: 'Starts at $2,500',
-    href: '/systems/support-ticket-deflection',
-    hrefLabel: 'Explore the Report',
+    price: 'Free snapshot · $1,500 full report',
+    href: '/systems/support-ticket-deflection/snapshot',
+    hrefLabel: 'View the free Snapshot',
     status: 'live',
   },
   {
@@ -157,10 +157,10 @@ export default function AiContentOpsHubPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/systems/support-ticket-deflection"
+              href="/systems/support-ticket-deflection/snapshot"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/70"
             >
-              See the live offer
+              See the free snapshot offer
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
