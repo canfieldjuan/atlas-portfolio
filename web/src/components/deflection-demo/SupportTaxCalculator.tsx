@@ -158,7 +158,15 @@ function Metric({ label, value, compact = false }: { label: string; value: strin
   );
 }
 
-export function SupportTaxCalculator({ compact = false }: { compact?: boolean }) {
+export function SupportTaxCalculator({
+  compact = false,
+  ctaHref = '/systems/support-ticket-deflection/intake',
+  ctaLabel = 'Upload tickets, get a free Deflection Snapshot',
+}: {
+  compact?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
+}) {
   const [monthlyTickets, setMonthlyTickets] = useState(TICKETS.default);
   const [agents, setAgents] = useState(AGENTS.default);
   const [salary, setSalary] = useState(SALARY.default);
@@ -336,10 +344,10 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               built from resolved replies.
             </p>
             <Link
-              href="/systems/support-ticket-deflection/intake"
+              href={ctaHref}
               className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
             >
-              Upload tickets, get a free Deflection Snapshot
+              {ctaLabel}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

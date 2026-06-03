@@ -2,16 +2,38 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { SupportTaxCalculator } from '@/components/deflection-demo/SupportTaxCalculator';
 
-export default function SupportTicketDeflectionCalculatorPage() {
+const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
+const LANDING_HREF = '/systems/support-ticket-deflection';
+
+type PageProps = {
+  searchParams?: Promise<{ requestId?: string | string[] }>;
+};
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function resultsHref(requestId: string | undefined) {
+  if (!requestId || !REQUEST_ID_RE.test(requestId)) return null;
+  return `/systems/support-ticket-deflection/results/${encodeURIComponent(requestId)}`;
+}
+
+export default async function SupportTicketDeflectionCalculatorPage({
+  searchParams,
+}: PageProps) {
+  const query = searchParams ? await searchParams : undefined;
+  const reportHref = resultsHref(firstParam(query?.requestId));
+  const backHref = reportHref ?? LANDING_HREF;
+
   return (
     <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-5xl mx-auto">
         <Link
-          href="/systems/support-ticket-deflection"
+          href={backHref}
           className="inline-flex items-center gap-2 text-sm text-foreground/55 hover:text-foreground transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Support Ticket Deflection
+          {reportHref ? 'Back to your snapshot' : 'Back to Support Ticket Deflection'}
         </Link>
 
         <div className="max-w-3xl mb-10">
@@ -28,7 +50,10 @@ export default function SupportTicketDeflectionCalculatorPage() {
           </p>
         </div>
 
-        <SupportTaxCalculator />
+        <SupportTaxCalculator
+          ctaHref={reportHref ?? '/systems/support-ticket-deflection/intake'}
+          ctaLabel={reportHref ? 'Return to your snapshot and unlock the report' : undefined}
+        />
       </div>
     </main>
   );

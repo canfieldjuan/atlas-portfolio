@@ -6,6 +6,8 @@ const GOOD_HTML = [
   '<main>',
   '<span>YOUR DEFLECTION SNAPSHOT</span>',
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
+  '<p>One drafted answer you can inspect before paying</p>',
+  '<a href="/systems/support-ticket-deflection/calculator?requestId=content-ops-unit-123">',
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
 ].join('');
@@ -46,6 +48,8 @@ async function run(options, response) {
   assert.deepEqual(result.markers, {
     snapshotBadge: true,
     headline: true,
+    teaserAnswer: true,
+    calculatorReturn: true,
     unlockCta: true,
   });
   assert.equal(fetchImpl.calls.length, 1);
@@ -115,6 +119,22 @@ async function run(options, response) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.deepEqual(result.missing, ['unlockCta']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    {
+      status: 200,
+      body: GOOD_HTML.replace(
+        '/systems/support-ticket-deflection/calculator?requestId=content-ops-unit-123',
+        '/systems/support-ticket-deflection/calculator',
+      ),
+    },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.deepEqual(result.missing, ['calculatorReturn']);
 }
 
 {
