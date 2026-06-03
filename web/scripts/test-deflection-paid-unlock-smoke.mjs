@@ -13,6 +13,7 @@ const PAID_HTML = [
   '<div>Paid report contents</div>',
   '<strong>Your Help-Desk SEO Targeting List</strong>',
   '<strong>Publishable Help-Center Copy</strong>',
+  '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
 

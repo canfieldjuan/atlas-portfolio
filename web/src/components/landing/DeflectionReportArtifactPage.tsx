@@ -1,5 +1,5 @@
 import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
-import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
+import type { FAQDeflectionReportArtifact, TicketFAQItem } from '@/lib/deflection-report-contract';
 
 function cleanMarkdownText(value: string) {
   return value
@@ -183,16 +183,31 @@ function MarkdownDeliverable({ markdown }: { markdown: string }) {
   );
 }
 
+function guidanceFor(item: TicketFAQItem) {
+  const actionItems = item.action_items.map((action) => action.trim()).filter(Boolean);
+  const contactSupport = item.when_to_contact_support.trim();
+
+  return {
+    actionItems,
+    contactSupport,
+    hasGuidance: actionItems.length > 0 || contactSupport.length > 0,
+  };
+}
+
 function ProofBadges({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
   const { summary } = artifact;
   const checks = summary.output_checks;
+  const guidanceCount = artifact.faq_result.items.filter((item) => guidanceFor(item).hasGuidance).length;
   const badges = [
     { label: 'Ranked questions', value: summary.generated.toLocaleString() },
     { label: 'Publishable answers', value: summary.drafted_answer_count.toLocaleString() },
     { label: 'Needs resolution first', value: summary.no_proven_answer_count.toLocaleString() },
     { label: 'Repeat-ticket sources', value: summary.ticket_source_count.toLocaleString() },
     { label: 'Customer phrases', value: checks.uses_user_vocabulary ? 'Mapped' : 'Review' },
-    { label: 'Action list', value: checks.has_action_items ? 'Included' : 'Review' },
+    {
+      label: 'Reviewer guidance',
+      value: guidanceCount > 0 ? `${guidanceCount.toLocaleString()} items` : checks.has_action_items ? 'Review' : 'None',
+    },
   ];
 
   return (
@@ -270,6 +285,68 @@ function ReportContentsPanel({ artifact }: { artifact: FAQDeflectionReportArtifa
   );
 }
 
+function PaidReviewerGuidance({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
+  const guidanceItems = artifact.faq_result.items
+    .map((item) => ({ item, guidance: guidanceFor(item) }))
+    .filter(({ guidance }) => guidance.hasGuidance);
+
+  return (
+    <section className="mt-10">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-primary/80">
+        Reviewer guidance
+      </div>
+      <h2 className="mt-2 text-2xl font-semibold text-foreground">
+        Escalation boundaries and action checklists
+      </h2>
+      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/60">
+        These paid-only notes preserve the operational guidance from the unlocked
+        artifact without restoring the old source-ticket or vocabulary drill-down
+        cards.
+      </p>
+
+      {guidanceItems.length > 0 ? (
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          {guidanceItems.map(({ item, guidance }, index) => (
+            <article
+              key={`${item.topic}-${item.question}`}
+              className="rounded-xl border border-border bg-surface p-4"
+            >
+              <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+                Question {index + 1}
+              </div>
+              <h3 className="mt-1 text-base font-semibold leading-snug text-foreground">
+                {item.question}
+              </h3>
+
+              {guidance.actionItems.length > 0 && (
+                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-foreground/68">
+                  {guidance.actionItems.map((action) => (
+                    <li key={action} className="flex gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>{action}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {guidance.contactSupport && (
+                <p className="mt-4 rounded-lg border border-border bg-background/40 p-3 text-xs leading-relaxed text-foreground/62">
+                  <span className="font-medium text-foreground/75">When to contact support: </span>
+                  {guidance.contactSupport}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 rounded-xl border border-border bg-surface p-4 text-sm text-foreground/60">
+          No separate reviewer guidance was included with this artifact.
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function DeflectionReportArtifactPage({
   artifact,
   companyName,
@@ -301,6 +378,8 @@ export function DeflectionReportArtifactPage({
           <MarkdownDeliverable markdown={artifact.markdown} />
           <ReportContentsPanel artifact={artifact} />
         </div>
+
+        <PaidReviewerGuidance artifact={artifact} />
       </div>
     </main>
   );
