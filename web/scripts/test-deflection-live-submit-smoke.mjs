@@ -23,13 +23,21 @@ function snapshotPayload() {
       generated: 3,
       drafted_answer_count: 2,
       no_proven_answer_count: 1,
+      repeat_ticket_count: 9,
     },
     top_questions: [
       {
         rank: 1,
         question: 'How do I export reports?',
         customer_wording: 'export reports',
+        ticket_count: 5,
         weighted_frequency: 4,
+      },
+    ],
+    locked_questions: [
+      {
+        rank: 2,
+        ticket_count: 4,
       },
     ],
     teaser: {
@@ -99,6 +107,8 @@ async function run(options, responses, extra = {}) {
   ]);
   assert.equal(result.ok, true);
   assert.equal(result.requestId, 'content-ops-unit-123');
+  assert.equal(result.snapshot.repeatTicketCount, 9);
+  assert.equal(result.snapshot.lockedQuestionCount, 1);
   assert.equal(result.snapshot.hasFullTeaser, true);
   assert.equal(result.snapshot.teaserPreviewCount, 1);
   assert.equal(
@@ -229,6 +239,30 @@ async function run(options, responses, extra = {}) {
   assert.equal(result.ok, true);
   assert.equal(result.snapshot.hasFullTeaser, true);
   assert.equal(result.snapshot.teaserPreviewCount, 1);
+}
+
+{
+  const badSnapshot = snapshotPayload();
+  delete badSnapshot.summary.repeat_ticket_count;
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: badSnapshot },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.error, 'ATLAS snapshot response shape was rejected.');
+}
+
+{
+  const badSnapshot = snapshotPayload();
+  badSnapshot.locked_questions = [{ rank: 2, question: 'Must not be enough' }];
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: badSnapshot },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.error, 'ATLAS snapshot response shape was rejected.');
 }
 
 {

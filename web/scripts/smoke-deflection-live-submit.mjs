@@ -99,7 +99,18 @@ function isSnapshotQuestion(value) {
     typeof value.rank === 'number' &&
     typeof value.question === 'string' &&
     typeof value.customer_wording === 'string' &&
+    typeof value.ticket_count === 'number' &&
+    value.ticket_count >= 0 &&
     typeof value.weighted_frequency === 'number'
+  );
+}
+
+function isLockedQuestion(value) {
+  if (!value || typeof value !== 'object') return false;
+  return (
+    typeof value.rank === 'number' &&
+    typeof value.ticket_count === 'number' &&
+    value.ticket_count >= 0
   );
 }
 
@@ -195,19 +206,25 @@ function parseSnapshotPayload(payload) {
   if (
     typeof summary.generated !== 'number' ||
     typeof summary.drafted_answer_count !== 'number' ||
-    typeof summary.no_proven_answer_count !== 'number'
+    typeof summary.no_proven_answer_count !== 'number' ||
+    typeof summary.repeat_ticket_count !== 'number' ||
+    summary.repeat_ticket_count < 0
   ) {
     return null;
   }
   if (!Array.isArray(topQuestions)) return null;
   if (!topQuestions.every(isSnapshotQuestion)) return null;
+  if (!Array.isArray(payload.locked_questions)) return null;
+  if (!payload.locked_questions.every(isLockedQuestion)) return null;
   const teaser = parseTeaser(payload.teaser);
   if (!teaser) return null;
   return {
     generated: summary.generated,
     draftedAnswerCount: summary.drafted_answer_count,
     noProvenAnswerCount: summary.no_proven_answer_count,
+    repeatTicketCount: summary.repeat_ticket_count,
     topQuestionCount: topQuestions.length,
+    lockedQuestionCount: payload.locked_questions.length,
     hasFullTeaser: teaser.hasFullTeaser,
     teaserPreviewCount: teaser.teaserPreviewCount,
   };

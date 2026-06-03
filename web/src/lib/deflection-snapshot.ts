@@ -12,7 +12,13 @@ export type DeflectionSnapshotQuestion = {
   rank: number;
   question: string;
   customer_wording: string;
+  ticket_count: number;
   weighted_frequency: number;
+};
+
+export type DeflectionSnapshotLockedQuestion = {
+  rank: number;
+  ticket_count: number;
 };
 
 export type DeflectionSnapshotFullAnswer = {
@@ -47,8 +53,10 @@ export type DeflectionSnapshot = {
     generated: number;
     drafted_answer_count: number;
     no_proven_answer_count: number;
+    repeat_ticket_count: number;
   };
   top_questions: DeflectionSnapshotQuestion[];
+  locked_questions: DeflectionSnapshotLockedQuestion[];
   teaser: DeflectionSnapshotTeaser;
 };
 
@@ -64,41 +72,56 @@ export function deflectionSnapshotPath(requestId: string): string {
 // ATLAS docs/frontend/content_ops_faq_deflection_snapshot_example.json.
 export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
   summary: {
-    generated: 47,
-    drafted_answer_count: 39,
-    no_proven_answer_count: 8,
+    generated: 12,
+    drafted_answer_count: 9,
+    no_proven_answer_count: 3,
+    repeat_ticket_count: 170,
   },
   top_questions: [
     {
       rank: 1,
       question: 'How do I cancel my subscription?',
       customer_wording: 'how do i cancel my subscription',
+      ticket_count: 31,
       weighted_frequency: 412,
     },
     {
       rank: 2,
       question: 'Why was I charged twice?',
       customer_wording: 'why was i charged twice this month',
+      ticket_count: 24,
       weighted_frequency: 388,
     },
     {
       rank: 3,
       question: 'How do I change the email on my account?',
       customer_wording: 'change the email on my account',
+      ticket_count: 19,
       weighted_frequency: 301,
     },
     {
       rank: 4,
       question: 'Can I export my data before downgrading?',
       customer_wording: 'export my data before i downgrade',
+      ticket_count: 18,
       weighted_frequency: 245,
     },
     {
       rank: 5,
       question: 'My team seat is not showing up after I invited someone.',
       customer_wording: 'team seat not showing up after invite',
+      ticket_count: 16,
       weighted_frequency: 198,
     },
+  ],
+  locked_questions: [
+    { rank: 6, ticket_count: 14 },
+    { rank: 7, ticket_count: 12 },
+    { rank: 8, ticket_count: 10 },
+    { rank: 9, ticket_count: 8 },
+    { rank: 10, ticket_count: 7 },
+    { rank: 11, ticket_count: 6 },
+    { rank: 12, ticket_count: 5 },
   ],
   teaser: {
     full_answer: {
