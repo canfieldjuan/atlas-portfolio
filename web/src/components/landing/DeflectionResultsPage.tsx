@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Calculator,
   CheckCircle2,
-  FileText,
   Lock,
   Search,
   ShieldCheck,
@@ -57,12 +56,40 @@ function formatSourceWindow(window: DeflectionSnapshotSourceWindow) {
   return `${formatSourceDate(window.source_date_start)} to ${formatSourceDate(window.source_date_end)} (${count(window.source_window_days)} days)`;
 }
 
-function ProjectionMetric({ label, value, sub }: { label: string; value: string; sub: string }) {
+function ProjectionMetric({
+  label,
+  value,
+  sub,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-3">
-      <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">{label}</div>
-      <div className="mt-1 text-lg font-semibold tabular-nums text-foreground">{value}</div>
-      <div className="mt-0.5 text-[11px] leading-snug text-foreground/45">{sub}</div>
+    <div
+      className={`rounded-xl border p-4 transition-all duration-300 ${
+        highlight
+          ? 'border-primary/40 bg-primary/[0.03] shadow-[var(--primary-glow-tight)]'
+          : 'border-border bg-surface shadow-[0_4px_20px_rgba(23,35,31,0.02)] hover:border-primary/20'
+      }`}
+    >
+      <div
+        className={`text-[10px] font-mono uppercase tracking-widest ${
+          highlight ? 'font-semibold text-primary' : 'text-foreground/50'
+        }`}
+      >
+        {label}
+      </div>
+      <div
+        className={`mt-1.5 text-2xl font-extrabold tabular-nums tracking-tight md:text-3xl ${
+          highlight ? 'text-primary-dark' : 'text-foreground'
+        }`}
+      >
+        {value}
+      </div>
+      <div className="mt-1 text-[11px] leading-snug text-foreground/55">{sub}</div>
     </div>
   );
 }
@@ -174,7 +201,7 @@ function SupportTaxProjection({
         </div>
       </div>
 
-      <div className={sourceWindow ? 'mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4' : 'mt-5 grid gap-3 md:grid-cols-3'}>
+      <div className={sourceWindow ? 'mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4' : 'mt-5 grid gap-4 md:grid-cols-3'}>
         <ProjectionMetric
           label={sourceWindow ? 'Uploaded window' : 'Uploaded batch'}
           value={usd(batchCost)}
@@ -191,6 +218,7 @@ function SupportTaxProjection({
           label="12-month run-rate"
           value={usd(annualRunRate)}
           sub={normalizedWindow === null ? 'if this batch is monthly pace' : 'same measured daily pace'}
+          highlight
         />
         <ProjectionMetric
           label="3-year run-rate"
@@ -199,16 +227,22 @@ function SupportTaxProjection({
         />
       </div>
 
-      <button
-        type="button"
-        onClick={onUnlock}
-        disabled={unlockDisabled}
-        aria-busy={unlockBusy}
-        className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {unlockLabel}
-        {!unlockBusy && !unlockDisabled && <ArrowRight className="h-4 w-4" />}
-      </button>
+      <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+        <button
+          type="button"
+          onClick={onUnlock}
+          disabled={unlockDisabled}
+          aria-busy={unlockBusy}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-white transition-all shadow-sm hover:bg-primary-dark hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/45 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {unlockLabel}
+          {!unlockBusy && !unlockDisabled && <ArrowRight className="h-4 w-4" />}
+        </button>
+        <span className="inline-flex items-center gap-2 text-xs text-foreground/50 sm:max-w-xs">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary/70" />
+          Stripe checkout unlocks the full Backlog Report after payment confirmation.
+        </span>
+      </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
         {sourceWindow
           ? 'Estimate only. These run-rate rows normalize from the verified source window ATLAS returned; they are not savings guarantees.'
@@ -220,36 +254,52 @@ function SupportTaxProjection({
 
 function TeaserAnswer({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
   return (
-    <article className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-6 shadow-[var(--primary-glow)]">
-      <div className="mb-4 flex flex-wrap items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-        <span>Sample drafted answer</span>
-        <span className="rounded-full border border-primary/25 px-2 py-0.5">
-          #{answer.rank}
-        </span>
-        <span className="rounded-full border border-primary/25 px-2 py-0.5">
-          {answer.source_count} source tickets
-        </span>
+    <article className="overflow-hidden rounded-2xl border border-primary/30 bg-surface shadow-[var(--primary-glow)]">
+      <div className="flex items-center justify-between gap-4 border-b border-border bg-foreground/[0.02] px-6 py-3">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            Draft ready for review
+          </span>
+        </div>
+        <div className="text-[10px] font-mono text-foreground/45">
+          Rank #{answer.rank} - {answer.source_count} source tickets
+        </div>
       </div>
-      <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-        {answer.question}
-      </h2>
-      <p className="mt-4 text-base leading-relaxed text-foreground/76">{answer.answer}</p>
-      {answer.steps.length > 0 && (
-        <ol className="mt-5 space-y-3">
-          {answer.steps.map((step, index) => (
-            <li key={`${answer.rank}-${index}`} className="flex gap-3 text-sm leading-relaxed">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/30 text-xs font-mono text-primary">
-                {index + 1}
-              </span>
-              <span className="text-foreground/72">{step}</span>
-            </li>
-          ))}
-        </ol>
-      )}
-      <p className="mt-5 text-xs leading-relaxed text-foreground/50">
-        This is the one free drafted answer ATLAS exposed after verifying scoped
-        resolution evidence. The rest stays locked until purchase.
-      </p>
+      <div className="p-6">
+        <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary font-semibold">
+          Sample Drafted Answer
+        </div>
+        <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+          {answer.question}
+        </h2>
+        <div className="mt-4 p-4 rounded-xl border border-border/60 bg-background/50 text-base leading-relaxed text-foreground/80">
+          {answer.answer}
+        </div>
+        {answer.steps.length > 0 && (
+          <div className="mt-5">
+            <h4 className="text-xs font-mono uppercase tracking-wider text-foreground/50 mb-3">Resolution Steps:</h4>
+            <ol className="space-y-3">
+              {answer.steps.map((step, index) => (
+                <li key={`${answer.rank}-${index}`} className="flex gap-3 text-sm leading-relaxed">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/5 text-xs font-mono text-primary font-semibold">
+                    {index + 1}
+                  </span>
+                  <span className="text-foreground/72">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-4 text-xs text-foreground/50">
+          <span>
+            This live draft was verified from your team&apos;s past resolved replies.
+          </span>
+          <span className="flex items-center gap-1 font-medium text-primary">
+            <Lock className="h-3 w-3" /> Source tickets included in full report
+          </span>
+        </div>
+      </div>
     </article>
   );
 }
@@ -321,12 +371,12 @@ export function DeflectionResultsPage({
   const [finalizingTimedOut, setFinalizingTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const unlockLabel = finalizing
-    ? 'Finalizing report…'
+    ? 'Finalizing report...'
     : finalizingTimedOut
       ? 'Payment received'
       : loading
-        ? 'Starting checkout…'
-        : 'Unlock the full report — $1,500';
+        ? 'Starting checkout...'
+        : 'Unlock the full report - $1,500';
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
   useEffect(() => {
@@ -440,6 +490,10 @@ export function DeflectionResultsPage({
     }
   }
 
+  const totalQuestions = summary.drafted_answer_count + summary.no_proven_answer_count || 1;
+  const draftedPercent = Math.round((summary.drafted_answer_count / totalQuestions) * 100);
+  const unprovenPercent = 100 - draftedPercent;
+
   return (
     <main className="min-h-screen pt-16 pb-20 px-6 relative z-10">
       <div className="max-w-3xl mx-auto">
@@ -454,13 +508,61 @@ export function DeflectionResultsPage({
           <span className="text-primary">{summary.generated}</span> repeat
           questions hiding in your queue.
         </h1>
-        <p className="text-lg text-foreground/65 leading-relaxed mb-3">
-          <strong className="text-foreground">{summary.drafted_answer_count}</strong> of
-          them already have a publishable answer drafted — from your own team&apos;s
+        <p className="text-lg text-foreground/65 leading-relaxed mb-6">
+          <strong className="text-foreground">{summary.drafted_answer_count}</strong>{' '}
+          of them already have a publishable answer drafted from your own team&apos;s
           resolved replies, nothing invented.{' '}
-          <strong className="text-foreground">{summary.no_proven_answer_count}</strong> have
-          no proven answer yet (the questions you have never cracked).
+          <strong className="text-foreground">{summary.no_proven_answer_count}</strong>{' '}
+          have no proven answer yet (the questions you have never cracked).
         </p>
+
+        {/* Summary widget */}
+        <div className="mb-10 rounded-2xl border border-border bg-surface p-5 shadow-[0_4px_20px_rgba(23,35,31,0.02)]">
+          <div className="mb-3 flex items-center justify-between gap-3 text-xs font-mono uppercase tracking-wider text-foreground/50">
+            <span>Snapshot Composition</span>
+            <span>{summary.generated} Total Recurring Questions</span>
+          </div>
+          <div className="flex h-6 w-full overflow-hidden rounded-full bg-border">
+            {summary.drafted_answer_count > 0 && (
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center text-[10px] font-bold text-white transition-all duration-500"
+                style={{ width: `${draftedPercent}%` }}
+                title={`${summary.drafted_answer_count} questions with drafted answers`}
+              >
+                {draftedPercent > 10 && (
+                  <span className="hidden sm:inline">{draftedPercent}% Drafted</span>
+                )}
+              </div>
+            )}
+            {summary.no_proven_answer_count > 0 && (
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center text-[10px] font-bold text-white transition-all duration-500"
+                style={{ width: `${unprovenPercent}%` }}
+                title={`${summary.no_proven_answer_count} unresolved questions`}
+              >
+                {unprovenPercent > 10 && (
+                  <span className="hidden sm:inline">{unprovenPercent}% Unresolved</span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-500" />
+              <span className="text-foreground/70">
+                <strong className="text-foreground">{summary.drafted_answer_count}</strong>{' '}
+                drafted and ready to review
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-amber-500" />
+              <span className="text-foreground/70">
+                <strong className="text-foreground">{summary.no_proven_answer_count}</strong>{' '}
+                no proven answer yet
+              </span>
+            </div>
+          </div>
+        </div>
 
         {summary.repeat_ticket_count > 0 && (
           <SupportTaxProjection
@@ -492,22 +594,22 @@ export function DeflectionResultsPage({
               ATLAS mined these phrases from the tickets you uploaded; it does not claim
               keyword volume, search rank, or traffic.
             </p>
-            <ol className="mt-5 grid gap-2">
+            <ol className="mt-5 flex flex-wrap gap-2">
               {visibleCustomerPhrases.map((phrase, index) => (
                 <li
                   key={`${index}-${phrase}`}
-                  className="flex items-start gap-3 rounded-lg border border-border bg-background/45 px-3 py-2"
+                  className="flex items-center gap-2 rounded-xl border border-border bg-background/45 px-3.5 py-2 transition-all duration-200 hover:border-primary/30 hover:bg-background/60"
                 >
-                  <span className="mt-0.5 w-8 shrink-0 font-mono text-xs text-foreground/40">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary">
                     #{index + 1}
                   </span>
-                  <span className="text-sm font-medium leading-snug text-foreground/76">
+                  <span className="text-sm font-medium leading-none text-foreground/76">
                     &ldquo;{phrase}&rdquo;
                   </span>
                 </li>
               ))}
             </ol>
-            <p className="mt-4 text-xs leading-relaxed text-foreground/45">
+            <p className="mt-5 text-xs leading-relaxed text-foreground/45">
               The full report keeps going past the free rows: complete phrase list,
               ranked backlog, drafted answers, and the questions your team still needs
               to resolve before publishing.
@@ -523,32 +625,32 @@ export function DeflectionResultsPage({
           {top_questions.map((q) => (
             <li
               key={q.rank}
-              className="glass rounded-xl border border-border p-4 flex items-start gap-4"
+              className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
             >
-              <span className="font-mono text-sm text-foreground/45 mt-0.5 w-6 shrink-0">
+              <span className="font-mono text-sm text-primary font-bold mt-0.5 w-6 shrink-0 text-center">
                 #{q.rank}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-foreground font-medium leading-snug">{q.question}</p>
-                <p className="text-sm text-foreground/55 mt-1">
+                <p className="text-foreground font-semibold leading-snug">{q.question}</p>
+                <p className="text-xs text-foreground/50 mt-1">
                   target phrase from your tickets: &ldquo;{q.customer_wording}&rdquo;
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-foreground/50">
-                  Hit your queue <strong className="text-foreground/75">{count(q.ticket_count)}</strong>{' '}
+                  Hit your queue <strong className="text-foreground/70">{count(q.ticket_count)}</strong>{' '}
                   times in this upload, possibly costing{' '}
-                  <strong className="text-foreground/75">
+                  <strong className="text-foreground/70">
                     {usd(q.ticket_count * assistedContactCost)}
                   </strong>{' '}
                   at {costLabel(assistedContactCost)} per assisted contact.
                 </p>
               </div>
-              <div className="shrink-0 text-right">
-                <span className="font-mono text-sm text-foreground/70">
+              <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
+                <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
                   {count(q.ticket_count)}x
                 </span>
-                <div className="mt-1.5 h-1.5 w-24 rounded-full bg-border overflow-hidden">
+                <div className="mt-2 h-1.5 w-24 rounded-full bg-border overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-primary/70"
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
                     style={{ width: `${Math.round((q.ticket_count / maxTicketCount) * 100)}%` }}
                   />
                 </div>
@@ -563,27 +665,40 @@ export function DeflectionResultsPage({
               <Lock className="h-3.5 w-3.5" />
               <span id="locked-question-heading">Locked recurring questions</span>
             </div>
-            <ol className="max-h-96 space-y-2 overflow-y-auto rounded-xl border border-border bg-surface p-3">
-              {locked_questions.map((q) => (
-                <li
-                  key={q.rank}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-background/40 px-3 py-2"
-                >
-                  <span className="w-10 shrink-0 font-mono text-xs text-foreground/45">
-                    #{q.rank}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 text-sm font-medium text-foreground/70">
-                      <Lock className="h-3.5 w-3.5 text-foreground/35" />
-                      <span>Question text withheld</span>
+            <div className="relative">
+              <ol className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-border bg-surface p-3 pr-2
+                [&::-webkit-scrollbar]:w-1.5
+                [&::-webkit-scrollbar-thumb]:bg-border/60
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                [&::-webkit-scrollbar-track]:bg-transparent"
+              >
+                {locked_questions.map((q) => (
+                  <li
+                    key={q.rank}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-background/40 px-3 py-2.5 transition-colors hover:bg-background/60"
+                  >
+                    <span className="w-10 shrink-0 font-mono text-xs text-foreground/45 text-center">
+                      #{q.rank}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-foreground/60">
+                        <Lock className="h-3.5 w-3.5 text-foreground/30" />
+                        <span>Question text withheld</span>
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-foreground/45">
+                        <strong className="text-foreground/60">{count(q.ticket_count)}</strong>{' '}
+                        repeat tickets -{' '}
+                        <strong className="text-foreground/60">
+                          {usd(q.ticket_count * assistedContactCost)}
+                        </strong>{' '}
+                        estimated cost
+                      </p>
                     </div>
-                    <p className="mt-0.5 text-xs text-foreground/45">
-                      {count(q.ticket_count)} repeat tickets · {usd(q.ticket_count * assistedContactCost)} estimated assisted-contact cost
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+                  </li>
+                ))}
+              </ol>
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none rounded-b-xl border-b border-border/10" />
+            </div>
           </section>
         )}
 
@@ -620,7 +735,7 @@ export function DeflectionResultsPage({
                   <strong className="text-foreground">
                     #{firstLockedRank}–#{lastLockedRank}
                   </strong>
-                  {' '}complete ranked backlog — locked question text plus the
+                  {' '}complete ranked backlog, locked question text plus the
                   rest of your recurring questions, ordered by support volume.
                 </span>
               </li>
@@ -671,41 +786,86 @@ export function DeflectionResultsPage({
 
         {/* ── Primary offer ──────────────────────────────────────── */}
         <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 shadow-[var(--primary-glow)] mb-8">
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-2">
-            Unlock your full Backlog Report
-          </h2>
-          <p className="text-foreground/65 leading-relaxed mb-6">
-            It&apos;s already computed — the drafts behind this snapshot exist right now.
-            Delivered the moment you pay. One-time, yours to keep.
-          </p>
-          <button
-            type="button"
-            onClick={handleUnlock}
-            disabled={unlockDisabled}
-            aria-busy={loading || finalizing}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {unlockLabel}
-            {!loading && !finalizing && !finalizingTimedOut && <ArrowRight className="h-4 w-4" />}
-          </button>
-          {error && (
-            <p role="alert" className="text-sm text-red-500 mt-3">
-              {error}
-            </p>
-          )}
-          {finalizingTimedOut && (
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="mt-3 inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground/75 hover:border-primary/50 hover:text-primary transition-colors"
-            >
-              Refresh to check status
-            </button>
-          )}
-          <p className="text-xs text-foreground/45 mt-3">
-            One-time. No subscription. <FileText className="inline h-3 w-3" /> Full report
-            delivered instantly.
-          </p>
+          <div className="grid md:grid-cols-5 gap-8 items-center">
+            <div className="md:col-span-3">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
+                Unlock your full Backlog Report
+              </h2>
+              <p className="mb-5 text-sm leading-relaxed text-foreground/65">
+                It&apos;s already computed. The drafts behind this snapshot exist right now.
+                Unlock the complete analysis to start deflecting repetitive customer tickets.
+              </p>
+              <ul className="space-y-2 text-xs text-foreground/75">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>
+                    <strong>Complete ranked backlog</strong> of all {summary.generated} repeat questions.
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>
+                    <strong>{summary.drafted_answer_count} drafted answers</strong> ready for review.
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>
+                    <strong>Customer-language phrase map</strong> for help-center titles and search wording.
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>
+                    <strong>Traceable ticket IDs</strong> and resolution evidence.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col justify-center border-t border-primary/20 pt-6 md:col-span-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+              <div className="text-center mb-4">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time payment</div>
+                <div className="text-4xl font-extrabold text-foreground mt-1">$1,500</div>
+                <div className="text-xs text-foreground/50 mt-1">No monthly subscription. Yours to keep.</div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleUnlock}
+                disabled={unlockDisabled}
+                aria-busy={loading || finalizing}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-base font-bold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {unlockLabel}
+                {!loading && !finalizing && !finalizingTimedOut && <ArrowRight className="h-4 w-4" />}
+              </button>
+
+              {error && (
+                <p role="alert" className="text-sm text-red-500 mt-3 text-center">
+                  {error}
+                </p>
+              )}
+              {finalizingTimedOut && (
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="mt-3 w-full inline-flex items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground/75 hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  Refresh to check status
+                </button>
+              )}
+
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 border-t border-border/60 pt-4 text-[10px] text-foreground/45">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3 text-primary/65" />
+                  Secure Stripe checkout
+                </span>
+                <span className="h-1 w-1 rounded-full bg-foreground/25" aria-hidden="true" />
+                <span>Payment-confirmed unlock</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── Trust strip ────────────────────────────────────────── */}
@@ -713,7 +873,7 @@ export function DeflectionResultsPage({
           <ul className="space-y-2.5 text-sm leading-relaxed text-foreground/70">
             <li className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              Every answer is your own team&apos;s proven resolution — verbatim from the
+              Every answer is your own team&apos;s proven resolution, verbatim from the
               ticket that solved it. Nothing invented.
             </li>
             <li className="flex items-start gap-3">
