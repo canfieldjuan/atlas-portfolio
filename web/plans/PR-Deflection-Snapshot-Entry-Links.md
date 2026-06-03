@@ -23,8 +23,10 @@ Slice phase: Product polish
    the snapshot-first page and label the CTA around the free snapshot offer.
 3. Update the AI Content Ops hero's live-offer link to the same snapshot-first
    page.
-4. Leave the long deflection page, intake route, result route, checkout, pricing,
-   sitemap, and no-chrome behavior unchanged.
+4. Reconcile the promoted AI Content Ops card copy with the linked snapshot
+   offer: 3-month upload window, free snapshot, and $1,500 full report.
+5. Leave the long deflection page, intake route, result route, checkout, pricing
+   mechanics, sitemap, and no-chrome behavior unchanged.
 
 ### Files touched
 
@@ -38,9 +40,12 @@ The two hub pages already drive link targets from local config objects and
 static `Link` components. This slice changes only the Support Ticket Deflection
 entry URLs from `/systems/support-ticket-deflection` to
 `/systems/support-ticket-deflection/snapshot`, and updates visible labels to say
-the visitor is viewing or getting the free Deflection Snapshot. Existing
-`/systems/support-ticket-deflection` route registration, metadata, sitemap
-entry, and page implementation are untouched.
+the visitor is viewing or getting the free Deflection Snapshot. The promoted AI
+Content Ops card also updates its summary/price strings so the entry point does
+not claim a stale wider upload window or unrelated retainer starting price before
+linking to a free + paid-report offer. Existing
+`/systems/support-ticket-deflection` route registration, metadata, sitemap entry,
+and page implementation are untouched.
 
 ## Intentional
 
@@ -48,8 +53,8 @@ entry, and page implementation are untouched.
   URL.
 - This does not change any upload/intake CTA target inside the snapshot page;
   the snapshot page still sends qualified visitors to the existing intake route.
-- This does not change pricing copy, checkout behavior, result-page copy, or
-  ATLAS payload contracts.
+- This does not change checkout behavior, result-page copy, pricing mechanics,
+  or ATLAS payload contracts.
 - The AI Content Ops card still describes the paid report because that is the
   product family; the CTA now starts with the free snapshot entry point.
 
@@ -70,7 +75,15 @@ Parked hardening: none
   promoted Support Ticket Deflection links, and DOM href checks confirmed all
   three point to `/systems/support-ticket-deflection/snapshot` with no browser
   page errors.
-- `rg -n "/systems/support-ticket-deflection/snapshot|View the free Deflection Snapshot|See the free snapshot offer|View the free Snapshot" web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/plans/PR-Deflection-Snapshot-Entry-Links.md` - passed.
+- Review fix: updated the promoted AI Content Ops offer card to the current
+  `3 months` / `Free snapshot · $1,500 full report` offer copy, and removed em
+  dashes from that summary string.
+- Review fix browser check: reopened `/systems/ai-content-ops` with
+  `agent-browser`; confirmed the updated 3-month summary and
+  `Free snapshot · $1,500 full report` price render, the stale window/price copy
+  is absent, and the promoted links still target
+  `/systems/support-ticket-deflection/snapshot`.
+- `rg -n '/systems/support-ticket-deflection/snapshot|View the free Deflection Snapshot|See the free snapshot offer|View the free Snapshot|Analyzes 3 months|Free snapshot · \$1,500 full report' web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/plans/PR-Deflection-Snapshot-Entry-Links.md` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
@@ -78,5 +91,5 @@ Parked hardening: none
 | Area | Estimated LOC |
 |---|---:|
 | Plan doc | ~80 |
-| Entry link updates | ~8 |
-| Total | ~88 |
+| Entry link/copy updates | ~12 |
+| Total | ~92 |
