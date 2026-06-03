@@ -8,10 +8,11 @@ const REQUEST_ID = 'content-ops-unit-123';
 const ATTEMPT_ID = 'attempt-unit-12345678';
 const PAID_HTML = [
   '<main>',
-  '<span>FULL DEFLECTION REPORT</span>',
-  '<h1>Your paid report is ready to review.</h1>',
-  '<dt>Report summary</dt>',
-  '<h2>Drill-down cards</h2>',
+  '<span>FULL BACKLOG REPORT</span>',
+  '<h1>Your complete Support Tax report is ready.</h1>',
+  '<div>Paid report contents</div>',
+  '<strong>Your Help-Desk SEO Targeting List</strong>',
+  '<strong>Publishable Help-Center Copy</strong>',
   '</main>',
 ].join('');
 
@@ -237,7 +238,7 @@ function run(options, responses, deps = {}) {
     {
       status: 200,
       kind: 'html',
-      body: PAID_HTML.replace('FULL DEFLECTION REPORT', 'YOUR DEFLECTION SNAPSHOT'),
+      body: PAID_HTML.replace('FULL BACKLOG REPORT', 'YOUR DEFLECTION SNAPSHOT'),
     },
   ]);
   assert.equal(result.ok, false);

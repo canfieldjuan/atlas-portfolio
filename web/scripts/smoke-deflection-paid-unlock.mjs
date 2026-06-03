@@ -15,10 +15,11 @@ const DEFAULT_MAX_WAIT_MS = 120_000;
 const DEFAULT_POLL_MS = 5_000;
 const VERCEL_CURL_STATUS_MARKER = '__ATLAS_HTTP_STATUS__:';
 const REQUIRED_PAID_MARKERS = [
-  { key: 'fullReportBadge', label: 'FULL DEFLECTION REPORT' },
-  { key: 'paidHeadline', label: 'Your paid report is ready to review.' },
-  { key: 'reportSummary', label: 'Report summary' },
-  { key: 'drillDownCards', label: 'Drill-down cards' },
+  { key: 'fullReportBadge', label: 'FULL BACKLOG REPORT' },
+  { key: 'paidHeadline', label: 'Your complete Support Tax report is ready.' },
+  { key: 'reportContents', label: 'Paid report contents' },
+  { key: 'seoTargeting', label: 'Your Help-Desk SEO Targeting List' },
+  { key: 'publishableCopy', label: 'Publishable Help-Center Copy' },
 ];
 const LOCKED_MARKERS = ['Unlock your full Backlog Report'];
 
