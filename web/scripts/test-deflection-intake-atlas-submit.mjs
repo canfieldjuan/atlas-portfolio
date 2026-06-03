@@ -50,6 +50,21 @@ function resetCalls() {
   consoleErrors = [];
 }
 
+function minimalSnapshot(summaryExtras = {}) {
+  return {
+    summary: {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+      repeat_ticket_count: 1,
+      ...summaryExtras,
+    },
+    top_questions: [],
+    locked_questions: [],
+    teaser: { full_answer: null, previews: [] },
+  };
+}
+
 globalThis.__atlasSubmitBlobGet = async (url, options) => {
   blobCalls.push({ url, options });
   return {
@@ -188,6 +203,9 @@ try {
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
       repeat_ticket_count: 6,
+      source_date_start: '2026-05-01',
+      source_date_end: '2026-05-06',
+      source_window_days: 6,
     },
     top_questions: [
       {
@@ -250,6 +268,9 @@ try {
     drafted_answer_count: 1,
     no_proven_answer_count: 1,
     repeat_ticket_count: 6,
+    source_date_start: '2026-05-01',
+    source_date_end: '2026-05-06',
+    source_window_days: 6,
   });
   assert.deepEqual(snapshotResult.snapshot.top_questions, [
     {
@@ -299,6 +320,70 @@ try {
     JSON.stringify(snapshotResult.snapshot).includes('Preview answer must not cross'),
     false,
   );
+
+  resetCalls();
+  fetchPayload = minimalSnapshot();
+  const missingWindowResult = await fetchDeflectionSnapshot('content-ops-unit-123');
+  assert.equal(missingWindowResult.ok, true);
+  assert.deepEqual(missingWindowResult.snapshot.summary, {
+    generated: 1,
+    drafted_answer_count: 1,
+    no_proven_answer_count: 0,
+    repeat_ticket_count: 1,
+  });
+
+  resetCalls();
+  fetchPayload = minimalSnapshot({
+    source_date_start: '2026-05-01',
+    source_window_days: 1,
+  });
+  const partialWindowResult = await fetchDeflectionSnapshot('content-ops-unit-123');
+  assert.equal(partialWindowResult.ok, true);
+  assert.deepEqual(partialWindowResult.snapshot.summary, {
+    generated: 1,
+    drafted_answer_count: 1,
+    no_proven_answer_count: 0,
+    repeat_ticket_count: 1,
+  });
+
+  resetCalls();
+  fetchPayload = minimalSnapshot({
+    source_date_start: '2026-05-01',
+    source_date_end: '2026-05-06',
+    source_window_days: 30,
+  });
+  const contradictoryWindowResult = await fetchDeflectionSnapshot('content-ops-unit-123');
+  assert.equal(contradictoryWindowResult.ok, true);
+  assert.deepEqual(contradictoryWindowResult.snapshot.summary, {
+    generated: 1,
+    drafted_answer_count: 1,
+    no_proven_answer_count: 0,
+    repeat_ticket_count: 1,
+  });
+
+  for (const badWindow of [
+    {
+      source_date_start: '2026-02-30',
+      source_date_end: '2026-03-01',
+      source_window_days: 1,
+    },
+    {
+      source_date_start: '2026-05-06',
+      source_date_end: '2026-05-01',
+      source_window_days: 6,
+    },
+  ]) {
+    resetCalls();
+    fetchPayload = minimalSnapshot(badWindow);
+    const badWindowResult = await fetchDeflectionSnapshot('content-ops-unit-123');
+    assert.equal(badWindowResult.ok, true);
+    assert.deepEqual(badWindowResult.snapshot.summary, {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+      repeat_ticket_count: 1,
+    });
+  }
 
   resetCalls();
   fetchPayload = {

@@ -24,6 +24,9 @@ function snapshotPayload() {
       drafted_answer_count: 2,
       no_proven_answer_count: 1,
       repeat_ticket_count: 9,
+      source_date_start: '2026-05-01',
+      source_date_end: '2026-05-09',
+      source_window_days: 9,
     },
     top_questions: [
       {
@@ -108,6 +111,11 @@ async function run(options, responses, extra = {}) {
   assert.equal(result.ok, true);
   assert.equal(result.requestId, 'content-ops-unit-123');
   assert.equal(result.snapshot.repeatTicketCount, 9);
+  assert.deepEqual(result.snapshot.sourceWindow, {
+    startDate: '2026-05-01',
+    endDate: '2026-05-09',
+    days: 9,
+  });
   assert.equal(result.snapshot.lockedQuestionCount, 1);
   assert.equal(result.snapshot.hasFullTeaser, true);
   assert.equal(result.snapshot.teaserPreviewCount, 1);
@@ -135,6 +143,44 @@ async function run(options, responses, extra = {}) {
     fetchImpl.calls[2].url,
     'https://atlas.example.com/api/v1/content-ops/deflection-reports/content-ops-unit-123/artifact',
   );
+}
+
+{
+  const snapshotWithoutWindow = snapshotPayload();
+  delete snapshotWithoutWindow.summary.source_date_start;
+  delete snapshotWithoutWindow.summary.source_date_end;
+  delete snapshotWithoutWindow.summary.source_window_days;
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: snapshotWithoutWindow },
+    { status: 403 },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.snapshot.sourceWindow, undefined);
+}
+
+{
+  const partialWindowSnapshot = snapshotPayload();
+  delete partialWindowSnapshot.summary.source_date_end;
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: partialWindowSnapshot },
+    { status: 403 },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.snapshot.sourceWindow, undefined);
+}
+
+{
+  const contradictoryWindowSnapshot = snapshotPayload();
+  contradictoryWindowSnapshot.summary.source_window_days = 30;
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: contradictoryWindowSnapshot },
+    { status: 403 },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.snapshot.sourceWindow, undefined);
 }
 
 {

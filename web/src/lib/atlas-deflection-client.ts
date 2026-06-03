@@ -5,6 +5,7 @@ import {
   type DeflectionSnapshotFullAnswer,
   type DeflectionSnapshotLockedQuestion,
   type DeflectionSnapshotQuestion,
+  type DeflectionSnapshotSourceWindow,
   type DeflectionSnapshotTeaser,
 } from '@/lib/deflection-snapshot';
 import {
@@ -26,6 +27,8 @@ import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const FETCH_TIMEOUT_MS = 10_000;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type SnapshotFetchResult =
   | { ok: true; snapshot: DeflectionSnapshot }
@@ -40,6 +43,55 @@ function atlasConfig(): { baseUrl: string; token: string } | null {
 
 function isNonNegativeNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function isoDateTime(value: string): number | null {
+  if (!ISO_DATE_RE.test(value)) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const time = Date.UTC(year, month - 1, day);
+  const parsed = new Date(time);
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return time;
+}
+
+function parseDeflectionSnapshotSourceWindow(
+  summary: Record<string, unknown>,
+): DeflectionSnapshotSourceWindow | null {
+  const start = summary.source_date_start;
+  const end = summary.source_date_end;
+  const days = summary.source_window_days;
+  if (start === undefined && end === undefined && days === undefined) {
+    return null;
+  }
+  if (
+    typeof start !== 'string' ||
+    typeof end !== 'string' ||
+    typeof days !== 'number' ||
+    !Number.isInteger(days) ||
+    days <= 0
+  ) {
+    return null;
+  }
+  const startTime = isoDateTime(start);
+  const endTime = isoDateTime(end);
+  if (startTime === null || endTime === null || endTime < startTime) {
+    return null;
+  }
+  const expectedDays = Math.floor((endTime - startTime) / DAY_MS) + 1;
+  if (expectedDays !== days) {
+    return null;
+  }
+  return {
+    source_date_start: start,
+    source_date_end: end,
+    source_window_days: days,
+  };
 }
 
 function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
@@ -191,12 +243,14 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
   }
   const teaser = parseTeaser(o.teaser);
   if (!teaser) return null;
+  const sourceWindow = parseDeflectionSnapshotSourceWindow(s);
   return {
     summary: {
       generated: s.generated,
       drafted_answer_count: s.drafted_answer_count,
       no_proven_answer_count: s.no_proven_answer_count,
       repeat_ticket_count: s.repeat_ticket_count,
+      ...(sourceWindow ?? {}),
     },
     top_questions: topQuestions,
     locked_questions: lockedQuestions,

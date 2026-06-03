@@ -48,13 +48,19 @@ export type DeflectionSnapshotTeaser = {
   previews: DeflectionSnapshotAnswerPreview[];
 };
 
+export type DeflectionSnapshotSourceWindow = {
+  source_date_start: string;
+  source_date_end: string;
+  source_window_days: number;
+};
+
 export type DeflectionSnapshot = {
   summary: {
     generated: number;
     drafted_answer_count: number;
     no_proven_answer_count: number;
     repeat_ticket_count: number;
-  };
+  } & Partial<DeflectionSnapshotSourceWindow>;
   top_questions: DeflectionSnapshotQuestion[];
   locked_questions: DeflectionSnapshotLockedQuestion[];
   teaser: DeflectionSnapshotTeaser;
@@ -76,6 +82,9 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
     drafted_answer_count: 9,
     no_proven_answer_count: 3,
     repeat_ticket_count: 170,
+    source_date_start: '2026-05-01',
+    source_date_end: '2026-05-30',
+    source_window_days: 30,
   },
   top_questions: [
     {
