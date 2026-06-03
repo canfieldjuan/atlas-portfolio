@@ -7,6 +7,7 @@ const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 const REQUIRED_MARKERS = [
   { key: 'snapshotBadge', label: 'YOUR DEFLECTION SNAPSHOT' },
   { key: 'headline', label: 'We found' },
+  { key: 'teaserAnswer', label: 'One drafted answer you can inspect before paying' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];

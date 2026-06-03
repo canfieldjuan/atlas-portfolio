@@ -32,6 +32,30 @@ function snapshotPayload() {
         weighted_frequency: 4,
       },
     ],
+    teaser: {
+      full_answer: {
+        rank: 1,
+        question: 'How do I export reports?',
+        answer: 'Open Analytics and select Export.',
+        steps: ['Open Analytics.', 'Select Export.'],
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 4,
+        source_count: 2,
+      },
+      previews: [
+        {
+          rank: 2,
+          question: 'Can I schedule the export?',
+          answer_evidence_status: 'resolution_evidence',
+          resolution_evidence_scope: 'scoped',
+          weighted_frequency: 3,
+          step_count: 2,
+          source_count: 1,
+          body_withheld: true,
+        },
+      ],
+    },
   };
 }
 
@@ -75,6 +99,8 @@ async function run(options, responses, extra = {}) {
   ]);
   assert.equal(result.ok, true);
   assert.equal(result.requestId, 'content-ops-unit-123');
+  assert.equal(result.snapshot.hasFullTeaser, true);
+  assert.equal(result.snapshot.teaserPreviewCount, 1);
   assert.equal(
     result.resultsUrl,
     'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123',
@@ -180,6 +206,30 @@ async function run(options, responses, extra = {}) {
 {
   const badSnapshot = snapshotPayload();
   badSnapshot.top_questions = [{ rank: 1, question: 'Missing fields' }];
+  const { result } = await run(baseOptions, [
+    { status: 200, body: { request_id: 'content-ops-unit-123' } },
+    { status: 200, body: badSnapshot },
+  ]);
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'snapshot');
+  assert.equal(result.error, 'ATLAS snapshot response shape was rejected.');
+}
+
+{
+  const badSnapshot = snapshotPayload();
+  badSnapshot.teaser.previews = [
+    {
+      rank: 2,
+      question: 'Preview must not include answer body',
+      answer: 'This body must stay out of previews.',
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: 3,
+      step_count: 2,
+      source_count: 1,
+      body_withheld: true,
+    },
+  ];
   const { result } = await run(baseOptions, [
     { status: 200, body: { request_id: 'content-ops-unit-123' } },
     { status: 200, body: badSnapshot },

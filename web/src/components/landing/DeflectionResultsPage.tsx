@@ -2,20 +2,82 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowRight, Lock, CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
-import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
+import type {
+  DeflectionSnapshot,
+  DeflectionSnapshotAnswerPreview,
+  DeflectionSnapshotFullAnswer,
+} from '@/lib/deflection-snapshot';
 import {
   buildDeflectionCheckoutDiagnostic,
   recordDeflectionCheckoutDiagnostic,
 } from '@/lib/deflection-checkout-diagnostics';
 
-const CALCULATOR_HREF = '/systems/support-ticket-deflection/calculator';
 const FINALIZING_ATTEMPTS = 10;
 const FINALIZING_INTERVAL_MS = 1500;
 
+function TeaserAnswer({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
+  return (
+    <article className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-6 shadow-[var(--primary-glow)]">
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+        <span>Sample drafted answer</span>
+        <span className="rounded-full border border-primary/25 px-2 py-0.5">
+          #{answer.rank}
+        </span>
+        <span className="rounded-full border border-primary/25 px-2 py-0.5">
+          {answer.source_count} source tickets
+        </span>
+      </div>
+      <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+        {answer.question}
+      </h2>
+      <p className="mt-4 text-base leading-relaxed text-foreground/76">{answer.answer}</p>
+      {answer.steps.length > 0 && (
+        <ol className="mt-5 space-y-3">
+          {answer.steps.map((step, index) => (
+            <li key={`${answer.rank}-${index}`} className="flex gap-3 text-sm leading-relaxed">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/30 text-xs font-mono text-primary">
+                {index + 1}
+              </span>
+              <span className="text-foreground/72">{step}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+      <p className="mt-5 text-xs leading-relaxed text-foreground/50">
+        This is the one free drafted answer ATLAS exposed after verifying scoped
+        resolution evidence. The rest stays locked until purchase.
+      </p>
+    </article>
+  );
+}
+
+function TeaserPreviewCard({ preview }: { preview: DeflectionSnapshotAnswerPreview }) {
+  return (
+    <article className="relative overflow-hidden rounded-xl border border-border bg-surface p-4">
+      <div className="mb-3 flex items-center justify-between gap-3 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
+        <span>Draft #{preview.rank}</span>
+        <span>{preview.source_count} sources</span>
+      </div>
+      <h3 className="text-sm font-semibold leading-snug text-foreground">{preview.question}</h3>
+      <div className="mt-4 space-y-2 blur-[2px]" aria-hidden="true">
+        <div className="h-2.5 w-full rounded-full bg-foreground/14" />
+        <div className="h-2.5 w-5/6 rounded-full bg-foreground/12" />
+        <div className="h-2.5 w-2/3 rounded-full bg-foreground/10" />
+      </div>
+      <div className="mt-4 flex items-center gap-2 text-xs text-foreground/55">
+        <Lock className="h-3.5 w-3.5 text-foreground/40" />
+        <span>
+          {preview.step_count} drafted steps withheld in the full report
+        </span>
+      </div>
+    </article>
+  );
+}
+
 // Free-state results page. Renders ONLY the DeflectionSnapshot (summary + top
-// questions). Drafts/evidence/source IDs are never present in this payload —
-// the full report is unlocked server-side by ATLAS after payment (gated slice).
+// questions + bounded teaser). Evidence/source IDs/Markdown and non-teaser
+// answer bodies are never present in this payload — the full report is unlocked
+// server-side by ATLAS after payment (gated slice).
 export function DeflectionResultsPage({
   snapshot,
   requestId,
@@ -27,10 +89,16 @@ export function DeflectionResultsPage({
   companyName?: string;
   checkoutStatus?: 'success' | 'cancel';
 }) {
-  const { summary, top_questions } = snapshot;
+  const { summary, top_questions, teaser } = snapshot;
   const maxFreq = top_questions.reduce((m, q) => Math.max(m, q.weighted_frequency), 0) || 1;
   const firstLockedRank = top_questions.length + 1;
   const hasMoreQuestions = summary.generated > top_questions.length;
+  const fullTeaser = teaser.full_answer;
+  const teaserPreviews = teaser.previews;
+  const remainingDraftCount = Math.max(
+    summary.drafted_answer_count - (fullTeaser ? 1 : 0),
+    0,
+  );
 
   const [loading, setLoading] = useState(false);
   const [finalizing, setFinalizing] = useState(checkoutStatus === 'success');
@@ -169,13 +237,6 @@ export function DeflectionResultsPage({
           <strong className="text-foreground">{summary.no_proven_answer_count}</strong> have
           no proven answer yet (the questions you have never cracked).
         </p>
-        <Link
-          href={CALCULATOR_HREF}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-dark transition-colors mb-12"
-        >
-          See what this volume is costing you
-          <ArrowRight className="h-4 w-4" />
-        </Link>
 
         {/* ── Free: top questions, ranked ────────────────────────── */}
         <p className="text-[10px] font-mono uppercase tracking-widest text-primary/80 mb-4">
@@ -211,6 +272,25 @@ export function DeflectionResultsPage({
           ))}
         </ol>
 
+        {fullTeaser && (
+          <section className="mb-10" aria-labelledby="teaser-answer-heading">
+            <p
+              id="teaser-answer-heading"
+              className="text-[10px] font-mono uppercase tracking-widest text-primary/80 mb-4"
+            >
+              One drafted answer you can inspect before paying
+            </p>
+            <TeaserAnswer answer={fullTeaser} />
+            {teaserPreviews.length > 0 && (
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {teaserPreviews.map((preview) => (
+                  <TeaserPreviewCard key={preview.rank} preview={preview} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* ── Locked: the rest + the drafts ──────────────────────── */}
         <div className="rounded-xl border border-border bg-surface p-6 mb-10">
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/55 mb-4">
@@ -225,34 +305,41 @@ export function DeflectionResultsPage({
                   <strong className="text-foreground">
                     #{firstLockedRank}–#{summary.generated}
                   </strong>
-                  , ranked the same way — every recurring question in your tickets.
+                  {' '}ranked the same way — the rest of your recurring question
+                  backlog, ordered by support volume.
                 </span>
               </li>
             )}
             <li className="flex items-start gap-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
               <span>
-                A publishable answer is{' '}
-                <strong className="text-foreground">already drafted</strong> for every one
-                your tickets have solved before —{' '}
-                <strong className="text-foreground">{summary.drafted_answer_count} drafts</strong>{' '}
-                ready, built from your own resolutions.
+                <strong className="text-foreground">
+                  {fullTeaser
+                    ? `${remainingDraftCount} more drafted answers`
+                    : `${summary.drafted_answer_count} drafted answers`}
+                </strong>{' '}
+                {fullTeaser
+                  ? 'like the sample above'
+                  : "built from your team's resolved tickets"}{' '}
+                - ready for review.
               </span>
             </li>
             <li className="flex items-start gap-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
               <span>
-                The{' '}
                 <strong className="text-foreground">
-                  &ldquo;no proven answer yet&rdquo;
+                  {summary.no_proven_answer_count} no-proven-answer questions
                 </strong>{' '}
-                list — the {summary.no_proven_answer_count} frequent questions you have
-                never cracked, so you know where to write next.
+                separated from the drafts, so your team knows exactly what still
+                needs a real support resolution before publishing.
               </span>
             </li>
             <li className="flex items-start gap-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
-              <span>Source ticket IDs behind every finding.</span>
+              <span>
+                Source ticket IDs and evidence behind every finding, so reviewers
+                can trace each answer before it reaches the help center.
+              </span>
             </li>
           </ul>
         </div>
@@ -263,7 +350,7 @@ export function DeflectionResultsPage({
             Unlock your full Backlog Report
           </h2>
           <p className="text-foreground/65 leading-relaxed mb-6">
-            It&apos;s already computed — the drafts above this line exist right now.
+            It&apos;s already computed — the drafts behind this snapshot exist right now.
             Delivered the moment you pay. One-time, yours to keep.
           </p>
           <button
