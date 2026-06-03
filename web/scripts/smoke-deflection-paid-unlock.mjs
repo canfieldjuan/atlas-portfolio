@@ -20,6 +20,7 @@ const REQUIRED_PAID_MARKERS = [
   { key: 'reportContents', label: 'Paid report contents' },
   { key: 'seoTargeting', label: 'Your Help-Desk SEO Targeting List' },
   { key: 'publishableCopy', label: 'Publishable Help-Center Copy' },
+  { key: 'reviewerGuidance', label: 'Reviewer guidance' },
 ];
 const LOCKED_MARKERS = ['Unlock your full Backlog Report'];
 
