@@ -6,6 +6,7 @@ const GOOD_HTML = [
   '<main>',
   '<span>YOUR DEFLECTION SNAPSHOT</span>',
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
+  '<p>One drafted answer you can inspect before paying</p>',
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
 ].join('');
@@ -46,6 +47,7 @@ async function run(options, response) {
   assert.deepEqual(result.markers, {
     snapshotBadge: true,
     headline: true,
+    teaserAnswer: true,
     unlockCta: true,
   });
   assert.equal(fetchImpl.calls.length, 1);

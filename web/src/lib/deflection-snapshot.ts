@@ -1,7 +1,8 @@
 // Free-tier deflection snapshot — the projection ATLAS serves before payment.
 // Canonical contract: ATLAS docs/frontend/content_ops_faq_deflection_checkout_contract.md
 // (+ content_ops_faq_report_contract.md). The snapshot intentionally EXCLUDES the
-// paid deliverable: no answer text/steps, no evidence quotes, no source IDs.
+// paid deliverable: no evidence quotes, no source IDs, no Markdown, and no
+// answer bodies outside the bounded teaser.
 //
 // Live source (wired in the gated follow-up slice, needs ATLAS host + B2B JWT):
 //   GET /content-ops/deflection-reports/{request_id}/snapshot  -> DeflectionSnapshot
@@ -14,6 +15,33 @@ export type DeflectionSnapshotQuestion = {
   weighted_frequency: number;
 };
 
+export type DeflectionSnapshotFullAnswer = {
+  rank: number;
+  question: string;
+  answer: string;
+  steps: string[];
+  answer_evidence_status: 'resolution_evidence';
+  resolution_evidence_scope: 'scoped';
+  weighted_frequency: number;
+  source_count: number;
+};
+
+export type DeflectionSnapshotAnswerPreview = {
+  rank: number;
+  question: string;
+  answer_evidence_status: 'resolution_evidence';
+  resolution_evidence_scope: 'scoped';
+  weighted_frequency: number;
+  step_count: number;
+  source_count: number;
+  body_withheld: true;
+};
+
+export type DeflectionSnapshotTeaser = {
+  full_answer: DeflectionSnapshotFullAnswer | null;
+  previews: DeflectionSnapshotAnswerPreview[];
+};
+
 export type DeflectionSnapshot = {
   summary: {
     generated: number;
@@ -21,6 +49,7 @@ export type DeflectionSnapshot = {
     no_proven_answer_count: number;
   };
   top_questions: DeflectionSnapshotQuestion[];
+  teaser: DeflectionSnapshotTeaser;
 };
 
 /** Path of the free snapshot endpoint for a request (appended to ATLAS_API_BASE_URL).
@@ -71,4 +100,43 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
       weighted_frequency: 198,
     },
   ],
+  teaser: {
+    full_answer: {
+      rank: 4,
+      question: 'Can I export my data before downgrading?',
+      answer:
+        'To export your data before downgrading, open Settings, choose Billing, and select Export workspace data. Keep the export confirmation email until the downgrade completes.',
+      steps: [
+        'Open Settings and choose Billing.',
+        'Select Export workspace data before changing the plan.',
+        'Wait for the export confirmation email, then complete the downgrade.',
+      ],
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: 245,
+      source_count: 18,
+    },
+    previews: [
+      {
+        rank: 1,
+        question: 'How do I cancel my subscription?',
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 412,
+        step_count: 3,
+        source_count: 31,
+        body_withheld: true,
+      },
+      {
+        rank: 2,
+        question: 'Why was I charged twice?',
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 388,
+        step_count: 2,
+        source_count: 24,
+        body_withheld: true,
+      },
+    ],
+  },
 };

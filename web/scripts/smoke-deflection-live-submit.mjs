@@ -103,6 +103,90 @@ function isSnapshotQuestion(value) {
   );
 }
 
+function isStringArray(value) {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function parseFullTeaserAnswer(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (
+    typeof value.rank === 'number' &&
+    typeof value.question === 'string' &&
+    typeof value.answer === 'string' &&
+    value.answer.trim().length > 0 &&
+    isStringArray(value.steps) &&
+    value.answer_evidence_status === 'resolution_evidence' &&
+    value.resolution_evidence_scope === 'scoped' &&
+    typeof value.weighted_frequency === 'number' &&
+    typeof value.source_count === 'number'
+  ) {
+    return {
+      rank: value.rank,
+      question: value.question,
+      answer: value.answer,
+      steps: value.steps,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: value.weighted_frequency,
+      source_count: value.source_count,
+    };
+  }
+  return null;
+}
+
+function parseTeaserPreview(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (
+    typeof value.rank === 'number' &&
+    typeof value.question === 'string' &&
+    value.answer_evidence_status === 'resolution_evidence' &&
+    value.resolution_evidence_scope === 'scoped' &&
+    typeof value.weighted_frequency === 'number' &&
+    typeof value.step_count === 'number' &&
+    typeof value.source_count === 'number' &&
+    value.body_withheld === true
+  ) {
+    return {
+      rank: value.rank,
+      question: value.question,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: value.weighted_frequency,
+      step_count: value.step_count,
+      source_count: value.source_count,
+      body_withheld: true,
+    };
+  }
+  return null;
+}
+
+function parseTeaser(teaser) {
+  if (teaser === undefined) {
+    return { hasFullTeaser: false, teaserPreviewCount: 0 };
+  }
+  if (!teaser || typeof teaser !== 'object') return null;
+  if (
+    teaser.full_answer !== null &&
+    teaser.full_answer !== undefined &&
+    !parseFullTeaserAnswer(teaser.full_answer)
+  ) {
+    return null;
+  }
+  if (!Array.isArray(teaser.previews)) {
+    return null;
+  }
+  const previews = [];
+  for (const preview of teaser.previews) {
+    const parsedPreview = parseTeaserPreview(preview);
+    if (!parsedPreview) return null;
+    previews.push(parsedPreview);
+  }
+  return {
+    hasFullTeaser: Boolean(teaser.full_answer),
+    teaserPreviewCount: previews.length,
+  };
+}
+
 function parseSnapshotPayload(payload) {
   if (!payload || typeof payload !== 'object') return null;
   const summary = payload.summary;
@@ -117,11 +201,15 @@ function parseSnapshotPayload(payload) {
   }
   if (!Array.isArray(topQuestions)) return null;
   if (!topQuestions.every(isSnapshotQuestion)) return null;
+  const teaser = parseTeaser(payload.teaser);
+  if (!teaser) return null;
   return {
     generated: summary.generated,
     draftedAnswerCount: summary.drafted_answer_count,
     noProvenAnswerCount: summary.no_proven_answer_count,
     topQuestionCount: topQuestions.length,
+    hasFullTeaser: teaser.hasFullTeaser,
+    teaserPreviewCount: teaser.teaserPreviewCount,
   };
 }
 

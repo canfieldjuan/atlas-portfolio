@@ -1,7 +1,10 @@
 import {
   deflectionSnapshotPath,
   type DeflectionSnapshot,
+  type DeflectionSnapshotAnswerPreview,
+  type DeflectionSnapshotFullAnswer,
   type DeflectionSnapshotQuestion,
+  type DeflectionSnapshotTeaser,
 } from '@/lib/deflection-snapshot';
 import {
   deflectionArtifactPath,
@@ -45,6 +48,89 @@ function isQuestion(v: unknown): v is DeflectionSnapshotQuestion {
   );
 }
 
+function parseFullTeaserAnswer(value: unknown): DeflectionSnapshotFullAnswer | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const answer = value as Record<string, unknown>;
+  if (
+    typeof answer.rank === 'number' &&
+    typeof answer.question === 'string' &&
+    typeof answer.answer === 'string' &&
+    answer.answer.trim().length > 0 &&
+    isStringArray(answer.steps) &&
+    answer.answer_evidence_status === 'resolution_evidence' &&
+    answer.resolution_evidence_scope === 'scoped' &&
+    typeof answer.weighted_frequency === 'number' &&
+    typeof answer.source_count === 'number'
+  ) {
+    return {
+      rank: answer.rank,
+      question: answer.question,
+      answer: answer.answer,
+      steps: answer.steps,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: answer.weighted_frequency,
+      source_count: answer.source_count,
+    };
+  }
+  return null;
+}
+
+function parseTeaserPreview(value: unknown): DeflectionSnapshotAnswerPreview | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const preview = value as Record<string, unknown>;
+  if (
+    typeof preview.rank === 'number' &&
+    typeof preview.question === 'string' &&
+    preview.answer_evidence_status === 'resolution_evidence' &&
+    preview.resolution_evidence_scope === 'scoped' &&
+    typeof preview.weighted_frequency === 'number' &&
+    typeof preview.step_count === 'number' &&
+    typeof preview.source_count === 'number' &&
+    preview.body_withheld === true
+  ) {
+    return {
+      rank: preview.rank,
+      question: preview.question,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: preview.weighted_frequency,
+      step_count: preview.step_count,
+      source_count: preview.source_count,
+      body_withheld: true,
+    };
+  }
+  return null;
+}
+
+function parseTeaser(value: unknown): DeflectionSnapshotTeaser | null {
+  if (value === undefined) return { full_answer: null, previews: [] };
+  if (typeof value !== 'object' || value === null) return null;
+  const teaser = value as Record<string, unknown>;
+  if (
+    teaser.full_answer !== null &&
+    teaser.full_answer !== undefined &&
+    !parseFullTeaserAnswer(teaser.full_answer)
+  ) {
+    return null;
+  }
+  if (!Array.isArray(teaser.previews)) {
+    return null;
+  }
+  const previews: DeflectionSnapshotAnswerPreview[] = [];
+  for (const preview of teaser.previews) {
+    const parsedPreview = parseTeaserPreview(preview);
+    if (!parsedPreview) return null;
+    previews.push(parsedPreview);
+  }
+  return {
+    full_answer: teaser.full_answer === undefined || teaser.full_answer === null
+      ? null
+      : parseFullTeaserAnswer(teaser.full_answer),
+    previews,
+  };
+}
+
 function parseSnapshot(v: unknown): DeflectionSnapshot | null {
   if (typeof v !== 'object' || v === null) return null;
   const o = v as Record<string, unknown>;
@@ -60,6 +146,8 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
   if (!Array.isArray(o.top_questions) || !o.top_questions.every(isQuestion)) {
     return null;
   }
+  const teaser = parseTeaser(o.teaser);
+  if (!teaser) return null;
   return {
     summary: {
       generated: s.generated,
@@ -67,6 +155,7 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
       no_proven_answer_count: s.no_proven_answer_count,
     },
     top_questions: o.top_questions as DeflectionSnapshotQuestion[],
+    teaser,
   };
 }
 
