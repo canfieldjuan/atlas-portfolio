@@ -25,7 +25,9 @@ Slice phase: Product polish
    page.
 4. Reconcile the promoted AI Content Ops card copy with the linked snapshot
    offer: 3-month upload window, free snapshot, and $1,500 full report.
-5. Leave the long deflection page, intake route, result route, checkout, pricing
+5. Reconcile the promoted `/systems` card customer-data copy with the same
+   3-month snapshot upload window.
+6. Leave the long deflection page, intake route, result route, checkout, pricing
    mechanics, sitemap, and no-chrome behavior unchanged.
 
 ### Files touched
@@ -76,14 +78,16 @@ Parked hardening: none
   three point to `/systems/support-ticket-deflection/snapshot` with no browser
   page errors.
 - Review fix: updated the promoted AI Content Ops offer card to the current
-  `3 months` / `Free snapshot · $1,500 full report` offer copy, and removed em
+`3 months` / `Free snapshot · $1,500 full report` offer copy, and removed em
   dashes from that summary string.
+- Review fix: updated the promoted `/systems` Support Ticket Deflection card
+  customer-data copy to `Closed support-ticket CSV from the last 3 months`.
 - Review fix browser check: reopened `/systems/ai-content-ops` with
   `agent-browser`; confirmed the updated 3-month summary and
   `Free snapshot · $1,500 full report` price render, the stale window/price copy
   is absent, and the promoted links still target
   `/systems/support-ticket-deflection/snapshot`.
-- `rg -n '/systems/support-ticket-deflection/snapshot|View the free Deflection Snapshot|See the free snapshot offer|View the free Snapshot|Analyzes 3 months|Free snapshot · \$1,500 full report' web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/plans/PR-Deflection-Snapshot-Entry-Links.md` - passed.
+- `rg -n '/systems/support-ticket-deflection/snapshot|View the free Deflection Snapshot|See the free snapshot offer|View the free Snapshot|Analyzes 3 months|Free snapshot · \$1,500 full report|Closed support-ticket CSV from the last 3 months' web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/plans/PR-Deflection-Snapshot-Entry-Links.md` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
@@ -91,5 +95,5 @@ Parked hardening: none
 | Area | Estimated LOC |
 |---|---:|
 | Plan doc | ~80 |
-| Entry link/copy updates | ~12 |
-| Total | ~92 |
+| Entry link/copy updates | ~14 |
+| Total | ~94 |

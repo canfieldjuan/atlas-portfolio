@@ -95,7 +95,7 @@ const systems: SystemEntry[] = [
     summary:
       'A focused report that turns closed support tickets into ranked repeat questions, customer wording, and self-service answers your team can review and publish.',
     customerData: [
-      'Closed support-ticket CSV from the last 3–6 months',
+      'Closed support-ticket CSV from the last 3 months',
       'Ticket subject, body, created date, and support platform',
       'Existing help-center or saved-reply context when available',
       'Approval rules for product claims, tone, and sensitive customer details',
