@@ -7,8 +7,10 @@ import ts from 'typescript';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-checkout-'));
 const sourceUrl = new URL('../src/lib/deflection-checkout.ts', import.meta.url);
+const pricingSourceUrl = new URL('../src/lib/deflection-pricing.ts', import.meta.url);
 const routeSourceUrl = new URL('../src/app/api/deflection-checkout/route.ts', import.meta.url);
 const compiledPath = join(testDir, 'deflection-checkout.cjs');
+const compiledPricingPath = join(testDir, 'deflection-pricing.cjs');
 const compiledRoutePath = join(testDir, 'deflection-checkout-route.cjs');
 const seoStubDir = join(testDir, 'node_modules', '@', 'lib');
 const nextStubDir = join(testDir, 'node_modules', 'next');
@@ -57,10 +59,21 @@ function restoreEnv() {
 try {
   await mkdir(seoStubDir, { recursive: true });
   await mkdir(nextStubDir, { recursive: true });
+  const require = createRequire(compiledPath);
+  const pricingSource = await readFile(pricingSourceUrl, 'utf8');
+  const compiledPricing = ts.transpileModule(pricingSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(compiledPricingPath, compiledPricing.outputText);
+  const { DEFLECTION_FULL_REPORT_PRICE_CENTS } = require(compiledPricingPath);
+
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
     join(seoStubDir, 'deflection-pricing.js'),
-    "exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = 150000;\n",
+    `exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = ${DEFLECTION_FULL_REPORT_PRICE_CENTS};\n`,
   );
   await writeFile(
     join(nextStubDir, 'server.js'),
@@ -76,7 +89,6 @@ try {
   });
   await writeFile(compiledPath, compiled.outputText);
 
-  const require = createRequire(compiledPath);
   const { createDeflectionCheckoutSession } = require(compiledPath);
   installFetchMock();
 
@@ -146,7 +158,10 @@ try {
   );
   assert.equal(calls.length, 1);
   assert.equal(calls[0].headers.Authorization, 'Bearer sk_test_unit_secret');
-  assert.equal(calls[0].body.get('line_items[0][price_data][unit_amount]'), '150000');
+  assert.equal(
+    calls[0].body.get('line_items[0][price_data][unit_amount]'),
+    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  );
   assert.equal(calls[0].body.has('line_items[0][price]'), false);
 
   installFetchMock();

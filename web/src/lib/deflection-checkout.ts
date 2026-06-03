@@ -116,7 +116,7 @@ export async function createDeflectionCheckoutSession(
     form.set('line_items[0][price_data][unit_amount]', String(UNIT_AMOUNT_CENTS));
     form.set(
       'line_items[0][price_data][product_data][name]',
-      'Support Ticket Deflection — Backlog Report',
+      'Support Ticket Deflection: Backlog Report',
     );
   }
   // ATLAS reads these three off the session in its webhook handler.
