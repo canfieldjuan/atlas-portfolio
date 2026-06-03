@@ -59,6 +59,10 @@ try {
   await mkdir(nextStubDir, { recursive: true });
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
+    join(seoStubDir, 'deflection-pricing.js'),
+    "exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = 150000;\n",
+  );
+  await writeFile(
     join(nextStubDir, 'server.js'),
     "exports.NextResponse = { json: (body, init) => Response.json(body, init) };\n",
   );

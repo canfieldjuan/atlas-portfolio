@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL } from '@/lib/deflection-pricing';
 
 // Content Ops hub — product gallery layout.
 // Hero is tight; offers drive the page; coming-soon stubs signal roadmap.
@@ -48,7 +49,7 @@ const offers: Offer[] = [
       'Volume-ranked deflection opportunities',
       'Draft answers with source-ticket traceability',
     ],
-    price: 'Free snapshot · $1,500 full report',
+    price: DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL,
     href: '/systems/support-ticket-deflection/snapshot',
     hrefLabel: 'View the free Snapshot',
     status: 'live',

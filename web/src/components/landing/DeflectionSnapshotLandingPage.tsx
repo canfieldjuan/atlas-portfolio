@@ -16,32 +16,16 @@ import {
   type DeflectionSnapshotFullAnswer,
   type DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
+import {
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  DEFLECTION_FULL_REPORT_PRICE_USD,
+  formatDeflectionWholeUsd,
+} from '@/lib/deflection-pricing';
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 const CTA_LABEL = 'Get my free Deflection Snapshot';
-const ASSISTED_CONTACT_BENCHMARK = 13.5;
-const FULL_REPORT_PRICE = 1500;
-
-const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 0,
-});
-const centsUsdFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
 const integerFormatter = new Intl.NumberFormat('en-US');
-
-function formatWholeUsd(value: number) {
-  return wholeUsdFormatter.format(value);
-}
-
-function formatBenchmarkUsd(value: number) {
-  return centsUsdFormatter.format(value);
-}
 
 function formatInteger(value: number) {
   return integerFormatter.format(value);
@@ -54,7 +38,8 @@ function snapshotCostProof(snapshot: DeflectionSnapshot) {
     snapshot.summary.source_window_days > 0
       ? snapshot.summary.source_window_days
       : undefined;
-  const uploadedWindowCost = repeatTicketCount * ASSISTED_CONTACT_BENCHMARK;
+  const uploadedWindowCost =
+    repeatTicketCount * DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD;
   const annualPace = sourceWindowDays
     ? (uploadedWindowCost / sourceWindowDays) * 365
     : uploadedWindowCost * 12;
@@ -100,19 +85,19 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
   const metrics = [
     {
       label: 'Uploaded-window cost',
-      value: formatWholeUsd(uploadedWindowCost),
+      value: formatDeflectionWholeUsd(uploadedWindowCost),
       detail: `${formatInteger(repeatTicketCount)} repeat-ticket hits across ${windowLabel}`,
     },
     {
       label: 'Annualized pace',
-      value: formatWholeUsd(annualPace),
+      value: formatDeflectionWholeUsd(annualPace),
       detail: sourceWindowDays
         ? 'Same measured pace normalized to 365 days'
         : 'Same measured pace projected across 12 similar windows',
     },
     {
       label: 'Full report unlock',
-      value: formatWholeUsd(FULL_REPORT_PRICE),
+      value: formatDeflectionWholeUsd(DEFLECTION_FULL_REPORT_PRICE_USD),
       detail: 'One-time paid report after the free snapshot',
     },
   ];
@@ -127,7 +112,7 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
             In this representative snapshot, the repeat-ticket count is
-            multiplied by the {formatBenchmarkUsd(ASSISTED_CONTACT_BENCHMARK)}{' '}
+            multiplied by the {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL}{' '}
             assisted-contact benchmark. The point is not a savings promise. It
             is a fast value check before your team buys the full report.
           </p>

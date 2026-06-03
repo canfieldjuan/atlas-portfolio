@@ -15,6 +15,11 @@ import {
   pricingFaqs,
   pricingTiers,
 } from './landingConfig';
+import {
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
+  DEFLECTION_ASSISTED_CONTACT_DELTA_LABEL,
+  DEFLECTION_SELF_SERVICE_BENCHMARK_LABEL,
+} from '@/lib/deflection-pricing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
 const faqJsonLd = generateFaqJsonLd(
@@ -186,7 +191,7 @@ export function makeProblemCost(): DeflectionLandingPageConfig['problemCost'] {
     content: (
       <CopyBlock>
         <p>
-          That wording gap is not a content problem. It is a cost leak. Gartner benchmarks self-service at <strong className="text-foreground">$1.84</strong> versus <strong className="text-foreground">$13.50</strong> for an assisted contact. That is <strong className="text-foreground">$11.66 more</strong> every time a repeat question your help center could have answered reaches a person instead.
+          That wording gap is not a content problem. It is a cost leak. Gartner benchmarks self-service at <strong className="text-foreground">{DEFLECTION_SELF_SERVICE_BENCHMARK_LABEL}</strong> versus <strong className="text-foreground">{DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL}</strong> for an assisted contact. That is <strong className="text-foreground">{DEFLECTION_ASSISTED_CONTACT_DELTA_LABEL} more</strong> every time a repeat question your help center could have answered reaches a person instead.
         </p>
         <p>
           Run that against your own repeat volume. The cost is real, not theoretical.
@@ -300,7 +305,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           </p>
           <SectionList
             items={[
-              <>Gartner: <strong className="text-foreground">$1.84 self-service vs. $13.50 assisted</strong>.</>,
+              <>Gartner: <strong className="text-foreground">{DEFLECTION_SELF_SERVICE_BENCHMARK_LABEL} self-service vs. {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} assisted</strong>.</>,
               <>SQM Group: <strong className="text-foreground">a 1% improvement in FCR reduces operating costs by 1%</strong>.</>,
             ]}
           />
