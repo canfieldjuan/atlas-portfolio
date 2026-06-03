@@ -46,7 +46,9 @@ snapshot contains without making the table the first proof object.
 The offer-boundary rows are static copy tied to the existing free/full product
 shape: the free snapshot shows top repeats, wording examples, and one sourced
 drafted answer; the paid report unlocks the complete ranked backlog, drafts,
-source trail, and no-proven-answer list.
+source trail, and no-proven-answer list. The supporting snapshot card derives
+its locked-rank label from `snapshot.locked_questions`, not from the subset of
+free rows rendered for visual density.
 
 ## Intentional
 
@@ -78,6 +80,10 @@ Parked hardening: none
 - Browser screenshot check: inspected desktop and mobile screenshots from the
   local dev server; confirmed the first viewport has no overlapping text and the
   mobile before/after panel reads cleanly after the CTA.
+- Review fix browser check: re-opened
+  `/systems/support-ticket-deflection/snapshot` with `agent-browser`; confirmed
+  the supporting snapshot card renders `Ranks 6-12 stay locked` and the stale
+  `Ranks 4-12 stay locked` label is absent.
 - `rg -n "See which repeat tickets are burning support time before you buy anything|BEFORE / AFTER SNAPSHOT PROOF|Before ticket thread|Free snapshot|Full report|support-ticket-deflection/snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/plans/PR-Deflection-Snapshot-Proof-Order.md` - passed; the new first-screen proof markers and route are present, and the old cost-first headline has no match.
 - `bash scripts/local_pr_review.sh` - passed.
 

@@ -236,18 +236,18 @@ function SnapshotArtifact({
   snapshot: DeflectionSnapshot;
   showTeaser?: boolean;
 }) {
-  const { summary, top_questions, teaser } = snapshot;
+  const { summary, top_questions, locked_questions, teaser } = snapshot;
   const visibleQuestions = top_questions.slice(0, 3);
-  const exposedRanks = new Set(visibleQuestions.map((question) => question.rank));
-  if (showTeaser) {
-    if (teaser.full_answer) exposedRanks.add(teaser.full_answer.rank);
-    teaser.previews.forEach((preview) => exposedRanks.add(preview.rank));
-  }
-  const highestExposedRank = Math.max(0, ...Array.from(exposedRanks));
-  const firstLockedRank = highestExposedRank + 1;
+  const lockedRanks = locked_questions.map((question) => question.rank);
+  const firstLockedRank =
+    lockedRanks.length > 0
+      ? Math.min(...lockedRanks)
+      : Math.max(0, ...top_questions.map((question) => question.rank)) + 1;
+  const lastLockedRank =
+    lockedRanks.length > 0 ? Math.max(...lockedRanks) : summary.generated;
   const lockedRangeLabel =
-    firstLockedRank <= summary.generated
-      ? `Ranks ${firstLockedRank}-${summary.generated} stay locked`
+    firstLockedRank <= lastLockedRank
+      ? `Ranks ${firstLockedRank}-${lastLockedRank} stay locked`
       : 'The remaining report stays locked';
 
   return (
