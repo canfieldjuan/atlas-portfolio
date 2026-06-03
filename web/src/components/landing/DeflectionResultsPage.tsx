@@ -240,7 +240,7 @@ function SupportTaxProjection({
         </button>
         <span className="inline-flex items-center gap-2 text-xs text-foreground/50 sm:max-w-xs">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary/70" />
-          Stripe checkout unlocks all {count(repeatTicketCount)} repeat-ticket insights after payment confirmation.
+          Stripe checkout unlocks the full Backlog Report after payment confirmation.
         </span>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
@@ -735,7 +735,7 @@ export function DeflectionResultsPage({
                   <strong className="text-foreground">
                     #{firstLockedRank}–#{lastLockedRank}
                   </strong>
-                  {' '}complete ranked backlog — locked question text plus the
+                  {' '}complete ranked backlog, locked question text plus the
                   rest of your recurring questions, ordered by support volume.
                 </span>
               </li>
@@ -873,7 +873,7 @@ export function DeflectionResultsPage({
           <ul className="space-y-2.5 text-sm leading-relaxed text-foreground/70">
             <li className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              Every answer is your own team&apos;s proven resolution — verbatim from the
+              Every answer is your own team&apos;s proven resolution, verbatim from the
               ticket that solved it. Nothing invented.
             </li>
             <li className="flex items-start gap-3">

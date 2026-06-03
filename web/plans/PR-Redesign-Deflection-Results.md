@@ -45,8 +45,9 @@ Parked hardening: none
 1. `npm --prefix web run lint` - passed.
 2. `npm --prefix web run build` - passed.
 3. `rg -n "Ready to Sync|Instant Delivery|p-4\\.5|View source tickets|3.?6 month" web/src/components/landing/DeflectionResultsPage.tsx web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx` - passed with no matches.
-4. Browser check with `agent-browser` on `/systems/support-ticket-deflection/results/00000000-0000-4000-8000-000000000000` using local demo fixture fallback - passed; desktop and 390px mobile renders had no framework overlay, no horizontal overflow, visible summary/support-tax/locked-answer/offer sections, and visible `$1,500` checkout CTA/security copy.
-5. `bash scripts/local_pr_review.sh` - passed.
+4. Review fix grep: `rg --pcre2 -n "repeat-ticket insights|complete ranked backlog \\x{2014}|proven resolution \\x{2014}|Ready to Sync|Instant Delivery|p-4\\.5|View source tickets|3.?6 month" web/src/components/landing/DeflectionResultsPage.tsx web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx` - passed with no matches.
+5. Browser check with `agent-browser` on `/systems/support-ticket-deflection/results/00000000-0000-4000-8000-000000000000` using local demo fixture fallback - passed; desktop and 390px mobile renders had no framework overlay, no horizontal overflow, visible summary/support-tax/locked-answer/offer sections, and visible `$1,500` checkout CTA/security copy.
+6. `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
@@ -54,4 +55,4 @@ Parked hardening: none
 |---|---|
 | web/src/components/landing/DeflectionResultsPage.tsx | ~400 lines modified |
 | web/plans/PR-Redesign-Deflection-Results.md | ~55 lines added |
-| Total | ~455 |
+| Total | ~470 |
