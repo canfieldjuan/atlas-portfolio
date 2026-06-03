@@ -3,6 +3,10 @@
 import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import {
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  DEFLECTION_SELF_SERVICE_BENCHMARK_USD,
+} from '@/lib/deflection-pricing';
 
 // Leaky Bucket Calculator — estimates the annual cost of repeated support
 // questions from user inputs and explicit assumptions. This is not a forecast of
@@ -20,8 +24,6 @@ const ANNUAL_WORK_HOURS = 2080;
 const CONTEXT_MINUTES_PER_REPEAT = 10;
 const REPLACEMENT_COST = 46000;
 const BURNOUT_TURNOVER_SHARE = 0.7;
-const HUMAN_TICKET_COST = 13.5;
-const SELF_SERVE_TICKET_COST = 1.84;
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
@@ -177,7 +179,10 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
 
   const selfServiceDelta = Math.max(0, targetSelfServicePct - currentSelfServicePct) / 100;
   const annualSelfServiceOpportunity =
-    monthlyRepeatTickets * 12 * selfServiceDelta * (HUMAN_TICKET_COST - SELF_SERVE_TICKET_COST);
+    monthlyRepeatTickets *
+    12 *
+    selfServiceDelta *
+    (DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD - DEFLECTION_SELF_SERVICE_BENCHMARK_USD);
 
   const totalVisibleLeak = annualContextLeak + annualAttritionTax + annualSelfServiceOpportunity;
 

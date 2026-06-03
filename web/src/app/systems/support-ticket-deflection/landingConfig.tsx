@@ -15,6 +15,7 @@ import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitiv
 import {
   type DiagnosticReportLandingPageConfig,
 } from '@/components/landing/DiagnosticReportLandingPage';
+import { DEFLECTION_FULL_REPORT_PRICE_LABEL } from '@/lib/deflection-pricing';
 import { generateFaqJsonLd } from '@/lib/seo';
 
 // All on-page CTAs route to the focused deflection report intake (CSV upload),
@@ -106,7 +107,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     id: `full-report`,
     badge: `FULL REPORT`,
     title: `Full Deflection Report`,
-    price: `$1,500`,
+    price: DEFLECTION_FULL_REPORT_PRICE_LABEL,
     description:
       `For the first 3 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
@@ -123,7 +124,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `quarterly-refresh`,
     title: `Quarterly Refresh`,
-    price: `$1,500`,
+    price: DEFLECTION_FULL_REPORT_PRICE_LABEL,
     priceDetail: `/ quarter`,
     description:
       `Run the report every 90 days so your help center keeps up as customer questions change. Good for teams that keep seeing new repeat issues.`,

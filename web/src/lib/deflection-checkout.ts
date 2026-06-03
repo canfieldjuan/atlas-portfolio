@@ -4,7 +4,7 @@
 // `ATLAS_ACCOUNT_ID` (non-NEXT_PUBLIC_ env vars, never bundled for the
 // browser even if mis-imported).
 //
-// Creates the one-time $1,500 Backlog Report unlock as a Stripe Checkout
+// Creates the one-time Backlog Report unlock as a Stripe Checkout
 // Session, per ATLAS `content_ops_faq_deflection_checkout_contract.md`. The
 // Stripe `checkout.session.completed` webhook (→ ATLAS) is the trust path that
 // flips the report's paid flag; the portfolio never marks the report paid
@@ -12,6 +12,7 @@
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
 import { SITE_URL } from '@/lib/seo';
+import { DEFLECTION_FULL_REPORT_PRICE_CENTS } from '@/lib/deflection-pricing';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
@@ -22,9 +23,10 @@ const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 // drift when Stripe changes the account default. The official SDK pins this
 // automatically; talking to the REST API directly, we set it ourselves.
 const STRIPE_API_VERSION = '2026-05-27.dahlia';
-// $1,500 one-time, in cents. The contract floor is 150000; we set exactly that.
+// Public full-report price, in cents. The contract floor is 150000; we set
+// exactly that.
 // Server-set so the client can never lower the price.
-const UNIT_AMOUNT_CENTS = 150_000;
+const UNIT_AMOUNT_CENTS = DEFLECTION_FULL_REPORT_PRICE_CENTS;
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 
 export type CheckoutResult =

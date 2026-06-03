@@ -16,13 +16,17 @@ import type {
   DeflectionSnapshotSourceWindow,
 } from '@/lib/deflection-snapshot';
 import {
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
+  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  DEFLECTION_FULL_REPORT_PRICE_LABEL,
+} from '@/lib/deflection-pricing';
+import {
   buildDeflectionCheckoutDiagnostic,
   recordDeflectionCheckoutDiagnostic,
 } from '@/lib/deflection-checkout-diagnostics';
 
 const FINALIZING_ATTEMPTS = 10;
 const FINALIZING_INTERVAL_MS = 1500;
-const DEFAULT_ASSISTED_CONTACT_COST = 13.5;
 const ASSISTED_CONTACT_COST_MIN = 5;
 const ASSISTED_CONTACT_COST_MAX = 75;
 const ASSISTED_CONTACT_COST_STEP = 0.5;
@@ -154,8 +158,10 @@ function SupportTaxProjection({
         repeat-ticket hits {windowLabel ? `from ${windowLabel}` : 'in this snapshot'}. The
         estimate below multiplies that measured count by a configurable assisted-contact
         benchmark, defaulting to Gartner&apos;s{' '}
-        <strong className="text-foreground">$13.50</strong> assisted-contact figure used elsewhere
-        on this page.
+        <strong className="text-foreground">
+          {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL}
+        </strong>{' '}
+        assisted-contact figure used elsewhere on this page.
       </p>
 
       <div className="mt-5 rounded-xl border border-border bg-surface p-4">
@@ -350,7 +356,9 @@ export function DeflectionResultsPage({
   checkoutStatus?: 'success' | 'cancel';
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
-  const [assistedContactCost, setAssistedContactCost] = useState(DEFAULT_ASSISTED_CONTACT_COST);
+  const [assistedContactCost, setAssistedContactCost] = useState(
+    DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  );
   const maxTicketCount = top_questions.reduce((m, q) => Math.max(m, q.ticket_count), 0) || 1;
   const firstLockedRank = top_questions.length + 1;
   const lastLockedRank = locked_questions.at(-1)?.rank ?? summary.generated;
@@ -380,7 +388,7 @@ export function DeflectionResultsPage({
       ? 'Payment received'
       : loading
         ? 'Starting checkout...'
-        : 'Unlock the full report - $1,500';
+        : `Unlock the full report - ${DEFLECTION_FULL_REPORT_PRICE_LABEL}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
   useEffect(() => {
@@ -820,7 +828,9 @@ export function DeflectionResultsPage({
               )}
               <div className="text-center mb-4">
                 <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time report price</div>
-                <div className="text-4xl font-extrabold text-foreground mt-1">$1,500</div>
+                <div className="text-4xl font-extrabold text-foreground mt-1">
+                  {DEFLECTION_FULL_REPORT_PRICE_LABEL}
+                </div>
                 <div className="text-xs text-foreground/50 mt-1">No monthly subscription. Yours to keep.</div>
               </div>
 
