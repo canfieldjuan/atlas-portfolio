@@ -33,7 +33,8 @@ The new page is a server-rendered route that imports the existing
 first-viewport sample snapshot panel with ranked questions, customer wording,
 one drafted-answer teaser, locked preview rows, and a single primary CTA to the
 existing intake route. The copy uses #196's claim doctrine: benchmark/cost
-language stays framed as an estimate and the page does not claim search volume,
+projection stays deferred until raw ticket counts exist, weighted values render
+only as relative priority scores, and the page does not claim search volume,
 rank, guaranteed deflection, or customer-specific measurements before upload.
 
 ## Intentional
@@ -68,6 +69,9 @@ Parked hardening: none
   `/systems/support-ticket-deflection/snapshot` with `agent-browser`; confirmed
   the lock card renders `Ranks 5-47 stay locked` and the stale `Ranks 4-47 stay
   locked` label is absent.
+- Weighted-score review fix: removed raw-hit and per-row dollar estimate labels
+  from `weighted_frequency`; rows now render the value as a relative priority
+  score.
 - `rg -n "Get my free Deflection Snapshot|support-ticket-deflection/snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/src/app/systems/support-ticket-deflection/snapshot/page.tsx web/src/lib/no-chrome-routes.ts web/src/app/sitemap.ts` - confirmed CTA and route registrations.
 - `bash scripts/local_pr_review.sh` - passed.
 

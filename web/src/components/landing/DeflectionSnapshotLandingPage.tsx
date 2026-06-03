@@ -19,7 +19,6 @@ import {
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 const CTA_LABEL = 'Get my free Deflection Snapshot';
-const BENCHMARK_COST_PER_TICKET = 22;
 
 function PrimarySnapshotCta({ className = '' }: { className?: string }) {
   return (
@@ -39,18 +38,6 @@ function Eyebrow({ children }: { children: ReactNode }) {
       {children}
     </div>
   );
-}
-
-function estimateSupportTax(weightedFrequency: number) {
-  return weightedFrequency * BENCHMARK_COST_PER_TICKET;
-}
-
-function currency(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(value);
 }
 
 function SnapshotQuestionRows({
@@ -83,10 +70,10 @@ function SnapshotQuestionRows({
           </div>
           <div className="md:text-right">
             <p className="font-mono text-sm text-foreground/72">
-              {question.weighted_frequency} hits
+              Score {question.weighted_frequency}
             </p>
             <p className="mt-1 text-xs text-foreground/50">
-              est. {currency(estimateSupportTax(question.weighted_frequency))}
+              relative priority
             </p>
             <div className="mt-2 h-1.5 rounded-full bg-border">
               <div
@@ -225,8 +212,9 @@ function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
       <p className="mt-4 text-xs leading-relaxed text-foreground/45">
         Demo values are representative. Your uploaded snapshot uses your own
-        closed-ticket data. Cost figures are benchmark estimates, not guarantees.
-        The full report keeps the remaining ranked backlog behind checkout.
+        closed-ticket data. Scores are relative ranking signals, not raw ticket
+        counts or dollar estimates. The full report keeps the remaining ranked
+        backlog behind checkout.
       </p>
     </section>
   );
