@@ -4,8 +4,7 @@ import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import {
-  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  DEFLECTION_SELF_SERVICE_BENCHMARK_USD,
+  DEFLECTION_ASSISTED_CONTACT_DELTA_USD,
 } from '@/lib/deflection-pricing';
 
 // Leaky Bucket Calculator — estimates the annual cost of repeated support
@@ -179,10 +178,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
 
   const selfServiceDelta = Math.max(0, targetSelfServicePct - currentSelfServicePct) / 100;
   const annualSelfServiceOpportunity =
-    monthlyRepeatTickets *
-    12 *
-    selfServiceDelta *
-    (DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD - DEFLECTION_SELF_SERVICE_BENCHMARK_USD);
+    monthlyRepeatTickets * 12 * selfServiceDelta * DEFLECTION_ASSISTED_CONTACT_DELTA_USD;
 
   const totalVisibleLeak = annualContextLeak + annualAttritionTax + annualSelfServiceOpportunity;
 
