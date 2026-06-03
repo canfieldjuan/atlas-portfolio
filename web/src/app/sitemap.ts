@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/systems/ai-content-ops`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${baseUrl}/systems/ai-content-ops/ongoing-support`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
     { url: `${baseUrl}/systems/support-ticket-deflection`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: `${baseUrl}/systems/support-ticket-deflection/snapshot`, lastModified: now, changeFrequency: "monthly", priority: 0.82 },
     { url: `${baseUrl}/systems/support-ticket-deflection/demo`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/systems/support-ticket-deflection/playbook`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/systems/support-ticket-deflection/calculator`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
