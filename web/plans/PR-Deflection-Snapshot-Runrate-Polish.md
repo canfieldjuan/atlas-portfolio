@@ -19,13 +19,15 @@ Slice phase: Product polish
 3. Keep `ASSISTED_CONTACT_COST_MAX = 75` unchanged because current `main`
    already satisfies the requested slider headroom.
 4. Extend the hosted-results smoke marker contract to catch the new run-rate
-   comparison copy on the unpaid snapshot page.
+   comparison copy on the unpaid snapshot page and its browser-upload wrapper
+   fixture.
 
 ### Files touched
 
 - `web/src/components/landing/DeflectionResultsPage.tsx` — unpaid snapshot copy/layout polish.
 - `web/scripts/smoke-deflection-hosted-results.mjs` — hosted snapshot render marker.
 - `web/scripts/test-deflection-hosted-results-smoke.mjs` — hosted-results smoke fixture marker.
+- `web/scripts/test-deflection-browser-upload-smoke.mjs` — browser-upload smoke fixture for hosted-results verification.
 - `web/plans/PR-Deflection-Snapshot-Runrate-Polish.md` — this plan doc.
 
 ## Mechanism
@@ -60,7 +62,8 @@ and the active assisted-contact cost. No hardcoded cost number is introduced.
 ## Verification
 
 - `npm --prefix web run test:deflection-hosted-results-smoke` — passed.
-- `rg -n "ASSISTED_CONTACT_COST_MAX = 75|This backlog at current pace|same five rows|one-time report price" web/src/components/landing/DeflectionResultsPage.tsx web/scripts` — passed with expected matches.
+- `npm --prefix web run test:deflection-browser-upload-smoke` — passed.
+- `rg -n "ASSISTED_CONTACT_COST_MAX = 75|This backlog at current pace|visible rows|one-time report price" web/src/components/landing/DeflectionResultsPage.tsx web/scripts` — passed with expected matches.
 - `npm --prefix web run lint` — passed.
 - `bash scripts/local_pr_review.sh` — passed.
 
@@ -69,6 +72,6 @@ and the active assisted-contact cost. No hardcoded cost number is introduced.
 | Area | Estimated LOC |
 |---|---:|
 | Snapshot copy/layout | ~45 |
-| Smoke marker updates | ~10 |
+| Smoke marker updates | ~15 |
 | Plan doc | ~80 |
-| Total | ~135 |
+| Total | ~140 |

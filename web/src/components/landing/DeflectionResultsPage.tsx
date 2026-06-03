@@ -604,7 +604,7 @@ export function DeflectionResultsPage({
             Your top {top_questions.length} repeat questions, with help-desk target phrases.
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/65">
-            These same five rows are the ranking and the SEO targeting list:
+            These visible rows are the ranking and the SEO targeting list:
             each card includes the exact phrase customers used in your tickets,
             so your team can write help-center titles and search wording around
             real demand. ATLAS does not claim keyword volume, search rank, or
