@@ -252,6 +252,13 @@ function SupportTaxProjection({
   );
 }
 
+function teaserAnswerLabel(answer: DeflectionSnapshotFullAnswer) {
+  if (answer.rank === 1) {
+    return 'Sample answer for your #1 most-asked question';
+  }
+  return `Sample answer for ranked question #${answer.rank}`;
+}
+
 function TeaserAnswer({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-primary/30 bg-surface shadow-[var(--primary-glow)]">
@@ -268,7 +275,7 @@ function TeaserAnswer({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
       </div>
       <div className="p-6">
         <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-primary font-semibold">
-          Sample Drafted Answer
+          {teaserAnswerLabel(answer)}
         </div>
         <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
           {answer.question}
