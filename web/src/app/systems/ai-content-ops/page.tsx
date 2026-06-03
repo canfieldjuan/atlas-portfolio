@@ -49,8 +49,8 @@ const offers: Offer[] = [
       'Draft answers with source-ticket traceability',
     ],
     price: 'Starts at $2,500',
-    href: '/systems/support-ticket-deflection',
-    hrefLabel: 'Explore the Report',
+    href: '/systems/support-ticket-deflection/snapshot',
+    hrefLabel: 'View the free Snapshot',
     status: 'live',
   },
   {
@@ -157,10 +157,10 @@ export default function AiContentOpsHubPage() {
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/systems/support-ticket-deflection"
+              href="/systems/support-ticket-deflection/snapshot"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/70"
             >
-              See the live offer
+              See the free snapshot offer
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
