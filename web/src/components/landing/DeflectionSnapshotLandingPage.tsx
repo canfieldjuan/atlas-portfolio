@@ -19,6 +19,53 @@ import {
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 const CTA_LABEL = 'Get my free Deflection Snapshot';
+const ASSISTED_CONTACT_BENCHMARK = 13.5;
+const FULL_REPORT_PRICE = 1500;
+
+const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
+const centsUsdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+const integerFormatter = new Intl.NumberFormat('en-US');
+
+function formatWholeUsd(value: number) {
+  return wholeUsdFormatter.format(value);
+}
+
+function formatBenchmarkUsd(value: number) {
+  return centsUsdFormatter.format(value);
+}
+
+function formatInteger(value: number) {
+  return integerFormatter.format(value);
+}
+
+function snapshotCostProof(snapshot: DeflectionSnapshot) {
+  const repeatTicketCount = snapshot.summary.repeat_ticket_count;
+  const sourceWindowDays =
+    typeof snapshot.summary.source_window_days === 'number' &&
+    snapshot.summary.source_window_days > 0
+      ? snapshot.summary.source_window_days
+      : undefined;
+  const uploadedWindowCost = repeatTicketCount * ASSISTED_CONTACT_BENCHMARK;
+  const annualPace = sourceWindowDays
+    ? (uploadedWindowCost / sourceWindowDays) * 365
+    : uploadedWindowCost * 12;
+
+  return {
+    annualPace,
+    repeatTicketCount,
+    sourceWindowDays,
+    uploadedWindowCost,
+  };
+}
 
 function PrimarySnapshotCta({ className = '' }: { className?: string }) {
   return (
@@ -37,6 +84,89 @@ function Eyebrow({ children }: { children: ReactNode }) {
     <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono text-primary">
       {children}
     </div>
+  );
+}
+
+function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
+  const {
+    annualPace,
+    repeatTicketCount,
+    sourceWindowDays,
+    uploadedWindowCost,
+  } = snapshotCostProof(snapshot);
+  const windowLabel = sourceWindowDays
+    ? `${formatInteger(sourceWindowDays)} days`
+    : 'the uploaded window';
+  const metrics = [
+    {
+      label: 'Uploaded-window cost',
+      value: formatWholeUsd(uploadedWindowCost),
+      detail: `${formatInteger(repeatTicketCount)} repeat-ticket hits across ${windowLabel}`,
+    },
+    {
+      label: 'Annualized pace',
+      value: formatWholeUsd(annualPace),
+      detail: sourceWindowDays
+        ? 'Same measured pace normalized to 365 days'
+        : 'Same measured pace projected across 12 similar windows',
+    },
+    {
+      label: 'Full report unlock',
+      value: formatWholeUsd(FULL_REPORT_PRICE),
+      detail: 'One-time paid report after the free snapshot',
+    },
+  ];
+
+  return (
+    <section className="section-band section-band-muted mt-16">
+      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.88fr)_minmax(21rem,1fr)] lg:items-start">
+        <div>
+          <Eyebrow>Cost proof</Eyebrow>
+          <h2 className="max-w-3xl text-3xl font-semibold leading-tight text-foreground md:text-4xl">
+            After the answer proof, price the repeat pattern.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
+            In this representative snapshot, the repeat-ticket count is
+            multiplied by the {formatBenchmarkUsd(ASSISTED_CONTACT_BENCHMARK)}{' '}
+            assisted-contact benchmark. The point is not a savings promise. It
+            is a fast value check before your team buys the full report.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <PrimarySnapshotCta />
+            <p className="max-w-sm text-sm leading-relaxed text-foreground/50">
+              See whether your own queue has enough repeat volume before paying
+              for every draft and source trail.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {metrics.map((metric) => (
+            <article
+              key={metric.label}
+              className="rounded-md border border-border bg-surface p-4 shadow-[var(--card-shadow)]"
+            >
+              <p className="font-mono text-[11px] uppercase tracking-wide text-foreground/45">
+                {metric.label}
+              </p>
+              <p className="mt-2 text-3xl font-semibold leading-none text-foreground">
+                {metric.value}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/58">
+                {metric.detail}
+              </p>
+            </article>
+          ))}
+
+          <p className="rounded-md border border-primary/25 bg-primary/[0.06] p-4 text-sm leading-relaxed text-foreground/66">
+            The free Snapshot earns the next step by showing the pattern first:
+            ranked repeats, customer wording, and one sourced answer sample. The
+            paid report unlock sits beside the annualized pace, not behind a
+            vague ROI claim.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -396,7 +526,9 @@ export function DeflectionSnapshotLandingPage() {
         <HeroProofPanel snapshot={DEMO_DEFLECTION_SNAPSHOT} />
       </section>
 
-      <section className="section-band mt-16">
+      <CostProofBand snapshot={DEMO_DEFLECTION_SNAPSHOT} />
+
+      <section className="section-band">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Picture</Eyebrow>
