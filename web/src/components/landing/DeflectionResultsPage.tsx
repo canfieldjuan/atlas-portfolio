@@ -30,6 +30,7 @@ const FINALIZING_INTERVAL_MS = 1500;
 const ASSISTED_CONTACT_COST_MIN = 5;
 const ASSISTED_CONTACT_COST_MAX = 75;
 const ASSISTED_CONTACT_COST_STEP = 0.5;
+const ASSISTED_CONTACT_BENCHMARK_SOURCE_URL = 'https://www.gartner.com/en/documents/5164231';
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(Math.max(n, min), max);
@@ -253,6 +254,19 @@ function SupportTaxProjection({
         {sourceWindow
           ? 'Estimate only. These run-rate rows normalize from the verified source window ATLAS returned; they are not savings guarantees.'
           : 'Estimate only. This sizes the repeat work visible in your uploaded data; it is not a savings guarantee and should be adjusted to your actual reporting window.'}
+      </p>
+      <p className="mt-2 text-[11px] leading-relaxed text-foreground/45">
+        Gartner benchmark source:{' '}
+        <a
+          href={ASSISTED_CONTACT_BENCHMARK_SOURCE_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="font-medium text-foreground/65 underline decoration-foreground/25 underline-offset-2 transition-colors hover:text-primary hover:decoration-primary/50"
+        >
+          Benchmarks to Assess Your Customer Service Costs
+        </a>
+        . The totals above multiply your measured repeat-ticket counts by the
+        assisted-channel benchmark you can adjust.
       </p>
     </section>
   );
