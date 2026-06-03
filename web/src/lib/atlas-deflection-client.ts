@@ -3,6 +3,7 @@ import {
   type DeflectionSnapshot,
   type DeflectionSnapshotAnswerPreview,
   type DeflectionSnapshotFullAnswer,
+  type DeflectionSnapshotLockedQuestion,
   type DeflectionSnapshotQuestion,
   type DeflectionSnapshotTeaser,
 } from '@/lib/deflection-snapshot';
@@ -37,15 +38,41 @@ function atlasConfig(): { baseUrl: string; token: string } | null {
   return { baseUrl, token };
 }
 
-function isQuestion(v: unknown): v is DeflectionSnapshotQuestion {
-  if (typeof v !== 'object' || v === null) return false;
+function isNonNegativeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
+  if (typeof v !== 'object' || v === null) return null;
   const q = v as Record<string, unknown>;
-  return (
+  if (
     typeof q.rank === 'number' &&
     typeof q.question === 'string' &&
     typeof q.customer_wording === 'string' &&
+    isNonNegativeNumber(q.ticket_count) &&
     typeof q.weighted_frequency === 'number'
-  );
+  ) {
+    return {
+      rank: q.rank,
+      question: q.question,
+      customer_wording: q.customer_wording,
+      ticket_count: q.ticket_count,
+      weighted_frequency: q.weighted_frequency,
+    };
+  }
+  return null;
+}
+
+function parseLockedQuestion(v: unknown): DeflectionSnapshotLockedQuestion | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const q = v as Record<string, unknown>;
+  if (typeof q.rank === 'number' && isNonNegativeNumber(q.ticket_count)) {
+    return {
+      rank: q.rank,
+      ticket_count: q.ticket_count,
+    };
+  }
+  return null;
 }
 
 function parseFullTeaserAnswer(value: unknown): DeflectionSnapshotFullAnswer | null {
@@ -139,12 +166,28 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
     !s ||
     typeof s.generated !== 'number' ||
     typeof s.drafted_answer_count !== 'number' ||
-    typeof s.no_proven_answer_count !== 'number'
+    typeof s.no_proven_answer_count !== 'number' ||
+    !isNonNegativeNumber(s.repeat_ticket_count)
   ) {
     return null;
   }
-  if (!Array.isArray(o.top_questions) || !o.top_questions.every(isQuestion)) {
+  if (!Array.isArray(o.top_questions)) {
     return null;
+  }
+  const topQuestions: DeflectionSnapshotQuestion[] = [];
+  for (const question of o.top_questions) {
+    const parsedQuestion = parseQuestion(question);
+    if (!parsedQuestion) return null;
+    topQuestions.push(parsedQuestion);
+  }
+  if (!Array.isArray(o.locked_questions)) {
+    return null;
+  }
+  const lockedQuestions: DeflectionSnapshotLockedQuestion[] = [];
+  for (const question of o.locked_questions) {
+    const parsedQuestion = parseLockedQuestion(question);
+    if (!parsedQuestion) return null;
+    lockedQuestions.push(parsedQuestion);
   }
   const teaser = parseTeaser(o.teaser);
   if (!teaser) return null;
@@ -153,8 +196,10 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
       generated: s.generated,
       drafted_answer_count: s.drafted_answer_count,
       no_proven_answer_count: s.no_proven_answer_count,
+      repeat_ticket_count: s.repeat_ticket_count,
     },
-    top_questions: o.top_questions as DeflectionSnapshotQuestion[],
+    top_questions: topQuestions,
+    locked_questions: lockedQuestions,
     teaser,
   };
 }

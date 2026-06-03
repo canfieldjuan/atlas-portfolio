@@ -6,6 +6,7 @@ const GOOD_HTML = [
   '<main>',
   '<span>YOUR DEFLECTION SNAPSHOT</span>',
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
+  '<p>Support Tax projection</p>',
   '<p>One drafted answer you can inspect before paying</p>',
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
@@ -48,6 +49,7 @@ async function run(options, response) {
     snapshotBadge: true,
     headline: true,
     teaserAnswer: true,
+    supportTax: true,
     unlockCta: true,
   });
   assert.equal(fetchImpl.calls.length, 1);
@@ -107,6 +109,16 @@ async function run(options, response) {
   assert.equal(result.stage, 'render');
   assert.equal(result.error, 'Hosted results page is missing required render markers.');
   assert.deepEqual(result.missing, ['snapshotBadge']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    { status: 200, body: GOOD_HTML.replace('Support Tax projection', '') },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.deepEqual(result.missing, ['supportTax']);
 }
 
 {

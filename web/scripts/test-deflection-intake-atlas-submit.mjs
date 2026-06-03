@@ -187,13 +187,28 @@ try {
       generated: 2,
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
+      repeat_ticket_count: 6,
     },
     top_questions: [
       {
         rank: 1,
         question: 'How do I export reports?',
         customer_wording: 'export reports',
+        ticket_count: 4,
         weighted_frequency: 4,
+        source_ids: ['ticket-private-top'],
+        evidence_quotes: ['private top evidence'],
+      },
+    ],
+    locked_questions: [
+      {
+        rank: 2,
+        ticket_count: 2,
+        question: 'Locked private billing question',
+        customer_wording: 'schedule exports',
+        source_ids: ['ticket-private-locked'],
+        evidence_quotes: ['private locked evidence'],
+        markdown: '# locked markdown',
       },
     ],
     teaser: {
@@ -230,6 +245,27 @@ try {
   };
   const snapshotResult = await fetchDeflectionSnapshot('content-ops-unit-123');
   assert.equal(snapshotResult.ok, true);
+  assert.deepEqual(snapshotResult.snapshot.summary, {
+    generated: 2,
+    drafted_answer_count: 1,
+    no_proven_answer_count: 1,
+    repeat_ticket_count: 6,
+  });
+  assert.deepEqual(snapshotResult.snapshot.top_questions, [
+    {
+      rank: 1,
+      question: 'How do I export reports?',
+      customer_wording: 'export reports',
+      ticket_count: 4,
+      weighted_frequency: 4,
+    },
+  ]);
+  assert.deepEqual(snapshotResult.snapshot.locked_questions, [
+    {
+      rank: 2,
+      ticket_count: 2,
+    },
+  ]);
   assert.deepEqual(snapshotResult.snapshot.teaser.full_answer, {
     rank: 1,
     question: 'How do I export reports?',
@@ -255,6 +291,10 @@ try {
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('ticket-private'), false);
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private evidence quote'), false);
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('paid markdown'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private top evidence'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private locked evidence'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('locked markdown'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('Locked private billing question'), false);
   assert.equal(
     JSON.stringify(snapshotResult.snapshot).includes('Preview answer must not cross'),
     false,
@@ -267,7 +307,86 @@ try {
       drafted_answer_count: 1,
       no_proven_answer_count: 0,
     },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        ticket_count: 1,
+        weighted_frequency: 1,
+      },
+    ],
+    locked_questions: [],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+  assert.ok(
+    consoleErrors.some((entry) => entry.includes('deflection snapshot fetch: upstream shape rejected')),
+    'missing repeat_ticket_count is logged generically',
+  );
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+      repeat_ticket_count: 1,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        weighted_frequency: 1,
+      },
+    ],
+    locked_questions: [],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+      repeat_ticket_count: 2,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        ticket_count: 1,
+        weighted_frequency: 1,
+      },
+    ],
+    locked_questions: [{ rank: 2, ticket_count: '1' }],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+      repeat_ticket_count: 1,
+    },
     top_questions: [],
+    locked_questions: [],
     teaser: {
       full_answer: {
         rank: 1,
