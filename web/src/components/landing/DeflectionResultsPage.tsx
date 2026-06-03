@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowRight, Calculator, CheckCircle2, FileText, Lock, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  Calculator,
+  CheckCircle2,
+  FileText,
+  Lock,
+  Search,
+  ShieldCheck,
+} from 'lucide-react';
 import type {
   DeflectionSnapshot,
   DeflectionSnapshotAnswerPreview,
@@ -260,6 +268,9 @@ export function DeflectionResultsPage({
   const hasMoreQuestions = locked_questions.length > 0 || summary.generated > top_questions.length;
   const fullTeaser = teaser.full_answer;
   const teaserPreviews = teaser.previews;
+  const visibleCustomerPhrases = Array.from(
+    new Set(top_questions.map((q) => q.customer_wording.trim()).filter(Boolean)),
+  );
   const remainingDraftCount = Math.max(
     summary.drafted_answer_count - (fullTeaser ? 1 : 0),
     0,
@@ -423,6 +434,46 @@ export function DeflectionResultsPage({
           />
         )}
 
+        {visibleCustomerPhrases.length > 0 && (
+          <section
+            className="mb-10 rounded-2xl border border-border bg-surface p-6"
+            aria-labelledby="phrase-list-heading"
+          >
+            <div className="mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+              <Search className="h-3.5 w-3.5" />
+              <span>Help-desk SEO targeting list</span>
+            </div>
+            <h2 id="phrase-list-heading" className="text-2xl font-semibold tracking-tight text-foreground">
+              These are the phrases customers already use when they need an answer.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/65">
+              Use them as help-center headings, internal-search synonyms, and FAQ wording.
+              ATLAS mined these phrases from the tickets you uploaded; it does not claim
+              keyword volume, search rank, or traffic.
+            </p>
+            <ol className="mt-5 grid gap-2">
+              {visibleCustomerPhrases.map((phrase, index) => (
+                <li
+                  key={`${index}-${phrase}`}
+                  className="flex items-start gap-3 rounded-lg border border-border bg-background/45 px-3 py-2"
+                >
+                  <span className="mt-0.5 w-8 shrink-0 font-mono text-xs text-foreground/40">
+                    #{index + 1}
+                  </span>
+                  <span className="text-sm font-medium leading-snug text-foreground/76">
+                    &ldquo;{phrase}&rdquo;
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 text-xs leading-relaxed text-foreground/45">
+              The full report keeps going past the free rows: complete phrase list,
+              ranked backlog, drafted answers, and the questions your team still needs
+              to resolve before publishing.
+            </p>
+          </section>
+        )}
+
         {/* ── Free: top questions, ranked ────────────────────────── */}
         <p className="text-[10px] font-mono uppercase tracking-widest text-primary/80 mb-4">
           Your top {top_questions.length}, ranked by measured repeat-ticket count
@@ -439,7 +490,7 @@ export function DeflectionResultsPage({
               <div className="min-w-0 flex-1">
                 <p className="text-foreground font-medium leading-snug">{q.question}</p>
                 <p className="text-sm text-foreground/55 mt-1">
-                  in their words: &ldquo;{q.customer_wording}&rdquo;
+                  target phrase from your tickets: &ldquo;{q.customer_wording}&rdquo;
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-foreground/50">
                   Hit your queue <strong className="text-foreground/75">{count(q.ticket_count)}</strong>{' '}
@@ -528,11 +579,21 @@ export function DeflectionResultsPage({
                   <strong className="text-foreground">
                     #{firstLockedRank}–#{lastLockedRank}
                   </strong>
-                  {' '}ranked the same way — locked question text plus the rest
-                  of your recurring backlog, ordered by support volume.
+                  {' '}complete ranked backlog — locked question text plus the
+                  rest of your recurring questions, ordered by support volume.
                 </span>
               </li>
             )}
+            <li className="flex items-start gap-3">
+              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
+              <span>
+                <strong className="text-foreground">
+                  Complete customer-phrase list
+                </strong>{' '}
+                for help-center headings, internal-search synonyms, and FAQ wording.
+                No bought keyword data or rank claims.
+              </span>
+            </li>
             <li className="flex items-start gap-3">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
               <span>
@@ -544,7 +605,7 @@ export function DeflectionResultsPage({
                 {fullTeaser
                   ? 'like the sample above'
                   : "built from your team's resolved tickets"}{' '}
-                - ready for review.
+                - ready for review and publishing.
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -553,8 +614,8 @@ export function DeflectionResultsPage({
                 <strong className="text-foreground">
                   {summary.no_proven_answer_count} no-proven-answer questions
                 </strong>{' '}
-                separated from the drafts, so your team knows exactly what still
-                needs a real support resolution before publishing.
+                separated from the drafts, so your team knows exactly what to
+                resolve next before writing public guidance.
               </span>
             </li>
             <li className="flex items-start gap-3">

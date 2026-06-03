@@ -15,6 +15,7 @@ const LOCKED_RESULTS_HTML = [
   '<span>YOUR DEFLECTION SNAPSHOT</span>',
   '<h1>We found 12 deflection opportunities</h1>',
   '<p>Support Tax projection</p>',
+  '<p>Help-desk SEO targeting list</p>',
   '<p>One drafted answer you can inspect before paying</p>',
   '<a>Unlock your full Backlog Report</a>',
   '</main>',
@@ -152,6 +153,7 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
   assert.deepEqual(result.resultMarkers, {
     snapshotBadge: true,
     headline: true,
+    keywordReframe: true,
     supportTax: true,
     teaserAnswer: true,
     unlockCta: true,

@@ -8,6 +8,7 @@ const REQUIRED_MARKERS = [
   { key: 'snapshotBadge', label: 'YOUR DEFLECTION SNAPSHOT' },
   { key: 'headline', label: 'We found' },
   { key: 'supportTax', label: 'Support Tax projection' },
+  { key: 'keywordReframe', label: 'Help-desk SEO targeting list' },
   { key: 'teaserAnswer', label: 'One drafted answer you can inspect before paying' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
