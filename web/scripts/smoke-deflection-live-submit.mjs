@@ -8,6 +8,8 @@ const SUBMIT_PATH = '/api/v1/content-ops/deflection-reports/submit';
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_MS = 24 * 60 * 60 * 1000;
 const SUPPORT_PLATFORM_VALUES = {
   zendesk: 'zendesk',
   intercom: 'intercom',
@@ -114,6 +116,53 @@ function isLockedQuestion(value) {
   );
 }
 
+function isoDateTime(value) {
+  if (!ISO_DATE_RE.test(value)) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const time = Date.UTC(year, month - 1, day);
+  const parsed = new Date(time);
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return time;
+}
+
+function parseSnapshotSourceWindow(summary) {
+  const start = summary.source_date_start;
+  const end = summary.source_date_end;
+  const days = summary.source_window_days;
+  if (start === undefined && end === undefined && days === undefined) {
+    return null;
+  }
+  if (
+    typeof start !== 'string' ||
+    typeof end !== 'string' ||
+    typeof days !== 'number' ||
+    !Number.isInteger(days) ||
+    days <= 0
+  ) {
+    return null;
+  }
+  const startTime = isoDateTime(start);
+  const endTime = isoDateTime(end);
+  if (startTime === null || endTime === null || endTime < startTime) {
+    return null;
+  }
+  const expectedDays = Math.floor((endTime - startTime) / DAY_MS) + 1;
+  if (expectedDays !== days) {
+    return null;
+  }
+  return {
+    startDate: start,
+    endDate: end,
+    days,
+  };
+}
+
 function isStringArray(value) {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
@@ -218,11 +267,13 @@ function parseSnapshotPayload(payload) {
   if (!payload.locked_questions.every(isLockedQuestion)) return null;
   const teaser = parseTeaser(payload.teaser);
   if (!teaser) return null;
+  const sourceWindow = parseSnapshotSourceWindow(summary);
   return {
     generated: summary.generated,
     draftedAnswerCount: summary.drafted_answer_count,
     noProvenAnswerCount: summary.no_proven_answer_count,
     repeatTicketCount: summary.repeat_ticket_count,
+    ...(sourceWindow ? { sourceWindow } : {}),
     topQuestionCount: topQuestions.length,
     lockedQuestionCount: payload.locked_questions.length,
     hasFullTeaser: teaser.hasFullTeaser,

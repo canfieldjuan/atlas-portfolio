@@ -14,6 +14,7 @@ import type {
   DeflectionSnapshot,
   DeflectionSnapshotAnswerPreview,
   DeflectionSnapshotFullAnswer,
+  DeflectionSnapshotSourceWindow,
 } from '@/lib/deflection-snapshot';
 import {
   buildDeflectionCheckoutDiagnostic,
@@ -43,6 +44,19 @@ function costLabel(value: number) {
   return `$${value.toFixed(value % 1 === 0 ? 0 : 2)}`;
 }
 
+function formatSourceDate(value: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function formatSourceWindow(window: DeflectionSnapshotSourceWindow) {
+  return `${formatSourceDate(window.source_date_start)} to ${formatSourceDate(window.source_date_end)} (${count(window.source_window_days)} days)`;
+}
+
 function ProjectionMetric({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-3">
@@ -56,6 +70,7 @@ function ProjectionMetric({ label, value, sub }: { label: string; value: string;
 function SupportTaxProjection({
   repeatTicketCount,
   assistedContactCost,
+  sourceWindow,
   onAssistedContactCostChange,
   onUnlock,
   unlockLabel,
@@ -64,6 +79,7 @@ function SupportTaxProjection({
 }: {
   repeatTicketCount: number;
   assistedContactCost: number;
+  sourceWindow?: DeflectionSnapshotSourceWindow;
   onAssistedContactCostChange: (value: number) => void;
   onUnlock: () => void;
   unlockLabel: string;
@@ -71,14 +87,21 @@ function SupportTaxProjection({
   unlockBusy: boolean;
 }) {
   const batchCost = repeatTicketCount * assistedContactCost;
-  const annualRunRate = batchCost * 12;
-  const threeYearRunRate = batchCost * 36;
+  const normalizedWindow = sourceWindow
+    ? {
+        dailyCost: batchCost / sourceWindow.source_window_days,
+        days: sourceWindow.source_window_days,
+      }
+    : null;
+  const annualRunRate = normalizedWindow === null ? batchCost * 12 : normalizedWindow.dailyCost * 365;
+  const threeYearRunRate = normalizedWindow === null ? batchCost * 36 : normalizedWindow.dailyCost * 365 * 3;
   const commitCost = (value: number) => {
     if (!Number.isFinite(value)) return;
     onAssistedContactCostChange(
       clamp(value, ASSISTED_CONTACT_COST_MIN, ASSISTED_CONTACT_COST_MAX),
     );
   };
+  const windowLabel = sourceWindow ? formatSourceWindow(sourceWindow) : null;
 
   return (
     <section
@@ -101,8 +124,9 @@ function SupportTaxProjection({
 
       <p className="text-sm leading-relaxed text-foreground/65">
         ATLAS counted <strong className="text-foreground">{count(repeatTicketCount)}</strong>{' '}
-        repeat-ticket hits in this snapshot. The estimate below multiplies that measured count
-        by a configurable assisted-contact benchmark, defaulting to Gartner&apos;s{' '}
+        repeat-ticket hits {windowLabel ? `from ${windowLabel}` : 'in this snapshot'}. The
+        estimate below multiplies that measured count by a configurable assisted-contact
+        benchmark, defaulting to Gartner&apos;s{' '}
         <strong className="text-foreground">$13.50</strong> assisted-contact figure used elsewhere
         on this page.
       </p>
@@ -150,16 +174,23 @@ function SupportTaxProjection({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className={sourceWindow ? 'mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4' : 'mt-5 grid gap-3 md:grid-cols-3'}>
         <ProjectionMetric
-          label="Uploaded batch"
+          label={sourceWindow ? 'Uploaded window' : 'Uploaded batch'}
           value={usd(batchCost)}
-          sub={`${count(repeatTicketCount)} repeat tickets`}
+          sub={windowLabel ?? `${count(repeatTicketCount)} repeat tickets`}
         />
+        {normalizedWindow !== null && (
+          <ProjectionMetric
+            label="30-day pace"
+            value={usd(normalizedWindow.dailyCost * 30)}
+            sub={`normalized from ${count(normalizedWindow.days)} source days`}
+          />
+        )}
         <ProjectionMetric
           label="12-month run-rate"
           value={usd(annualRunRate)}
-          sub="if this batch is monthly pace"
+          sub={normalizedWindow === null ? 'if this batch is monthly pace' : 'same measured daily pace'}
         />
         <ProjectionMetric
           label="3-year run-rate"
@@ -179,8 +210,9 @@ function SupportTaxProjection({
         {!unlockBusy && !unlockDisabled && <ArrowRight className="h-4 w-4" />}
       </button>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
-        Estimate only. This sizes the repeat work visible in your uploaded data; it is not a
-        savings guarantee and should be adjusted to your actual reporting window.
+        {sourceWindow
+          ? 'Estimate only. These run-rate rows normalize from the verified source window ATLAS returned; they are not savings guarantees.'
+          : 'Estimate only. This sizes the repeat work visible in your uploaded data; it is not a savings guarantee and should be adjusted to your actual reporting window.'}
       </p>
     </section>
   );
@@ -271,6 +303,14 @@ export function DeflectionResultsPage({
   const visibleCustomerPhrases = Array.from(
     new Set(top_questions.map((q) => q.customer_wording.trim()).filter(Boolean)),
   );
+  const sourceWindow =
+    summary.source_date_start && summary.source_date_end && summary.source_window_days
+      ? {
+          source_date_start: summary.source_date_start,
+          source_date_end: summary.source_date_end,
+          source_window_days: summary.source_window_days,
+        }
+      : undefined;
   const remainingDraftCount = Math.max(
     summary.drafted_answer_count - (fullTeaser ? 1 : 0),
     0,
@@ -426,6 +466,7 @@ export function DeflectionResultsPage({
           <SupportTaxProjection
             repeatTicketCount={summary.repeat_ticket_count}
             assistedContactCost={assistedContactCost}
+            sourceWindow={sourceWindow}
             onAssistedContactCostChange={setAssistedContactCost}
             onUnlock={() => void handleUnlock()}
             unlockLabel={unlockLabel}
