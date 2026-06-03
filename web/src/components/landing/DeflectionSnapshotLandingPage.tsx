@@ -126,12 +126,123 @@ function PreviewPill({ preview }: { preview: DeflectionSnapshotAnswerPreview }) 
   );
 }
 
-function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
+function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
+  const answer = snapshot.teaser.full_answer;
+  const sourceQuestion = answer
+    ? snapshot.top_questions.find((question) => question.rank === answer.rank)
+    : undefined;
+  const customerPhrase = sourceQuestion?.customer_wording ?? answer?.question ?? '';
+  const previewCount = snapshot.teaser.previews.length;
+
+  if (!answer) {
+    return <SnapshotArtifact snapshot={snapshot} />;
+  }
+
+  return (
+    <section
+      aria-label="Before and after Deflection Snapshot proof"
+      className="rounded-md border border-border bg-surface p-5 shadow-[var(--card-shadow)]"
+    >
+      <div className="mb-5 flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="font-mono text-xs text-primary">BEFORE / AFTER SNAPSHOT PROOF</p>
+          <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
+            One ticket pattern becomes one publishable draft.
+          </h2>
+        </div>
+        <span className="w-fit rounded-md border border-primary/25 px-2 py-1 text-xs font-mono text-primary">
+          Representative demo
+        </span>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="min-w-0">
+          <div className="border-b border-border pb-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-foreground/45">
+              <FileText className="h-4 w-4" />
+              Before ticket thread
+            </div>
+            <p className="text-lg font-medium leading-snug text-foreground">
+              Customer asked: &ldquo;{customerPhrase}&rdquo;
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/58">
+              ATLAS finds the repeat wording across closed tickets, then checks
+              whether resolved replies contain enough scoped evidence to draft an
+              answer.
+            </p>
+          </div>
+
+          <div className="pt-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-primary">
+              <CheckCircle2 className="h-4 w-4" />
+              After drafted answer
+            </div>
+            <h3 className="text-lg font-semibold leading-snug text-foreground">
+              {answer.question}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/72">
+              {answer.answer}
+            </p>
+          </div>
+        </div>
+
+        <aside className="border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+          <div className="grid gap-2 text-sm">
+            <div className="flex items-center gap-2 text-foreground/72">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+              <span>{answer.source_count} source tickets</span>
+            </div>
+            <div className="flex items-center gap-2 text-foreground/72">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              <span>Review-ready draft</span>
+            </div>
+            {previewCount > 0 && (
+              <div className="flex items-center gap-2 text-foreground/72">
+                <Lock className="h-4 w-4 shrink-0 text-foreground/38" />
+                <span>{previewCount} more previews stay gated</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="text-xs font-mono uppercase tracking-wide text-primary">
+              Free snapshot
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-foreground/62">
+              Top repeats, customer wording, one sourced drafted answer.
+            </p>
+            <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
+              Full report
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-foreground/62">
+              Complete backlog, drafts, source trail, write-next list.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <p className="mt-4 border-t border-border pt-4 text-xs leading-relaxed text-foreground/45">
+        Demo values are representative. Your uploaded snapshot uses your own
+        closed-ticket data and keeps the full report behind checkout.
+      </p>
+    </section>
+  );
+}
+
+function SnapshotArtifact({
+  snapshot,
+  showTeaser = true,
+}: {
+  snapshot: DeflectionSnapshot;
+  showTeaser?: boolean;
+}) {
   const { summary, top_questions, teaser } = snapshot;
   const visibleQuestions = top_questions.slice(0, 3);
   const exposedRanks = new Set(visibleQuestions.map((question) => question.rank));
-  if (teaser.full_answer) exposedRanks.add(teaser.full_answer.rank);
-  teaser.previews.forEach((preview) => exposedRanks.add(preview.rank));
+  if (showTeaser) {
+    if (teaser.full_answer) exposedRanks.add(teaser.full_answer.rank);
+    teaser.previews.forEach((preview) => exposedRanks.add(preview.rank));
+  }
   const highestExposedRank = Math.max(0, ...Array.from(exposedRanks));
   const firstLockedRank = highestExposedRank + 1;
   const lockedRangeLabel =
@@ -197,7 +308,7 @@ function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
         </div>
       </div>
 
-      {teaser.full_answer && (
+      {showTeaser && teaser.full_answer && (
         <div className="mt-5">
           <AnswerTeaser answer={teaser.full_answer} />
           {teaser.previews.length > 0 && (
@@ -265,8 +376,8 @@ export function DeflectionSnapshotLandingPage() {
             Free Deflection Snapshot
           </Eyebrow>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl">
-            See which repeat tickets are burning support time before you buy
-            anything.
+            Turn repeat support tickets into help-center answers your team can
+            publish.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
             Upload 3 months of closed tickets. Get a free snapshot that ranks
@@ -282,13 +393,31 @@ export function DeflectionSnapshotLandingPage() {
           </div>
         </div>
 
-        <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} />
+        <HeroProofPanel snapshot={DEMO_DEFLECTION_SNAPSHOT} />
       </section>
 
       <section className="section-band mt-16">
         <div className="mx-auto max-w-6xl">
-          <div className="max-w-3xl">
+          <div className="mb-8 max-w-3xl">
             <Eyebrow>Picture</Eyebrow>
+            <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
+              The free snapshot shows the work before the full report unlock.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-foreground/66">
+              The first screen proves answer quality. The snapshot below shows
+              the offer shape: ranked repeat questions, customer wording, locked
+              backlog, and the boundary between the free taste and the paid
+              report.
+            </p>
+          </div>
+          <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} showTeaser={false} />
+        </div>
+      </section>
+
+      <section className="section-band">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-3xl">
+            <Eyebrow>Process</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
               The snapshot turns old tickets into a publishing queue.
             </h2>
