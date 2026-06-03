@@ -141,7 +141,16 @@ function PreviewPill({ preview }: { preview: DeflectionSnapshotAnswerPreview }) 
 
 function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
   const { summary, top_questions, teaser } = snapshot;
-  const lockedCount = Math.max(summary.generated - top_questions.length, 0);
+  const visibleQuestions = top_questions.slice(0, 3);
+  const exposedRanks = new Set(visibleQuestions.map((question) => question.rank));
+  if (teaser.full_answer) exposedRanks.add(teaser.full_answer.rank);
+  teaser.previews.forEach((preview) => exposedRanks.add(preview.rank));
+  const highestExposedRank = Math.max(0, ...Array.from(exposedRanks));
+  const firstLockedRank = highestExposedRank + 1;
+  const lockedRangeLabel =
+    firstLockedRank <= summary.generated
+      ? `Ranks ${firstLockedRank}-${summary.generated} stay locked`
+      : 'The remaining report stays locked';
 
   return (
     <section
@@ -175,13 +184,13 @@ function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
         </div>
       </div>
 
-      <SnapshotQuestionRows questions={top_questions} />
+      <SnapshotQuestionRows questions={visibleQuestions} />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Lock className="h-4 w-4 text-foreground/40" />
-            Ranks 4-{summary.generated} stay locked
+            {lockedRangeLabel}
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
             The real snapshot can show there is more backlog without giving away
@@ -217,7 +226,7 @@ function SnapshotArtifact({ snapshot }: { snapshot: DeflectionSnapshot }) {
       <p className="mt-4 text-xs leading-relaxed text-foreground/45">
         Demo values are representative. Your uploaded snapshot uses your own
         closed-ticket data. Cost figures are benchmark estimates, not guarantees.
-        Locked count: {lockedCount}.
+        The full report keeps the remaining ranked backlog behind checkout.
       </p>
     </section>
   );

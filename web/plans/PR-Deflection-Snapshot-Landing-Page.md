@@ -64,6 +64,10 @@ Parked hardening: none
   `agent-browser` at desktop and mobile viewports; page loaded, no framework
   overlay, meaningful content rendered, and both CTAs pointed to
   `/systems/support-ticket-deflection/intake`.
+- Review fix browser check: re-opened
+  `/systems/support-ticket-deflection/snapshot` with `agent-browser`; confirmed
+  the lock card renders `Ranks 5-47 stay locked` and the stale `Ranks 4-47 stay
+  locked` label is absent.
 - `rg -n "Get my free Deflection Snapshot|support-ticket-deflection/snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/src/app/systems/support-ticket-deflection/snapshot/page.tsx web/src/lib/no-chrome-routes.ts web/src/app/sitemap.ts` - confirmed CTA and route registrations.
 - `bash scripts/local_pr_review.sh` - passed.
 
