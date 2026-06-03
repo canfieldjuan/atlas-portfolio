@@ -65,7 +65,7 @@ Parked hardening: none.
 - Command: `npm --prefix web run build` - passed.
 - Command: `rg -n "calculator\\?requestId|See what this volume is costing you|Back to your snapshot|Return to your snapshot" web/src web/scripts -S` - no matches.
 - Command: `rg -n "One drafted answer you can inspect before paying|snapshot\\.teaser|teaser" web/src web/scripts -S` - confirmed teaser contract/render markers.
-- Command: `bash scripts/local_pr_review.sh` - pending rerun after MAJOR fix.
+- Command: `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
