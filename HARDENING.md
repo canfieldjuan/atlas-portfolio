@@ -32,6 +32,19 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
+## 2026-06-03
+
+### NPM-AUDIT-WEB-1 — web dependency audit findings
+- File/location: `web/package-lock.json` / `web` dependency tree.
+- Description: `npm --prefix web ci` reports 3 dependency audit findings (2
+  moderate, 1 high). This slice does not change dependencies.
+- Why it matters: dependency vulnerabilities can become deploy-time security
+  exposure, but resolving them may require package upgrades outside this
+  teaser-copy slice.
+- Effort: M
+- Category: security
+- Found during: PR-Deflection-Teaser-Rank-Copy.
+
 ## 2026-06-01
 
 ### DEFLECTION-CALC-INPUT-RESYNC-1 — RESOLVED — sibling calculators can show out-of-range typed values after clamp
