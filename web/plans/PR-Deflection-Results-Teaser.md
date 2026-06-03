@@ -8,6 +8,8 @@ The updated #196 also supersedes the old snapshot-to-calculator loop fix: the se
 
 This slice consumes the newly merged backend teaser contract on the existing results page. It is product polish because the paid/unpaid funnel already works; this improves conversion proof without changing the paywall trust boundary.
 
+The diff is over the 400 LOC target because the privacy-critical client parser, render, and regression smokes need to land together. The reviewer found that `full_answer` needed allowlist reconstruction before it crosses to the browser, so this slice includes the focused parser regression instead of parking that trust-boundary fix.
+
 ## Scope (this PR)
 
 Slice phase: Product polish
@@ -25,6 +27,7 @@ Slice phase: Product polish
 - `web/src/lib/atlas-deflection-client.ts` - Fail-closed teaser parser.
 - `web/src/components/landing/DeflectionResultsPage.tsx` - Teaser render and stale calculator out-link removal.
 - `web/scripts/smoke-deflection-live-submit.mjs` - Live-submit smoke snapshot parser accepts/rejects teaser envelopes.
+- `web/scripts/test-deflection-intake-atlas-submit.mjs` - Client parser regression for allowlist teaser reconstruction.
 - `web/scripts/test-deflection-live-submit-smoke.mjs` - Snapshot fixture includes a valid teaser and rejects malformed teaser payloads.
 - `web/scripts/test-deflection-hosted-results-smoke.mjs` - Hosted results smoke expects the teaser marker.
 - `web/scripts/test-deflection-browser-upload-smoke.mjs` - Browser-upload results verification fixture expects the teaser marker.
@@ -55,20 +58,21 @@ Parked hardening: none.
 ## Verification
 
 - Command: `node web/scripts/test-deflection-live-submit-smoke.mjs` - passed.
+- Command: `node web/scripts/test-deflection-intake-atlas-submit.mjs` - passed.
 - Command: `node web/scripts/test-deflection-hosted-results-smoke.mjs` - passed.
 - Command: `node web/scripts/test-deflection-browser-upload-smoke.mjs` - passed.
 - Command: `npm --prefix web run lint` - passed.
 - Command: `npm --prefix web run build` - passed.
 - Command: `rg -n "calculator\\?requestId|See what this volume is costing you|Back to your snapshot|Return to your snapshot" web/src web/scripts -S` - no matches.
 - Command: `rg -n "One drafted answer you can inspect before paying|snapshot\\.teaser|teaser" web/src web/scripts -S` - confirmed teaser contract/render markers.
-- Command: `bash scripts/local_pr_review.sh` - passed.
+- Command: `bash scripts/local_pr_review.sh` - pending rerun after MAJOR fix.
 
 ## Estimated diff size
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~74 |
-| Snapshot contract/parser | ~131 |
+| Plan doc | ~78 |
+| Snapshot contract/parser | ~187 |
 | Results page render | ~137 |
-| Smoke tests | ~115 |
-| Total | ~457 |
+| Smoke tests | ~262 |
+| Total | ~636 |

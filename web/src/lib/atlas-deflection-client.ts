@@ -48,10 +48,10 @@ function isQuestion(v: unknown): v is DeflectionSnapshotQuestion {
   );
 }
 
-function isFullTeaserAnswer(value: unknown): value is DeflectionSnapshotFullAnswer {
-  if (typeof value !== 'object' || value === null) return false;
+function parseFullTeaserAnswer(value: unknown): DeflectionSnapshotFullAnswer | null {
+  if (typeof value !== 'object' || value === null) return null;
   const answer = value as Record<string, unknown>;
-  return (
+  if (
     typeof answer.rank === 'number' &&
     typeof answer.question === 'string' &&
     typeof answer.answer === 'string' &&
@@ -61,13 +61,25 @@ function isFullTeaserAnswer(value: unknown): value is DeflectionSnapshotFullAnsw
     answer.resolution_evidence_scope === 'scoped' &&
     typeof answer.weighted_frequency === 'number' &&
     typeof answer.source_count === 'number'
-  );
+  ) {
+    return {
+      rank: answer.rank,
+      question: answer.question,
+      answer: answer.answer,
+      steps: answer.steps,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: answer.weighted_frequency,
+      source_count: answer.source_count,
+    };
+  }
+  return null;
 }
 
-function isTeaserPreview(value: unknown): value is DeflectionSnapshotAnswerPreview {
-  if (typeof value !== 'object' || value === null) return false;
+function parseTeaserPreview(value: unknown): DeflectionSnapshotAnswerPreview | null {
+  if (typeof value !== 'object' || value === null) return null;
   const preview = value as Record<string, unknown>;
-  return (
+  if (
     typeof preview.rank === 'number' &&
     typeof preview.question === 'string' &&
     preview.answer_evidence_status === 'resolution_evidence' &&
@@ -75,10 +87,20 @@ function isTeaserPreview(value: unknown): value is DeflectionSnapshotAnswerPrevi
     typeof preview.weighted_frequency === 'number' &&
     typeof preview.step_count === 'number' &&
     typeof preview.source_count === 'number' &&
-    preview.body_withheld === true &&
-    !Object.hasOwn(preview, 'answer') &&
-    !Object.hasOwn(preview, 'steps')
-  );
+    preview.body_withheld === true
+  ) {
+    return {
+      rank: preview.rank,
+      question: preview.question,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: preview.weighted_frequency,
+      step_count: preview.step_count,
+      source_count: preview.source_count,
+      body_withheld: true,
+    };
+  }
+  return null;
 }
 
 function parseTeaser(value: unknown): DeflectionSnapshotTeaser | null {
@@ -88,18 +110,24 @@ function parseTeaser(value: unknown): DeflectionSnapshotTeaser | null {
   if (
     teaser.full_answer !== null &&
     teaser.full_answer !== undefined &&
-    !isFullTeaserAnswer(teaser.full_answer)
+    !parseFullTeaserAnswer(teaser.full_answer)
   ) {
     return null;
   }
-  if (!Array.isArray(teaser.previews) || !teaser.previews.every(isTeaserPreview)) {
+  if (!Array.isArray(teaser.previews)) {
     return null;
   }
+  const previews: DeflectionSnapshotAnswerPreview[] = [];
+  for (const preview of teaser.previews) {
+    const parsedPreview = parseTeaserPreview(preview);
+    if (!parsedPreview) return null;
+    previews.push(parsedPreview);
+  }
   return {
-    full_answer: teaser.full_answer === undefined
+    full_answer: teaser.full_answer === undefined || teaser.full_answer === null
       ? null
-      : (teaser.full_answer as DeflectionSnapshotFullAnswer | null),
-    previews: teaser.previews,
+      : parseFullTeaserAnswer(teaser.full_answer),
+    previews,
   };
 }
 

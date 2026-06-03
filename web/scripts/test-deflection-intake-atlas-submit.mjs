@@ -107,7 +107,7 @@ try {
   await writeFile(compiledPath, compiled.outputText);
 
   const require = createRequire(compiledPath);
-  const { submitDeflectionReportCsv } = require(compiledPath);
+  const { fetchDeflectionSnapshot, submitDeflectionReportCsv } = require(compiledPath);
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
@@ -175,6 +175,119 @@ try {
   assert.ok(
     consoleErrors.some((entry) => entry.includes('deflection submit: upstream shape rejected')),
     'invalid submit response is logged generically',
+  );
+
+  resetEnv({
+    ATLAS_API_BASE_URL: 'https://atlas.example.com',
+    ATLAS_B2B_SERVICE_TOKEN: 'service_token_unit',
+  });
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        weighted_frequency: 4,
+      },
+    ],
+    teaser: {
+      full_answer: {
+        rank: 1,
+        question: 'How do I export reports?',
+        answer: 'Open Analytics and select Export.',
+        steps: ['Open Analytics.', 'Select Export.'],
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 4,
+        source_count: 2,
+        source_ids: ['ticket-private-1'],
+        evidence_quotes: ['private evidence quote'],
+        markdown: '# paid markdown',
+        term_mappings: [{ customer_term: 'export' }],
+      },
+      previews: [
+        {
+          rank: 2,
+          question: 'Can I schedule exports?',
+          answer: 'Preview answer must not cross to the browser.',
+          steps: ['Preview step must not cross to the browser.'],
+          answer_evidence_status: 'resolution_evidence',
+          resolution_evidence_scope: 'scoped',
+          weighted_frequency: 3,
+          step_count: 2,
+          source_count: 1,
+          body_withheld: true,
+          source_ids: ['ticket-private-2'],
+        },
+      ],
+    },
+  };
+  const snapshotResult = await fetchDeflectionSnapshot('content-ops-unit-123');
+  assert.equal(snapshotResult.ok, true);
+  assert.deepEqual(snapshotResult.snapshot.teaser.full_answer, {
+    rank: 1,
+    question: 'How do I export reports?',
+    answer: 'Open Analytics and select Export.',
+    steps: ['Open Analytics.', 'Select Export.'],
+    answer_evidence_status: 'resolution_evidence',
+    resolution_evidence_scope: 'scoped',
+    weighted_frequency: 4,
+    source_count: 2,
+  });
+  assert.deepEqual(snapshotResult.snapshot.teaser.previews, [
+    {
+      rank: 2,
+      question: 'Can I schedule exports?',
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: 3,
+      step_count: 2,
+      source_count: 1,
+      body_withheld: true,
+    },
+  ]);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('ticket-private'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private evidence quote'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('paid markdown'), false);
+  assert.equal(
+    JSON.stringify(snapshotResult.snapshot).includes('Preview answer must not cross'),
+    false,
+  );
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+    },
+    top_questions: [],
+    teaser: {
+      full_answer: {
+        rank: 1,
+        question: 'Missing source count',
+        answer: 'This malformed teaser should fail closed.',
+        steps: [],
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 1,
+      },
+      previews: [],
+    },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+  assert.ok(
+    consoleErrors.some((entry) => entry.includes('deflection snapshot fetch: upstream shape rejected')),
+    'invalid snapshot teaser response is logged generically',
   );
 
   const recordRoute = await readFile(recordRouteUrl, 'utf8');

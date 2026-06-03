@@ -107,9 +107,9 @@ function isStringArray(value) {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
-function isFullTeaserAnswer(value) {
-  if (!value || typeof value !== 'object') return false;
-  return (
+function parseFullTeaserAnswer(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (
     typeof value.rank === 'number' &&
     typeof value.question === 'string' &&
     typeof value.answer === 'string' &&
@@ -119,12 +119,24 @@ function isFullTeaserAnswer(value) {
     value.resolution_evidence_scope === 'scoped' &&
     typeof value.weighted_frequency === 'number' &&
     typeof value.source_count === 'number'
-  );
+  ) {
+    return {
+      rank: value.rank,
+      question: value.question,
+      answer: value.answer,
+      steps: value.steps,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: value.weighted_frequency,
+      source_count: value.source_count,
+    };
+  }
+  return null;
 }
 
-function isTeaserPreview(value) {
-  if (!value || typeof value !== 'object') return false;
-  return (
+function parseTeaserPreview(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (
     typeof value.rank === 'number' &&
     typeof value.question === 'string' &&
     value.answer_evidence_status === 'resolution_evidence' &&
@@ -132,10 +144,20 @@ function isTeaserPreview(value) {
     typeof value.weighted_frequency === 'number' &&
     typeof value.step_count === 'number' &&
     typeof value.source_count === 'number' &&
-    value.body_withheld === true &&
-    !Object.hasOwn(value, 'answer') &&
-    !Object.hasOwn(value, 'steps')
-  );
+    value.body_withheld === true
+  ) {
+    return {
+      rank: value.rank,
+      question: value.question,
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: value.weighted_frequency,
+      step_count: value.step_count,
+      source_count: value.source_count,
+      body_withheld: true,
+    };
+  }
+  return null;
 }
 
 function parseTeaser(teaser) {
@@ -146,16 +168,22 @@ function parseTeaser(teaser) {
   if (
     teaser.full_answer !== null &&
     teaser.full_answer !== undefined &&
-    !isFullTeaserAnswer(teaser.full_answer)
+    !parseFullTeaserAnswer(teaser.full_answer)
   ) {
     return null;
   }
-  if (!Array.isArray(teaser.previews) || !teaser.previews.every(isTeaserPreview)) {
+  if (!Array.isArray(teaser.previews)) {
     return null;
+  }
+  const previews = [];
+  for (const preview of teaser.previews) {
+    const parsedPreview = parseTeaserPreview(preview);
+    if (!parsedPreview) return null;
+    previews.push(parsedPreview);
   }
   return {
     hasFullTeaser: Boolean(teaser.full_answer),
-    teaserPreviewCount: teaser.previews.length,
+    teaserPreviewCount: previews.length,
   };
 }
 
