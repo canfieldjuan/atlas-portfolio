@@ -23,8 +23,10 @@ const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 // drift when Stripe changes the account default. The official SDK pins this
 // automatically; talking to the REST API directly, we set it ourselves.
 const STRIPE_API_VERSION = '2026-05-27.dahlia';
-// Public full-report price, in cents. The contract floor is 150000; we set
-// exactly that.
+const ALLOWED_AMOUNT_CENTS_ENV =
+  'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+// Public full-report price, in cents. Blank allowlist env means this canonical
+// amount only.
 // Server-set so the client can never lower the price.
 const UNIT_AMOUNT_CENTS = DEFLECTION_FULL_REPORT_PRICE_CENTS;
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
@@ -37,7 +39,38 @@ type StripeCheckoutConfig = {
   apiKey: string;
   accountId: string;
   priceId: string | null;
+  allowedAmountsCents: ReadonlySet<number>;
 };
+
+type StripeCheckoutSessionResponse = {
+  url?: unknown;
+  amount_total?: unknown;
+  currency?: unknown;
+};
+
+function parseAllowedAmountCents(rawValue: string | undefined): ReadonlySet<number> | null {
+  const raw = rawValue?.trim();
+  if (!raw) return new Set([UNIT_AMOUNT_CENTS]);
+
+  const amounts: number[] = [];
+  for (const part of raw.split(',')) {
+    const token = part.trim();
+    if (!/^\d+$/.test(token)) return null;
+    const amount = Number(token);
+    if (!Number.isSafeInteger(amount) || amount <= 0) return null;
+    amounts.push(amount);
+  }
+  if (amounts.length === 0) return null;
+  return new Set(amounts);
+}
+
+function configuredAllowedAmounts(): ReadonlySet<number> | null {
+  const allowedAmounts = parseAllowedAmountCents(process.env[ALLOWED_AMOUNT_CENTS_ENV]);
+  if (!allowedAmounts) {
+    console.error('stripe checkout create: configured allowed amount list is invalid');
+  }
+  return allowedAmounts;
+}
 
 function configuredPriceId() {
   const priceId = process.env.STRIPE_DEFLECTION_REPORT_PRICE_ID?.trim();
@@ -54,6 +87,8 @@ function stripeConfig(): StripeCheckoutConfig | null {
   const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
   const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
   if (!accountId) return null;
+  const allowedAmountsCents = configuredAllowedAmounts();
+  if (!allowedAmountsCents) return null;
 
   if (restrictedKey) {
     if (!restrictedKey.startsWith('rk_')) {
@@ -69,7 +104,7 @@ function stripeConfig(): StripeCheckoutConfig | null {
       console.error('stripe checkout create: configured price id is required for restricted keys');
       return null;
     }
-    return { apiKey: restrictedKey, accountId, priceId };
+    return { apiKey: restrictedKey, accountId, priceId, allowedAmountsCents };
   }
 
   if (!legacyTestSecretKey) return null;
@@ -85,8 +120,37 @@ function stripeConfig(): StripeCheckoutConfig | null {
     console.error('stripe checkout create: fallback secret key must be test-mode');
     return null;
   }
+  const fallbackPriceId = configuredPriceId();
+  if (!fallbackPriceId && !allowedAmountsCents.has(UNIT_AMOUNT_CENTS)) {
+    console.error('stripe checkout create: inline fallback amount is not allowed');
+    return null;
+  }
 
-  return { apiKey: legacyTestSecretKey, accountId, priceId: configuredPriceId() };
+  return { apiKey: legacyTestSecretKey, accountId, priceId: fallbackPriceId, allowedAmountsCents };
+}
+
+function isAllowedCheckoutSession(
+  session: StripeCheckoutSessionResponse,
+  allowedAmountsCents: ReadonlySet<number>,
+): session is StripeCheckoutSessionResponse & { url: string } {
+  if (typeof session.url !== 'string' || !session.url) {
+    console.error('stripe checkout create: missing session url');
+    return false;
+  }
+  const amountTotal = typeof session.amount_total === 'number' ? session.amount_total : Number.NaN;
+  if (!Number.isSafeInteger(amountTotal)) {
+    console.error('stripe checkout create: missing session amount');
+    return false;
+  }
+  if (!allowedAmountsCents.has(amountTotal)) {
+    console.error('stripe checkout create: session amount is not allowed');
+    return false;
+  }
+  if (typeof session.currency !== 'string' || session.currency.toLowerCase() !== 'usd') {
+    console.error('stripe checkout create: session currency is not allowed');
+    return false;
+  }
+  return true;
 }
 
 export async function createDeflectionCheckoutSession(
@@ -146,9 +210,8 @@ export async function createDeflectionCheckoutSession(
       console.error(`stripe checkout create failed: HTTP ${res.status}`);
       return { ok: false, reason: 'error' };
     }
-    const session = (await res.json()) as { url?: unknown };
-    if (typeof session.url !== 'string' || !session.url) {
-      console.error('stripe checkout create: missing session url');
+    const session = (await res.json()) as StripeCheckoutSessionResponse;
+    if (!isAllowedCheckoutSession(session, config.allowedAmountsCents)) {
       return { ok: false, reason: 'error' };
     }
     return { ok: true, url: session.url };

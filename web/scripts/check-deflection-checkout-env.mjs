@@ -7,11 +7,18 @@ import { loadLocalEnv } from './local-env.mjs';
 
 const DEFAULT_ENVIRONMENT = 'local';
 const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
+const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
+const ALLOWED_AMOUNT_CENTS_ENV =
+  'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+const LEGACY_INLINE_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
 const CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
+  ALLOWED_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
 ];
 
@@ -32,6 +39,7 @@ Production requires:
   ATLAS_SAAS_STRIPE_RAK=rk_live_...
   ATLAS_ACCOUNT_ID=<account-id>
   STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...
+  ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,180000...] (optional; defaults to 150000)
 
 Preview/development/local accept:
   ATLAS_SAAS_STRIPE_RAK=rk_test_... plus STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...
@@ -51,6 +59,48 @@ function modeForKey(value) {
 
 function clean(value) {
   return String(value || '').trim();
+}
+
+function parseAllowedAmounts(rawValue) {
+  const raw = clean(rawValue);
+  if (!raw) {
+    return {
+      ok: true,
+      amounts: [DEFAULT_ALLOWED_AMOUNT_CENTS],
+      mode: 'default',
+      error: '',
+    };
+  }
+
+  const amounts = [];
+  for (const part of raw.split(',')) {
+    const token = part.trim();
+    if (!/^\d+$/.test(token)) {
+      return {
+        ok: false,
+        amounts: [],
+        mode: 'invalid',
+        error: `${ALLOWED_AMOUNT_CENTS_ENV} must contain comma-separated positive integer cents.`,
+      };
+    }
+    const amount = Number(token);
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+      return {
+        ok: false,
+        amounts: [],
+        mode: 'invalid',
+        error: `${ALLOWED_AMOUNT_CENTS_ENV} must contain comma-separated positive integer cents.`,
+      };
+    }
+    amounts.push(amount);
+  }
+
+  return {
+    ok: true,
+    amounts: [...new Set(amounts)],
+    mode: 'configured',
+    error: '',
+  };
 }
 
 function parseEnvLine(line) {
@@ -103,6 +153,7 @@ function classifyEnv(env) {
   const legacySecret = clean(env.ATLAS_SAAS_STRIPE_SECRET_KEY);
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
   const priceId = clean(env.STRIPE_DEFLECTION_REPORT_PRICE_ID);
+  const allowedAmounts = parseAllowedAmounts(env[ALLOWED_AMOUNT_CENTS_ENV]);
 
   return {
     present: [
@@ -110,17 +161,20 @@ function classifyEnv(env) {
       legacySecret ? 'ATLAS_SAAS_STRIPE_SECRET_KEY' : '',
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
       priceId ? 'STRIPE_DEFLECTION_REPORT_PRICE_ID' : '',
+      clean(env[ALLOWED_AMOUNT_CENTS_ENV]) ? ALLOWED_AMOUNT_CENTS_ENV : '',
     ].filter(Boolean),
     keyModes: {
       ATLAS_SAAS_STRIPE_RAK: modeForKey(rak),
       ATLAS_SAAS_STRIPE_SECRET_KEY: modeForKey(legacySecret),
       ATLAS_ACCOUNT_ID: accountId ? 'configured' : 'missing',
       STRIPE_DEFLECTION_REPORT_PRICE_ID: priceId ? 'configured' : 'missing',
+      [ALLOWED_AMOUNT_CENTS_ENV]: allowedAmounts.mode,
     },
     rak,
     legacySecret,
     accountId,
     priceId,
+    allowedAmounts,
   };
 }
 
@@ -135,6 +189,9 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
 
   if (!classified.accountId) {
     addMissing(missing, 'ATLAS_ACCOUNT_ID');
+  }
+  if (!classified.allowedAmounts.ok) {
+    addInvalid(invalid, classified.allowedAmounts.error);
   }
 
   if (isProduction) {
@@ -173,6 +230,13 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
       if (!classified.legacySecret.startsWith('sk_test_')) {
         addInvalid(invalid, 'ATLAS_SAAS_STRIPE_SECRET_KEY fallback must be sk_test_ outside production.');
       }
+      if (
+        !classified.priceId &&
+        classified.allowedAmounts.ok &&
+        !classified.allowedAmounts.amounts.includes(DEFAULT_ALLOWED_AMOUNT_CENTS)
+      ) {
+        addInvalid(invalid, LEGACY_INLINE_AMOUNT_ERROR);
+      }
     } else {
       addMissing(missing, 'ATLAS_SAAS_STRIPE_RAK or ATLAS_SAAS_STRIPE_SECRET_KEY');
     }
@@ -193,6 +257,7 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     warnings,
     errors,
     keyModes: classified.keyModes,
+    allowedAmountsCents: classified.allowedAmounts.amounts,
   };
 }
 
@@ -242,6 +307,7 @@ async function main() {
   console.log('Deflection checkout env preflight passed.');
   console.log(`Environment: ${result.environment}`);
   console.log(`Present: ${result.present.join(', ') || 'none'}`);
+  console.log(`Allowed amounts: ${result.allowedAmountsCents.join(', ')}`);
   if (result.warnings.length) {
     console.log(`Warnings: ${result.warnings.join(' ')}`);
   }

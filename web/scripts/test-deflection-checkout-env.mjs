@@ -9,6 +9,14 @@ function validate(env, environment) {
   return validateDeflectionCheckoutEnv(env, { environment });
 }
 
+const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
+const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
+const ALLOWED_AMOUNT_CENTS_ENV =
+  'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+const LEGACY_INLINE_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
+
 {
   const result = validate(
     {
@@ -23,7 +31,63 @@ function validate(env, environment) {
   assert.deepEqual(result.missing, []);
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes.ATLAS_SAAS_STRIPE_RAK, 'live_restricted');
+  assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'default');
+  assert.deepEqual(result.allowedAmountsCents, [DEFAULT_ALLOWED_AMOUNT_CENTS]);
   assert(result.warnings.some((warning) => warning.includes('ignored')));
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [ALLOWED_AMOUNT_CENTS_ENV]:
+        `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${VARIANT_ALLOWED_AMOUNT_CENTS}`,
+    },
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert(result.present.includes(ALLOWED_AMOUNT_CENTS_ENV));
+  assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
+  assert.deepEqual(result.allowedAmountsCents, [
+    DEFAULT_ALLOWED_AMOUNT_CENTS,
+    VARIANT_ALLOWED_AMOUNT_CENTS,
+  ]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [ALLOWED_AMOUNT_CENTS_ENV]: `${DEFAULT_ALLOWED_AMOUNT_CENTS},,${VARIANT_ALLOWED_AMOUNT_CENTS}`,
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.invalid, [
+    `${ALLOWED_AMOUNT_CENTS_ENV} must contain comma-separated positive integer cents.`,
+  ]);
+  assert.deepEqual(result.allowedAmountsCents, []);
+  assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'invalid');
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [ALLOWED_AMOUNT_CENTS_ENV]: '0',
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.invalid, [
+    `${ALLOWED_AMOUNT_CENTS_ENV} must contain comma-separated positive integer cents.`,
+  ]);
 }
 
 {
@@ -139,6 +203,20 @@ function validate(env, environment) {
 {
   const result = validate(
     {
+      ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [ALLOWED_AMOUNT_CENTS_ENV]: String(VARIANT_ALLOWED_AMOUNT_CENTS),
+    },
+    'preview',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [LEGACY_INLINE_AMOUNT_ERROR]);
+}
+
+{
+  const result = validate(
+    {
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_live_unit_secret',
       ATLAS_ACCOUNT_ID: 'acct_unit',
     },
@@ -217,6 +295,7 @@ function validate(env, environment) {
       'ATLAS_SAAS_STRIPE_RAK=rk_live_candidate_restricted',
       'ATLAS_ACCOUNT_ID=acct_unit',
       'STRIPE_DEFLECTION_REPORT_PRICE_ID=price_12345678',
+      `${ALLOWED_AMOUNT_CENTS_ENV}=${DEFAULT_ALLOWED_AMOUNT_CENTS},${VARIANT_ALLOWED_AMOUNT_CENTS}`,
       '',
     ].join('\n'),
     'utf8',
@@ -266,6 +345,11 @@ function validate(env, environment) {
     assert.equal(validPayload.ok, true);
     assert.equal(validPayload.keyModes.ATLAS_SAAS_STRIPE_RAK, 'live_restricted');
     assert.equal(validPayload.keyModes.ATLAS_ACCOUNT_ID, 'configured');
+    assert.equal(validPayload.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
+    assert.deepEqual(validPayload.allowedAmountsCents, [
+      DEFAULT_ALLOWED_AMOUNT_CENTS,
+      VARIANT_ALLOWED_AMOUNT_CENTS,
+    ]);
     assert.equal(validRun.stderr, '');
   } finally {
     await rm(testDir, { recursive: true, force: true });

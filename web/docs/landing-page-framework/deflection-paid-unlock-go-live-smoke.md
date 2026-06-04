@@ -28,9 +28,13 @@ this smoke.
   Production must have `ATLAS_SAAS_STRIPE_RAK=rk_live_...`,
   `ATLAS_ACCOUNT_ID`, and `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...`. A
   legacy `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure
-  production checkout. After the RAK is stored as a Vercel sensitive env var,
-  `vercel env pull` will not reveal its value again; use the hosted Checkout
-  smoke after redeploy to prove the deployed value can create a session.
+  production checkout. If
+  `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is
+  set, it must match the ATLAS amount allowlist; otherwise the portfolio
+  defaults to the current full-report amount only. After the RAK is stored as a
+  Vercel sensitive env var, `vercel env pull` will not reveal its value again;
+  use the hosted Checkout smoke after redeploy to prove the deployed value can
+  create a session.
 
   ```bash
   npm --prefix web run smoke:deflection-hosted-checkout -- \
@@ -88,6 +92,8 @@ The fixture must create or confirm a Checkout Session for:
 
 - amount: `150000`
 - currency: `usd`
+- amount allowlist: default full-report amount only unless both ATLAS and
+  portfolio are configured with the same comma-separated cent values
 - API version: `2026-05-27.dahlia`
 - event delivered to the deployed ATLAS `/webhooks/stripe` endpoint:
   `checkout.session.completed`
