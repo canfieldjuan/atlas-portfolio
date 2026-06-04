@@ -223,7 +223,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     body:
       'Upload 3 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
-      label: 'See the free Deflection Snapshot',
+      label: 'Get the free Snapshot first',
       href: SNAPSHOT_HREF,
     },
   },
@@ -384,7 +384,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to start clearing the repeats.',
     ],
     cta: {
-      label: 'See the free Deflection Snapshot',
+      label: 'Get the free Snapshot first',
       href: SNAPSHOT_HREF,
     },
     privacy:

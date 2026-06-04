@@ -51,7 +51,7 @@ const offers: Offer[] = [
     ],
     price: DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL,
     href: '/systems/support-ticket-deflection/snapshot',
-    hrefLabel: 'View the free Snapshot',
+    hrefLabel: 'Get the free Snapshot first',
     status: 'live',
   },
   {
@@ -161,7 +161,7 @@ export default function AiContentOpsHubPage() {
               href="/systems/support-ticket-deflection/snapshot"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/70"
             >
-              See the free snapshot offer
+              Get the free Snapshot first
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

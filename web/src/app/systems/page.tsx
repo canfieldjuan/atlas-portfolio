@@ -91,7 +91,7 @@ const systems: SystemEntry[] = [
     interest: 'content-generation',
     offer: 'support-ticket-deflection',
     href: '/systems/support-ticket-deflection/snapshot',
-    hrefLabel: 'View the free Deflection Snapshot',
+    hrefLabel: 'Get the free Snapshot first',
     summary:
       'A focused report that turns closed support tickets into ranked repeat questions, customer wording, and self-service answers your team can review and publish.',
     customerData: [
