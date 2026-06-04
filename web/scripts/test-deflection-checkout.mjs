@@ -74,7 +74,10 @@ try {
     },
   });
   await writeFile(compiledPricingPath, compiledPricing.outputText);
-  const { DEFLECTION_FULL_REPORT_PRICE_CENTS } = require(compiledPricingPath);
+  const {
+    DEFLECTION_DEFAULT_PRICE_VARIANT,
+    DEFLECTION_FULL_REPORT_PRICE_CENTS,
+  } = require(compiledPricingPath);
   const variantAmountCents = DEFLECTION_FULL_REPORT_PRICE_CENTS + 30_000;
   defaultStripeSession = {
     ...defaultStripeSession,
@@ -84,7 +87,11 @@ try {
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
     join(seoStubDir, 'deflection-pricing.js'),
-    `exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = ${DEFLECTION_FULL_REPORT_PRICE_CENTS};\n`,
+    [
+      `exports.DEFLECTION_DEFAULT_PRICE_VARIANT = ${JSON.stringify(DEFLECTION_DEFAULT_PRICE_VARIANT)};`,
+      `exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = ${DEFLECTION_FULL_REPORT_PRICE_CENTS};`,
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(nextStubDir, 'server.js'),
@@ -118,6 +125,11 @@ try {
   assert.equal(calls[0].body.has('line_items[0][price_data][unit_amount]'), false);
   assert.equal(calls[0].body.get('metadata[account_id]'), 'acct_unit');
   assert.equal(calls[0].body.get('metadata[request_id]'), 'request-123');
+  assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
+  assert.equal(
+    calls[0].body.get('metadata[price_amount_cents]'),
+    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  );
 
   installFetchMock({ ...defaultStripeSession, amount_total: variantAmountCents });
   resetEnv({
@@ -236,6 +248,10 @@ try {
   assert.equal(
     calls[0].body.get('line_items[0][price_data][unit_amount]'),
     String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  );
+  assert.equal(
+    calls[0].body.get('line_items[0][price_data][product_data][name]'),
+    DEFLECTION_DEFAULT_PRICE_VARIANT.stripeProductName,
   );
   assert.equal(calls[0].body.has('line_items[0][price]'), false);
 
