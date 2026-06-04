@@ -10,6 +10,9 @@ const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+const LEGACY_INLINE_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
 const CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
@@ -226,6 +229,13 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     } else if (classified.legacySecret) {
       if (!classified.legacySecret.startsWith('sk_test_')) {
         addInvalid(invalid, 'ATLAS_SAAS_STRIPE_SECRET_KEY fallback must be sk_test_ outside production.');
+      }
+      if (
+        !classified.priceId &&
+        classified.allowedAmounts.ok &&
+        !classified.allowedAmounts.amounts.includes(DEFAULT_ALLOWED_AMOUNT_CENTS)
+      ) {
+        addInvalid(invalid, LEGACY_INLINE_AMOUNT_ERROR);
       }
     } else {
       addMissing(missing, 'ATLAS_SAAS_STRIPE_RAK or ATLAS_SAAS_STRIPE_SECRET_KEY');

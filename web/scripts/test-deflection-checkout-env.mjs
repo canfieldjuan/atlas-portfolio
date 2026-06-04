@@ -13,6 +13,9 @@ const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
 const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+const LEGACY_INLINE_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
 
 {
   const result = validate(
@@ -195,6 +198,20 @@ const ALLOWED_AMOUNT_CENTS_ENV =
   assert.equal(result.ok, true);
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes.ATLAS_SAAS_STRIPE_SECRET_KEY, 'test_secret');
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [ALLOWED_AMOUNT_CENTS_ENV]: String(VARIANT_ALLOWED_AMOUNT_CENTS),
+    },
+    'preview',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [LEGACY_INLINE_AMOUNT_ERROR]);
 }
 
 {

@@ -23,7 +23,8 @@ Slice phase: Production hardening
    `amount_total` in the allowed set, and `currency: "usd"` before returning a
    checkout redirect to the browser.
 3. Extend the deflection checkout env preflight so malformed amount allowlists
-   fail closed before deployment.
+   fail closed before deployment, including the legacy inline test fallback when
+   its allowlist excludes the canonical inline amount.
 4. Cover the default, multi-amount, malformed, wrong-currency, and missing
    amount branches in focused tests.
 5. Update operator docs so the configured Price contract is exact allowlist
@@ -60,6 +61,11 @@ means the canonical full-report amount only. Invalid entries return
 `not_configured`, so checkout does not contact Stripe with an ambiguous amount
 contract.
 
+The env preflight mirrors that contract. In local/preview, a legacy
+`ATLAS_SAAS_STRIPE_SECRET_KEY` fallback without `STRIPE_DEFLECTION_REPORT_PRICE_ID`
+uses inline test `price_data`, so a configured allowlist must still include the
+canonical inline amount.
+
 ## Intentional
 
 - No Stripe Price lookup is added. The restricted key only needs the existing
@@ -89,6 +95,9 @@ Parked hardening: none.
   `Deflection checkout tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
+- `npm --prefix web run test:deflection-checkout-env` - passed after review fix
+  for legacy inline fallback allowlist parity; printed
+  `Deflection checkout env tests passed.`
 - `npm --prefix web run build` - initially failed because this fresh worktree
   had no `web/node_modules`; Turbopack could not resolve `next/package.json`
   from `web/src/app`.
@@ -102,6 +111,8 @@ Parked hardening: none.
 - `rg -n "unit_amount >= 150000|contract floor|unlock floor|amount floor" web/src web/scripts web/README.md web/docs -S` - no matches (exit 1).
 - `bash scripts/local_pr_review.sh` - passed; plan audits, drift advisory,
   ESLint, Next build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after review fix; plan audits,
+  drift advisory, ESLint, Next build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
@@ -109,9 +120,9 @@ Parked hardening: none.
 | --- | ---: |
 | `web/plans/PR-Deflection-Checkout-Allowed-Amounts.md` | +116 |
 | `web/src/lib/deflection-checkout.ts` | +70 / -7 |
-| `web/scripts/check-deflection-checkout-env.mjs` | +56 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +64 |
 | `web/scripts/test-deflection-checkout.mjs` | +92 / -3 |
-| `web/scripts/test-deflection-checkout-env.mjs` | +67 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +82 |
 | `web/README.md` | +8 / -2 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +9 / -3 |
-| Total | ~433 changed |
+| Total | ~456 changed |
