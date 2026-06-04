@@ -71,6 +71,9 @@ using inline `price_data` when no Price ID is present, exactly as before.
   cohort/flag, and syncing displayed price with the selected variant.
 - Cross-system env parity remains operational: when a future variant is added,
   the portfolio and ATLAS allowed-amount envs must be updated together.
+- A shared runtime/preflight Price ID decision helper remains deferred. The
+  review follow-up in this PR fixes the observed false-red path without
+  widening the slice into a module-sharing refactor.
 - The parked web dependency audit finding in `HARDENING.md` was considered but
   remains unrelated because this slice does not change dependencies.
 
@@ -83,6 +86,10 @@ Parked hardening: none.
   `Deflection checkout tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
+- `npm --prefix web run test:deflection-checkout-env` - passed after the review
+  fix; valid `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` with malformed legacy
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID` now passes preflight with the legacy
+  ignored warning.
 - `rg -n "STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD|STRIPE_DEFLECTION_REPORT_PRICE_ID" web/src web/scripts web/README.md web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md -S` - passed; matches are the catalog env keys, runtime/preflight lookup, focused tests, and docs.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - initially failed because this fresh worktree
@@ -97,6 +104,9 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed; plan shape, files touched,
   diff-size drift, cross-session drift, ESLint, Next build, and
   `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the review fix; plan shape,
+  files touched, diff-size drift, cross-session drift, ESLint, Next build, and
+  `git diff --check` all passed.
 
 ## Estimated diff size
 
@@ -105,9 +115,9 @@ Parked hardening: none.
 | `web/plans/PR-Deflection-Price-ID-Map.md` | +116 |
 | `web/src/lib/deflection-pricing.ts` | +4 |
 | `web/src/lib/deflection-checkout.ts` | +27 / -11 |
-| `web/scripts/check-deflection-checkout-env.mjs` | +30 / -12 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +32 / -12 |
 | `web/scripts/test-deflection-checkout.mjs` | +18 / -3 |
-| `web/scripts/test-deflection-checkout-env.mjs` | +56 / -17 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +72 / -17 |
 | `web/README.md` | +6 / -2 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +6 / -3 |
-| Total | ~317 changed |
+| Total | ~337 changed |

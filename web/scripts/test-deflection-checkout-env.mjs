@@ -48,6 +48,22 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [LEGACY_PRICE_ID_ENV]: 'not_a_price',
+    },
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert(result.warnings.some((warning) => warning.includes(LEGACY_PRICE_ID_ENV)));
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
       [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
     },
     'production',

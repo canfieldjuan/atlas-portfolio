@@ -211,7 +211,9 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     addInvalid(invalid, classified.allowedAmounts.error);
   }
   addInvalidPriceId(invalid, STANDARD_PRICE_ID_ENV, classified.standardPriceId);
-  addInvalidPriceId(invalid, LEGACY_PRICE_ID_ENV, classified.legacyPriceId);
+  if (!classified.standardPriceId) {
+    addInvalidPriceId(invalid, LEGACY_PRICE_ID_ENV, classified.legacyPriceId);
+  }
 
   if (isProduction) {
     if (!classified.rak) {
