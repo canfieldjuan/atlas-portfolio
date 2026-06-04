@@ -41,17 +41,38 @@ this smoke.
   set, it must match the ATLAS amount allowlist; otherwise the portfolio
   defaults to the current full-report amount only. After the RAK is stored as a
   Vercel sensitive env var, `vercel env pull` will not reveal its value again;
-  use the hosted Checkout smoke after redeploy to prove the deployed value can
-  create a session.
+  use the hosted Checkout smoke after redeploy to prove the deployed values can
+  create the expected sessions. These commands stop at Checkout Session
+  creation; they do not complete payment or unlock a report.
 
   ```bash
   npm --prefix web run smoke:deflection-hosted-checkout -- \
     --request-id "$REQUEST_ID" \
     --base-url https://juancanfield.com \
     --expect-mode live \
+    --price-variant standard \
     --require-checkout-session \
     --json \
-    --output /tmp/deflection-hosted-checkout-prod.json
+    --output /tmp/deflection-hosted-checkout-standard-prod.json
+  ```
+
+  Omitting `--price-variant` still exercises the standard/default request body.
+  Passing it explicitly makes the smoke artifact unambiguous.
+
+  For the partner path, use a separate locked report id whose intake metadata
+  was persisted as `priceVariant=partner` through a valid partner-token intake
+  link. Running the partner smoke against a standard report should fail closed;
+  that does not prove the partner Stripe Price ID.
+
+  ```bash
+  npm --prefix web run smoke:deflection-hosted-checkout -- \
+    --request-id "$PARTNER_REQUEST_ID" \
+    --base-url https://juancanfield.com \
+    --expect-mode live \
+    --price-variant partner \
+    --require-checkout-session \
+    --json \
+    --output /tmp/deflection-hosted-checkout-partner-prod.json
   ```
 - The portfolio preview has:
   - `ATLAS_B2B_SERVICE_TOKEN`
