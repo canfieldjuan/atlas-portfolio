@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { createDeflectionCheckoutSession } from '@/lib/deflection-checkout';
 import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
 import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
+import {
+  type DeflectionPriceVariantId,
+  resolveDeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
 
 export const runtime = 'nodejs';
 
@@ -24,8 +28,13 @@ const CHECKOUT_RATE_LIMIT = {
 export async function POST(request: Request) {
   let requestId: string;
   let attemptId: string;
+  let priceVariantId: DeflectionPriceVariantId;
   try {
-    const body = (await request.json()) as { requestId?: unknown; attemptId?: unknown };
+    const body = (await request.json()) as {
+      requestId?: unknown;
+      attemptId?: unknown;
+      priceVariant?: unknown;
+    };
     if (
       typeof body.requestId !== 'string' ||
       !REQUEST_ID_RE.test(body.requestId) ||
@@ -36,6 +45,11 @@ export async function POST(request: Request) {
     }
     requestId = body.requestId;
     attemptId = body.attemptId;
+    const priceVariant = resolveDeflectionPriceVariant(body.priceVariant);
+    if (!priceVariant) {
+      return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
+    }
+    priceVariantId = priceVariant.id;
   } catch {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
@@ -63,7 +77,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await createDeflectionCheckoutSession(requestId, attemptId);
+  const result = await createDeflectionCheckoutSession(requestId, attemptId, priceVariantId);
   if (!result.ok) {
     const status =
       result.reason === 'invalid_request' ? 400 : result.reason === 'not_configured' ? 503 : 500;

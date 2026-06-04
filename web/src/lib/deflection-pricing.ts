@@ -56,6 +56,18 @@ export const DEFLECTION_DEFAULT_PRICE_VARIANT = {
   priceLabel: formatDeflectionWholeUsd(DEFLECTION_FULL_REPORT_PRICE_USD),
 } as const satisfies DeflectionPriceVariant;
 
+export const DEFLECTION_PRICE_VARIANTS = [
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+] as const satisfies readonly DeflectionPriceVariant[];
+
+export function resolveDeflectionPriceVariant(value: unknown): DeflectionPriceVariant | null {
+  if (value === undefined || value === null) return DEFLECTION_DEFAULT_PRICE_VARIANT;
+  if (typeof value !== 'string') return null;
+  const id = value.trim();
+  if (!id) return null;
+  return DEFLECTION_PRICE_VARIANTS.find((variant) => variant.id === id) ?? null;
+}
+
 export const DEFLECTION_FULL_REPORT_PRICE_LABEL =
   DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel;
 export const DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL = `Free snapshot · ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report`;
