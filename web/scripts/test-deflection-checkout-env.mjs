@@ -88,6 +88,26 @@ function withProductionPartnerAccessToken(env) {
 
 {
   const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [PARTNER_ACCESS_TOKEN_ENV]: ' , ,, ',
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, [PARTNER_ACCESS_TOKEN_ENV]);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
+  assert(!result.present.includes(PARTNER_ACCESS_TOKEN_ENV));
+  assert(result.errors.includes(`Missing ${PARTNER_ACCESS_TOKEN_ENV}.`));
+}
+
+{
+  const result = validate(
     withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',

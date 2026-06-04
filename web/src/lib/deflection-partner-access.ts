@@ -5,6 +5,7 @@ import {
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from './deflection-pricing';
+import * as checkoutRequirements from './deflection-checkout-requirements';
 
 export const DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV =
   'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
@@ -21,10 +22,15 @@ function constantTimeEquals(a: string, b: string) {
 }
 
 export function hasDeflectionPartnerPriceAccessToken(value: unknown) {
-  const configured = cleanToken(process.env[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV]);
   const candidate = cleanToken(value);
-  if (!configured || !candidate) return false;
-  return constantTimeEquals(candidate, configured);
+  const configuredTokens =
+    checkoutRequirements.configuredDeflectionPartnerAccessTokens(process.env);
+  if (!configuredTokens.length || !candidate) return false;
+  let matched = false;
+  for (const configured of configuredTokens) {
+    matched = constantTimeEquals(candidate, configured) || matched;
+  }
+  return matched;
 }
 
 export function resolveIntakePriceVariantId(

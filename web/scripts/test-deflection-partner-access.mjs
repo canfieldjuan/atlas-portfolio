@@ -7,6 +7,10 @@ import ts from 'typescript';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-partner-access-'));
 const sourceUrl = new URL('../src/lib/deflection-partner-access.ts', import.meta.url);
+const checkoutRequirementsUrl = new URL(
+  '../src/lib/deflection-checkout-requirements.js',
+  import.meta.url,
+);
 const gapReportIntakeUrl = new URL('../src/lib/gap-report-intake.ts', import.meta.url);
 const recordRouteUrl = new URL(
   '../src/app/api/gap-report-intake/record/route.ts',
@@ -57,6 +61,12 @@ try {
   await writeFile(join(libStubDir, 'deflection-pricing.js'), pricingStub);
 
   const source = await readFile(sourceUrl, 'utf8');
+  const checkoutRequirementsSource = await readFile(checkoutRequirementsUrl, 'utf8');
+  await writeFile(join(testDir, 'deflection-checkout-requirements.js'), checkoutRequirementsSource);
+  await writeFile(
+    join(libStubDir, 'deflection-checkout-requirements.js'),
+    checkoutRequirementsSource,
+  );
   const compiled = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -82,6 +92,21 @@ try {
   assert.equal(resolveIntakePriceVariantId('partner', 'wrong-token'), 'standard');
   assert.equal(resolveIntakePriceVariantId('standard', 'signed-partner-token'), 'standard');
   assert.equal(resolveIntakePriceVariantId('unknown', 'signed-partner-token'), 'standard');
+
+  resetToken('old-partner-token, signed-partner-token , next-partner-token');
+  assert.equal(hasDeflectionPartnerPriceAccessToken('old-partner-token'), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('next-partner-token'), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('wrong-token'), false);
+  assert.equal(resolveIntakePriceVariantId('partner', 'next-partner-token'), 'partner');
+
+  resetToken(' , signed-partner-token ,, ');
+  assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken(''), false);
+
+  resetToken(' , ,, ');
+  assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), false);
+  assert.equal(resolveIntakePriceVariantId('partner', 'signed-partner-token'), 'standard');
 
   resetToken(undefined);
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), false);
