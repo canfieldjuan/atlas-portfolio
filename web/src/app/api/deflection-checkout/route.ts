@@ -13,8 +13,8 @@ const CHECKOUT_RATE_LIMIT = {
   windowMs: 10 * 60 * 1000,
 };
 
-// Creates a Stripe Checkout Session for the $1,500 Backlog Report unlock and
-// returns its hosted URL for the client to redirect to. Before charging, we
+// Creates a Stripe Checkout Session for the configured Backlog Report unlock
+// and returns its hosted URL for the client to redirect to. Before charging, we
 // probe the paid-gated artifact:
 //   200 (already unlocked) -> { alreadyPaid: true }  (don't double-charge)
 //   404 (no such report)   -> 404                    (don't sell a phantom)

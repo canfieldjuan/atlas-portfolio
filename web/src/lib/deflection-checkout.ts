@@ -12,7 +12,7 @@
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
 import { SITE_URL } from '@/lib/seo';
-import { DEFLECTION_FULL_REPORT_PRICE_CENTS } from '@/lib/deflection-pricing';
+import { DEFLECTION_DEFAULT_PRICE_VARIANT } from '@/lib/deflection-pricing';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
@@ -28,7 +28,8 @@ const ALLOWED_AMOUNT_CENTS_ENV =
 // Public full-report price, in cents. Blank allowlist env means this canonical
 // amount only.
 // Server-set so the client can never lower the price.
-const UNIT_AMOUNT_CENTS = DEFLECTION_FULL_REPORT_PRICE_CENTS;
+const DEFAULT_PRICE_VARIANT = DEFLECTION_DEFAULT_PRICE_VARIANT;
+const UNIT_AMOUNT_CENTS = DEFAULT_PRICE_VARIANT.amountCents;
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 
 export type CheckoutResult =
@@ -180,13 +181,16 @@ export async function createDeflectionCheckoutSession(
     form.set('line_items[0][price_data][unit_amount]', String(UNIT_AMOUNT_CENTS));
     form.set(
       'line_items[0][price_data][product_data][name]',
-      'Support Ticket Deflection: Backlog Report',
+      DEFAULT_PRICE_VARIANT.stripeProductName,
     );
   }
-  // ATLAS reads these three off the session in its webhook handler.
+  // ATLAS reads source/account_id/request_id off the session in its webhook
+  // handler. The price fields are attribution for the variant selected here.
   form.set('metadata[source]', 'content_ops_deflection_report');
   form.set('metadata[account_id]', config.accountId);
   form.set('metadata[request_id]', requestId);
+  form.set('metadata[price_variant]', DEFAULT_PRICE_VARIANT.metadataValue);
+  form.set('metadata[price_amount_cents]', String(DEFAULT_PRICE_VARIANT.amountCents));
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);

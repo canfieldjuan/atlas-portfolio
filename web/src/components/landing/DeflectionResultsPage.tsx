@@ -18,7 +18,7 @@ import type {
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  DEFLECTION_FULL_REPORT_PRICE_LABEL,
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
 } from '@/lib/deflection-pricing';
 
 const FINALIZING_ATTEMPTS = 10;
@@ -26,6 +26,7 @@ const FINALIZING_INTERVAL_MS = 1500;
 const ASSISTED_CONTACT_COST_MIN = 5;
 const ASSISTED_CONTACT_COST_MAX = 75;
 const ASSISTED_CONTACT_COST_STEP = 0.5;
+const FULL_REPORT_PRICE_LABEL = DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel;
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(Math.max(n, min), max);
@@ -384,7 +385,7 @@ export function DeflectionResultsPage({
       ? 'Payment received'
       : loading
         ? 'Starting checkout...'
-        : `Unlock the full report - ${DEFLECTION_FULL_REPORT_PRICE_LABEL}`;
+        : `Unlock the full report - ${FULL_REPORT_PRICE_LABEL}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
   useEffect(() => {
@@ -798,7 +799,7 @@ export function DeflectionResultsPage({
               <div className="text-center mb-4">
                 <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time report price</div>
                 <div className="text-4xl font-extrabold text-foreground mt-1">
-                  {DEFLECTION_FULL_REPORT_PRICE_LABEL}
+                  {FULL_REPORT_PRICE_LABEL}
                 </div>
                 <div className="text-xs text-foreground/50 mt-1">No monthly subscription. Yours to keep.</div>
               </div>

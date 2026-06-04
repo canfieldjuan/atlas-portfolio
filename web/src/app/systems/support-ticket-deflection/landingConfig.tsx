@@ -1,5 +1,5 @@
 import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
-import { DEFLECTION_FULL_REPORT_PRICE_LABEL } from '@/lib/deflection-pricing';
+import { DEFLECTION_DEFAULT_PRICE_VARIANT } from '@/lib/deflection-pricing';
 
 // All on-page CTAs route to the focused deflection report intake (CSV upload),
 // not the broader /audit form. Kept as a single constant so future renames
@@ -30,7 +30,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     id: `full-report`,
     badge: `FULL REPORT`,
     title: `Full Deflection Report`,
-    price: DEFLECTION_FULL_REPORT_PRICE_LABEL,
+    price: DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel,
     description:
       `For the first 3 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
@@ -47,7 +47,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `quarterly-refresh`,
     title: `Quarterly Refresh`,
-    price: DEFLECTION_FULL_REPORT_PRICE_LABEL,
+    price: DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel,
     priceDetail: `/ quarter`,
     description:
       `Run the report every 90 days so your help center keeps up as customer questions change. Good for teams that keep seeing new repeat issues.`,
