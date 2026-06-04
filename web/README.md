@@ -169,6 +169,7 @@ Sessions write permission:
 ATLAS_SAAS_STRIPE_RAK=
 ATLAS_ACCOUNT_ID=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
+ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
@@ -178,7 +179,12 @@ restricted key plus the configured `price_...` value.
 Production deployments reject test-mode fallback keys and require an `rk_live_`
 restricted key path.
 
-The configured Price must be active, `usd`, and `unit_amount >= 150000` so it
-matches the ATLAS webhook unlock floor.
+The configured Price must be active, `usd`, and have a `unit_amount` that is in
+the same comma-separated cent allowlist configured on ATLAS:
+`ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS`. If the
+allowlist env is omitted, the portfolio defaults to the current full-report
+amount only. The checkout route validates Stripe's returned `amount_total` and
+`currency` before returning the Stripe redirect URL, so a mismatched Price fails
+closed before the customer leaves the results page.
 
 Use a long random value. Do not put this token in links or query strings.
