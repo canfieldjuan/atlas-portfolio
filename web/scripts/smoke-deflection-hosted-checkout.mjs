@@ -7,6 +7,8 @@ const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const CHECKOUT_PATH = '/api/deflection-checkout';
 const EXPECTED_MODES = new Set(['any', 'live', 'test']);
+const PRICE_VARIANTS = new Set(['standard', 'partner']);
+const DEFAULT_PRICE_VARIANT = 'standard';
 
 function printUsage() {
   console.log(`Deflection hosted Checkout smoke
@@ -19,6 +21,7 @@ Options:
   --attempt-id <id>  Explicit attempt id (default: generated)
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
   --expect-mode <m>  Expected Checkout mode: any, live, or test (default: any)
+  --price-variant <v>  Optional checkout variant: standard or partner
   --require-checkout-session  Fail if the report is already paid and no new Checkout Session is created
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
@@ -85,6 +88,9 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
   const attemptId = String(options.attemptId || makeAttemptId()).trim();
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const expectedMode = String(options.expectMode || 'any').trim().toLowerCase();
+  const rawPriceVariant = String(options.priceVariant || '').trim().toLowerCase();
+  const priceVariantProvided = rawPriceVariant.length > 0;
+  const priceVariant = priceVariantProvided ? rawPriceVariant : DEFAULT_PRICE_VARIANT;
   const requireCheckoutSession = options.requireCheckoutSession === true;
 
   if (!REQUEST_ID_RE.test(requestId)) {
@@ -123,14 +129,30 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       expectedMode,
     };
   }
+  if (!PRICE_VARIANTS.has(priceVariant)) {
+    return {
+      ok: false,
+      error: 'Hosted Checkout smoke price variant is invalid.',
+      apiCalls: false,
+      requestId,
+      attemptId,
+      priceVariant,
+      priceVariantProvided,
+    };
+  }
 
   const url = `${baseUrl}${CHECKOUT_PATH}`;
+  const checkoutBody = { requestId, attemptId };
+  if (priceVariantProvided) {
+    checkoutBody.priceVariant = priceVariant;
+  }
+  const smokeContext = { requestId, attemptId, priceVariant, priceVariantProvided };
   let response;
   try {
     response = await fetchImpl(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ requestId, attemptId }),
+      body: JSON.stringify(checkoutBody),
       cache: 'no-store',
     });
   } catch {
@@ -139,8 +161,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       error: 'Hosted Checkout route failed before an HTTP response.',
       stage: 'checkout',
       apiCalls: true,
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
     };
   }
@@ -151,8 +172,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       error: `Hosted Checkout route failed with HTTP ${response.status}.`,
       stage: 'checkout',
       apiCalls: true,
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
     };
   }
@@ -164,8 +184,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
         error: 'Hosted Checkout route returned already_paid before creating a Checkout Session.',
         stage: 'checkout_session',
         apiCalls: true,
-        requestId,
-        attemptId,
+        ...smokeContext,
         url,
         expectedMode,
         requireCheckoutSession,
@@ -177,8 +196,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       status: 'already_paid',
       apiCalls: true,
       checkedAt: now(),
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
       expectedMode,
       requireCheckoutSession,
@@ -191,8 +209,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       error: 'Hosted Checkout route did not return a Stripe Checkout URL.',
       stage: 'checkout',
       apiCalls: true,
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
     };
   }
@@ -203,8 +220,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       error: 'Hosted Checkout route returned a Stripe URL without a Checkout Session id.',
       stage: 'checkout_mode',
       apiCalls: true,
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
       checkoutUrl: body.url,
       expectedMode,
@@ -216,8 +232,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
       error: `Hosted Checkout route returned ${checkoutMode} mode, expected ${expectedMode}.`,
       stage: 'checkout_mode',
       apiCalls: true,
-      requestId,
-      attemptId,
+      ...smokeContext,
       url,
       checkoutUrl: body.url,
       checkoutMode,
@@ -231,8 +246,7 @@ export async function runDeflectionHostedCheckoutSmoke(options, deps = {}) {
     status: 'checkout_created',
     apiCalls: true,
     checkedAt: now(),
-    requestId,
-    attemptId,
+    ...smokeContext,
     url,
     checkoutUrl: body.url,
     checkoutMode,
@@ -258,6 +272,11 @@ async function main() {
       apiCalls: false,
     });
   }
+  if (isBareFlag(parsed, '--price-variant')) {
+    fail('Refusing to continue without --price-variant <variant>.', outputJson, {
+      apiCalls: false,
+    });
+  }
   if (isBareFlag(parsed, '--request-id') || !parsed.values.get('--request-id')?.trim()) {
     fail('Deflection hosted Checkout smoke is missing --request-id.', outputJson, {
       apiCalls: false,
@@ -269,6 +288,7 @@ async function main() {
     attemptId: parsed.values.get('--attempt-id'),
     baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
     expectMode: parsed.values.get('--expect-mode') || 'any',
+    priceVariant: parsed.values.get('--price-variant'),
     requireCheckoutSession: parsed.flags.has('--require-checkout-session'),
   });
   const artifactPath = outputPath
@@ -286,6 +306,7 @@ async function main() {
   console.log('Deflection hosted Checkout smoke passed.');
   console.log(`Status: ${result.status}`);
   console.log(`Request id: ${result.requestId}`);
+  console.log(`Price variant: ${result.priceVariant}`);
   if (result.checkoutUrl) {
     console.log(`Checkout URL: ${result.checkoutUrl}`);
   }

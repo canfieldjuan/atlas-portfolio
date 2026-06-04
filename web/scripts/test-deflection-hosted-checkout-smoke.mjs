@@ -42,6 +42,8 @@ async function run(options, response) {
   assert.equal(result.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_unit');
   assert.equal(result.checkoutMode, 'test');
   assert.equal(result.expectedMode, 'any');
+  assert.equal(result.priceVariant, 'standard');
+  assert.equal(result.priceVariantProvided, false);
   assert.equal(fetchImpl.calls.length, 1);
   assert.equal(fetchImpl.calls[0].url, 'https://portfolio.example.com/api/deflection-checkout');
   assert.equal(fetchImpl.calls[0].init.method, 'POST');
@@ -49,6 +51,45 @@ async function run(options, response) {
   assert.deepEqual(JSON.parse(fetchImpl.calls[0].init.body), {
     requestId: REQUEST_ID,
     attemptId: ATTEMPT_ID,
+  });
+}
+
+{
+  const { result, fetchImpl } = await run(
+    {
+      requestId: REQUEST_ID,
+      baseUrl: 'https://portfolio.example.com/',
+      priceVariant: 'standard',
+    },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.priceVariant, 'standard');
+  assert.equal(result.priceVariantProvided, true);
+  assert.deepEqual(JSON.parse(fetchImpl.calls[0].init.body), {
+    requestId: REQUEST_ID,
+    attemptId: ATTEMPT_ID,
+    priceVariant: 'standard',
+  });
+}
+
+{
+  const { result, fetchImpl } = await run(
+    {
+      requestId: REQUEST_ID,
+      baseUrl: 'https://portfolio.example.com/',
+      priceVariant: 'partner',
+    },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_live_unit' } },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.priceVariant, 'partner');
+  assert.equal(result.priceVariantProvided, true);
+  assert.equal(result.checkoutMode, 'live');
+  assert.deepEqual(JSON.parse(fetchImpl.calls[0].init.body), {
+    requestId: REQUEST_ID,
+    attemptId: ATTEMPT_ID,
+    priceVariant: 'partner',
   });
 }
 
@@ -142,6 +183,19 @@ async function run(options, response) {
   assert.equal(result.error, 'Hosted Checkout smoke expected mode is invalid.');
   assert.equal(result.apiCalls, false);
   assert.equal(result.expectedMode, 'banana');
+  assert.equal(fetchImpl.calls.length, 0);
+}
+
+{
+  const { result, fetchImpl } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com', priceVariant: 'coupon' },
+    { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_test_unit' } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'Hosted Checkout smoke price variant is invalid.');
+  assert.equal(result.apiCalls, false);
+  assert.equal(result.priceVariant, 'coupon');
+  assert.equal(result.priceVariantProvided, true);
   assert.equal(fetchImpl.calls.length, 0);
 }
 
