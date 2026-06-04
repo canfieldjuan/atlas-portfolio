@@ -18,23 +18,17 @@ import {
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import * as checkoutRequirements from '@/lib/deflection-checkout-requirements';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
-const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const FETCH_TIMEOUT_MS = 10_000;
 const STRIPE_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 // Pin the Stripe API version so the response (and downstream event) shape can't
 // drift when Stripe changes the account default. The official SDK pins this
 // automatically; talking to the REST API directly, we set it ourselves.
 const STRIPE_API_VERSION = '2026-05-27.dahlia';
-const ALLOWED_AMOUNT_CENTS_ENV =
-  'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
-// Public full-report price, in cents. Blank allowlist env means this canonical
-// amount only.
-// Server-set so the client can never lower the price.
 const DEFAULT_PRICE_VARIANT = DEFLECTION_DEFAULT_PRICE_VARIANT;
-const UNIT_AMOUNT_CENTS = DEFAULT_PRICE_VARIANT.amountCents;
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 
 export type CheckoutResult =
@@ -53,106 +47,23 @@ type StripeCheckoutSessionResponse = {
   amount_total?: unknown;
   currency?: unknown;
 };
-type ConfiguredPriceId =
-  | { status: 'configured'; priceId: string }
-  | { status: 'missing' }
-  | { status: 'invalid' };
-
-function parseAllowedAmountCents(rawValue: string | undefined): ReadonlySet<number> | null {
-  const raw = rawValue?.trim();
-  if (!raw) return new Set([UNIT_AMOUNT_CENTS]);
-
-  const amounts: number[] = [];
-  for (const part of raw.split(',')) {
-    const token = part.trim();
-    if (!/^\d+$/.test(token)) return null;
-    const amount = Number(token);
-    if (!Number.isSafeInteger(amount) || amount <= 0) return null;
-    amounts.push(amount);
-  }
-  if (amounts.length === 0) return null;
-  return new Set(amounts);
-}
-
-function configuredAllowedAmounts(): ReadonlySet<number> | null {
-  const allowedAmounts = parseAllowedAmountCents(process.env[ALLOWED_AMOUNT_CENTS_ENV]);
-  if (!allowedAmounts) {
-    console.error('stripe checkout create: configured allowed amount list is invalid');
-  }
-  return allowedAmounts;
-}
-
-function configuredPriceIdFromEnv(envKey: string): ConfiguredPriceId {
-  const priceId = process.env[envKey]?.trim();
-  if (!priceId) return { status: 'missing' };
-  if (!PRICE_ID_RE.test(priceId)) {
-    console.error(`stripe checkout create: configured price id is invalid for ${envKey}`);
-    return { status: 'invalid' };
-  }
-  return { status: 'configured', priceId };
-}
-
-function configuredPriceIdForVariant(priceVariant: DeflectionPriceVariant) {
-  const variantPriceId = configuredPriceIdFromEnv(priceVariant.stripePriceIdEnvKey);
-  if (variantPriceId.status === 'configured') return variantPriceId.priceId;
-  if (variantPriceId.status === 'invalid') return null;
-  if (priceVariant.legacyStripePriceIdEnvKey) {
-    const legacyPriceId = configuredPriceIdFromEnv(priceVariant.legacyStripePriceIdEnvKey);
-    if (legacyPriceId.status === 'configured') return legacyPriceId.priceId;
-    if (legacyPriceId.status === 'invalid') return null;
-  }
-  return null;
-}
 
 function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfig | null {
-  const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
-  const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
-  const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
-  if (!accountId) return null;
-  const allowedAmountsCents = configuredAllowedAmounts();
-  if (!allowedAmountsCents) return null;
-
-  if (restrictedKey) {
-    if (!restrictedKey.startsWith('rk_')) {
-      console.error('stripe checkout create: restricted key must start with rk_');
-      return null;
+  const resolved = checkoutRequirements.resolveDeflectionCheckoutRuntimeConfig(
+    process.env,
+    priceVariant,
+    {
+      environment: process.env.VERCEL_ENV,
+    },
+  );
+  if (!resolved.ok) {
+    if (resolved.message) {
+      console.error(`stripe checkout create: ${resolved.message}`);
     }
-    if (process.env.VERCEL_ENV === 'production' && !restrictedKey.startsWith('rk_live_')) {
-      console.error('stripe checkout create: live restricted key is required in production');
-      return null;
-    }
-    const priceId = configuredPriceIdForVariant(priceVariant);
-    if (!priceId) {
-      console.error('stripe checkout create: configured price id is required for selected variant');
-      return null;
-    }
-    if (!allowedAmountsCents.has(priceVariant.amountCents)) {
-      console.error('stripe checkout create: selected variant amount is not allowed');
-      return null;
-    }
-    return { apiKey: restrictedKey, accountId, priceId, allowedAmountsCents };
-  }
-
-  if (!legacyTestSecretKey) return null;
-  if (process.env.VERCEL_ENV === 'production') {
-    console.error('stripe checkout create: restricted key is required in production');
     return null;
   }
-  if (legacyTestSecretKey.startsWith('sk_live_')) {
-    console.error('stripe checkout create: full live secret key is not accepted');
-    return null;
-  }
-  if (!legacyTestSecretKey.startsWith('sk_test_')) {
-    console.error('stripe checkout create: fallback secret key must be test-mode');
-    return null;
-  }
-  const fallbackPriceId = configuredPriceIdForVariant(priceVariant);
-  if (!allowedAmountsCents.has(priceVariant.amountCents)) {
-    console.error('stripe checkout create: selected variant amount is not allowed');
-    return null;
-  }
-
-  return { apiKey: legacyTestSecretKey, accountId, priceId: fallbackPriceId, allowedAmountsCents };
+  if (!resolved.config) return null;
+  return resolved.config;
 }
 
 function isAllowedCheckoutSession(

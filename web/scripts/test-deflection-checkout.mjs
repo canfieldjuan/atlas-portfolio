@@ -8,6 +8,10 @@ import ts from 'typescript';
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-checkout-'));
 const sourceUrl = new URL('../src/lib/deflection-checkout.ts', import.meta.url);
 const pricingSourceUrl = new URL('../src/lib/deflection-pricing.ts', import.meta.url);
+const requirementsSourceUrl = new URL(
+  '../src/lib/deflection-checkout-requirements.js',
+  import.meta.url,
+);
 const routeSourceUrl = new URL('../src/app/api/deflection-checkout/route.ts', import.meta.url);
 const compiledPath = join(testDir, 'deflection-checkout.cjs');
 const compiledPricingPath = join(testDir, 'deflection-pricing.cjs');
@@ -76,6 +80,18 @@ try {
     },
   });
   await writeFile(compiledPricingPath, compiledPricing.outputText);
+  const requirementsSource = await readFile(requirementsSourceUrl, 'utf8');
+  const compiledRequirements = ts.transpileModule(requirementsSource, {
+    compilerOptions: {
+      allowJs: true,
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(
+    join(seoStubDir, 'deflection-checkout-requirements.js'),
+    compiledRequirements.outputText,
+  );
   const {
     DEFLECTION_DEFAULT_PRICE_VARIANT,
     DEFLECTION_PARTNER_PRICE_VARIANT,
