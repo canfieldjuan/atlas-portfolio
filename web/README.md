@@ -172,6 +172,7 @@ STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=
 STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
+DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
@@ -195,4 +196,9 @@ checkout route validates Stripe's returned `amount_total` and `currency` before
 returning the Stripe redirect URL, so a mismatched Price fails closed before the
 customer leaves the results page.
 
-Use a long random value. Do not put this token in links or query strings.
+Partner pricing is eligibility-gated with
+`DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`. A partner intake link must include both
+`priceVariant=partner` and `partnerToken=<token>` before the server will persist
+the partner variant. Missing or invalid tokens fall back to the standard public
+price; partner-tagged checkout fails closed if the saved intake variant is
+missing.

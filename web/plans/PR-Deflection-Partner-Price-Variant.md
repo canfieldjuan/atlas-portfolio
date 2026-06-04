@@ -11,11 +11,12 @@ intake/results/checkout path that falls back to the standard `$1,500` variant.
 That is a buyer-trust mismatch and blocks using the partner URL for real
 outbound.
 
-The estimated diff is slightly over the 400 LOC soft cap because the slice has
-to carry one price variant through the full buyer path: catalog, partner CTA,
-intake redirect/email links, results render, checkout payload, preflight, docs,
+The estimated diff is over the 400 LOC soft cap because the slice has to carry
+one price variant through the full buyer path: catalog, partner CTA, token-gated
+intake, redirect/email links, results render, checkout payload, preflight, docs,
 and focused regression tests. Splitting those would leave an intermediate state
-where the partner page could still advertise one price and charge another.
+where the partner page could still advertise one price and charge another, or
+where an unsigned intake URL could persist a discounted variant.
 
 ## Scope (this PR)
 
@@ -25,20 +26,22 @@ Slice phase: Vertical slice
    own Stripe Price ID env key.
 2. Drive partner-page pricing from that catalog instead of hardcoded `$1,000`
    copy.
-3. Preserve `priceVariant=partner` from the partner CTA through intake,
-   notification/results links, and the results page.
+3. Preserve `priceVariant=partner` from a token-validated partner CTA through
+   intake, notification/results links, and the results page.
 4. Bind checkout eligibility to the saved intake price variant for the report
    request, so mutable results-page query strings cannot self-discount.
 5. Submit the selected variant to `/api/deflection-checkout`, so Stripe session
    creation uses the partner Price ID and stamps partner metadata.
 6. Extend focused tests for the partner variant catalog, checkout metadata,
-   intake link preservation, and route forwarding.
-7. Update operator docs/runbooks for the partner Price ID env and allowed amount.
+   token-gated intake, intake link preservation, and route forwarding.
+7. Update operator docs/runbooks for the partner Price ID env, access token, and
+   allowed amount.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Partner-Price-Variant.md`
 - `web/src/lib/deflection-pricing.ts`
+- `web/src/lib/deflection-partner-access.ts`
 - `web/src/lib/deflection-checkout.ts`
 - `web/src/lib/gap-report-intake-database.ts`
 - `web/src/lib/gap-report-intake.ts`
@@ -49,7 +52,10 @@ Slice phase: Vertical slice
 - `web/src/app/systems/support-ticket-deflection/intake/page.tsx`
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
 - `web/src/app/systems/support-ticket-deflection/partner/page.tsx`
+- `web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx`
+- `web/package.json`
 - `web/scripts/check-deflection-checkout-env.mjs`
+- `web/scripts/test-deflection-partner-access.mjs`
 - `web/scripts/test-deflection-checkout.mjs`
 - `web/scripts/test-deflection-checkout-env.mjs`
 - `web/scripts/test-deflection-email-results-link.mjs`
@@ -69,13 +75,16 @@ The catalog gains a second variant:
 }
 ```
 
-The partner page links to the same intake route with `?priceVariant=partner`.
-The intake route validates that query against the catalog and passes the variant
-into the client intake component. The intake component includes the variant in
-Blob/client metadata, record-route metadata, analytics context, and generated
-results URLs. The server-side notification/customer links also append the
-validated non-default variant, so a later email click does not silently revert a
-partner buyer to the standard price.
+The partner page links to the same intake route with `?priceVariant=partner`
+only when the request carries a `partnerToken` matching
+`DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`. The intake route repeats that
+server-side token check before passing the partner variant into the client intake
+component. Missing or invalid tokens use the standard variant, so editing a
+public intake URL cannot persist a discounted price. The intake component
+includes the validated variant in Blob/client metadata, record-route metadata,
+analytics context, and generated results URLs. The server-side
+notification/customer links also append the validated non-default variant, so a
+later email click does not silently revert a partner buyer to the standard price.
 
 The results route looks up the saved intake payload by ATLAS report request id
 and uses that server-side `priceVariant` as the display variant. Production does
@@ -98,6 +107,9 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
   saved intake metadata; non-default partner-tagged flows fail closed if the
   saved variant is missing, and the checkout API rejects mismatched explicit
   request payloads.
+- `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` is a static operator-provisioned token
+  for this explicit partner URL slice. Generalized signed links and cohort
+  routing remain deferred to #194.
 - No new database column is added. Existing submission persistence stores the
   full payload JSON, and top-level reporting tables do not need price-variant
   filtering in this slice.
@@ -114,6 +126,9 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
 - Live Stripe verification is deferred until production has
   `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER` and the matching ATLAS allowed
   amount configured.
+- Partner-token generation/rotation tooling is deferred; operators can provision
+  a long random `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` and distribute URLs with
+  `partnerToken=<token>` for this slice.
 - The partner page `layout.tsx` still contains the historical `$1,000` metadata
   description/noindex comment. That is intentional static partner-page context,
   not active checkout/copy state.
@@ -136,6 +151,8 @@ Parked hardening: none.
   review fix; unsigned partner checkout with no saved variant now returns HTTP
   503 without calling checkout creation, while standard/default DB misses still
   stay on standard checkout.
+- `npm --prefix web run test:deflection-checkout` - passed after the partner
+  intake token-gate fix; checkout trust-path regressions still pass.
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed after the review
@@ -151,6 +168,12 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - passed after
   updating the assertion to the shared `deflectionResultsPath` helper; printed
   `Deflection intake ATLAS submit tests passed.`
+- `npm --prefix web run test:deflection-intake-atlas-submit` - passed after the
+  partner intake token-gate fix; printed `Deflection intake ATLAS submit tests
+  passed.`
+- `npm --prefix web run test:deflection-partner-access` - passed; matching
+  `partnerToken` resolves partner intake, missing/invalid tokens resolve
+  standard, and partner/intake pages include the token-gate wiring.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - initially failed because this fresh worktree
   had no `web/node_modules`; Turbopack could not resolve `next/package.json`
@@ -180,13 +203,17 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the latest P2 review fix;
   plan shape, files touched, diff-size drift, cross-session drift, ESLint, Next
   build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the partner intake
+  token-gate fix; plan shape, files touched, diff-size drift, cross-session
+  drift, ESLint, Next build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +207 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +237 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
+| `web/src/lib/deflection-partner-access.ts` | +42 |
 | `web/src/lib/deflection-checkout.ts` | +34 / -10 |
 | `web/src/lib/gap-report-intake-database.ts` | +36 |
 | `web/src/lib/gap-report-intake.ts` | +32 / -4 |
@@ -194,14 +221,17 @@ Parked hardening: none.
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
 | `web/src/app/api/deflection-checkout/route.ts` | +24 |
 | `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
-| `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +27 / -3 |
+| `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +38 / -3 |
 | `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +41 / -1 |
-| `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +8 / -4 |
+| `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +55 / -49 |
+| `web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx` | +80 |
+| `web/package.json` | +1 |
 | `web/scripts/check-deflection-checkout-env.mjs` | +36 / -2 |
+| `web/scripts/test-deflection-partner-access.mjs` | +113 |
 | `web/scripts/test-deflection-checkout.mjs` | +135 / -4 |
 | `web/scripts/test-deflection-checkout-env.mjs` | +117 / -9 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
-| `web/README.md` | +11 / -7 |
-| `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +5 / -2 |
-| Total | ~831 changed |
+| `web/README.md` | +28 / -8 |
+| `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +10 / -3 |
+| Total | ~1161 changed |

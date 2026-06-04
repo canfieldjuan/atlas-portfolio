@@ -4,9 +4,13 @@ import {
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import {
+  DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM,
+  resolveIntakePriceVariantId,
+} from '@/lib/deflection-partner-access';
 
 type PageProps = {
-  searchParams?: Promise<{ priceVariant?: string | string[] }>;
+  searchParams?: Promise<{ priceVariant?: string | string[]; partnerToken?: string | string[] }>;
 };
 
 function firstParam(value: string | string[] | undefined) {
@@ -15,8 +19,12 @@ function firstParam(value: string | string[] | undefined) {
 
 export default async function SupportTicketDeflectionIntakePage({ searchParams }: PageProps) {
   const query = searchParams ? await searchParams : undefined;
+  const priceVariantId = resolveIntakePriceVariantId(
+    firstParam(query?.priceVariant),
+    firstParam(query?.[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM]),
+  );
   const priceVariant =
-    resolveDeflectionPriceVariant(firstParam(query?.priceVariant)) ||
+    resolveDeflectionPriceVariant(priceVariantId) ||
     DEFLECTION_DEFAULT_PRICE_VARIANT;
   const isPartner = priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID;
 
