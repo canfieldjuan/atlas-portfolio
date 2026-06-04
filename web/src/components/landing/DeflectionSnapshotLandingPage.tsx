@@ -295,6 +295,10 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
     : undefined;
   const customerPhrase = sourceQuestion?.customer_wording ?? answer?.question ?? '';
   const previewCount = snapshot.teaser.previews.length;
+  const heroCostProof = snapshotCostProof(snapshot);
+  const supportTaxEstimate = formatDeflectionWholeUsd(
+    heroCostProof.uploadedWindowCost,
+  );
 
   if (!answer) {
     return <SnapshotArtifact snapshot={snapshot} />;
@@ -309,7 +313,7 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
         <div>
           <p className="font-mono text-xs text-primary">BEFORE / AFTER SNAPSHOT PROOF</p>
           <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
-            One ticket pattern becomes one publishable draft.
+            The Snapshot shows what repeats, what it costs, and one answer.
           </h2>
         </div>
         <span className="w-fit max-w-[16rem] rounded-md border border-primary/25 px-2 py-1 text-xs font-mono leading-snug text-primary">
@@ -322,22 +326,22 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
           <div className="border-b border-border pb-4">
             <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-foreground/45">
               <FileText className="h-4 w-4" />
-              Before ticket thread
+              Customer wording found
             </div>
             <p className="text-lg font-medium leading-snug text-foreground">
               Customer asked: &ldquo;{customerPhrase}&rdquo;
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/58">
-              ATLAS finds the repeat wording across closed tickets, then checks
-              whether resolved replies contain enough scoped evidence to draft an
-              answer.
+              ATLAS finds the repeat wording across closed tickets, estimates
+              the benchmark Support Tax, then checks whether resolved replies
+              contain enough scoped evidence to draft an answer.
             </p>
           </div>
 
           <div className="pt-4">
             <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-primary">
               <CheckCircle2 className="h-4 w-4" />
-              After drafted answer
+              One sourced draft answer
             </div>
             <h3 className="text-lg font-semibold leading-snug text-foreground">
               {answer.question}
@@ -350,6 +354,17 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
         <aside className="border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
           <div className="grid gap-2 text-sm">
+            <div className="flex items-center gap-2 text-foreground/72">
+              <Search className="h-4 w-4 shrink-0 text-primary" />
+              <span>
+                {formatInteger(heroCostProof.repeatTicketCount)} repeat-ticket
+                hits
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-foreground/72">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              <span>Support Tax estimate: {supportTaxEstimate}</span>
+            </div>
             <div className="flex items-center gap-2 text-foreground/72">
               <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
               <span>{answer.source_count} source tickets</span>
@@ -371,7 +386,8 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
               Free Snapshot
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Top repeats, customer wording, one sourced drafted answer.
+              Ranked repeats, customer wording, Support Tax estimate, one
+              sourced drafted answer.
             </p>
             <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
               Full report
@@ -386,8 +402,8 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
       <p className="mt-4 border-t border-border pt-4 text-xs leading-relaxed text-foreground/45">
         Representative labeled-synthetic support set. Your uploaded snapshot
-        uses your own closed-ticket data and keeps the full report behind
-        checkout.
+        uses your own closed-ticket data. Benchmark estimates are not guaranteed
+        savings, and the full report stays behind checkout.
       </p>
     </section>
   );
@@ -533,13 +549,13 @@ export function DeflectionSnapshotLandingPage() {
             Free Deflection Snapshot
           </Eyebrow>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl">
-            Turn repeat support tickets into help-center answers your team can
-            publish.
+            Get the free Snapshot that shows which support tickets to deflect
+            first.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
-            Upload 3 months of closed tickets. Get a free Snapshot that ranks
-            the repeat questions, exposes the customer wording, and shows one
-            sourced drafted answer your team could review and publish.
+            Upload 3 months of closed tickets. Your Snapshot ranks the repeat
+            issues, quotes the wording customers use, estimates the Support Tax,
+            and gives you one sourced draft answer your team can review.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <PrimarySnapshotCta />
