@@ -3,7 +3,7 @@
 import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
 import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
-import { pricingTiers } from '../landingConfig';
+import { GAP_REPORT_INTAKE_HREF, pricingTiers } from '../landingConfig';
 
 // Partner-priced twin of the public wedge (D-025): identical to the rewritten
 // landing except (1) the Full Deflection Report is $1,000 for the first 5 design
@@ -23,9 +23,15 @@ const partnerPricingTiers: DiagnosticPricingTier[] = pricingTiers.map((tier) =>
       }
     : tier,
 );
+const partnerSnapshotCta = {
+  label: 'Upload your tickets, get a free Deflection Snapshot',
+  href: GAP_REPORT_INTAKE_HREF,
+};
 
 const partnerConfig = {
   ...landingPageConfigV2,
+  hero: { ...landingPageConfigV2.hero, cta: partnerSnapshotCta },
+  finalCta: { ...landingPageConfigV2.finalCta, cta: partnerSnapshotCta },
   problemAgitation: makeProblemAgitation(),
   problemCost: makeProblemCost(),
   calculator: undefined, // keep the partner funnel focused on the partner offer
