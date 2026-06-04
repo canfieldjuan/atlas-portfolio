@@ -193,10 +193,10 @@ function SnapshotQuestionRows({
           </div>
           <div className="md:text-right">
             <p className="font-mono text-sm text-foreground/72">
-              Score {question.weighted_frequency}
+              {formatInteger(question.ticket_count)} tickets
             </p>
             <p className="mt-1 text-xs text-foreground/50">
-              relative priority
+              priority score {question.weighted_frequency}
             </p>
             <div className="mt-2 h-1.5 rounded-full bg-border">
               <div
@@ -217,7 +217,7 @@ function AnswerTeaser({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
   return (
     <article className="rounded-md border border-primary/25 bg-primary/[0.05] p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-mono text-primary">
-        <span>Drafted answer sample</span>
+        <span>Included free draft</span>
         <span className="rounded-md border border-primary/25 px-2 py-0.5">
           Rank #{answer.rank}
         </span>
@@ -231,6 +231,19 @@ function AnswerTeaser({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
       <p className="mt-3 text-sm leading-relaxed text-foreground/72">
         {answer.answer}
       </p>
+      <ol className="mt-4 grid gap-2 text-sm leading-relaxed text-foreground/62 md:grid-cols-3">
+        {answer.steps.map((step, index) => (
+          <li
+            key={step}
+            className="rounded-md border border-primary/15 bg-white/55 p-3"
+          >
+            <span className="mb-1 block font-mono text-xs text-primary">
+              Step {index + 1}
+            </span>
+            {step}
+          </li>
+        ))}
+      </ol>
     </article>
   );
 }
@@ -418,6 +431,10 @@ function SnapshotArtifact({
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
   const visibleQuestions = top_questions.slice(0, 3);
+  const artifactCostProof = snapshotCostProof(snapshot);
+  const supportTaxEstimate = formatDeflectionWholeUsd(
+    artifactCostProof.uploadedWindowCost,
+  );
   const lockedRanks = locked_questions.map((question) => question.rank);
   const firstLockedRank =
     lockedRanks.length > 0
@@ -429,6 +446,30 @@ function SnapshotArtifact({
     firstLockedRank <= lastLockedRank
       ? `Ranks ${firstLockedRank}-${lastLockedRank} stay locked`
       : 'The remaining report stays locked';
+  const artifactMetrics = [
+    {
+      label: 'Repeat-ticket hits',
+      value: formatInteger(artifactCostProof.repeatTicketCount),
+      detail: `${formatInteger(summary.generated)} ranked question groups`,
+    },
+    {
+      label: 'Support Tax estimate',
+      value: supportTaxEstimate,
+      detail: `${DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} benchmark`,
+    },
+    {
+      label: 'Included free draft',
+      value: teaser.full_answer ? '1' : '0',
+      detail: teaser.full_answer
+        ? `${formatInteger(teaser.full_answer.source_count)} source tickets`
+        : 'No scoped draft in this sample',
+    },
+    {
+      label: 'Locked backlog',
+      value: formatInteger(locked_questions.length),
+      detail: 'rank and volume previewed',
+    },
+  ];
 
   return (
     <section
@@ -439,26 +480,26 @@ function SnapshotArtifact({
         <div>
           <p className="font-mono text-xs text-primary">REPRESENTATIVE SNAPSHOT</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">
-            Repeat-question diagnostic
+            What the free Snapshot hands you.
           </h2>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-md border border-border bg-white/65 px-3 py-2">
-            <div className="font-mono text-lg text-foreground">{summary.generated}</div>
-            <div className="text-[11px] text-foreground/50">repeats</div>
-          </div>
-          <div className="rounded-md border border-border bg-white/65 px-3 py-2">
-            <div className="font-mono text-lg text-foreground">
-              {summary.drafted_answer_count}
+        <div className="grid gap-2 text-left sm:grid-cols-2 lg:grid-cols-4">
+          {artifactMetrics.map((metric) => (
+            <div
+              key={metric.label}
+              className="rounded-md border border-border bg-white/65 px-3 py-2"
+            >
+              <div className="font-mono text-lg leading-none text-foreground">
+                {metric.value}
+              </div>
+              <div className="mt-1 text-[11px] font-medium text-foreground/62">
+                {metric.label}
+              </div>
+              <div className="mt-1 text-[11px] leading-snug text-foreground/45">
+                {metric.detail}
+              </div>
             </div>
-            <div className="text-[11px] text-foreground/50">drafts</div>
-          </div>
-          <div className="rounded-md border border-border bg-white/65 px-3 py-2">
-            <div className="font-mono text-lg text-foreground">
-              {summary.no_proven_answer_count}
-            </div>
-            <div className="text-[11px] text-foreground/50">write next</div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -476,7 +517,8 @@ function SnapshotArtifact({
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
             The Snapshot surfaces the phrases customers already use. Your team
-            decides what to publish and where it should live.
+            gets the ranked target list, then decides what to publish and where
+            it should live.
           </p>
         </div>
       </div>
@@ -576,16 +618,15 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Picture</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The free Snapshot shows the work before any paid step.
+              The free Snapshot is the artifact you inspect before paying.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The first screen proves answer quality. The snapshot below shows
-              the offer shape: ranked repeat questions, customer wording, locked
-              backlog, and what the free Snapshot includes before any paid
-              report.
+              The panel below shows the offer shape: ranked repeat questions,
+              customer wording, benchmark cost, one sourced draft answer, and
+              locked backlog depth before any paid report.
             </p>
           </div>
-          <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} showTeaser={false} />
+          <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} />
         </div>
       </section>
 
