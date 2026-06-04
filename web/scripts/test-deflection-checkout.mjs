@@ -179,6 +179,24 @@ try {
 
   installFetchMock({
     ...defaultStripeSession,
+    amount_total: DEFLECTION_FULL_REPORT_PRICE_CENTS,
+  });
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
+    ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
+      `${DEFLECTION_FULL_REPORT_PRICE_CENTS}, ${DEFLECTION_PARTNER_PRICE_VARIANT.amountCents}`,
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
+    { ok: false, reason: 'error' },
+  );
+  assert.equal(calls.length, 1);
+
+  installFetchMock({
+    ...defaultStripeSession,
     amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
   });
   resetEnv({
@@ -240,7 +258,7 @@ try {
   });
   assert.deepEqual(
     await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
 

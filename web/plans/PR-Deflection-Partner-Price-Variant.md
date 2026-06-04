@@ -112,6 +112,9 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-checkout` - passed; printed expected
   fail-closed checkout logs including `selected variant amount is not allowed`,
   then `Deflection checkout tests passed.`
+- `npm --prefix web run test:deflection-checkout` - passed after the P1 review
+  fix; printed expected fail-closed checkout logs including `session amount does
+  not match selected variant`, then `Deflection checkout tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed after the review
@@ -144,14 +147,17 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the review fix; plan shape,
   files touched, diff-size drift, cross-session drift, ESLint, Next build, and
   `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the P1 review fix; plan
+  shape, files touched, diff-size drift, cross-session drift, ESLint, Next
+  build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +134 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +176 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
-| `web/src/lib/deflection-checkout.ts` | +20 / -6 |
+| `web/src/lib/deflection-checkout.ts` | +34 / -10 |
 | `web/src/lib/gap-report-intake.ts` | +32 / -4 |
 | `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +10 / -9 |
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
@@ -160,10 +166,10 @@ Parked hardening: none.
 | `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +13 / -1 |
 | `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +8 / -4 |
 | `web/scripts/check-deflection-checkout-env.mjs` | +24 / -2 |
-| `web/scripts/test-deflection-checkout.mjs` | +80 / -3 |
+| `web/scripts/test-deflection-checkout.mjs` | +103 / -4 |
 | `web/scripts/test-deflection-checkout-env.mjs` | +89 / -9 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
 | `web/README.md` | +11 / -7 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +5 / -2 |
-| Total | ~614 changed |
+| Total | ~653 changed |

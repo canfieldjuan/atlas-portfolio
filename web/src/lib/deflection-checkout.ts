@@ -157,7 +157,7 @@ function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfi
 
 function isAllowedCheckoutSession(
   session: StripeCheckoutSessionResponse,
-  allowedAmountsCents: ReadonlySet<number>,
+  priceVariant: DeflectionPriceVariant,
 ): session is StripeCheckoutSessionResponse & { url: string } {
   if (typeof session.url !== 'string' || !session.url) {
     console.error('stripe checkout create: missing session url');
@@ -168,8 +168,8 @@ function isAllowedCheckoutSession(
     console.error('stripe checkout create: missing session amount');
     return false;
   }
-  if (!allowedAmountsCents.has(amountTotal)) {
-    console.error('stripe checkout create: session amount is not allowed');
+  if (amountTotal !== priceVariant.amountCents) {
+    console.error('stripe checkout create: session amount does not match selected variant');
     return false;
   }
   if (typeof session.currency !== 'string' || session.currency.toLowerCase() !== 'usd') {
@@ -254,7 +254,7 @@ export async function createDeflectionCheckoutSession(
       return { ok: false, reason: 'error' };
     }
     const session = (await res.json()) as StripeCheckoutSessionResponse;
-    if (!isAllowedCheckoutSession(session, config.allowedAmountsCents)) {
+    if (!isAllowedCheckoutSession(session, priceVariant)) {
       return { ok: false, reason: 'error' };
     }
     return { ok: true, url: session.url };
