@@ -14,6 +14,8 @@ export type DeflectionPriceVariant = {
   metadataValue: string;
   title: string;
   stripeProductName: string;
+  stripePriceIdEnvKey: string;
+  legacyStripePriceIdEnvKey?: string;
   amountUsd: number;
   amountCents: number;
   priceLabel: string;
@@ -51,6 +53,8 @@ export const DEFLECTION_DEFAULT_PRICE_VARIANT = {
   metadataValue: DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   title: 'Full Deflection Report',
   stripeProductName: 'Support Ticket Deflection: Backlog Report',
+  stripePriceIdEnvKey: 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD',
+  legacyStripePriceIdEnvKey: 'STRIPE_DEFLECTION_REPORT_PRICE_ID',
   amountUsd: DEFLECTION_FULL_REPORT_PRICE_USD,
   amountCents: DEFLECTION_FULL_REPORT_PRICE_CENTS,
   priceLabel: formatDeflectionWholeUsd(DEFLECTION_FULL_REPORT_PRICE_USD),

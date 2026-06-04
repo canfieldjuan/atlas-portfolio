@@ -8,6 +8,9 @@ import { loadLocalEnv } from './local-env.mjs';
 const DEFAULT_ENVIRONMENT = 'local';
 const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
+const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
+const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
+const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
 const LEGACY_INLINE_AMOUNT_ERROR =
@@ -17,7 +20,8 @@ const CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
-  'STRIPE_DEFLECTION_REPORT_PRICE_ID',
+  STANDARD_PRICE_ID_ENV,
+  LEGACY_PRICE_ID_ENV,
   ALLOWED_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
 ];
@@ -38,11 +42,12 @@ Options:
 Production requires:
   ATLAS_SAAS_STRIPE_RAK=rk_live_...
   ATLAS_ACCOUNT_ID=<account-id>
-  STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...
+  ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
+  ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
   ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,180000...] (optional; defaults to 150000)
 
 Preview/development/local accept:
-  ATLAS_SAAS_STRIPE_RAK=rk_test_... plus STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...
+  ATLAS_SAAS_STRIPE_RAK=rk_test_... plus ${STANDARD_PRICE_ID_ENV}=price_...
   or ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_... as the legacy test-mode fallback.`);
 }
 
@@ -148,11 +153,19 @@ function addInvalid(invalid, message) {
   if (!invalid.includes(message)) invalid.push(message);
 }
 
+function addInvalidPriceId(invalid, key, value) {
+  if (value && !PRICE_ID_RE.test(value)) {
+    addInvalid(invalid, `${key} must be a Stripe price_ id.`);
+  }
+}
+
 function classifyEnv(env) {
   const rak = clean(env.ATLAS_SAAS_STRIPE_RAK);
   const legacySecret = clean(env.ATLAS_SAAS_STRIPE_SECRET_KEY);
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
-  const priceId = clean(env.STRIPE_DEFLECTION_REPORT_PRICE_ID);
+  const standardPriceId = clean(env[STANDARD_PRICE_ID_ENV]);
+  const legacyPriceId = clean(env[LEGACY_PRICE_ID_ENV]);
+  const priceId = standardPriceId || legacyPriceId;
   const allowedAmounts = parseAllowedAmounts(env[ALLOWED_AMOUNT_CENTS_ENV]);
 
   return {
@@ -160,19 +173,23 @@ function classifyEnv(env) {
       rak ? 'ATLAS_SAAS_STRIPE_RAK' : '',
       legacySecret ? 'ATLAS_SAAS_STRIPE_SECRET_KEY' : '',
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
-      priceId ? 'STRIPE_DEFLECTION_REPORT_PRICE_ID' : '',
+      standardPriceId ? STANDARD_PRICE_ID_ENV : '',
+      legacyPriceId ? LEGACY_PRICE_ID_ENV : '',
       clean(env[ALLOWED_AMOUNT_CENTS_ENV]) ? ALLOWED_AMOUNT_CENTS_ENV : '',
     ].filter(Boolean),
     keyModes: {
       ATLAS_SAAS_STRIPE_RAK: modeForKey(rak),
       ATLAS_SAAS_STRIPE_SECRET_KEY: modeForKey(legacySecret),
       ATLAS_ACCOUNT_ID: accountId ? 'configured' : 'missing',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: priceId ? 'configured' : 'missing',
+      [STANDARD_PRICE_ID_ENV]: standardPriceId ? 'configured' : 'missing',
+      [LEGACY_PRICE_ID_ENV]: legacyPriceId ? 'configured' : 'missing',
       [ALLOWED_AMOUNT_CENTS_ENV]: allowedAmounts.mode,
     },
     rak,
     legacySecret,
     accountId,
+    standardPriceId,
+    legacyPriceId,
     priceId,
     allowedAmounts,
   };
@@ -193,6 +210,10 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
   if (!classified.allowedAmounts.ok) {
     addInvalid(invalid, classified.allowedAmounts.error);
   }
+  addInvalidPriceId(invalid, STANDARD_PRICE_ID_ENV, classified.standardPriceId);
+  if (!classified.standardPriceId) {
+    addInvalidPriceId(invalid, LEGACY_PRICE_ID_ENV, classified.legacyPriceId);
+  }
 
   if (isProduction) {
     if (!classified.rak) {
@@ -205,13 +226,14 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     }
 
     if (!classified.priceId) {
-      addMissing(missing, 'STRIPE_DEFLECTION_REPORT_PRICE_ID');
-    } else if (!PRICE_ID_RE.test(classified.priceId)) {
-      addInvalid(invalid, 'STRIPE_DEFLECTION_REPORT_PRICE_ID must be a Stripe price_ id.');
+      addMissing(missing, PRICE_ID_MISSING_NAME);
     }
 
     if (classified.legacySecret && classified.rak) {
       warnings.push('ATLAS_SAAS_STRIPE_SECRET_KEY is present but ignored while ATLAS_SAAS_STRIPE_RAK is configured.');
+    }
+    if (classified.standardPriceId && classified.legacyPriceId) {
+      warnings.push(`${LEGACY_PRICE_ID_ENV} is present but ignored while ${STANDARD_PRICE_ID_ENV} is configured.`);
     }
   } else {
     if (classified.rak) {
@@ -222,9 +244,7 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
         addInvalid(invalid, 'Non-production checkout env must not use an rk_live_ key.');
       }
       if (!classified.priceId) {
-        addMissing(missing, 'STRIPE_DEFLECTION_REPORT_PRICE_ID');
-      } else if (!PRICE_ID_RE.test(classified.priceId)) {
-        addInvalid(invalid, 'STRIPE_DEFLECTION_REPORT_PRICE_ID must be a Stripe price_ id.');
+        addMissing(missing, PRICE_ID_MISSING_NAME);
       }
     } else if (classified.legacySecret) {
       if (!classified.legacySecret.startsWith('sk_test_')) {

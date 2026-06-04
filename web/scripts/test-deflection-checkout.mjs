@@ -18,6 +18,7 @@ const ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
+  'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS',
   'VERCEL_ENV',
@@ -120,7 +121,8 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
-    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
   });
   assert.deepEqual(
     await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
@@ -128,13 +130,26 @@ try {
   );
   assert.equal(calls.length, 1);
   assert.equal(calls[0].headers.Authorization, 'Bearer rk_live_unit_restricted');
-  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_12345678');
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_standard123');
   assert.equal(calls[0].body.has('line_items[0][price_data][unit_amount]'), false);
   assert.equal(calls[0].body.get('metadata[account_id]'), 'acct_unit');
   assert.equal(calls[0].body.get('metadata[request_id]'), 'request-123');
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
-  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_12345678');
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_standard123');
   assert.equal(calls[0].body.has('metadata[price_amount_cents]'), false);
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'not_a_price',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({

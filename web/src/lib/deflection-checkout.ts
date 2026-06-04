@@ -53,6 +53,10 @@ type StripeCheckoutSessionResponse = {
   amount_total?: unknown;
   currency?: unknown;
 };
+type ConfiguredPriceId =
+  | { status: 'configured'; priceId: string }
+  | { status: 'missing' }
+  | { status: 'invalid' };
 
 function parseAllowedAmountCents(rawValue: string | undefined): ReadonlySet<number> | null {
   const raw = rawValue?.trim();
@@ -78,17 +82,29 @@ function configuredAllowedAmounts(): ReadonlySet<number> | null {
   return allowedAmounts;
 }
 
-function configuredPriceId() {
-  const priceId = process.env.STRIPE_DEFLECTION_REPORT_PRICE_ID?.trim();
-  if (!priceId) return null;
+function configuredPriceIdFromEnv(envKey: string): ConfiguredPriceId {
+  const priceId = process.env[envKey]?.trim();
+  if (!priceId) return { status: 'missing' };
   if (!PRICE_ID_RE.test(priceId)) {
-    console.error('stripe checkout create: configured price id is invalid');
-    return null;
+    console.error(`stripe checkout create: configured price id is invalid for ${envKey}`);
+    return { status: 'invalid' };
   }
-  return priceId;
+  return { status: 'configured', priceId };
 }
 
-function stripeConfig(): StripeCheckoutConfig | null {
+function configuredPriceIdForVariant(priceVariant: DeflectionPriceVariant) {
+  const variantPriceId = configuredPriceIdFromEnv(priceVariant.stripePriceIdEnvKey);
+  if (variantPriceId.status === 'configured') return variantPriceId.priceId;
+  if (variantPriceId.status === 'invalid') return null;
+  if (priceVariant.legacyStripePriceIdEnvKey) {
+    const legacyPriceId = configuredPriceIdFromEnv(priceVariant.legacyStripePriceIdEnvKey);
+    if (legacyPriceId.status === 'configured') return legacyPriceId.priceId;
+    if (legacyPriceId.status === 'invalid') return null;
+  }
+  return null;
+}
+
+function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfig | null {
   const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
   const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
   const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
@@ -105,9 +121,9 @@ function stripeConfig(): StripeCheckoutConfig | null {
       console.error('stripe checkout create: live restricted key is required in production');
       return null;
     }
-    const priceId = configuredPriceId();
+    const priceId = configuredPriceIdForVariant(priceVariant);
     if (!priceId) {
-      console.error('stripe checkout create: configured price id is required for restricted keys');
+      console.error('stripe checkout create: configured price id is required for selected variant');
       return null;
     }
     return { apiKey: restrictedKey, accountId, priceId, allowedAmountsCents };
@@ -126,7 +142,7 @@ function stripeConfig(): StripeCheckoutConfig | null {
     console.error('stripe checkout create: fallback secret key must be test-mode');
     return null;
   }
-  const fallbackPriceId = configuredPriceId();
+  const fallbackPriceId = configuredPriceIdForVariant(priceVariant);
   if (!fallbackPriceId && !allowedAmountsCents.has(UNIT_AMOUNT_CENTS)) {
     console.error('stripe checkout create: inline fallback amount is not allowed');
     return null;
@@ -167,7 +183,7 @@ export async function createDeflectionCheckoutSession(
   const priceVariant = resolveDeflectionPriceVariant(priceVariantId);
   if (!priceVariant) return { ok: false, reason: 'invalid_request' };
 
-  const config = stripeConfig();
+  const config = stripeConfig(priceVariant);
   if (!config) return { ok: false, reason: 'not_configured' };
   if (!REQUEST_ID_RE.test(requestId) || !ATTEMPT_ID_RE.test(attemptId)) {
     return { ok: false, reason: 'invalid_request' };

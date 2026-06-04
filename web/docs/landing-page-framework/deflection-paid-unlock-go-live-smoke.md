@@ -26,9 +26,12 @@ this smoke.
   ```
 
   Production must have `ATLAS_SAAS_STRIPE_RAK=rk_live_...`,
-  `ATLAS_ACCOUNT_ID`, and `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...`. A
-  legacy `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure
-  production checkout. If
+  `ATLAS_ACCOUNT_ID`, and
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=price_...` for the current
+  `standard` variant. `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...` remains a
+  legacy fallback for that same variant. A legacy
+  `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure production
+  checkout. If
   `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is
   set, it must match the ATLAS amount allowlist; otherwise the portfolio
   defaults to the current full-report amount only. After the RAK is stored as a
