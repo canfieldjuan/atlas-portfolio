@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { createDeflectionCheckoutSession } from '@/lib/deflection-checkout';
 import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
 import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
+import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
 import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
@@ -16,6 +18,21 @@ const CHECKOUT_RATE_LIMIT = {
   limit: 5,
   windowMs: 10 * 60 * 1000,
 };
+
+async function serverBoundPriceVariantId(requestId: string): Promise<DeflectionPriceVariantId> {
+  try {
+    return (
+      (await getGapReportPriceVariantByReportRequestId(requestId)) ||
+      DEFLECTION_DEFAULT_PRICE_VARIANT_ID
+    );
+  } catch (error) {
+    console.error(
+      'deflection checkout: failed to load saved price variant:',
+      error instanceof Error ? error.message : error,
+    );
+    return DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
+  }
+}
 
 // Creates a Stripe Checkout Session for the configured Backlog Report unlock
 // and returns its hosted URL for the client to redirect to. Before charging, we
@@ -63,6 +80,10 @@ export async function POST(request: Request) {
         headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
       },
     );
+  }
+  const expectedPriceVariantId = await serverBoundPriceVariantId(requestId);
+  if (priceVariantId !== expectedPriceVariantId) {
+    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
 
   const artifact = await fetchDeflectionArtifact(requestId);

@@ -14,6 +14,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
 type PageProps = {
@@ -60,6 +61,18 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+async function getServerBoundPriceVariantId(requestId: string) {
+  try {
+    return await getGapReportPriceVariantByReportRequestId(requestId);
+  } catch (error) {
+    console.error(
+      'deflection results: failed to load saved price variant:',
+      error instanceof Error ? error.message : error,
+    );
+    return null;
+  }
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const artifact = await getArtifact(requestId);
@@ -67,8 +80,12 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
 
   const snapshot = await getSnapshot(requestId);
   const query = searchParams ? await searchParams : undefined;
+  const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
   const priceVariant =
-    resolveDeflectionPriceVariant(firstParam(query?.priceVariant)) ||
+    resolveDeflectionPriceVariant(
+      savedPriceVariantId ||
+        (process.env.NODE_ENV !== 'production' ? firstParam(query?.priceVariant) : undefined),
+    ) ||
     DEFLECTION_DEFAULT_PRICE_VARIANT;
   return (
     <DeflectionResultsPage

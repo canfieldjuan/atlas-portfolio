@@ -27,20 +27,24 @@ Slice phase: Vertical slice
    copy.
 3. Preserve `priceVariant=partner` from the partner CTA through intake,
    notification/results links, and the results page.
-4. Submit the selected variant to `/api/deflection-checkout`, so Stripe session
+4. Bind checkout eligibility to the saved intake price variant for the report
+   request, so mutable results-page query strings cannot self-discount.
+5. Submit the selected variant to `/api/deflection-checkout`, so Stripe session
    creation uses the partner Price ID and stamps partner metadata.
-5. Extend focused tests for the partner variant catalog, checkout metadata,
+6. Extend focused tests for the partner variant catalog, checkout metadata,
    intake link preservation, and route forwarding.
-6. Update operator docs/runbooks for the partner Price ID env and allowed amount.
+7. Update operator docs/runbooks for the partner Price ID env and allowed amount.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Partner-Price-Variant.md`
 - `web/src/lib/deflection-pricing.ts`
 - `web/src/lib/deflection-checkout.ts`
+- `web/src/lib/gap-report-intake-database.ts`
 - `web/src/lib/gap-report-intake.ts`
 - `web/src/components/landing/SupportTicketCsvIntakePage.tsx`
 - `web/src/components/landing/DeflectionResultsPage.tsx`
+- `web/src/app/api/deflection-checkout/route.ts`
 - `web/src/app/api/gap-report-intake/record/route.ts`
 - `web/src/app/systems/support-ticket-deflection/intake/page.tsx`
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
@@ -73,18 +77,26 @@ results URLs. The server-side notification/customer links also append the
 validated non-default variant, so a later email click does not silently revert a
 partner buyer to the standard price.
 
-The results route validates `priceVariant` from search params and passes the
-resolved variant to the client results page. The unlock button uses that
-variant's label and sends the variant id to `/api/deflection-checkout`. Checkout
-already resolves variant-specific Price IDs and stamps `metadata[price_variant]`.
+The results route looks up the saved intake payload by ATLAS report request id
+and uses that server-side `priceVariant` as the display variant. Production does
+not trust a mutable `?priceVariant=partner` query string for pricing. The unlock
+button uses the server-bound variant label and sends the variant id to
+`/api/deflection-checkout`.
+
+The checkout route repeats the same server-side lookup and rejects a posted
+variant that does not match the saved intake variant for the report request.
+Checkout then resolves variant-specific Price IDs, requires Stripe's returned
+`amount_total` to equal the selected variant amount, and stamps
+`metadata[price_variant]`.
 
 ## Intentional
 
 - No random A/B assignment is added. This slice wires the explicit partner URL
   variant only.
 - Invalid or missing `priceVariant` query values fall back to the standard price
-  on page render; the checkout API still rejects invalid explicit request
-  payloads.
+  on page render when no saved intake variant exists; production pricing is
+  bound to saved intake metadata, and the checkout API rejects mismatched
+  explicit request payloads.
 - No new database column is added. Existing submission persistence stores the
   full payload JSON, and top-level reporting tables do not need price-variant
   filtering in this slice.
@@ -115,6 +127,10 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-checkout` - passed after the P1 review
   fix; printed expected fail-closed checkout logs including `session amount does
   not match selected variant`, then `Deflection checkout tests passed.`
+- `npm --prefix web run test:deflection-checkout` - passed after the P2 review
+  fix; unsigned partner checkout for a standard/default report returned HTTP 400
+  without calling checkout creation, while a saved partner variant still
+  forwarded partner checkout.
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed after the review
@@ -150,26 +166,31 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the P1 review fix; plan
   shape, files touched, diff-size drift, cross-session drift, ESLint, Next
   build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the P2 review fix; plan
+  shape, files touched, diff-size drift, cross-session drift, ESLint, Next
+  build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +176 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +196 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
 | `web/src/lib/deflection-checkout.ts` | +34 / -10 |
+| `web/src/lib/gap-report-intake-database.ts` | +36 |
 | `web/src/lib/gap-report-intake.ts` | +32 / -4 |
 | `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +10 / -9 |
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
+| `web/src/app/api/deflection-checkout/route.ts` | +21 |
 | `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
 | `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +27 / -3 |
-| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +13 / -1 |
+| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +31 / -1 |
 | `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +8 / -4 |
 | `web/scripts/check-deflection-checkout-env.mjs` | +24 / -2 |
-| `web/scripts/test-deflection-checkout.mjs` | +103 / -4 |
+| `web/scripts/test-deflection-checkout.mjs` | +133 / -4 |
 | `web/scripts/test-deflection-checkout-env.mjs` | +89 / -9 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
 | `web/README.md` | +11 / -7 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +5 / -2 |
-| Total | ~653 changed |
+| Total | ~775 changed |
