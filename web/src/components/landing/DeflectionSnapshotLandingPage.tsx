@@ -368,7 +368,7 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
           <div className="mt-5 border-t border-border pt-4">
             <p className="text-xs font-mono uppercase tracking-wide text-primary">
-              Free snapshot
+              Free Snapshot
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
               Top repeats, customer wording, one sourced drafted answer.
@@ -459,7 +459,7 @@ function SnapshotArtifact({
             Customer wording becomes the target list
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
-            The snapshot surfaces the phrases customers already use. Your team
+            The Snapshot surfaces the phrases customers already use. Your team
             decides what to publish and where it should live.
           </p>
         </div>

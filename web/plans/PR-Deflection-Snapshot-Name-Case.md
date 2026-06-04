@@ -1,9 +1,9 @@
 ## Why this slice exists
 
 PR-Deflection-Snapshot-Support-Tax-Fomo strengthened the Snapshot landing page,
-and review explicitly carried forward a non-blocking capitalization nit: the
-page treats `Snapshot` as a named artifact in most places, but two high-visibility
-strings still say `free snapshot`.
+and review explicitly carried forward a capitalization nit: the page treats
+`Snapshot` as a named artifact in most places, but a few user-facing strings
+still used lowercase `snapshot` when referring to the product artifact.
 
 This slice makes the offer name consistent without changing positioning,
 layout, routes, pricing, checkout, payloads, or tests.
@@ -13,8 +13,10 @@ layout, routes, pricing, checkout, payloads, or tests.
 Slice phase: Product polish
 
 1. Capitalize `Snapshot` in the hero description.
-2. Capitalize `Snapshot` in the final-push heading.
-3. Preserve all CTA labels, hrefs, layout, cost math, locked-row copy, intake,
+2. Capitalize `Snapshot` in the proof-panel free/full boundary label.
+3. Capitalize `Snapshot` in the customer-wording proof copy.
+4. Capitalize `Snapshot` in the final-push heading.
+5. Preserve all CTA labels, hrefs, layout, cost math, locked-row copy, intake,
    checkout, results, and smoke scripts.
 
 ### Files touched
@@ -24,10 +26,10 @@ Slice phase: Product polish
 
 ## Mechanism
 
-This is a copy-only edit in `DeflectionSnapshotLandingPage.tsx`: two visible
-strings change from `free snapshot` to `free Snapshot` so the page consistently
-treats Snapshot as the named free artifact. No component structure, props, data,
-or styles change.
+This is a copy-only edit in `DeflectionSnapshotLandingPage.tsx`: visible strings
+that refer to the Snapshot as the named product artifact now capitalize it.
+Instance-referent phrases like `this representative snapshot` or `the snapshot
+below` remain lowercase. No component structure, props, data, or styles change.
 
 ## Intentional
 
@@ -44,7 +46,7 @@ or styles change.
 
 Run before push:
 
-- `rg -n "free snapshot|free Snapshot|Get a free Snapshot|Start with the free Snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/plans/PR-Deflection-Snapshot-Name-Case.md -S` - passed; active component instances now use `free Snapshot`, with lowercase mentions only in this plan's rationale.
+- `rg -ni "snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx | grep -viE "deflection-snapshot|DeflectionSnapshot|DEMO_DEFLECTION_SNAPSHOT|snapshotCostProof|PrimarySnapshotCta|SnapshotQuestionRows|SnapshotArtifact|snapshot=|= snapshot|snapshot\\.|snapshot,|: snapshot|snapshot:"` - passed; product-artifact references use `Snapshot`, with remaining lowercase instances limited to instance-referent `uploaded snapshot` / `snapshot below` copy.
 - `npm --prefix web run lint` - passed
 - `npm --prefix web run build` - passed
 - `bash scripts/local_pr_review.sh` - passed
@@ -53,6 +55,6 @@ Run before push:
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~60 |
-| Copy-only Snapshot capitalization | ~2 |
-| Total | ~62 |
+| Plan doc | ~66 |
+| Copy-only Snapshot capitalization | ~4 |
+| Total | ~68 |
