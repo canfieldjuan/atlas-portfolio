@@ -19,7 +19,6 @@ import {
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  DEFLECTION_FULL_REPORT_PRICE_USD,
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
 
@@ -96,9 +95,10 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
         : 'Same measured pace projected across 12 similar windows',
     },
     {
-      label: 'Full report unlock',
-      value: formatDeflectionWholeUsd(DEFLECTION_FULL_REPORT_PRICE_USD),
-      detail: 'One-time paid report after the free snapshot',
+      label: 'Snapshot action',
+      value: 'Free',
+      detail:
+        'Upload the CSV first, then decide whether the full report is worth unlocking',
     },
   ];
 
@@ -114,7 +114,7 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
             In this representative snapshot, the repeat-ticket count is
             multiplied by the {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL}{' '}
             assisted-contact benchmark. The point is not a savings promise. It
-            is a fast value check before your team buys the full report.
+            is a fast value check before your team spends anything.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <PrimarySnapshotCta />
@@ -146,8 +146,8 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
           <p className="rounded-md border border-primary/25 bg-primary/[0.06] p-4 text-sm leading-relaxed text-foreground/66">
             The free Snapshot earns the next step by showing the pattern first:
             ranked repeats, customer wording, and one sourced answer sample. The
-            paid report unlock sits beside the annualized pace, not behind a
-            vague ROI claim.
+            Snapshot comes before any paid report, so the decision starts with
+            evidence from your own queue.
           </p>
         </div>
       </div>
@@ -330,7 +330,8 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
               Full report
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Complete backlog, drafts, source trail, write-next list.
+              Complete backlog, drafts, source trail, write-next list if the
+              Snapshot proves enough repeat demand.
             </p>
           </div>
         </aside>
@@ -407,8 +408,8 @@ function SnapshotArtifact({
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
             The real snapshot can show there is more backlog without giving away
-            the full report. The paid unlock gives your team the complete list
-            and the answer plan behind it.
+            the full report. A strong Snapshot gives your team the evidence to
+            decide whether the complete list and answer plan are worth unlocking.
           </p>
         </div>
         <div className="rounded-md border border-border bg-white/62 p-4">
@@ -458,7 +459,7 @@ function ProofList() {
       icon: <FileText className="h-5 w-5" />,
       title: 'A real diagnostic, not a generic calculator',
       body:
-        'The snapshot ranks the repeat questions and phrases from the uploaded queue before asking for the full report purchase.',
+        'The Snapshot ranks the repeat questions and phrases from the uploaded queue before asking for a paid next step.',
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
@@ -518,12 +519,12 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Picture</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The free snapshot shows the work before the full report unlock.
+              The free Snapshot shows the work before any paid step.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The first screen proves answer quality. The snapshot below shows
               the offer shape: ranked repeat questions, customer wording, locked
-              backlog, and the boundary between the free taste and the paid
+              backlog, and what the free Snapshot includes before any paid
               report.
             </p>
           </div>
@@ -536,13 +537,13 @@ export function DeflectionSnapshotLandingPage() {
           <div className="max-w-3xl">
             <Eyebrow>Process</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The snapshot turns old tickets into a publishing queue.
+              The Snapshot is the proof object.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               Support leads already know repeat tickets are expensive. The
               missing question is which answers should be published first. The
-              snapshot gives your team the first proof object without asking for
-              a platform rollout.
+              Snapshot answers that question without asking for a platform
+              rollout or a paid commitment.
             </p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-4">
@@ -586,10 +587,10 @@ export function DeflectionSnapshotLandingPage() {
           Start with the free snapshot.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          If the repeat pattern is weak, the snapshot will show that. If it is
-          strong, the full report is the paid unlock: every recurring question,
-          every review-ready draft, the source trail, and the no-proven-answer
-          list.
+          The only ask on this page is the CSV upload. If the repeat pattern is
+          weak, the Snapshot will show that. If it is strong, you will know
+          whether the complete ranked backlog, review-ready drafts, source
+          trail, and no-proven-answer list are worth unlocking.
         </p>
         <div className="mt-6">
           <PrimarySnapshotCta />
