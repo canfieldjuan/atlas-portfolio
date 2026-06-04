@@ -38,6 +38,7 @@ export type SupportTicketCsvIntakeCopy = {
   snapshotName: string;
   submitLabel: string;
   priceVariantId?: DeflectionPriceVariantId;
+  partnerAccessToken?: string;
 };
 
 export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvIntakeCopy }) {
@@ -101,6 +102,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
       sourcePage: copy.sourcePage,
       sourceOffer: copy.sourceOffer,
       priceVariant: copy.priceVariantId,
+      partnerToken: copy.partnerAccessToken,
     };
 
     try {

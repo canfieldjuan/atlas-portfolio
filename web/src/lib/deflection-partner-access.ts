@@ -4,7 +4,7 @@ import {
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
-} from '@/lib/deflection-pricing';
+} from './deflection-pricing';
 
 export const DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV =
   'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';

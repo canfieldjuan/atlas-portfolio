@@ -81,10 +81,16 @@ only when the request carries a `partnerToken` matching
 server-side token check before passing the partner variant into the client intake
 component. Missing or invalid tokens use the standard variant, so editing a
 public intake URL cannot persist a discounted price. The intake component
-includes the validated variant in Blob/client metadata, record-route metadata,
-analytics context, and generated results URLs. The server-side
-notification/customer links also append the validated non-default variant, so a
-later email click does not silently revert a partner buyer to the standard price.
+includes the validated variant and token in Blob/client metadata and
+record-route metadata.
+
+The upload and record APIs both call the same metadata parser. That parser
+requires a valid `partnerToken` before accepting `priceVariant=partner`, then
+strips the token from the returned metadata before persistence. That keeps the
+DB value checkout trusts from being client-writable while still letting the
+server-side notification/customer links append the validated non-default variant,
+so a later email click does not silently revert a partner buyer to the standard
+price.
 
 The results route looks up the saved intake payload by ATLAS report request id
 and uses that server-side `priceVariant` as the display variant. Production does
@@ -109,7 +115,8 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
   request payloads.
 - `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` is a static operator-provisioned token
   for this explicit partner URL slice. Generalized signed links and cohort
-  routing remain deferred to #194.
+  routing remain deferred to #194. The token is accepted only as validation
+  input and is not included in persisted submission metadata.
 - No new database column is added. Existing submission persistence stores the
   full payload JSON, and top-level reporting tables do not need price-variant
   filtering in this slice.
@@ -163,6 +170,10 @@ Parked hardening: none.
   standard configured Price path also requires `150000`.
 - `npm --prefix web run test:deflection-email-results-link` - passed; printed
   `Deflection email results-link tests passed.`
+- `npm --prefix web run test:deflection-email-results-link` - passed after the
+  API gate fix; `parseGapReportMetadata` rejects `priceVariant=partner` without
+  `partnerToken`, accepts it with the configured token, and strips the token from
+  returned metadata.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - initially failed
   on a stale source assertion for the old local results-link helper name.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - passed after
@@ -174,6 +185,9 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-partner-access` - passed; matching
   `partnerToken` resolves partner intake, missing/invalid tokens resolve
   standard, and partner/intake pages include the token-gate wiring.
+- `npm --prefix web run test:deflection-partner-access` - passed after the API
+  gate fix; direct `/api/gap-report-intake/record` with forged partner metadata
+  and no token returns HTTP 400 before persistence.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - initially failed because this fresh worktree
   had no `web/node_modules`; Turbopack could not resolve `next/package.json`
@@ -206,32 +220,35 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the partner intake
   token-gate fix; plan shape, files touched, diff-size drift, cross-session
   drift, ESLint, Next build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the partner metadata
+  API-gate fix; plan shape, files touched, diff-size drift, cross-session
+  drift, ESLint, Next build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +237 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +254 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
 | `web/src/lib/deflection-partner-access.ts` | +42 |
-| `web/src/lib/deflection-checkout.ts` | +34 / -10 |
+| `web/src/lib/deflection-checkout.ts` | +24 / -10 |
 | `web/src/lib/gap-report-intake-database.ts` | +36 |
-| `web/src/lib/gap-report-intake.ts` | +32 / -4 |
-| `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +10 / -9 |
+| `web/src/lib/gap-report-intake.ts` | +43 / -4 |
+| `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +12 / -9 |
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
 | `web/src/app/api/deflection-checkout/route.ts` | +24 |
 | `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
-| `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +38 / -3 |
-| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +41 / -1 |
-| `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +55 / -49 |
+| `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +37 / -3 |
+| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +40 / -1 |
+| `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +17 / -38 |
 | `web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx` | +80 |
 | `web/package.json` | +1 |
-| `web/scripts/check-deflection-checkout-env.mjs` | +36 / -2 |
-| `web/scripts/test-deflection-partner-access.mjs` | +113 |
-| `web/scripts/test-deflection-checkout.mjs` | +135 / -4 |
-| `web/scripts/test-deflection-checkout-env.mjs` | +117 / -9 |
-| `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +35 / -1 |
+| `web/scripts/test-deflection-partner-access.mjs` | +184 |
+| `web/scripts/test-deflection-checkout.mjs` | +131 / -4 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +108 / -9 |
+| `web/scripts/test-deflection-email-results-link.mjs` | +78 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
-| `web/README.md` | +28 / -8 |
-| `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +10 / -3 |
-| Total | ~1161 changed |
+| `web/README.md` | +19 / -9 |
+| `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +8 / -2 |
+| Total | 1298 changed |

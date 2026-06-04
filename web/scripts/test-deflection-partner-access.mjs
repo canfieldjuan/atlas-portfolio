@@ -7,6 +7,11 @@ import ts from 'typescript';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-partner-access-'));
 const sourceUrl = new URL('../src/lib/deflection-partner-access.ts', import.meta.url);
+const gapReportIntakeUrl = new URL('../src/lib/gap-report-intake.ts', import.meta.url);
+const recordRouteUrl = new URL(
+  '../src/app/api/gap-report-intake/record/route.ts',
+  import.meta.url,
+);
 const intakePageUrl = new URL(
   '../src/app/systems/support-ticket-deflection/intake/page.tsx',
   import.meta.url,
@@ -20,7 +25,10 @@ const partnerClientUrl = new URL(
   import.meta.url,
 );
 const compiledPath = join(testDir, 'deflection-partner-access.cjs');
+const compiledRecordRoutePath = join(testDir, 'gap-report-record-route.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
+const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
+const nextStubDir = join(testDir, 'node_modules', 'next');
 const ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const originalEnv = process.env[ENV_KEY];
 
@@ -31,19 +39,20 @@ function resetToken(value) {
 
 try {
   await mkdir(libStubDir, { recursive: true });
-  await writeFile(
-    join(libStubDir, 'deflection-pricing.js'),
-    [
-      "exports.DEFLECTION_DEFAULT_PRICE_VARIANT_ID = 'standard';",
-      "exports.DEFLECTION_PARTNER_PRICE_VARIANT_ID = 'partner';",
-      'exports.resolveDeflectionPriceVariant = (value) => {',
-      "  if (value === undefined || value === null || value === 'standard') return { id: 'standard' };",
-      "  if (value === 'partner') return { id: 'partner' };",
-      '  return null;',
-      '};',
-      '',
-    ].join('\n'),
-  );
+  await mkdir(blobStubDir, { recursive: true });
+  await mkdir(nextStubDir, { recursive: true });
+  const pricingStub = [
+    "exports.DEFLECTION_DEFAULT_PRICE_VARIANT_ID = 'standard';",
+    "exports.DEFLECTION_PARTNER_PRICE_VARIANT_ID = 'partner';",
+    'exports.resolveDeflectionPriceVariant = (value) => {',
+    "  if (value === undefined || value === null || value === 'standard') return { id: 'standard' };",
+    "  if (value === 'partner') return { id: 'partner' };",
+    '  return null;',
+    '};',
+    '',
+  ].join('\n');
+  await writeFile(join(testDir, 'deflection-pricing.js'), pricingStub);
+  await writeFile(join(libStubDir, 'deflection-pricing.js'), pricingStub);
 
   const source = await readFile(sourceUrl, 'utf8');
   const compiled = ts.transpileModule(source, {
@@ -53,6 +62,7 @@ try {
     },
   });
   await writeFile(compiledPath, compiled.outputText);
+  await writeFile(join(libStubDir, 'deflection-partner-access.js'), compiled.outputText);
   const require = createRequire(compiledPath);
   const {
     DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM,
@@ -104,6 +114,67 @@ try {
     partnerClient.includes('priceVariant: DEFLECTION_PARTNER_PRICE_VARIANT.id'),
     'partner client includes partner variant only in validated partner intake links',
   );
+
+  await writeFile(
+    join(libStubDir, 'gap-report-intake-database.js'),
+    'exports.persistGapReportSubmission = async () => true;\n',
+  );
+  await writeFile(join(libStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
+  await writeFile(
+    join(libStubDir, 'atlas-deflection-client.js'),
+    "exports.submitDeflectionReportCsv = async () => ({ ok: true, requestId: 'content-ops-unit-123' });\n",
+  );
+  await writeFile(
+    join(blobStubDir, 'index.js'),
+    "exports.head = async () => ({ url: 'https://blob.example/gap-report-csvs/unit.csv' });\n",
+  );
+  await writeFile(
+    join(nextStubDir, 'server.js'),
+    "exports.NextResponse = { json: (body, init) => Response.json(body, init) };\n",
+  );
+
+  const gapReportIntakeSource = await readFile(gapReportIntakeUrl, 'utf8');
+  const compiledGapReportIntake = ts.transpileModule(gapReportIntakeSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(join(libStubDir, 'gap-report-intake.js'), compiledGapReportIntake.outputText);
+
+  const recordRouteSource = await readFile(recordRouteUrl, 'utf8');
+  const compiledRecordRoute = ts.transpileModule(recordRouteSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(compiledRecordRoutePath, compiledRecordRoute.outputText);
+  const { POST } = require(compiledRecordRoutePath);
+
+  resetToken('signed-partner-token');
+  const forgedPartnerRecord = await POST(
+    new Request('https://unit.test/api/gap-report-intake/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Alex Lee',
+        email: 'alex@example.com',
+        companyName: 'Effingham Office Maids',
+        supportPlatform: 'helpscout',
+        csvFilename: 'tickets.csv',
+        sourcePage: '/systems/support-ticket-deflection/intake',
+        sourceOffer: 'support-ticket-deflection-intake',
+        priceVariant: 'partner',
+        blobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
+      }),
+    }),
+  );
+  assert.equal(forgedPartnerRecord.status, 400);
+  assert.deepEqual(await forgedPartnerRecord.json(), {
+    ok: false,
+    error: 'Invalid partner price access token.',
+  });
 
   console.log('Deflection partner access tests passed.');
 } finally {

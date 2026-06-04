@@ -19,9 +19,10 @@ function firstParam(value: string | string[] | undefined) {
 
 export default async function SupportTicketDeflectionIntakePage({ searchParams }: PageProps) {
   const query = searchParams ? await searchParams : undefined;
+  const partnerToken = firstParam(query?.[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM]);
   const priceVariantId = resolveIntakePriceVariantId(
     firstParam(query?.priceVariant),
-    firstParam(query?.[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM]),
+    partnerToken,
   );
   const priceVariant =
     resolveDeflectionPriceVariant(priceVariantId) ||
@@ -42,6 +43,7 @@ export default async function SupportTicketDeflectionIntakePage({ searchParams }
         snapshotName: 'Deflection Snapshot',
         submitLabel: 'Upload CSV, get your free Deflection Snapshot',
         priceVariantId: priceVariant.id,
+        partnerAccessToken: isPartner ? partnerToken : undefined,
       }}
     />
   );

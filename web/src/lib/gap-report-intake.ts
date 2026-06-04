@@ -1,9 +1,14 @@
 import { persistGapReportSubmission } from './gap-report-intake-database';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from './deflection-pricing';
+import {
+  DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM,
+  hasDeflectionPartnerPriceAccessToken,
+} from './deflection-partner-access';
 import { SITE_URL } from './seo';
 
 const SUPPORT_PLATFORMS = [
@@ -88,6 +93,12 @@ export function parseGapReportMetadata(
   }
   if (m.priceVariant !== undefined && !priceVariant) {
     return { ok: false, error: 'Invalid price variant.' };
+  }
+  if (
+    priceVariant?.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID &&
+    !hasDeflectionPartnerPriceAccessToken(m[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM])
+  ) {
+    return { ok: false, error: 'Invalid partner price access token.' };
   }
   return {
     ok: true,
