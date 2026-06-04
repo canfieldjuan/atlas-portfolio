@@ -168,14 +168,18 @@ Sessions write permission:
 ```text
 ATLAS_SAAS_STRIPE_RAK=
 ATLAS_ACCOUNT_ID=
+STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
 validation and can still use inline test `price_data` when the Price ID is not
-set. Full live `sk_live_` keys are rejected; production should use an `rk_live_`
-restricted key plus the configured `price_...` value.
+set. `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` is the preferred Price ID for
+the current `standard` variant; `STRIPE_DEFLECTION_REPORT_PRICE_ID` remains a
+legacy fallback for that same variant. Full live `sk_live_` keys are rejected;
+production should use an `rk_live_` restricted key plus the configured
+`price_...` value.
 Production deployments reject test-mode fallback keys and require an `rk_live_`
 restricted key path.
 

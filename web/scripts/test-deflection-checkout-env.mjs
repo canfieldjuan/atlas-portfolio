@@ -11,6 +11,9 @@ function validate(env, environment) {
 
 const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
 const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
+const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
+const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
+const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
 const LEGACY_INLINE_AMOUNT_ERROR =
@@ -23,7 +26,8 @@ const LEGACY_INLINE_AMOUNT_ERROR =
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_legacy_ignored',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
     },
     'production',
   );
@@ -31,9 +35,12 @@ const LEGACY_INLINE_AMOUNT_ERROR =
   assert.deepEqual(result.missing, []);
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes.ATLAS_SAAS_STRIPE_RAK, 'live_restricted');
+  assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
+  assert.equal(result.keyModes[LEGACY_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'default');
   assert.deepEqual(result.allowedAmountsCents, [DEFAULT_ALLOWED_AMOUNT_CENTS]);
   assert(result.warnings.some((warning) => warning.includes('ignored')));
+  assert(result.warnings.some((warning) => warning.includes(LEGACY_PRICE_ID_ENV)));
 }
 
 {
@@ -41,7 +48,38 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
+    },
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'missing');
+  assert.equal(result.keyModes[LEGACY_PRICE_ID_ENV], 'configured');
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'not_a_price',
+      [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [`${STANDARD_PRICE_ID_ENV} must be a Stripe price_ id.`]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [ALLOWED_AMOUNT_CENTS_ENV]:
         `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${VARIANT_ALLOWED_AMOUNT_CENTS}`,
     },
@@ -61,7 +99,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [ALLOWED_AMOUNT_CENTS_ENV]: `${DEFAULT_ALLOWED_AMOUNT_CENTS},,${VARIANT_ALLOWED_AMOUNT_CENTS}`,
     },
     'production',
@@ -79,7 +117,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [ALLOWED_AMOUNT_CENTS_ENV]: '0',
     },
     'production',
@@ -95,7 +133,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_legacy_only',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
     },
     'production',
   );
@@ -112,7 +150,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
     },
     'production',
   );
@@ -130,8 +168,8 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     'production',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, ['STRIPE_DEFLECTION_REPORT_PRICE_ID']);
-  assert(result.errors.includes('Missing STRIPE_DEFLECTION_REPORT_PRICE_ID.'));
+  assert.deepEqual(result.missing, [PRICE_ID_MISSING_NAME]);
+  assert(result.errors.includes(`Missing ${PRICE_ID_MISSING_NAME}.`));
 }
 
 {
@@ -139,12 +177,12 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'lookup_key_not_price',
+      [STANDARD_PRICE_ID_ENV]: 'lookup_key_not_price',
     },
     'production',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.invalid, ['STRIPE_DEFLECTION_REPORT_PRICE_ID must be a Stripe price_ id.']);
+  assert.deepEqual(result.invalid, [`${STANDARD_PRICE_ID_ENV} must be a Stripe price_ id.`]);
 }
 
 {
@@ -152,7 +190,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
     },
     'preview',
   );
@@ -167,7 +205,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
     },
     'preview',
   );
@@ -184,7 +222,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     'local',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, ['STRIPE_DEFLECTION_REPORT_PRICE_ID']);
+  assert.deepEqual(result.missing, [PRICE_ID_MISSING_NAME]);
 }
 
 {
@@ -241,7 +279,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
   const result = validate(
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
     },
     'production',
   );
@@ -267,7 +305,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     {
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_with_under_score',
+      [STANDARD_PRICE_ID_ENV]: 'price_with_under_score',
     },
     'production',
   );
@@ -284,7 +322,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     [
       'ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_legacy_only',
       'ATLAS_ACCOUNT_ID=acct_unit',
-      'STRIPE_DEFLECTION_REPORT_PRICE_ID=price_12345678',
+      `${STANDARD_PRICE_ID_ENV}=price_standard123`,
       '',
     ].join('\n'),
     'utf8',
@@ -294,7 +332,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     [
       'ATLAS_SAAS_STRIPE_RAK=rk_live_candidate_restricted',
       'ATLAS_ACCOUNT_ID=acct_unit',
-      'STRIPE_DEFLECTION_REPORT_PRICE_ID=price_12345678',
+      `${STANDARD_PRICE_ID_ENV}=price_standard123`,
       `${ALLOWED_AMOUNT_CENTS_ENV}=${DEFAULT_ALLOWED_AMOUNT_CENTS},${VARIANT_ALLOWED_AMOUNT_CENTS}`,
       '',
     ].join('\n'),
@@ -345,6 +383,7 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     assert.equal(validPayload.ok, true);
     assert.equal(validPayload.keyModes.ATLAS_SAAS_STRIPE_RAK, 'live_restricted');
     assert.equal(validPayload.keyModes.ATLAS_ACCOUNT_ID, 'configured');
+    assert.equal(validPayload.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
     assert.equal(validPayload.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
     assert.deepEqual(validPayload.allowedAmountsCents, [
       DEFAULT_ALLOWED_AMOUNT_CENTS,
