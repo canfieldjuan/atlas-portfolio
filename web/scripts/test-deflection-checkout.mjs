@@ -12,6 +12,7 @@ const requirementsSourceUrl = new URL(
   '../src/lib/deflection-checkout-requirements.js',
   import.meta.url,
 );
+const partnerTokenSourceUrl = new URL('../src/lib/deflection-partner-token.js', import.meta.url);
 const routeSourceUrl = new URL('../src/app/api/deflection-checkout/route.ts', import.meta.url);
 const compiledPath = join(testDir, 'deflection-checkout.cjs');
 const compiledPricingPath = join(testDir, 'deflection-pricing.cjs');
@@ -91,6 +92,10 @@ try {
   await writeFile(
     join(seoStubDir, 'deflection-checkout-requirements.js'),
     compiledRequirements.outputText,
+  );
+  await writeFile(
+    join(seoStubDir, 'deflection-partner-token.js'),
+    await readFile(partnerTokenSourceUrl, 'utf8'),
   );
   const {
     DEFLECTION_DEFAULT_PRICE_VARIANT,

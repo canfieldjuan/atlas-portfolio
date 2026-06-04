@@ -198,9 +198,18 @@ customer leaves the results page.
 
 Partner pricing is eligibility-gated with
 `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`. The env accepts one token or a
-comma-separated rotation list such as `old-token,current-token`; send new links
-with the current token, then remove old tokens after their outreach window
-closes. A partner intake link must include both `priceVariant=partner` and
-`partnerToken=<token>` before the server will persist the partner variant.
-Missing or invalid tokens fall back to the standard public price;
+comma-separated rotation list such as `old-token,current-token`. Prefer signed
+expiring partner tokens for new outreach:
+
+```bash
+npm --prefix web run create:deflection-partner-token -- --partner acme --ttl-days 30
+```
+
+The command signs with the last token in the rotation list, so keep env order
+`old-token,current-token`. The generated `partner_v1...` value goes in the URL as `partnerToken=<token>`.
+Existing direct-token links still work for compatibility; send new links with
+signed tokens, then remove old direct tokens after their outreach window closes.
+A partner intake link must include both `priceVariant=partner` and a valid
+`partnerToken` before the server will persist the partner variant. Missing,
+expired, tampered, or invalid tokens fall back to the standard public price;
 partner-tagged checkout fails closed if the saved intake variant is missing.

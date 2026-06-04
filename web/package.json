@@ -31,6 +31,7 @@
     "smoke:deflection-public-reachability": "node scripts/smoke-deflection-public-reachability.mjs",
     "smoke:deflection-snapshot-landing": "node scripts/smoke-deflection-snapshot-landing.mjs",
     "check:deflection-checkout-env": "node scripts/check-deflection-checkout-env.mjs",
+    "create:deflection-partner-token": "node scripts/create-deflection-partner-token.mjs",
     "test:ads-helpers": "node scripts/test-advertising-cli-helpers.mjs",
     "test:google-ads-api": "node scripts/test-google-ads-api.mjs",
     "test:google-ads-artifacts": "node scripts/test-google-ads-artifact-contracts.mjs",
