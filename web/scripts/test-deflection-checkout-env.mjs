@@ -21,6 +21,9 @@ const ALLOWED_AMOUNT_CENTS_ENV =
 const LEGACY_INLINE_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
   'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
+const STANDARD_ALLOWED_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV} is configured.`;
 const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
@@ -167,6 +170,22 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
     DEFAULT_ALLOWED_AMOUNT_CENTS,
     PARTNER_ALLOWED_AMOUNT_CENTS,
   ]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [ALLOWED_AMOUNT_CENTS_ENV]: String(PARTNER_ALLOWED_AMOUNT_CENTS),
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [STANDARD_ALLOWED_AMOUNT_ERROR]);
 }
 
 {

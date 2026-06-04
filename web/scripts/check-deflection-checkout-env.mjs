@@ -18,6 +18,9 @@ const ALLOWED_AMOUNT_CENTS_ENV =
 const LEGACY_INLINE_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
   'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
+const STANDARD_ALLOWED_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
+  `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV} is configured.`;
 const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
@@ -225,6 +228,14 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
   addInvalidPriceId(invalid, PARTNER_PRICE_ID_ENV, classified.partnerPriceId);
   if (!classified.standardPriceId) {
     addInvalidPriceId(invalid, LEGACY_PRICE_ID_ENV, classified.legacyPriceId);
+  }
+  if (
+    classified.priceId &&
+    PRICE_ID_RE.test(classified.priceId) &&
+    classified.allowedAmounts.ok &&
+    !classified.allowedAmounts.amounts.includes(DEFAULT_ALLOWED_AMOUNT_CENTS)
+  ) {
+    addInvalid(invalid, STANDARD_ALLOWED_AMOUNT_ERROR);
   }
   if (
     classified.partnerPriceId &&

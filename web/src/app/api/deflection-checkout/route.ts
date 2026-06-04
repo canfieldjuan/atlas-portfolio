@@ -19,18 +19,15 @@ const CHECKOUT_RATE_LIMIT = {
   windowMs: 10 * 60 * 1000,
 };
 
-async function serverBoundPriceVariantId(requestId: string): Promise<DeflectionPriceVariantId> {
+async function serverBoundPriceVariantId(requestId: string): Promise<DeflectionPriceVariantId | null> {
   try {
-    return (
-      (await getGapReportPriceVariantByReportRequestId(requestId)) ||
-      DEFLECTION_DEFAULT_PRICE_VARIANT_ID
-    );
+    return await getGapReportPriceVariantByReportRequestId(requestId);
   } catch (error) {
     console.error(
       'deflection checkout: failed to load saved price variant:',
       error instanceof Error ? error.message : error,
     );
-    return DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
+    return null;
   }
 }
 
@@ -82,7 +79,13 @@ export async function POST(request: Request) {
     );
   }
   const expectedPriceVariantId = await serverBoundPriceVariantId(requestId);
-  if (priceVariantId !== expectedPriceVariantId) {
+  if (!expectedPriceVariantId && priceVariantId !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) {
+    return NextResponse.json(
+      { error: 'Could not start checkout. Please try again.' },
+      { status: 503 },
+    );
+  }
+  if (priceVariantId !== (expectedPriceVariantId || DEFLECTION_DEFAULT_PRICE_VARIANT_ID)) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
 

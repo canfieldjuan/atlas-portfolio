@@ -480,8 +480,10 @@ try {
       }),
     }),
   );
-  assert.equal(unsignedDiscountResponse.status, 400);
-  assert.deepEqual(await unsignedDiscountResponse.json(), { error: 'Invalid request.' });
+  assert.equal(unsignedDiscountResponse.status, 503);
+  assert.deepEqual(await unsignedDiscountResponse.json(), {
+    error: 'Could not start checkout. Please try again.',
+  });
   assert.deepEqual(checkoutRouteStub.calls, []);
 
   checkoutRouteStub.calls.length = 0;

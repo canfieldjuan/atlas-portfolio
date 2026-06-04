@@ -94,9 +94,10 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
 - No random A/B assignment is added. This slice wires the explicit partner URL
   variant only.
 - Invalid or missing `priceVariant` query values fall back to the standard price
-  on page render when no saved intake variant exists; production pricing is
-  bound to saved intake metadata, and the checkout API rejects mismatched
-  explicit request payloads.
+  on page render only for standard/default flows. Production pricing is bound to
+  saved intake metadata; non-default partner-tagged flows fail closed if the
+  saved variant is missing, and the checkout API rejects mismatched explicit
+  request payloads.
 - No new database column is added. Existing submission persistence stores the
   full payload JSON, and top-level reporting tables do not need price-variant
   filtering in this slice.
@@ -131,11 +132,18 @@ Parked hardening: none.
   fix; unsigned partner checkout for a standard/default report returned HTTP 400
   without calling checkout creation, while a saved partner variant still
   forwarded partner checkout.
+- `npm --prefix web run test:deflection-checkout` - passed after the latest P2
+  review fix; unsigned partner checkout with no saved variant now returns HTTP
+  503 without calling checkout creation, while standard/default DB misses still
+  stay on standard checkout.
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed after the review
   fix; production candidates without `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER`
   now fail preflight.
+- `npm --prefix web run test:deflection-checkout-env` - passed after the latest
+  P2 review fix; production allowlists with only `100000` now fail because the
+  standard configured Price path also requires `150000`.
 - `npm --prefix web run test:deflection-email-results-link` - passed; printed
   `Deflection email results-link tests passed.`
 - `npm --prefix web run test:deflection-intake-atlas-submit` - initially failed
@@ -169,28 +177,31 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the P2 review fix; plan
   shape, files touched, diff-size drift, cross-session drift, ESLint, Next
   build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the latest P2 review fix;
+  plan shape, files touched, diff-size drift, cross-session drift, ESLint, Next
+  build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +196 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +207 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
 | `web/src/lib/deflection-checkout.ts` | +34 / -10 |
 | `web/src/lib/gap-report-intake-database.ts` | +36 |
 | `web/src/lib/gap-report-intake.ts` | +32 / -4 |
 | `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +10 / -9 |
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
-| `web/src/app/api/deflection-checkout/route.ts` | +21 |
+| `web/src/app/api/deflection-checkout/route.ts` | +24 |
 | `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
 | `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +27 / -3 |
-| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +31 / -1 |
+| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +41 / -1 |
 | `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +8 / -4 |
-| `web/scripts/check-deflection-checkout-env.mjs` | +24 / -2 |
-| `web/scripts/test-deflection-checkout.mjs` | +133 / -4 |
-| `web/scripts/test-deflection-checkout-env.mjs` | +89 / -9 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +36 / -2 |
+| `web/scripts/test-deflection-checkout.mjs` | +135 / -4 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +117 / -9 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
 | `web/README.md` | +11 / -7 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +5 / -2 |
-| Total | ~775 changed |
+| Total | ~831 changed |

@@ -12,6 +12,7 @@ import {
 } from '@/lib/atlas-deflection-client';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
@@ -81,10 +82,19 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   const snapshot = await getSnapshot(requestId);
   const query = searchParams ? await searchParams : undefined;
   const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
+  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !savedPriceVariantId &&
+    requestedPriceVariant &&
+    requestedPriceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID
+  ) {
+    throw new Error('Results are temporarily unavailable. Please try again.');
+  }
   const priceVariant =
     resolveDeflectionPriceVariant(
       savedPriceVariantId ||
-        (process.env.NODE_ENV !== 'production' ? firstParam(query?.priceVariant) : undefined),
+        (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
     ) ||
     DEFLECTION_DEFAULT_PRICE_VARIANT;
   return (
