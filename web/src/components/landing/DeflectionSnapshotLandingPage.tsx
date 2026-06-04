@@ -368,7 +368,7 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
           <div className="mt-5 border-t border-border pt-4">
             <p className="text-xs font-mono uppercase tracking-wide text-primary">
-              Free snapshot
+              Free Snapshot
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
               Top repeats, customer wording, one sourced drafted answer.
@@ -459,7 +459,7 @@ function SnapshotArtifact({
             Customer wording becomes the target list
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
-            The snapshot surfaces the phrases customers already use. Your team
+            The Snapshot surfaces the phrases customers already use. Your team
             decides what to publish and where it should live.
           </p>
         </div>
@@ -537,7 +537,7 @@ export function DeflectionSnapshotLandingPage() {
             publish.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
-            Upload 3 months of closed tickets. Get a free snapshot that ranks
+            Upload 3 months of closed tickets. Get a free Snapshot that ranks
             the repeat questions, exposes the customer wording, and shows one
             sourced drafted answer your team could review and publish.
           </p>
@@ -625,7 +625,7 @@ export function DeflectionSnapshotLandingPage() {
       <section className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8">
         <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Start with the free snapshot.
+          Start with the free Snapshot.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
           The only ask on this page is the CSV upload. If the repeat pattern is
