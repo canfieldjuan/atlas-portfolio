@@ -73,7 +73,7 @@ Parked hardening: none.
 - `rg -n "GAP_REPORT_INTAKE_HREF|pricingTiers|pricingFaqs" web/src/app/systems/support-ticket-deflection -S` — passed; remaining references are the shared exports plus expected v2/partner imports.
 - `npm --prefix web run lint` — passed.
 - `npm --prefix web run build` — passed.
-- `bash scripts/local_pr_review.sh` — pending.
+- `bash scripts/local_pr_review.sh` — passed.
 
 ## Estimated diff size
 
