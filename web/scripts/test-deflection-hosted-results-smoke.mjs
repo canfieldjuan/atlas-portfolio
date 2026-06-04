@@ -8,6 +8,7 @@ const GOOD_HTML = [
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
   '<p>Support Tax projection</p>',
   '<p>Help-desk SEO targeting list</p>',
+  '<p>This backlog at current pace</p>',
   '<p>One drafted answer you can inspect before paying</p>',
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
@@ -50,6 +51,7 @@ async function run(options, response) {
     snapshotBadge: true,
     headline: true,
     keywordReframe: true,
+    runRateComparison: true,
     teaserAnswer: true,
     supportTax: true,
     unlockCta: true,
@@ -131,6 +133,16 @@ async function run(options, response) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.deepEqual(result.missing, ['keywordReframe']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    { status: 200, body: GOOD_HTML.replace('This backlog at current pace', '') },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.deepEqual(result.missing, ['runRateComparison']);
 }
 
 {

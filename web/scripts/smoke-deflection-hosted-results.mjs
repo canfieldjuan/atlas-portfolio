@@ -9,6 +9,7 @@ const REQUIRED_MARKERS = [
   { key: 'headline', label: 'We found' },
   { key: 'supportTax', label: 'Support Tax projection' },
   { key: 'keywordReframe', label: 'Help-desk SEO targeting list' },
+  { key: 'runRateComparison', label: 'This backlog at current pace' },
   { key: 'teaserAnswer', label: 'One drafted answer you can inspect before paying' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];

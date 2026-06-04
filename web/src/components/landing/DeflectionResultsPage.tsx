@@ -601,12 +601,14 @@ export function DeflectionResultsPage({
             <span>Help-desk SEO targeting list</span>
           </div>
           <h2 id="ranked-question-heading" className="text-2xl font-semibold tracking-tight text-foreground">
-            Your top {top_questions.length}, ranked by measured repeat-ticket count.
+            Your top {top_questions.length} repeat questions, with help-desk target phrases.
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/65">
-            Each card includes the exact phrase customers used in your tickets, so your
-            team can write help-center titles and search wording around real demand. ATLAS
-            does not claim keyword volume, search rank, or traffic.
+            These visible rows are the ranking and the SEO targeting list:
+            each card includes the exact phrase customers used in your tickets,
+            so your team can write help-center titles and search wording around
+            real demand. ATLAS does not claim keyword volume, search rank, or
+            traffic.
           </p>
           <ol className="mt-5 space-y-3">
             {top_questions.map((q) => (
@@ -813,16 +815,18 @@ export function DeflectionResultsPage({
 
             <div className="flex flex-col justify-center border-t border-primary/20 pt-6 md:col-span-2 md:border-l md:border-t-0 md:pl-8 md:pt-0">
               {annualSupportTaxEstimate !== null && (
-                <div className="mb-5 rounded-xl border border-primary/25 bg-background/50 p-4 text-center">
+                <div className="mb-5 rounded-xl border border-primary/25 bg-background/50 p-5 text-center">
                   <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/45">
-                    Estimated annual support tax
+                    This backlog at current pace
                   </div>
-                  <div className="mt-1 text-3xl font-extrabold tabular-nums tracking-tight text-foreground">
+                  <div className="mt-1 text-4xl font-extrabold tabular-nums tracking-tight text-foreground">
                     {usd(annualSupportTaxEstimate)}
+                    <span className="ml-1 text-base font-semibold text-foreground/45">/ year</span>
                   </div>
-                  <p className="mt-1 text-[11px] leading-snug text-foreground/50">
-                    Slider-driven estimate at {costLabel(assistedContactCost)} per assisted contact,
-                    not a savings guarantee.
+                  <p className="mt-2 text-[11px] leading-snug text-foreground/55">
+                    Estimated annual run-rate at {costLabel(assistedContactCost)} per assisted
+                    contact. The one-time report price below is fixed; this estimate is not a
+                    savings guarantee.
                   </p>
                 </div>
               )}
