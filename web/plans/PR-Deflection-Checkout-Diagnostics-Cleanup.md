@@ -13,14 +13,16 @@ redirect behavior.
 
 ## Scope (this PR)
 
+Slice phase: Production hardening
 Ownership lane: ai-content-ops/faq-support-ticket-deflection
-Slice phase: Production hardening.
 
 1. Remove the deflection checkout diagnostics import and recording calls from the
    free snapshot results page.
 2. Keep `attemptId` generation and POST body unchanged because the server uses it
    for Stripe idempotency.
 3. Delete the now-orphaned diagnostics helper and focused helper script.
+4. Preserve a minimal browser `console.error` on checkout fetch exceptions so
+   failures are visible without restoring the old diagnostic recorder.
 
 ### Files touched
 
@@ -48,6 +50,8 @@ idempotency key, so retry/concurrency behavior is unchanged.
   server-side Stripe idempotency contract.
 - No replacement analytics sink. The #193 discriminator is complete, and adding
   a new sink would be a broader observability slice.
+- The catch-path `console.error` is intentionally minimal: it records only the
+  thrown error/message in the buyer's browser console and stores nothing.
 
 ## Deferred
 
@@ -61,19 +65,19 @@ Parked hardening: none.
 
 ## Verification
 
-- `npm --prefix web run test:deflection-checkout`
-- `npm --prefix web run test:deflection-hosted-checkout-smoke`
-- `npm --prefix web run test:deflection-paid-unlock-smoke`
-- `npm --prefix web run lint`
-- `! rg -n "deflection-checkout-diagnostics|deflection_checkout:|atlas:deflection-checkout|recordDeflectionCheckoutDiagnostic|buildDeflectionCheckoutDiagnostic" web/src web/scripts web/package.json -S`
-- `bash scripts/local_pr_review.sh`
+- `npm --prefix web run test:deflection-checkout` — passed.
+- `npm --prefix web run test:deflection-hosted-checkout-smoke` — passed.
+- `npm --prefix web run test:deflection-paid-unlock-smoke` — passed.
+- `npm --prefix web run lint` — passed.
+- `! rg -n "deflection-checkout-diagnostics|deflection_checkout:|atlas:deflection-checkout|recordDeflectionCheckoutDiagnostic|buildDeflectionCheckoutDiagnostic" web/src web/scripts web/package.json -S` — passed; no stale diagnostic markers remain.
+- `bash scripts/local_pr_review.sh` — passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Checkout-Diagnostics-Cleanup.md` | +69 |
-| `web/src/components/landing/DeflectionResultsPage.tsx` | -42 |
+| `web/plans/PR-Deflection-Checkout-Diagnostics-Cleanup.md` | +74 |
+| `web/src/components/landing/DeflectionResultsPage.tsx` | -40 |
 | `web/src/lib/deflection-checkout-diagnostics.ts` | -78 |
 | `web/scripts/test-deflection-checkout-diagnostics.mjs` | -107 |
-| Total | ~296 changed |
+| Total | ~299 changed |

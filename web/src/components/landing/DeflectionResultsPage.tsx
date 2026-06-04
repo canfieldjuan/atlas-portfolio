@@ -457,7 +457,11 @@ export function DeflectionResultsPage({
       }
       setError(data.error ?? 'Could not start checkout. Please try again.');
       setLoading(false);
-    } catch {
+    } catch (err) {
+      console.error(
+        'deflection checkout failed',
+        err instanceof Error ? err.message : err,
+      );
       setError('Could not start checkout. Please try again.');
       setLoading(false);
     }
