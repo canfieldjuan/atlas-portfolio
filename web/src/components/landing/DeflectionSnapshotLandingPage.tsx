@@ -611,12 +611,10 @@ export function DeflectionSnapshotLandingPage() {
         <HeroProofPanel snapshot={DEMO_DEFLECTION_SNAPSHOT} />
       </section>
 
-      <CostProofBand snapshot={DEMO_DEFLECTION_SNAPSHOT} />
-
       <section className="section-band">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 max-w-3xl">
-            <Eyebrow>Picture</Eyebrow>
+            <Eyebrow>Artifact</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
               The free Snapshot is the artifact you inspect before paying.
             </h2>
@@ -630,37 +628,7 @@ export function DeflectionSnapshotLandingPage() {
         </div>
       </section>
 
-      <section className="section-band">
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-3xl">
-            <Eyebrow>Process</Eyebrow>
-            <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The Snapshot is the proof object.
-            </h2>
-            <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              Support leads already know repeat tickets are expensive. The
-              missing question is which answers should be published first. The
-              Snapshot answers that question without asking for a platform
-              rollout or a paid commitment.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-4">
-            {[
-              ['1', 'Export closed tickets'],
-              ['2', 'Find recurring questions'],
-              ['3', 'Surface customer wording'],
-              ['4', 'Preview one drafted answer'],
-            ].map(([step, label]) => (
-              <div key={step} className="rounded-md border border-border bg-surface p-5">
-                <div className="font-mono text-sm text-primary">Step {step}</div>
-                <p className="mt-3 text-base font-medium leading-snug text-foreground">
-                  {label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CostProofBand snapshot={DEMO_DEFLECTION_SNAPSHOT} />
 
       <section className="section-band section-band-muted">
         <div className="mx-auto max-w-6xl">
