@@ -50,7 +50,7 @@ Production requires:
   ATLAS_ACCOUNT_ID=<account-id>
   ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
   ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
-  ${PARTNER_PRICE_ID_ENV}=price_... (optional partner variant)
+  ${PARTNER_PRICE_ID_ENV}=price_... (partner variant)
   ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,100000...] (required to include 100000 when partner is configured)
 
 Preview/development/local accept:
@@ -247,6 +247,9 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
 
     if (!classified.priceId) {
       addMissing(missing, PRICE_ID_MISSING_NAME);
+    }
+    if (!classified.partnerPriceId) {
+      addMissing(missing, PARTNER_PRICE_ID_ENV);
     }
 
     if (classified.legacySecret && classified.rak) {
