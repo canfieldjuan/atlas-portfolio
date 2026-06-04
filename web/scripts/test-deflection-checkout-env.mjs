@@ -14,6 +14,7 @@ const PARTNER_ALLOWED_AMOUNT_CENTS = 1000 * 100;
 const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
 const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
 const PARTNER_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
+const PARTNER_ACCESS_TOKEN_ENV = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
@@ -28,10 +29,18 @@ const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
 const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`;
+const PRODUCTION_PARTNER_ACCESS_TOKEN = 'partner_unit_access_token';
+
+function withProductionPartnerAccessToken(env) {
+  return {
+    ...env,
+    [PARTNER_ACCESS_TOKEN_ENV]: PRODUCTION_PARTNER_ACCESS_TOKEN,
+  };
+}
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_legacy_ignored',
       ATLAS_ACCOUNT_ID: 'acct_unit',
@@ -39,7 +48,7 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -48,6 +57,7 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
   assert.equal(result.keyModes.ATLAS_SAAS_STRIPE_RAK, 'live_restricted');
   assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
+  assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'configured');
   assert.equal(result.keyModes[LEGACY_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
   assert.deepEqual(result.allowedAmountsCents, [
@@ -65,9 +75,27 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
-      [LEGACY_PRICE_ID_ENV]: 'not_a_price',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
     },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, [PARTNER_ACCESS_TOKEN_ENV]);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
+  assert(result.errors.includes(`Missing ${PARTNER_ACCESS_TOKEN_ENV}.`));
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [LEGACY_PRICE_ID_ENV]: 'not_a_price',
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -78,13 +106,13 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -96,14 +124,14 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'not_a_price',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [LEGACY_PRICE_ID_ENV]: 'price_legacy123',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -113,14 +141,14 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [ALLOWED_AMOUNT_CENTS_ENV]:
         `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}, ${VARIANT_ALLOWED_AMOUNT_CENTS}`,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -135,12 +163,12 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -152,14 +180,14 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [ALLOWED_AMOUNT_CENTS_ENV]:
         `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -174,13 +202,13 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [ALLOWED_AMOUNT_CENTS_ENV]: String(PARTNER_ALLOWED_AMOUNT_CENTS),
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -190,14 +218,14 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'not_a_price',
       [ALLOWED_AMOUNT_CENTS_ENV]:
         `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -206,12 +234,12 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [ALLOWED_AMOUNT_CENTS_ENV]: `${DEFAULT_ALLOWED_AMOUNT_CENTS},,${VARIANT_ALLOWED_AMOUNT_CENTS}`,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -224,12 +252,12 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [ALLOWED_AMOUNT_CENTS_ENV]: '0',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -240,11 +268,11 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_legacy_only',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -257,11 +285,11 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -271,10 +299,10 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -284,11 +312,11 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'lookup_key_not_price',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -387,10 +415,10 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, false);
@@ -412,13 +440,13 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
 
 {
   const result = validate(
-    {
+    withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_with_under_score',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
-    },
+    }),
     'production',
   );
   assert.equal(result.ok, true);
@@ -446,6 +474,7 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
       'ATLAS_ACCOUNT_ID=acct_unit',
       `${STANDARD_PRICE_ID_ENV}=price_standard123`,
       `${PARTNER_PRICE_ID_ENV}=price_partner123`,
+      `${PARTNER_ACCESS_TOKEN_ENV}=partner_unit_access_token`,
       `${ALLOWED_AMOUNT_CENTS_ENV}=${DEFAULT_ALLOWED_AMOUNT_CENTS},${PARTNER_ALLOWED_AMOUNT_CENTS},${VARIANT_ALLOWED_AMOUNT_CENTS}`,
       '',
     ].join('\n'),
@@ -471,7 +500,11 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
     assert.equal(run.status, 1);
     const payload = JSON.parse(run.stdout);
     assert.equal(payload.ok, false);
-    assert.deepEqual(payload.missing, ['ATLAS_SAAS_STRIPE_RAK', PARTNER_PRICE_ID_ENV]);
+    assert.deepEqual(payload.missing, [
+      'ATLAS_SAAS_STRIPE_RAK',
+      PARTNER_PRICE_ID_ENV,
+      PARTNER_ACCESS_TOKEN_ENV,
+    ]);
     assert.equal(payload.keyModes.ATLAS_SAAS_STRIPE_SECRET_KEY, 'test_secret');
     assert.equal(run.stderr, '');
 
@@ -498,6 +531,7 @@ const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_A
     assert.equal(validPayload.keyModes.ATLAS_ACCOUNT_ID, 'configured');
     assert.equal(validPayload.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
     assert.equal(validPayload.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
+    assert.equal(validPayload.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'configured');
     assert.equal(validPayload.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
     assert.deepEqual(validPayload.allowedAmountsCents, [
       DEFAULT_ALLOWED_AMOUNT_CENTS,

@@ -11,6 +11,7 @@ const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
 const PARTNER_ALLOWED_AMOUNT_CENTS = 1000 * 100;
 const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
 const PARTNER_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
+const PARTNER_ACCESS_TOKEN_ENV = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
@@ -30,6 +31,7 @@ const CHECKOUT_ENV_KEYS = [
   'ATLAS_ACCOUNT_ID',
   STANDARD_PRICE_ID_ENV,
   PARTNER_PRICE_ID_ENV,
+  PARTNER_ACCESS_TOKEN_ENV,
   LEGACY_PRICE_ID_ENV,
   ALLOWED_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
@@ -54,6 +56,7 @@ Production requires:
   ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
   ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
   ${PARTNER_PRICE_ID_ENV}=price_... (partner variant)
+  ${PARTNER_ACCESS_TOKEN_ENV}=<long random token> (partner intake links)
   ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,100000...] (required to include 100000 when partner is configured)
 
 Preview/development/local accept:
@@ -175,6 +178,7 @@ function classifyEnv(env) {
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
   const standardPriceId = clean(env[STANDARD_PRICE_ID_ENV]);
   const partnerPriceId = clean(env[PARTNER_PRICE_ID_ENV]);
+  const partnerAccessToken = clean(env[PARTNER_ACCESS_TOKEN_ENV]);
   const legacyPriceId = clean(env[LEGACY_PRICE_ID_ENV]);
   const priceId = standardPriceId || legacyPriceId;
   const allowedAmounts = parseAllowedAmounts(env[ALLOWED_AMOUNT_CENTS_ENV]);
@@ -186,6 +190,7 @@ function classifyEnv(env) {
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
       standardPriceId ? STANDARD_PRICE_ID_ENV : '',
       partnerPriceId ? PARTNER_PRICE_ID_ENV : '',
+      partnerAccessToken ? PARTNER_ACCESS_TOKEN_ENV : '',
       legacyPriceId ? LEGACY_PRICE_ID_ENV : '',
       clean(env[ALLOWED_AMOUNT_CENTS_ENV]) ? ALLOWED_AMOUNT_CENTS_ENV : '',
     ].filter(Boolean),
@@ -195,6 +200,7 @@ function classifyEnv(env) {
       ATLAS_ACCOUNT_ID: accountId ? 'configured' : 'missing',
       [STANDARD_PRICE_ID_ENV]: standardPriceId ? 'configured' : 'missing',
       [PARTNER_PRICE_ID_ENV]: partnerPriceId ? 'configured' : 'missing',
+      [PARTNER_ACCESS_TOKEN_ENV]: partnerAccessToken ? 'configured' : 'missing',
       [LEGACY_PRICE_ID_ENV]: legacyPriceId ? 'configured' : 'missing',
       [ALLOWED_AMOUNT_CENTS_ENV]: allowedAmounts.mode,
     },
@@ -203,6 +209,7 @@ function classifyEnv(env) {
     accountId,
     standardPriceId,
     partnerPriceId,
+    partnerAccessToken,
     legacyPriceId,
     priceId,
     allowedAmounts,
@@ -261,6 +268,9 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     }
     if (!classified.partnerPriceId) {
       addMissing(missing, PARTNER_PRICE_ID_ENV);
+    }
+    if (!classified.partnerAccessToken) {
+      addMissing(missing, PARTNER_ACCESS_TOKEN_ENV);
     }
 
     if (classified.legacySecret && classified.rak) {

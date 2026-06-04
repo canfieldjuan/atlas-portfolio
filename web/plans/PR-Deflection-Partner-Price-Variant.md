@@ -120,9 +120,9 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
 - No new database column is added. Existing submission persistence stores the
   full payload JSON, and top-level reporting tables do not need price-variant
   filtering in this slice.
-- Production preflight requires both standard and partner Price IDs plus an
-  allowlist containing `100000` and `150000`, because the partner URL is active
-  once this PR lands.
+- Production preflight requires both standard and partner Price IDs, the partner
+  access token, and an allowlist containing `100000` and `150000`, because the
+  partner URL is active once this PR lands.
 
 ## Deferred
 
@@ -168,6 +168,10 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-checkout-env` - passed after the latest
   P2 review fix; production allowlists with only `100000` now fail because the
   standard configured Price path also requires `150000`.
+- `npm --prefix web run test:deflection-checkout-env` - passed after the
+  partner-token preflight fix; production candidates with valid Price IDs and
+  allowed amounts but no `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` now fail with
+  that env in `missing`.
 - `npm --prefix web run test:deflection-email-results-link` - passed; printed
   `Deflection email results-link tests passed.`
 - `npm --prefix web run test:deflection-email-results-link` - passed after the
@@ -223,12 +227,15 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the partner metadata
   API-gate fix; plan shape, files touched, diff-size drift, cross-session
   drift, ESLint, Next build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the partner-token preflight
+  fix; plan shape, files touched, diff-size drift, cross-session drift, ESLint,
+  Next build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +254 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +261 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
 | `web/src/lib/deflection-partner-access.ts` | +42 |
 | `web/src/lib/deflection-checkout.ts` | +24 / -10 |
@@ -243,12 +250,12 @@ Parked hardening: none.
 | `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +17 / -38 |
 | `web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx` | +80 |
 | `web/package.json` | +1 |
-| `web/scripts/check-deflection-checkout-env.mjs` | +35 / -1 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +45 / -1 |
 | `web/scripts/test-deflection-partner-access.mjs` | +184 |
 | `web/scripts/test-deflection-checkout.mjs` | +131 / -4 |
-| `web/scripts/test-deflection-checkout-env.mjs` | +108 / -9 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +167 / -34 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +78 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
 | `web/README.md` | +19 / -9 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +8 / -2 |
-| Total | 1298 changed |
+| Total | 1399 changed |
