@@ -102,6 +102,13 @@ function parseAllowedAmounts(rawValue) {
   };
 }
 
+function configuredDeflectionPartnerAccessTokens(env = process.env) {
+  return clean(env[DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV])
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
 function priceIdStatus(env, envKey) {
   const priceId = clean(env[envKey]);
   if (!priceId) return { status: 'missing', envKey, priceId: '' };
@@ -131,7 +138,7 @@ function classifyEnv(env) {
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
   const standardPriceId = clean(env[DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV]);
   const partnerPriceId = clean(env[DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV]);
-  const partnerAccessToken = clean(env[DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV]);
+  const partnerAccessTokens = configuredDeflectionPartnerAccessTokens(env);
   const legacyPriceId = clean(env[DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV]);
   const priceId = standardPriceId || legacyPriceId;
   const allowedAmounts = parseAllowedAmounts(
@@ -145,7 +152,7 @@ function classifyEnv(env) {
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
       standardPriceId ? DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV : '',
       partnerPriceId ? DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV : '',
-      partnerAccessToken ? DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV : '',
+      partnerAccessTokens.length ? DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV : '',
       legacyPriceId ? DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV : '',
       clean(env[DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV])
         ? DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV
@@ -161,7 +168,7 @@ function classifyEnv(env) {
       [DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV]: partnerPriceId
         ? 'configured'
         : 'missing',
-      [DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV]: partnerAccessToken
+      [DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV]: partnerAccessTokens.length
         ? 'configured'
         : 'missing',
       [DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV]: legacyPriceId
@@ -174,7 +181,7 @@ function classifyEnv(env) {
     accountId,
     standardPriceId,
     partnerPriceId,
-    partnerAccessToken,
+    partnerAccessTokens,
     legacyPriceId,
     priceId,
     allowedAmounts,
@@ -275,7 +282,7 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
     if (!classified.partnerPriceId) {
       addMissing(missing, DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV);
     }
-    if (!classified.partnerAccessToken) {
+    if (!classified.partnerAccessTokens.length) {
       addMissing(missing, DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV);
     }
 
@@ -441,6 +448,7 @@ module.exports = {
   DEFLECTION_CHECKOUT_PRICE_ID_RE,
   DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR,
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
+  configuredDeflectionPartnerAccessTokens,
   resolveDeflectionCheckoutRuntimeConfig,
   validateDeflectionCheckoutEnv,
 };

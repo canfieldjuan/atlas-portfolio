@@ -32,9 +32,10 @@ this smoke.
   legacy fallback for that same variant. The partner URL variant also requires
   `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=price_...` and a `100000` allowed
   amount in both portfolio and ATLAS. Partner intake links must include a
-  `partnerToken` matching `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`; missing or
-  invalid tokens fall back to the standard price before intake metadata is
-  persisted. A legacy
+  `partnerToken` matching one token in
+  `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`; the env can be a comma-separated
+  rotation list while old links expire. Missing or invalid tokens fall back to
+  the standard price before intake metadata is persisted. A legacy
   `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure production
   checkout. If
   `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is
