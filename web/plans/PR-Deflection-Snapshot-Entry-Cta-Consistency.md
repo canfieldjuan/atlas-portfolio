@@ -54,13 +54,20 @@ No route, form, checkout, or shared data contract changes are introduced.
   through the Snapshot landing page instead of intake.
 - Results-page positioning and paid-report unlock presentation remain separate
   from this public entry-label sweep.
+- Historical plan-doc memorials of prior labels remain by design in
+  `web/plans/PR-Deflection-Long-Page-Snapshot-Bridge.md` and
+  `web/plans/PR-Deflection-Snapshot-Entry-Links.md`; those files document what
+  previous slices changed and verified at the time.
 - Parked hardening: none.
 
 ## Verification
 
-- `rg -n "Get the free Snapshot first|View the free Deflection Snapshot|View the free Snapshot|See the free snapshot offer|See the free Deflection Snapshot|support-ticket-deflection/snapshot" web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx web/plans/PR-Deflection-Snapshot-Entry-Cta-Consistency.md -S` -
-  passed; the touched source files now show the new label and Snapshot hrefs,
-  with old labels present only in this plan's verification text.
+- `git grep -nP "View the free Deflection Snapshot|View the free Snapshot|See the free snapshot offer|See the free Deflection Snapshot" -- web` -
+  passed; no `web/src` runtime source files contain the old public entry
+  labels. Remaining matches are the historical plan-doc memorials named in
+  Deferred and this plan's verification command.
+- `rg -n "Get the free Snapshot first|support-ticket-deflection/snapshot" web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx -S` -
+  passed.
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
