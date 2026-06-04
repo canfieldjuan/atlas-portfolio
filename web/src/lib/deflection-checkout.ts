@@ -12,7 +12,12 @@
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
 import { SITE_URL } from '@/lib/seo';
-import { DEFLECTION_DEFAULT_PRICE_VARIANT } from '@/lib/deflection-pricing';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+  type DeflectionPriceVariant,
+  type DeflectionPriceVariantId,
+  resolveDeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
@@ -157,7 +162,11 @@ function isAllowedCheckoutSession(
 export async function createDeflectionCheckoutSession(
   requestId: string,
   attemptId: string,
+  priceVariantId: DeflectionPriceVariantId = DEFAULT_PRICE_VARIANT.id,
 ): Promise<CheckoutResult> {
+  const priceVariant = resolveDeflectionPriceVariant(priceVariantId);
+  if (!priceVariant) return { ok: false, reason: 'invalid_request' };
+
   const config = stripeConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
   if (!REQUEST_ID_RE.test(requestId) || !ATTEMPT_ID_RE.test(attemptId)) {
@@ -178,19 +187,19 @@ export async function createDeflectionCheckoutSession(
     form.set('line_items[0][price]', config.priceId);
   } else {
     form.set('line_items[0][price_data][currency]', 'usd');
-    form.set('line_items[0][price_data][unit_amount]', String(UNIT_AMOUNT_CENTS));
+    form.set('line_items[0][price_data][unit_amount]', String(priceVariant.amountCents));
     form.set(
       'line_items[0][price_data][product_data][name]',
-      DEFAULT_PRICE_VARIANT.stripeProductName,
+      priceVariant.stripeProductName,
     );
   }
   // ATLAS reads source/account_id/request_id off the session in its webhook
-  // handler. The price fields are attribution for the variant selected here.
+  // handler. Price metadata is attribution for the variant selected here.
   form.set('metadata[source]', 'content_ops_deflection_report');
   form.set('metadata[account_id]', config.accountId);
   form.set('metadata[request_id]', requestId);
-  form.set('metadata[price_variant]', DEFAULT_PRICE_VARIANT.metadataValue);
-  form.set('metadata[price_amount_cents]', String(DEFAULT_PRICE_VARIANT.amountCents));
+  form.set('metadata[price_variant]', priceVariant.metadataValue);
+  setPriceMetadata(form, config, priceVariant);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -225,4 +234,16 @@ export async function createDeflectionCheckoutSession(
   } finally {
     clearTimeout(timer);
   }
+}
+
+function setPriceMetadata(
+  form: URLSearchParams,
+  config: StripeCheckoutConfig,
+  priceVariant: DeflectionPriceVariant,
+) {
+  if (config.priceId) {
+    form.set('metadata[price_id]', config.priceId);
+    return;
+  }
+  form.set('metadata[price_amount_cents]', String(priceVariant.amountCents));
 }

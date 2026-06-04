@@ -90,6 +90,13 @@ try {
     [
       `exports.DEFLECTION_DEFAULT_PRICE_VARIANT = ${JSON.stringify(DEFLECTION_DEFAULT_PRICE_VARIANT)};`,
       `exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = ${DEFLECTION_FULL_REPORT_PRICE_CENTS};`,
+      'exports.resolveDeflectionPriceVariant = (value) => {',
+      '  if (value === undefined || value === null) return exports.DEFLECTION_DEFAULT_PRICE_VARIANT;',
+      "  if (typeof value !== 'string') return null;",
+      '  return value.trim() === exports.DEFLECTION_DEFAULT_PRICE_VARIANT.id',
+      '    ? exports.DEFLECTION_DEFAULT_PRICE_VARIANT',
+      '    : null;',
+      '};',
       '',
     ].join('\n'),
   );
@@ -126,10 +133,20 @@ try {
   assert.equal(calls[0].body.get('metadata[account_id]'), 'acct_unit');
   assert.equal(calls[0].body.get('metadata[request_id]'), 'request-123');
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
-  assert.equal(
-    calls[0].body.get('metadata[price_amount_cents]'),
-    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_12345678');
+  assert.equal(calls[0].body.has('metadata[price_amount_cents]'), false);
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'unknown'),
+    { ok: false, reason: 'invalid_request' },
   );
+  assert.equal(calls.length, 0);
 
   installFetchMock({ ...defaultStripeSession, amount_total: variantAmountCents });
   resetEnv({
@@ -254,6 +271,12 @@ try {
     DEFLECTION_DEFAULT_PRICE_VARIANT.stripeProductName,
   );
   assert.equal(calls[0].body.has('line_items[0][price]'), false);
+  assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
+  assert.equal(
+    calls[0].body.get('metadata[price_amount_cents]'),
+    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  );
+  assert.equal(calls[0].body.has('metadata[price_id]'), false);
 
   installFetchMock();
   resetEnv({
@@ -299,7 +322,15 @@ try {
   );
   await writeFile(
     join(seoStubDir, 'deflection-checkout.js'),
-    "exports.createDeflectionCheckoutSession = async () => ({ ok: false, reason: 'not_configured' });\n",
+    [
+      'const calls = [];',
+      'exports.calls = calls;',
+      'exports.createDeflectionCheckoutSession = async (requestId, attemptId, priceVariantId) => {',
+      '  calls.push({ requestId, attemptId, priceVariantId });',
+      "  return { ok: false, reason: 'not_configured' };",
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(seoStubDir, 'deflection-rate-limit.js'),
@@ -314,15 +345,43 @@ try {
   });
   await writeFile(compiledRoutePath, compiledRoute.outputText);
   const { POST } = require(compiledRoutePath);
+  const checkoutRouteStub = require(join(seoStubDir, 'deflection-checkout.js'));
   const routeResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ requestId: 'request-123', attemptId: 'attempt-12345678' }),
+      body: JSON.stringify({
+        requestId: 'request-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'standard',
+      }),
     }),
   );
   assert.equal(routeResponse.status, 503);
   assert.deepEqual(await routeResponse.json(), { error: 'Could not start checkout.' });
+  assert.deepEqual(checkoutRouteStub.calls, [
+    {
+      requestId: 'request-123',
+      attemptId: 'attempt-12345678',
+      priceVariantId: 'standard',
+    },
+  ]);
+
+  checkoutRouteStub.calls.length = 0;
+  const invalidVariantResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'request-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'unknown',
+      }),
+    }),
+  );
+  assert.equal(invalidVariantResponse.status, 400);
+  assert.deepEqual(await invalidVariantResponse.json(), { error: 'Invalid request.' });
+  assert.deepEqual(checkoutRouteStub.calls, []);
 
   console.log('Deflection checkout tests passed.');
 } finally {
