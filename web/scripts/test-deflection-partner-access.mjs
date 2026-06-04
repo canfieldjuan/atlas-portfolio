@@ -30,7 +30,9 @@ const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
 const nextStubDir = join(testDir, 'node_modules', 'next');
 const ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
+const PERSIST_ENV_KEY = 'GAP_REPORT_TEST_PERSIST';
 const originalEnv = process.env[ENV_KEY];
+const originalPersistEnv = process.env[PERSIST_ENV_KEY];
 
 function resetToken(value) {
   delete process.env[ENV_KEY];
@@ -117,7 +119,7 @@ try {
 
   await writeFile(
     join(libStubDir, 'gap-report-intake-database.js'),
-    'exports.persistGapReportSubmission = async () => true;\n',
+    "exports.persistGapReportSubmission = async () => process.env.GAP_REPORT_TEST_PERSIST !== 'false';\n",
   );
   await writeFile(join(libStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
@@ -176,9 +178,64 @@ try {
     error: 'Invalid partner price access token.',
   });
 
+  process.env[PERSIST_ENV_KEY] = 'false';
+  const validPartnerWithoutPersistence = await POST(
+    new Request('https://unit.test/api/gap-report-intake/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Alex Lee',
+        email: 'alex@example.com',
+        companyName: 'Effingham Office Maids',
+        supportPlatform: 'helpscout',
+        csvFilename: 'tickets.csv',
+        sourcePage: '/systems/support-ticket-deflection/intake',
+        sourceOffer: 'support-ticket-deflection-intake',
+        priceVariant: 'partner',
+        partnerToken: 'signed-partner-token',
+        blobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
+      }),
+    }),
+  );
+  assert.equal(validPartnerWithoutPersistence.status, 503);
+  assert.deepEqual(await validPartnerWithoutPersistence.json(), {
+    ok: false,
+    error: 'Partner price could not be saved. Please retry your upload.',
+  });
+
+  const standardWithoutPersistence = await POST(
+    new Request('https://unit.test/api/gap-report-intake/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Alex Lee',
+        email: 'alex@example.com',
+        companyName: 'Effingham Office Maids',
+        supportPlatform: 'helpscout',
+        csvFilename: 'tickets.csv',
+        sourcePage: '/systems/support-ticket-deflection/intake',
+        sourceOffer: 'support-ticket-deflection-intake',
+        priceVariant: 'standard',
+        blobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
+      }),
+    }),
+  );
+  assert.equal(standardWithoutPersistence.status, 200);
+  const standardPayload = await standardWithoutPersistence.json();
+  assert.equal(standardPayload.ok, true);
+  assert.equal(standardPayload.reportRequestId, 'content-ops-unit-123');
+  assert.equal(standardPayload.status, 'submitted_with_warnings');
+  assert(
+    standardPayload.warnings.some((warning) =>
+      warning.includes('Gap Report database persistence not configured'),
+    ),
+  );
+
   console.log('Deflection partner access tests passed.');
 } finally {
   delete process.env[ENV_KEY];
+  delete process.env[PERSIST_ENV_KEY];
   if (originalEnv !== undefined) process.env[ENV_KEY] = originalEnv;
+  if (originalPersistEnv !== undefined) process.env[PERSIST_ENV_KEY] = originalPersistEnv;
   await rm(testDir, { recursive: true, force: true });
 }

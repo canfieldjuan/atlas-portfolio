@@ -92,6 +92,15 @@ server-side notification/customer links append the validated non-default variant
 so a later email click does not silently revert a partner buyer to the standard
 price.
 
+For partner submissions, the record route now requires durable DB persistence
+before returning success. `recordGapReportSubmission` supports a
+`requirePersistence` mode that writes the pending record before attempting
+notification email, then upserts the final notification status after delivery.
+If the partner variant cannot be persisted, `/record` returns 503 so the buyer
+can retry instead of being redirected to a results page whose saved pricing
+trust anchor is missing. Standard submissions keep the existing best-effort
+persistence warning path.
+
 The results route looks up the saved intake payload by ATLAS report request id
 and uses that server-side `priceVariant` as the display variant. Production does
 not trust a mutable `?priceVariant=partner` query string for pricing. The unlock
@@ -123,6 +132,10 @@ Checkout then resolves variant-specific Price IDs, requires Stripe's returned
 - Production preflight requires both standard and partner Price IDs, the partner
   access token, and an allowlist containing `100000` and `150000`, because the
   partner URL is active once this PR lands.
+- Non-default partner pricing treats the saved intake variant as a required
+  trust anchor. Standard/default submissions still use the pre-existing
+  best-effort DB warning path so this PR does not tighten unrelated legacy
+  intake behavior.
 
 ## Deferred
 
@@ -160,6 +173,8 @@ Parked hardening: none.
   stay on standard checkout.
 - `npm --prefix web run test:deflection-checkout` - passed after the partner
   intake token-gate fix; checkout trust-path regressions still pass.
+- `npm --prefix web run test:deflection-checkout` - passed after the
+  required-persistence fix; checkout trust-path regressions still pass.
 - `npm --prefix web run test:deflection-checkout-env` - passed; printed
   `Deflection checkout env tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` - passed after the review
@@ -178,6 +193,9 @@ Parked hardening: none.
   API gate fix; `parseGapReportMetadata` rejects `priceVariant=partner` without
   `partnerToken`, accepts it with the configured token, and strips the token from
   returned metadata.
+- `npm --prefix web run test:deflection-email-results-link` - passed after the
+  required-persistence fix; email/results-link generation still returns
+  submitted records with persisted status.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - initially failed
   on a stale source assertion for the old local results-link helper name.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - passed after
@@ -186,12 +204,22 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - passed after the
   partner intake token-gate fix; printed `Deflection intake ATLAS submit tests
   passed.`
+- `npm --prefix web run test:deflection-intake-atlas-submit` - passed after the
+  required-persistence fix; printed `Deflection intake ATLAS submit tests
+  passed.`
 - `npm --prefix web run test:deflection-partner-access` - passed; matching
   `partnerToken` resolves partner intake, missing/invalid tokens resolve
   standard, and partner/intake pages include the token-gate wiring.
 - `npm --prefix web run test:deflection-partner-access` - passed after the API
   gate fix; direct `/api/gap-report-intake/record` with forged partner metadata
   and no token returns HTTP 400 before persistence.
+- `npm --prefix web run test:deflection-partner-access` - passed after the
+  required-persistence fix; valid partner `/record` with persistence unavailable
+  returns HTTP 503, while standard `/record` keeps the existing warning-only
+  behavior.
+- `npm --prefix web run test:deflection-browser-upload-smoke` - passed after
+  the required-persistence fix; standard browser-upload record handling and
+  redirect validation still pass.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - initially failed because this fresh worktree
   had no `web/node_modules`; Turbopack could not resolve `next/package.json`
@@ -230,32 +258,35 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed after the partner-token preflight
   fix; plan shape, files touched, diff-size drift, cross-session drift, ESLint,
   Next build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - passed after the required-persistence
+  fix; plan shape, files touched, diff-size drift, cross-session drift, ESLint,
+  Next build, and `git diff --check` all passed.
 
 ## Estimated diff size
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +261 |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +292 |
 | `web/src/lib/deflection-pricing.ts` | +16 / -1 |
 | `web/src/lib/deflection-partner-access.ts` | +42 |
 | `web/src/lib/deflection-checkout.ts` | +24 / -10 |
-| `web/src/lib/gap-report-intake-database.ts` | +36 |
-| `web/src/lib/gap-report-intake.ts` | +43 / -4 |
+| `web/src/lib/gap-report-intake-database.ts` | +49 / -1 |
+| `web/src/lib/gap-report-intake.ts` | +94 / -18 |
 | `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +12 / -9 |
 | `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
 | `web/src/app/api/deflection-checkout/route.ts` | +24 |
-| `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
+| `web/src/app/api/gap-report-intake/record/route.ts` | +29 / -12 |
 | `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +37 / -3 |
 | `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +40 / -1 |
 | `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +17 / -38 |
 | `web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx` | +80 |
 | `web/package.json` | +1 |
 | `web/scripts/check-deflection-checkout-env.mjs` | +45 / -1 |
-| `web/scripts/test-deflection-partner-access.mjs` | +184 |
+| `web/scripts/test-deflection-partner-access.mjs` | +241 |
 | `web/scripts/test-deflection-checkout.mjs` | +131 / -4 |
 | `web/scripts/test-deflection-checkout-env.mjs` | +167 / -34 |
 | `web/scripts/test-deflection-email-results-link.mjs` | +78 / -1 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
 | `web/README.md` | +19 / -9 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +8 / -2 |
-| Total | 1399 changed |
+| Total | 1606 changed |

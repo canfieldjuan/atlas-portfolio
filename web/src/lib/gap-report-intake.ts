@@ -159,6 +159,11 @@ export type GapReportSubmissionResult = {
   requestId: string;
   status: 'submitted' | 'submitted_with_warnings';
   warnings: string[];
+  persisted: boolean;
+};
+
+type GapReportSubmissionOptions = {
+  requirePersistence?: boolean;
 };
 
 type IntakeOfferCopy = {
@@ -367,12 +372,36 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
   }
 }
 
+async function persistGapReportRecord(record: GapReportSubmissionRecord) {
+  try {
+    const persisted = await persistGapReportSubmission(record);
+    if (persisted) {
+      return { persisted: true as const, warning: '' };
+    }
+    return {
+      persisted: false as const,
+      warning:
+        'Gap Report database persistence not configured. CSV blob URL is saved in the notification email; configure GAP_REPORT_DATABASE_URL or POSTGRES_URL for durable storage.',
+    };
+  } catch (error) {
+    return {
+      persisted: false as const,
+      warning:
+        error instanceof Error
+          ? `Gap Report database persistence failed: ${error.message.slice(0, 240)}`
+          : 'Gap Report database persistence failed.',
+    };
+  }
+}
+
 export async function recordGapReportSubmission(
-  input: GapReportSubmissionInput
+  input: GapReportSubmissionInput,
+  options: GapReportSubmissionOptions = {},
 ): Promise<GapReportSubmissionResult> {
   const requestId = crypto.randomUUID();
   const submittedAt = new Date().toISOString();
   const warnings: string[] = [];
+  const requirePersistence = options.requirePersistence === true;
 
   let notificationStatus: 'sent' | 'failed' | 'pending' = 'pending';
   let notificationError: string | undefined;
@@ -386,6 +415,21 @@ export async function recordGapReportSubmission(
     notificationStatus: 'pending',
     confirmationStatus: 'pending',
   };
+
+  let persisted = false;
+  if (requirePersistence) {
+    const initialPersistence = await persistGapReportRecord(pendingRecord);
+    persisted = initialPersistence.persisted;
+    if (!persisted) {
+      warnings.push(initialPersistence.warning);
+      return {
+        requestId,
+        status: 'submitted_with_warnings',
+        warnings,
+        persisted,
+      };
+    }
+  }
 
   try {
     await sendNotificationEmail(pendingRecord);
@@ -415,24 +459,17 @@ export async function recordGapReportSubmission(
     confirmationError,
   };
 
-  try {
-    const persisted = await persistGapReportSubmission(record);
-    if (!persisted) {
-      warnings.push(
-        'Gap Report database persistence not configured. CSV blob URL is saved in the notification email; configure GAP_REPORT_DATABASE_URL or POSTGRES_URL for durable storage.'
-      );
-    }
-  } catch (error) {
-    warnings.push(
-      error instanceof Error
-        ? `Gap Report database persistence failed: ${error.message.slice(0, 240)}`
-        : 'Gap Report database persistence failed.'
-    );
+  const finalPersistence = await persistGapReportRecord(record);
+  if (finalPersistence.persisted) {
+    persisted = true;
+  } else {
+    warnings.push(finalPersistence.warning);
   }
 
   return {
     requestId,
     status: warnings.length > 0 ? 'submitted_with_warnings' : 'submitted',
     warnings,
+    persisted,
   };
 }

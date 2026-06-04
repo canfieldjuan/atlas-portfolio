@@ -111,7 +111,19 @@ export async function persistGapReportSubmission(record: GapReportSubmissionReco
         $12,
         $13::jsonb
       )
-      ON CONFLICT (request_id) DO NOTHING
+      ON CONFLICT (request_id) DO UPDATE SET
+        submitted_at = EXCLUDED.submitted_at,
+        email = EXCLUDED.email,
+        company_name = EXCLUDED.company_name,
+        support_platform = EXCLUDED.support_platform,
+        csv_blob_url = EXCLUDED.csv_blob_url,
+        csv_filename = EXCLUDED.csv_filename,
+        csv_size_bytes = EXCLUDED.csv_size_bytes,
+        source_page = EXCLUDED.source_page,
+        source_offer = EXCLUDED.source_offer,
+        notification_status = EXCLUDED.notification_status,
+        notification_error = EXCLUDED.notification_error,
+        payload = EXCLUDED.payload
     `,
     [
       record.requestId,
