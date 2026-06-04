@@ -1,0 +1,47 @@
+name: Deflection Snapshot Landing Monitor
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Public base URL to smoke.
+        required: false
+        default: https://juancanfield.com
+  schedule:
+    - cron: "17 13 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot-landing-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run production Snapshot landing smoke
+        shell: bash
+        run: |
+          base_url="${{ github.event.inputs.base_url }}"
+          if [ -z "$base_url" ]; then
+            base_url="https://juancanfield.com"
+          fi
+
+          npm --prefix web run smoke:deflection-snapshot-landing -- \
+            --base-url "$base_url" \
+            --json \
+            --output "$RUNNER_TEMP/deflection-snapshot-landing-smoke.json"
+
+      - name: Upload smoke artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deflection-snapshot-landing-smoke
+          path: ${{ runner.temp }}/deflection-snapshot-landing-smoke.json
+          if-no-files-found: ignore
