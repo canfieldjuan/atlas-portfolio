@@ -14,6 +14,7 @@ import {
   type DeflectionSnapshot,
   type DeflectionSnapshotAnswerPreview,
   type DeflectionSnapshotFullAnswer,
+  type DeflectionSnapshotLockedQuestion,
   type DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
 import {
@@ -28,6 +29,12 @@ const integerFormatter = new Intl.NumberFormat('en-US');
 
 function formatInteger(value: number) {
   return integerFormatter.format(value);
+}
+
+function benchmarkEstimateForTickets(ticketCount: number) {
+  return formatDeflectionWholeUsd(
+    ticketCount * DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  );
 }
 
 function snapshotCostProof(snapshot: DeflectionSnapshot) {
@@ -83,9 +90,9 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
     : 'the uploaded window';
   const metrics = [
     {
-      label: 'Uploaded-window cost',
+      label: 'Support Tax estimate',
       value: formatDeflectionWholeUsd(uploadedWindowCost),
-      detail: `${formatInteger(repeatTicketCount)} repeat-ticket hits across ${windowLabel}`,
+      detail: `${formatInteger(repeatTicketCount)} repeat-ticket hits x ${DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} benchmark across ${windowLabel}`,
     },
     {
       label: 'Annualized pace',
@@ -106,15 +113,16 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
     <section className="section-band section-band-muted mt-16">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.88fr)_minmax(21rem,1fr)] lg:items-start">
         <div>
-          <Eyebrow>Cost proof</Eyebrow>
+          <Eyebrow>Support Tax estimate</Eyebrow>
           <h2 className="max-w-3xl text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-            After the answer proof, price the repeat pattern.
+            The Snapshot turns repeat volume into a benchmark cost estimate.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-            In this representative snapshot, the repeat-ticket count is
-            multiplied by the {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL}{' '}
-            assisted-contact benchmark. The point is not a savings promise. It
-            is a fast value check before your team spends anything.
+            In this representative labeled-synthetic support set, the repeat
+            ticket count is multiplied by the{' '}
+            {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} assisted-contact
+            benchmark. The point is not a savings promise. It is a fast value
+            check before your team spends anything.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <PrimarySnapshotCta />
@@ -241,6 +249,45 @@ function PreviewPill({ preview }: { preview: DeflectionSnapshotAnswerPreview }) 
   );
 }
 
+function LockedQuestionFomoRows({
+  label,
+  questions,
+}: {
+  label: string;
+  questions: DeflectionSnapshotLockedQuestion[];
+}) {
+  const rows = questions.slice(0, 3);
+
+  return (
+    <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
+      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+        <Lock className="h-4 w-4 text-foreground/40" />
+        {label}
+      </div>
+      <div className="space-y-2">
+        {rows.map((question) => (
+          <div
+            key={question.rank}
+            className="grid gap-2 rounded-md border border-border/70 bg-white/62 p-3 text-xs sm:grid-cols-[4.5rem_minmax(0,1fr)_7rem] sm:items-center"
+          >
+            <span className="font-mono text-foreground/58">Rank #{question.rank}</span>
+            <span className="text-foreground/72">
+              {formatInteger(question.ticket_count)} repeat-ticket hits
+            </span>
+            <span className="font-mono text-foreground/72 sm:text-right">
+              {benchmarkEstimateForTickets(question.ticket_count)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-foreground/58">
+        Counts and benchmark estimates stay visible; question text withheld
+        until the full report unlocks the complete backlog.
+      </p>
+    </div>
+  );
+}
+
 function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
   const answer = snapshot.teaser.full_answer;
   const sourceQuestion = answer
@@ -265,8 +312,8 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
             One ticket pattern becomes one publishable draft.
           </h2>
         </div>
-        <span className="w-fit rounded-md border border-primary/25 px-2 py-1 text-xs font-mono text-primary">
-          Representative demo
+        <span className="w-fit max-w-[16rem] rounded-md border border-primary/25 px-2 py-1 text-xs font-mono leading-snug text-primary">
+          Representative labeled-synthetic support set
         </span>
       </div>
 
@@ -338,8 +385,9 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
       </div>
 
       <p className="mt-4 border-t border-border pt-4 text-xs leading-relaxed text-foreground/45">
-        Demo values are representative. Your uploaded snapshot uses your own
-        closed-ticket data and keeps the full report behind checkout.
+        Representative labeled-synthetic support set. Your uploaded snapshot
+        uses your own closed-ticket data and keeps the full report behind
+        checkout.
       </p>
     </section>
   );
@@ -401,17 +449,10 @@ function SnapshotArtifact({
       <SnapshotQuestionRows questions={visibleQuestions} />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-            <Lock className="h-4 w-4 text-foreground/40" />
-            {lockedRangeLabel}
-          </div>
-          <p className="text-sm leading-relaxed text-foreground/58">
-            The real snapshot can show there is more backlog without giving away
-            the full report. A strong Snapshot gives your team the evidence to
-            decide whether the complete list and answer plan are worth unlocking.
-          </p>
-        </div>
+        <LockedQuestionFomoRows
+          label={lockedRangeLabel}
+          questions={locked_questions}
+        />
         <div className="rounded-md border border-border bg-white/62 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Search className="h-4 w-4 text-primary" />
@@ -438,10 +479,10 @@ function SnapshotArtifact({
       )}
 
       <p className="mt-4 text-xs leading-relaxed text-foreground/45">
-        Demo values are representative. Your uploaded snapshot uses your own
-        closed-ticket data. Scores are relative ranking signals, not raw ticket
-        counts or dollar estimates. The full report keeps the remaining ranked
-        backlog behind checkout.
+        Representative labeled-synthetic support set. Your uploaded snapshot
+        uses your own closed-ticket data. Scores are relative ranking signals;
+        benchmark estimates are not guaranteed savings. The full report keeps
+        the remaining ranked backlog behind checkout.
       </p>
     </section>
   );
