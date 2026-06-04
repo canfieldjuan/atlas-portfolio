@@ -8,7 +8,7 @@ const INTAKE_HREF = `href="${INTAKE_PATH}"`;
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 const REQUIRED_MARKERS = [
   ['snapshotBadge', 'Free Deflection Snapshot'],
-  ['promiseHeadline', 'Turn repeat support tickets into help-center answers your team can publish.'],
+  ['promiseHeadline', 'Get the free Snapshot that shows which support tickets to deflect first.'],
   ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
   ['snapshotAction', 'Snapshot action'],
   ['snapshotFirst', 'Snapshot comes before any paid report'],

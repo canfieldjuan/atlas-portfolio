@@ -16,7 +16,7 @@ const MARKER_KEYS = [
 const GOOD_HTML = [
   '<main>',
   '<span>Free Deflection Snapshot</span>',
-  '<h1>Turn repeat support tickets into help-center answers your team can publish.</h1>',
+  '<h1>Get the free Snapshot that shows which support tickets to deflect first.</h1>',
   '<p>BEFORE / AFTER SNAPSHOT PROOF</p>',
   '<p>Snapshot action</p>',
   '<p>Snapshot comes before any paid report</p>',
