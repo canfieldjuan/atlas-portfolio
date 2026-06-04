@@ -2,9 +2,9 @@ import { DeflectionSnapshotLandingPage } from '@/components/landing/DeflectionSn
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
-  title: 'Free Deflection Snapshot for Repeat Support Tickets',
+  title: 'Free Deflection Snapshot: Find Repeat Support Tickets to Deflect First',
   description:
-    'Upload 3 months of closed tickets and get a free Deflection Snapshot: ranked repeat questions, customer wording, relative priority scores, and one sourced drafted answer preview.',
+    'Upload 3 months of closed tickets and get a free Deflection Snapshot: ranked repeat-ticket issues, customer wording, a benchmark Support Tax estimate, and one sourced answer draft.',
   path: '/systems/support-ticket-deflection/snapshot',
   keywords: [
     'free Deflection Snapshot',
