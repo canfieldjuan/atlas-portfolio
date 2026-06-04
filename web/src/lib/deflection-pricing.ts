@@ -6,8 +6,11 @@ export const DEFLECTION_FULL_REPORT_PRICE_USD = 1500;
 export const DEFLECTION_FULL_REPORT_PRICE_CENTS =
   DEFLECTION_FULL_REPORT_PRICE_USD * 100;
 export const DEFLECTION_DEFAULT_PRICE_VARIANT_ID = 'standard';
+export const DEFLECTION_PARTNER_PRICE_VARIANT_ID = 'partner';
 
-export type DeflectionPriceVariantId = typeof DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
+export type DeflectionPriceVariantId =
+  | typeof DEFLECTION_DEFAULT_PRICE_VARIANT_ID
+  | typeof DEFLECTION_PARTNER_PRICE_VARIANT_ID;
 
 export type DeflectionPriceVariant = {
   id: DeflectionPriceVariantId;
@@ -60,8 +63,20 @@ export const DEFLECTION_DEFAULT_PRICE_VARIANT = {
   priceLabel: formatDeflectionWholeUsd(DEFLECTION_FULL_REPORT_PRICE_USD),
 } as const satisfies DeflectionPriceVariant;
 
+export const DEFLECTION_PARTNER_PRICE_VARIANT = {
+  id: DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  metadataValue: DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  title: 'Full Deflection Report',
+  stripeProductName: 'Support Ticket Deflection: Partner Backlog Report',
+  stripePriceIdEnvKey: 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER',
+  amountUsd: 1000,
+  amountCents: 1000 * 100,
+  priceLabel: formatDeflectionWholeUsd(1000),
+} as const satisfies DeflectionPriceVariant;
+
 export const DEFLECTION_PRICE_VARIANTS = [
   DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_PARTNER_PRICE_VARIANT,
 ] as const satisfies readonly DeflectionPriceVariant[];
 
 export function resolveDeflectionPriceVariant(value: unknown): DeflectionPriceVariant | null {

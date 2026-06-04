@@ -126,6 +126,10 @@ function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfi
       console.error('stripe checkout create: configured price id is required for selected variant');
       return null;
     }
+    if (!allowedAmountsCents.has(priceVariant.amountCents)) {
+      console.error('stripe checkout create: selected variant amount is not allowed');
+      return null;
+    }
     return { apiKey: restrictedKey, accountId, priceId, allowedAmountsCents };
   }
 
@@ -143,8 +147,8 @@ function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfi
     return null;
   }
   const fallbackPriceId = configuredPriceIdForVariant(priceVariant);
-  if (!fallbackPriceId && !allowedAmountsCents.has(UNIT_AMOUNT_CENTS)) {
-    console.error('stripe checkout create: inline fallback amount is not allowed');
+  if (!allowedAmountsCents.has(priceVariant.amountCents)) {
+    console.error('stripe checkout create: selected variant amount is not allowed');
     return null;
   }
 
@@ -153,7 +157,7 @@ function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfi
 
 function isAllowedCheckoutSession(
   session: StripeCheckoutSessionResponse,
-  allowedAmountsCents: ReadonlySet<number>,
+  priceVariant: DeflectionPriceVariant,
 ): session is StripeCheckoutSessionResponse & { url: string } {
   if (typeof session.url !== 'string' || !session.url) {
     console.error('stripe checkout create: missing session url');
@@ -164,8 +168,8 @@ function isAllowedCheckoutSession(
     console.error('stripe checkout create: missing session amount');
     return false;
   }
-  if (!allowedAmountsCents.has(amountTotal)) {
-    console.error('stripe checkout create: session amount is not allowed');
+  if (amountTotal !== priceVariant.amountCents) {
+    console.error('stripe checkout create: session amount does not match selected variant');
     return false;
   }
   if (typeof session.currency !== 'string' || session.currency.toLowerCase() !== 'usd') {
@@ -173,6 +177,18 @@ function isAllowedCheckoutSession(
     return false;
   }
   return true;
+}
+
+function checkoutReturnUrl(
+  requestId: string,
+  checkout: 'success' | 'cancel',
+  priceVariant: DeflectionPriceVariant,
+) {
+  const params = new URLSearchParams({ checkout });
+  if (priceVariant.id !== DEFAULT_PRICE_VARIANT.id) {
+    params.set('priceVariant', priceVariant.id);
+  }
+  return `${SITE_URL}${RESULTS_PATH}/${encodeURIComponent(requestId)}?${params.toString()}`;
 }
 
 export async function createDeflectionCheckoutSession(
@@ -189,15 +205,13 @@ export async function createDeflectionCheckoutSession(
     return { ok: false, reason: 'invalid_request' };
   }
 
-  const resultsUrl = `${SITE_URL}${RESULTS_PATH}/${encodeURIComponent(requestId)}`;
-
   // The webhook is the trust path, so we don't need the session id echoed back —
   // the results page only re-probes GET /artifact. (Dropping `session_id` also
   // avoids the `{CHECKOUT_SESSION_ID}` literal-template pitfall in success_url.)
   const form = new URLSearchParams();
   form.set('mode', 'payment');
-  form.set('success_url', `${resultsUrl}?checkout=success`);
-  form.set('cancel_url', `${resultsUrl}?checkout=cancel`);
+  form.set('success_url', checkoutReturnUrl(requestId, 'success', priceVariant));
+  form.set('cancel_url', checkoutReturnUrl(requestId, 'cancel', priceVariant));
   form.set('line_items[0][quantity]', '1');
   if (config.priceId) {
     form.set('line_items[0][price]', config.priceId);
@@ -240,7 +254,7 @@ export async function createDeflectionCheckoutSession(
       return { ok: false, reason: 'error' };
     }
     const session = (await res.json()) as StripeCheckoutSessionResponse;
-    if (!isAllowedCheckoutSession(session, config.allowedAmountsCents)) {
+    if (!isAllowedCheckoutSession(session, priceVariant)) {
       return { ok: false, reason: 'error' };
     }
     return { ok: true, url: session.url };

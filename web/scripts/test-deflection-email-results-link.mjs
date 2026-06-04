@@ -12,6 +12,7 @@ const ENV_KEYS = [
   'GAP_REPORT_NOTIFICATION_RESEND_API_KEY',
   'GAP_REPORT_NOTIFICATION_FROM_EMAIL',
   'GAP_REPORT_NOTIFICATION_TO_EMAIL',
+  'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN',
 ];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
@@ -24,6 +25,7 @@ function resetEnv() {
   process.env.GAP_REPORT_NOTIFICATION_RESEND_API_KEY = 'resend_unit';
   process.env.GAP_REPORT_NOTIFICATION_FROM_EMAIL = 'reports@example.com';
   process.env.GAP_REPORT_NOTIFICATION_TO_EMAIL = 'ops@example.com';
+  process.env.DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN = 'partner_unit';
 }
 
 function restoreEnv() {
@@ -70,6 +72,29 @@ try {
     join(testDir, 'gap-report-intake-database.js'),
     'exports.persistGapReportSubmission = async () => true;\n',
   );
+  await writeFile(
+    join(testDir, 'deflection-pricing.js'),
+    [
+      "exports.DEFLECTION_DEFAULT_PRICE_VARIANT_ID = 'standard';",
+      "exports.DEFLECTION_PARTNER_PRICE_VARIANT_ID = 'partner';",
+      "exports.resolveDeflectionPriceVariant = (value) => {",
+      "  if (value === undefined || value === null || value === 'standard') return { id: 'standard' };",
+      "  if (value === 'partner') return { id: 'partner' };",
+      '  return null;',
+      '};',
+      '',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(testDir, 'deflection-partner-access.js'),
+    [
+      "exports.DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM = 'partnerToken';",
+      'exports.hasDeflectionPartnerPriceAccessToken = (value) => {',
+      "  return typeof value === 'string' && value.trim() === process.env.DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN;",
+      '};',
+      '',
+    ].join('\n'),
+  );
   await writeFile(join(testDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
 
   const source = await readFile(sourceUrl, 'utf8');
@@ -82,9 +107,44 @@ try {
   await writeFile(compiledPath, compiled.outputText);
 
   const require = createRequire(compiledPath);
-  const { recordGapReportSubmission } = require(compiledPath);
+  const {
+    deflectionResultsPath,
+    parseGapReportMetadata,
+    recordGapReportSubmission,
+  } = require(compiledPath);
 
+  assert.equal(
+    deflectionResultsPath('content-ops-unit-123', 'partner'),
+    '/systems/support-ticket-deflection/results/content-ops-unit-123?priceVariant=partner',
+  );
   resetEnv();
+  assert.deepEqual(parseGapReportMetadata({ ...baseInput, priceVariant: 'partner' }), {
+    ok: false,
+    error: 'Invalid partner price access token.',
+  });
+  assert.deepEqual(
+    parseGapReportMetadata({
+      ...baseInput,
+      priceVariant: 'partner',
+      partnerToken: 'partner_unit',
+    }).value.priceVariant,
+    'partner',
+  );
+  assert.equal(
+    JSON.stringify(
+      parseGapReportMetadata({
+        ...baseInput,
+        priceVariant: 'partner',
+        partnerToken: 'partner_unit',
+      }).value,
+    ).includes('partner_unit'),
+    false,
+  );
+  assert.deepEqual(parseGapReportMetadata({ ...baseInput, priceVariant: 'unknown' }), {
+    ok: false,
+    error: 'Invalid price variant.',
+  });
+
   installFetchMock();
   const withLink = await recordGapReportSubmission({
     ...baseInput,
@@ -103,6 +163,23 @@ try {
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
   );
   assert.doesNotMatch(sentText(1), /within 24 hours/);
+
+  installFetchMock();
+  const partnerLink = await recordGapReportSubmission({
+    ...baseInput,
+    priceVariant: 'partner',
+    reportRequestId: 'content-ops-unit-123',
+  });
+  assert.equal(partnerLink.status, 'submitted');
+  assert.equal(calls.length, 2);
+  assert.match(
+    sentText(0),
+    /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
+  );
+  assert.match(
+    sentText(1),
+    /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
+  );
 
   installFetchMock();
   const withoutLink = await recordGapReportSubmission(baseInput);

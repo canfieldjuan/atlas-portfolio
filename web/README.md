@@ -169,26 +169,36 @@ Sessions write permission:
 ATLAS_SAAS_STRIPE_RAK=
 ATLAS_ACCOUNT_ID=
 STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=
+STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
+DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
 validation and can still use inline test `price_data` when the Price ID is not
 set. `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` is the preferred Price ID for
 the current `standard` variant; `STRIPE_DEFLECTION_REPORT_PRICE_ID` remains a
-legacy fallback for that same variant. Full live `sk_live_` keys are rejected;
-production should use an `rk_live_` restricted key plus the configured
-`price_...` value.
+legacy fallback for that same variant. `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER`
+configures the `$1,000` partner URL variant. Full live `sk_live_` keys are
+rejected; production should use an `rk_live_` restricted key plus the configured
+`price_...` values.
 Production deployments reject test-mode fallback keys and require an `rk_live_`
 restricted key path.
 
 The configured Price must be active, `usd`, and have a `unit_amount` that is in
 the same comma-separated cent allowlist configured on ATLAS:
 `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS`. If the
-allowlist env is omitted, the portfolio defaults to the current full-report
-amount only. The checkout route validates Stripe's returned `amount_total` and
-`currency` before returning the Stripe redirect URL, so a mismatched Price fails
-closed before the customer leaves the results page.
+partner variant is enabled, configure both portfolio and ATLAS with
+`150000,100000` before traffic sees the partner Price ID. If the allowlist env is
+omitted, the portfolio defaults to the current full-report amount only. The
+checkout route validates Stripe's returned `amount_total` and `currency` before
+returning the Stripe redirect URL, so a mismatched Price fails closed before the
+customer leaves the results page.
 
-Use a long random value. Do not put this token in links or query strings.
+Partner pricing is eligibility-gated with
+`DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`. A partner intake link must include both
+`priceVariant=partner` and `partnerToken=<token>` before the server will persist
+the partner variant. Missing or invalid tokens fall back to the standard public
+price; partner-tagged checkout fails closed if the saved intake variant is
+missing.

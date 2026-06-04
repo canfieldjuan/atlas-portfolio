@@ -1,5 +1,10 @@
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import type { GapReportSubmissionRecord } from './gap-report-intake';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
+  type DeflectionPriceVariantId,
+  resolveDeflectionPriceVariant,
+} from './deflection-pricing';
 
 type GapReportSql = NeonQueryFunction<false, false>;
 
@@ -106,7 +111,19 @@ export async function persistGapReportSubmission(record: GapReportSubmissionReco
         $12,
         $13::jsonb
       )
-      ON CONFLICT (request_id) DO NOTHING
+      ON CONFLICT (request_id) DO UPDATE SET
+        submitted_at = EXCLUDED.submitted_at,
+        email = EXCLUDED.email,
+        company_name = EXCLUDED.company_name,
+        support_platform = EXCLUDED.support_platform,
+        csv_blob_url = EXCLUDED.csv_blob_url,
+        csv_filename = EXCLUDED.csv_filename,
+        csv_size_bytes = EXCLUDED.csv_size_bytes,
+        source_page = EXCLUDED.source_page,
+        source_offer = EXCLUDED.source_offer,
+        notification_status = EXCLUDED.notification_status,
+        notification_error = EXCLUDED.notification_error,
+        payload = EXCLUDED.payload
     `,
     [
       record.requestId,
@@ -234,6 +251,37 @@ export async function getGapReportSubmissionByRequestId(
     notificationError:
       typeof row.notification_error === 'string' ? row.notification_error : null,
   };
+}
+
+export async function getGapReportPriceVariantByReportRequestId(
+  reportRequestId: string
+): Promise<DeflectionPriceVariantId | null> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return null;
+  }
+
+  const rows = await sql.query(
+    `
+      SELECT
+        payload->>'priceVariant' AS price_variant
+      FROM portfolio_gap_report_submissions
+      WHERE payload->>'reportRequestId' = $1
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `,
+    [reportRequestId]
+  );
+
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+  const variant =
+    typeof row.price_variant === 'string'
+      ? resolveDeflectionPriceVariant(row.price_variant)
+      : null;
+  return variant?.id ?? DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
 }
 
 export async function listExpiredGapReportSubmissions(

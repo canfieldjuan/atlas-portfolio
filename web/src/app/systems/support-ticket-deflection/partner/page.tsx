@@ -1,43 +1,22 @@
-'use client';
+import { hasDeflectionPartnerPriceAccessToken } from '@/lib/deflection-partner-access';
+import { PartnerDeflectionLandingClient } from './PartnerDeflectionLandingClient';
 
-import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
-import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
-import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
-import { GAP_REPORT_INTAKE_HREF, pricingTiers } from '../landingConfig';
-
-// Partner-priced twin of the public wedge (D-025): identical to the rewritten
-// landing except (1) the Full Deflection Report is $1,000 for the first 5 design
-// partners, and (2) the embedded public calculator is omitted to keep the
-// noindex partner funnel focused on the partner offer. This URL is shared only in
-// outbound (never linked from the public page); the noindex in layout.tsx keeps
-// the $1,000 price out of search.
-// Reuses landingPageConfigV2 + the shared pricingTiers so the rewritten wedge copy
-// + pricing edits propagate here automatically, no drift.
-const partnerPricingTiers: DiagnosticPricingTier[] = pricingTiers.map((tier) =>
-  tier.id === 'full-report'
-    ? {
-        ...tier,
-        price: '$1,000',
-        badge: 'FIRST 5 DESIGN PARTNERS',
-        note: 'Partner price for the first 5 design partners, early teams that collaborate on direction and are OK sharing anonymized patterns as a case study.',
-      }
-    : tier,
-);
-const partnerSnapshotCta = {
-  label: 'Upload your tickets, get a free Deflection Snapshot',
-  href: GAP_REPORT_INTAKE_HREF,
+type PageProps = {
+  searchParams?: Promise<{ partnerToken?: string | string[] }>;
 };
 
-const partnerConfig = {
-  ...landingPageConfigV2,
-  hero: { ...landingPageConfigV2.hero, cta: partnerSnapshotCta },
-  finalCta: { ...landingPageConfigV2.finalCta, cta: partnerSnapshotCta },
-  problemAgitation: makeProblemAgitation(),
-  problemCost: makeProblemCost(),
-  calculator: undefined, // keep the partner funnel focused on the partner offer
-  pricing: { ...landingPageConfigV2.pricing, tiers: partnerPricingTiers },
-};
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
 
-export default function SupportTicketDeflectionPartnerPage() {
-  return <DeflectionLandingPage config={partnerConfig} />;
+export default async function SupportTicketDeflectionPartnerPage({ searchParams }: PageProps) {
+  const query = searchParams ? await searchParams : undefined;
+  const token = firstParam(query?.partnerToken);
+  const hasPartnerAccess = hasDeflectionPartnerPriceAccessToken(token);
+  return (
+    <PartnerDeflectionLandingClient
+      hasPartnerAccess={hasPartnerAccess}
+      partnerToken={hasPartnerAccess ? token : undefined}
+    />
+  );
 }

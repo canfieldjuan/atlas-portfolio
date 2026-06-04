@@ -10,11 +10,17 @@ import {
   fetchDeflectionSnapshot,
   fetchDeflectionArtifact,
 } from '@/lib/atlas-deflection-client';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
+  resolveDeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
+import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
 type PageProps = {
   params: Promise<{ requestId: string }>;
-  searchParams?: Promise<{ checkout?: string | string[] }>;
+  searchParams?: Promise<{ checkout?: string | string[]; priceVariant?: string | string[] }>;
 };
 
 // Per-request results page — never indexed.
@@ -52,6 +58,22 @@ function checkoutStatus(value: string | string[] | undefined): 'success' | 'canc
   return checkout === 'success' || checkout === 'cancel' ? checkout : undefined;
 }
 
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+async function getServerBoundPriceVariantId(requestId: string) {
+  try {
+    return await getGapReportPriceVariantByReportRequestId(requestId);
+  } catch (error) {
+    console.error(
+      'deflection results: failed to load saved price variant:',
+      error instanceof Error ? error.message : error,
+    );
+    return null;
+  }
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const artifact = await getArtifact(requestId);
@@ -59,11 +81,28 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
 
   const snapshot = await getSnapshot(requestId);
   const query = searchParams ? await searchParams : undefined;
+  const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
+  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !savedPriceVariantId &&
+    requestedPriceVariant &&
+    requestedPriceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID
+  ) {
+    throw new Error('Results are temporarily unavailable. Please try again.');
+  }
+  const priceVariant =
+    resolveDeflectionPriceVariant(
+      savedPriceVariantId ||
+        (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
+    ) ||
+    DEFLECTION_DEFAULT_PRICE_VARIANT;
   return (
     <DeflectionResultsPage
       snapshot={snapshot}
       requestId={requestId}
       checkoutStatus={checkoutStatus(query?.checkout)}
+      priceVariant={priceVariant}
     />
   );
 }

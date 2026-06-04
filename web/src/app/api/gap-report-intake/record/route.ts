@@ -7,6 +7,7 @@ import {
   recordGapReportSubmission,
 } from '@/lib/gap-report-intake';
 import { submitDeflectionReportCsv } from '@/lib/atlas-deflection-client';
+import { DEFLECTION_PARTNER_PRICE_VARIANT_ID } from '@/lib/deflection-pricing';
 
 export const runtime = 'nodejs';
 
@@ -78,19 +79,35 @@ export async function POST(request: Request) {
       }
     }
 
-    const result = await recordGapReportSubmission({
-      name: meta.value.name,
-      email: meta.value.email,
-      companyName: meta.value.companyName,
-      supportPlatform: meta.value.supportPlatform,
-      csvBlobUrl: blobUrl,
-      csvFilename: meta.value.csvFilename,
-      csvSizeBytes: meta.value.csvSizeBytes,
-      sourcePage: meta.value.sourcePage,
-      sourceOffer: meta.value.sourceOffer,
-      reportRequestId,
-    });
+    const requiresDurableVariantPersistence =
+      meta.value.priceVariant === DEFLECTION_PARTNER_PRICE_VARIANT_ID;
+    const result = await recordGapReportSubmission(
+      {
+        name: meta.value.name,
+        email: meta.value.email,
+        companyName: meta.value.companyName,
+        supportPlatform: meta.value.supportPlatform,
+        csvBlobUrl: blobUrl,
+        csvFilename: meta.value.csvFilename,
+        csvSizeBytes: meta.value.csvSizeBytes,
+        sourcePage: meta.value.sourcePage,
+        sourceOffer: meta.value.sourceOffer,
+        priceVariant: meta.value.priceVariant,
+        reportRequestId,
+      },
+      { requirePersistence: requiresDurableVariantPersistence },
+    );
     warnings.push(...result.warnings);
+
+    if (requiresDurableVariantPersistence && !result.persisted) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Partner price could not be saved. Please retry your upload.',
+        },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json({
       ok: true,

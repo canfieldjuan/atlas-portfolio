@@ -5,7 +5,12 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { upload } from '@vercel/blob/client';
 import { trackFaqReportCsvSubmitted } from '@/lib/analytics';
-import { SUPPORT_PLATFORM_OPTIONS, type SupportPlatform } from '@/lib/gap-report-intake';
+import {
+  deflectionResultsPath,
+  SUPPORT_PLATFORM_OPTIONS,
+  type SupportPlatform,
+} from '@/lib/gap-report-intake';
+import type { DeflectionPriceVariantId } from '@/lib/deflection-pricing';
 
 type SubmissionStatus =
   | { phase: 'idle' }
@@ -24,12 +29,6 @@ type FormErrors = Partial<{
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 50;
 const CSV_UPLOAD_CONTENT_TYPES = new Set(['text/csv', 'application/csv', 'application/vnd.ms-excel']);
-const REPORT_REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
-
-function deflectionResultsHref(reportRequestId: string | undefined) {
-  if (!reportRequestId || !REPORT_REQUEST_ID_RE.test(reportRequestId)) return null;
-  return `/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
-}
 
 export type SupportTicketCsvIntakeCopy = {
   backHref: string;
@@ -38,6 +37,8 @@ export type SupportTicketCsvIntakeCopy = {
   sourceOffer: string;
   snapshotName: string;
   submitLabel: string;
+  priceVariantId?: DeflectionPriceVariantId;
+  partnerAccessToken?: string;
 };
 
 export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvIntakeCopy }) {
@@ -100,6 +101,8 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
       csvSizeBytes: file.size,
       sourcePage: copy.sourcePage,
       sourceOffer: copy.sourceOffer,
+      priceVariant: copy.priceVariantId,
+      partnerToken: copy.partnerAccessToken,
     };
 
     try {
@@ -152,7 +155,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         return;
       }
 
-      const resultsHref = deflectionResultsHref(payload.reportRequestId);
+      const resultsHref = deflectionResultsPath(payload.reportRequestId, copy.priceVariantId);
       if (resultsHref) {
         trackFaqReportCsvSubmitted({
           supportPlatform,
@@ -205,7 +208,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     const hasInternalWarning = submission.warnings.some(
       (warning) => !warning.toLowerCase().includes('customer confirmation')
     );
-    const resultsHref = deflectionResultsHref(submission.reportRequestId);
+    const resultsHref = deflectionResultsPath(submission.reportRequestId, copy.priceVariantId);
 
     return (
       <>

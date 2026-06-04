@@ -1,4 +1,14 @@
 import { persistGapReportSubmission } from './gap-report-intake-database';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  type DeflectionPriceVariantId,
+  resolveDeflectionPriceVariant,
+} from './deflection-pricing';
+import {
+  DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM,
+  hasDeflectionPartnerPriceAccessToken,
+} from './deflection-partner-access';
 import { SITE_URL } from './seo';
 
 const SUPPORT_PLATFORMS = [
@@ -49,6 +59,7 @@ export type GapReportMetadata = {
   csvSizeBytes?: number;
   sourcePage?: string;
   sourceOffer?: string;
+  priceVariant?: DeflectionPriceVariantId;
 };
 
 // Shared validation for the direct-to-blob intake: the token route validates
@@ -65,6 +76,10 @@ export function parseGapReportMetadata(
   const email = typeof m.email === 'string' ? m.email.trim() : '';
   const companyName = typeof m.companyName === 'string' ? m.companyName.trim() : '';
   const csvFilename = typeof m.csvFilename === 'string' ? m.csvFilename.trim() : '';
+  const priceVariant =
+    typeof m.priceVariant === 'string'
+      ? resolveDeflectionPriceVariant(m.priceVariant.trim())
+      : undefined;
   if (!name) return { ok: false, error: 'Your name is required.' };
   if (!email || !GAP_REPORT_EMAIL_RE.test(email)) {
     return { ok: false, error: 'A valid work email is required.' };
@@ -75,6 +90,15 @@ export function parseGapReportMetadata(
   }
   if (!csvFilename.toLowerCase().endsWith('.csv')) {
     return { ok: false, error: 'A .csv file is required.' };
+  }
+  if (m.priceVariant !== undefined && !priceVariant) {
+    return { ok: false, error: 'Invalid price variant.' };
+  }
+  if (
+    priceVariant?.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID &&
+    !hasDeflectionPartnerPriceAccessToken(m[DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM])
+  ) {
+    return { ok: false, error: 'Invalid partner price access token.' };
   }
   return {
     ok: true,
@@ -87,6 +111,7 @@ export function parseGapReportMetadata(
       csvSizeBytes: typeof m.csvSizeBytes === 'number' ? m.csvSizeBytes : undefined,
       sourcePage: typeof m.sourcePage === 'string' ? m.sourcePage : undefined,
       sourceOffer: typeof m.sourceOffer === 'string' ? m.sourceOffer : undefined,
+      priceVariant: priceVariant?.id,
     },
   };
 }
@@ -117,6 +142,7 @@ export type GapReportSubmissionInput = {
   csvSizeBytes?: number;
   sourcePage?: string;
   sourceOffer?: string;
+  priceVariant?: DeflectionPriceVariantId;
   reportRequestId?: string;
 };
 
@@ -133,6 +159,11 @@ export type GapReportSubmissionResult = {
   requestId: string;
   status: 'submitted' | 'submitted_with_warnings';
   warnings: string[];
+  persisted: boolean;
+};
+
+type GapReportSubmissionOptions = {
+  requirePersistence?: boolean;
 };
 
 type IntakeOfferCopy = {
@@ -183,16 +214,29 @@ function formatBytes(bytes: number | undefined) {
 
 const DEFLECTION_REPORT_REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
-function deflectionResultsUrl(reportRequestId: string | undefined) {
+export function deflectionResultsPath(
+  reportRequestId: string | undefined,
+  priceVariant?: DeflectionPriceVariantId,
+) {
   if (!reportRequestId || !DEFLECTION_REPORT_REQUEST_ID_RE.test(reportRequestId)) {
     return null;
   }
-  return `${SITE_URL}/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+  const path = `/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+  if (!priceVariant || priceVariant === DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return path;
+  return `${path}?priceVariant=${encodeURIComponent(priceVariant)}`;
+}
+
+function deflectionResultsUrl(
+  reportRequestId: string | undefined,
+  priceVariant?: DeflectionPriceVariantId,
+) {
+  const path = deflectionResultsPath(reportRequestId, priceVariant);
+  return path ? `${SITE_URL}${path}` : null;
 }
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
   const offer = intakeOfferCopy(record.sourceOffer);
-  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
     offer.notificationHeading,
@@ -220,7 +264,7 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
 function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
   const offer = intakeOfferCopy(record.sourceOffer);
-  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
     firstName ? `Hi ${firstName},` : 'Hi,',
@@ -328,12 +372,36 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
   }
 }
 
+async function persistGapReportRecord(record: GapReportSubmissionRecord) {
+  try {
+    const persisted = await persistGapReportSubmission(record);
+    if (persisted) {
+      return { persisted: true as const, warning: '' };
+    }
+    return {
+      persisted: false as const,
+      warning:
+        'Gap Report database persistence not configured. CSV blob URL is saved in the notification email; configure GAP_REPORT_DATABASE_URL or POSTGRES_URL for durable storage.',
+    };
+  } catch (error) {
+    return {
+      persisted: false as const,
+      warning:
+        error instanceof Error
+          ? `Gap Report database persistence failed: ${error.message.slice(0, 240)}`
+          : 'Gap Report database persistence failed.',
+    };
+  }
+}
+
 export async function recordGapReportSubmission(
-  input: GapReportSubmissionInput
+  input: GapReportSubmissionInput,
+  options: GapReportSubmissionOptions = {},
 ): Promise<GapReportSubmissionResult> {
   const requestId = crypto.randomUUID();
   const submittedAt = new Date().toISOString();
   const warnings: string[] = [];
+  const requirePersistence = options.requirePersistence === true;
 
   let notificationStatus: 'sent' | 'failed' | 'pending' = 'pending';
   let notificationError: string | undefined;
@@ -347,6 +415,21 @@ export async function recordGapReportSubmission(
     notificationStatus: 'pending',
     confirmationStatus: 'pending',
   };
+
+  let persisted = false;
+  if (requirePersistence) {
+    const initialPersistence = await persistGapReportRecord(pendingRecord);
+    persisted = initialPersistence.persisted;
+    if (!persisted) {
+      warnings.push(initialPersistence.warning);
+      return {
+        requestId,
+        status: 'submitted_with_warnings',
+        warnings,
+        persisted,
+      };
+    }
+  }
 
   try {
     await sendNotificationEmail(pendingRecord);
@@ -376,24 +459,17 @@ export async function recordGapReportSubmission(
     confirmationError,
   };
 
-  try {
-    const persisted = await persistGapReportSubmission(record);
-    if (!persisted) {
-      warnings.push(
-        'Gap Report database persistence not configured. CSV blob URL is saved in the notification email; configure GAP_REPORT_DATABASE_URL or POSTGRES_URL for durable storage.'
-      );
-    }
-  } catch (error) {
-    warnings.push(
-      error instanceof Error
-        ? `Gap Report database persistence failed: ${error.message.slice(0, 240)}`
-        : 'Gap Report database persistence failed.'
-    );
+  const finalPersistence = await persistGapReportRecord(record);
+  if (finalPersistence.persisted) {
+    persisted = true;
+  } else {
+    warnings.push(finalPersistence.warning);
   }
 
   return {
     requestId,
     status: warnings.length > 0 ? 'submitted_with_warnings' : 'submitted',
     warnings,
+    persisted,
   };
 }
