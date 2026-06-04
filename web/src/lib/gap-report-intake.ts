@@ -1,4 +1,9 @@
 import { persistGapReportSubmission } from './gap-report-intake-database';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
+  type DeflectionPriceVariantId,
+  resolveDeflectionPriceVariant,
+} from './deflection-pricing';
 import { SITE_URL } from './seo';
 
 const SUPPORT_PLATFORMS = [
@@ -49,6 +54,7 @@ export type GapReportMetadata = {
   csvSizeBytes?: number;
   sourcePage?: string;
   sourceOffer?: string;
+  priceVariant?: DeflectionPriceVariantId;
 };
 
 // Shared validation for the direct-to-blob intake: the token route validates
@@ -65,6 +71,10 @@ export function parseGapReportMetadata(
   const email = typeof m.email === 'string' ? m.email.trim() : '';
   const companyName = typeof m.companyName === 'string' ? m.companyName.trim() : '';
   const csvFilename = typeof m.csvFilename === 'string' ? m.csvFilename.trim() : '';
+  const priceVariant =
+    typeof m.priceVariant === 'string'
+      ? resolveDeflectionPriceVariant(m.priceVariant.trim())
+      : undefined;
   if (!name) return { ok: false, error: 'Your name is required.' };
   if (!email || !GAP_REPORT_EMAIL_RE.test(email)) {
     return { ok: false, error: 'A valid work email is required.' };
@@ -75,6 +85,9 @@ export function parseGapReportMetadata(
   }
   if (!csvFilename.toLowerCase().endsWith('.csv')) {
     return { ok: false, error: 'A .csv file is required.' };
+  }
+  if (m.priceVariant !== undefined && !priceVariant) {
+    return { ok: false, error: 'Invalid price variant.' };
   }
   return {
     ok: true,
@@ -87,6 +100,7 @@ export function parseGapReportMetadata(
       csvSizeBytes: typeof m.csvSizeBytes === 'number' ? m.csvSizeBytes : undefined,
       sourcePage: typeof m.sourcePage === 'string' ? m.sourcePage : undefined,
       sourceOffer: typeof m.sourceOffer === 'string' ? m.sourceOffer : undefined,
+      priceVariant: priceVariant?.id,
     },
   };
 }
@@ -117,6 +131,7 @@ export type GapReportSubmissionInput = {
   csvSizeBytes?: number;
   sourcePage?: string;
   sourceOffer?: string;
+  priceVariant?: DeflectionPriceVariantId;
   reportRequestId?: string;
 };
 
@@ -183,16 +198,29 @@ function formatBytes(bytes: number | undefined) {
 
 const DEFLECTION_REPORT_REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
-function deflectionResultsUrl(reportRequestId: string | undefined) {
+export function deflectionResultsPath(
+  reportRequestId: string | undefined,
+  priceVariant?: DeflectionPriceVariantId,
+) {
   if (!reportRequestId || !DEFLECTION_REPORT_REQUEST_ID_RE.test(reportRequestId)) {
     return null;
   }
-  return `${SITE_URL}/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+  const path = `/systems/support-ticket-deflection/results/${encodeURIComponent(reportRequestId)}`;
+  if (!priceVariant || priceVariant === DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return path;
+  return `${path}?priceVariant=${encodeURIComponent(priceVariant)}`;
+}
+
+function deflectionResultsUrl(
+  reportRequestId: string | undefined,
+  priceVariant?: DeflectionPriceVariantId,
+) {
+  const path = deflectionResultsPath(reportRequestId, priceVariant);
+  return path ? `${SITE_URL}${path}` : null;
 }
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
   const offer = intakeOfferCopy(record.sourceOffer);
-  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
     offer.notificationHeading,
@@ -220,7 +248,7 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
 function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
   const offer = intakeOfferCopy(record.sourceOffer);
-  const resultsUrl = deflectionResultsUrl(record.reportRequestId);
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
     firstName ? `Hi ${firstName},` : 'Hi,',

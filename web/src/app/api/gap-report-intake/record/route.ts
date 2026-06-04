@@ -88,6 +88,7 @@ export async function POST(request: Request) {
       csvSizeBytes: meta.value.csvSizeBytes,
       sourcePage: meta.value.sourcePage,
       sourceOffer: meta.value.sourceOffer,
+      priceVariant: meta.value.priceVariant,
       reportRequestId,
     });
     warnings.push(...result.warnings);

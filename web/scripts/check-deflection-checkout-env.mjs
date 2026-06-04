@@ -8,7 +8,9 @@ import { loadLocalEnv } from './local-env.mjs';
 const DEFAULT_ENVIRONMENT = 'local';
 const PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
+const PARTNER_ALLOWED_AMOUNT_CENTS = 1000 * 100;
 const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
+const PARTNER_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
@@ -16,11 +18,15 @@ const ALLOWED_AMOUNT_CENTS_ENV =
 const LEGACY_INLINE_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
   'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
+const PARTNER_ALLOWED_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
+  `${PARTNER_PRICE_ID_ENV} is configured.`;
 const CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
   STANDARD_PRICE_ID_ENV,
+  PARTNER_PRICE_ID_ENV,
   LEGACY_PRICE_ID_ENV,
   ALLOWED_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
@@ -44,7 +50,8 @@ Production requires:
   ATLAS_ACCOUNT_ID=<account-id>
   ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
   ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
-  ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,180000...] (optional; defaults to 150000)
+  ${PARTNER_PRICE_ID_ENV}=price_... (optional partner variant)
+  ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,100000...] (required to include 100000 when partner is configured)
 
 Preview/development/local accept:
   ATLAS_SAAS_STRIPE_RAK=rk_test_... plus ${STANDARD_PRICE_ID_ENV}=price_...
@@ -164,6 +171,7 @@ function classifyEnv(env) {
   const legacySecret = clean(env.ATLAS_SAAS_STRIPE_SECRET_KEY);
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
   const standardPriceId = clean(env[STANDARD_PRICE_ID_ENV]);
+  const partnerPriceId = clean(env[PARTNER_PRICE_ID_ENV]);
   const legacyPriceId = clean(env[LEGACY_PRICE_ID_ENV]);
   const priceId = standardPriceId || legacyPriceId;
   const allowedAmounts = parseAllowedAmounts(env[ALLOWED_AMOUNT_CENTS_ENV]);
@@ -174,6 +182,7 @@ function classifyEnv(env) {
       legacySecret ? 'ATLAS_SAAS_STRIPE_SECRET_KEY' : '',
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
       standardPriceId ? STANDARD_PRICE_ID_ENV : '',
+      partnerPriceId ? PARTNER_PRICE_ID_ENV : '',
       legacyPriceId ? LEGACY_PRICE_ID_ENV : '',
       clean(env[ALLOWED_AMOUNT_CENTS_ENV]) ? ALLOWED_AMOUNT_CENTS_ENV : '',
     ].filter(Boolean),
@@ -182,6 +191,7 @@ function classifyEnv(env) {
       ATLAS_SAAS_STRIPE_SECRET_KEY: modeForKey(legacySecret),
       ATLAS_ACCOUNT_ID: accountId ? 'configured' : 'missing',
       [STANDARD_PRICE_ID_ENV]: standardPriceId ? 'configured' : 'missing',
+      [PARTNER_PRICE_ID_ENV]: partnerPriceId ? 'configured' : 'missing',
       [LEGACY_PRICE_ID_ENV]: legacyPriceId ? 'configured' : 'missing',
       [ALLOWED_AMOUNT_CENTS_ENV]: allowedAmounts.mode,
     },
@@ -189,6 +199,7 @@ function classifyEnv(env) {
     legacySecret,
     accountId,
     standardPriceId,
+    partnerPriceId,
     legacyPriceId,
     priceId,
     allowedAmounts,
@@ -211,8 +222,17 @@ export function validateDeflectionCheckoutEnv(env, options = {}) {
     addInvalid(invalid, classified.allowedAmounts.error);
   }
   addInvalidPriceId(invalid, STANDARD_PRICE_ID_ENV, classified.standardPriceId);
+  addInvalidPriceId(invalid, PARTNER_PRICE_ID_ENV, classified.partnerPriceId);
   if (!classified.standardPriceId) {
     addInvalidPriceId(invalid, LEGACY_PRICE_ID_ENV, classified.legacyPriceId);
+  }
+  if (
+    classified.partnerPriceId &&
+    PRICE_ID_RE.test(classified.partnerPriceId) &&
+    classified.allowedAmounts.ok &&
+    !classified.allowedAmounts.amounts.includes(PARTNER_ALLOWED_AMOUNT_CENTS)
+  ) {
+    addInvalid(invalid, PARTNER_ALLOWED_AMOUNT_ERROR);
   }
 
   if (isProduction) {

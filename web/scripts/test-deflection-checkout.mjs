@@ -19,6 +19,7 @@ const ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD',
+  'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS',
   'VERCEL_ENV',
@@ -77,6 +78,7 @@ try {
   await writeFile(compiledPricingPath, compiledPricing.outputText);
   const {
     DEFLECTION_DEFAULT_PRICE_VARIANT,
+    DEFLECTION_PARTNER_PRICE_VARIANT,
     DEFLECTION_FULL_REPORT_PRICE_CENTS,
   } = require(compiledPricingPath);
   const variantAmountCents = DEFLECTION_FULL_REPORT_PRICE_CENTS + 30_000;
@@ -90,13 +92,13 @@ try {
     join(seoStubDir, 'deflection-pricing.js'),
     [
       `exports.DEFLECTION_DEFAULT_PRICE_VARIANT = ${JSON.stringify(DEFLECTION_DEFAULT_PRICE_VARIANT)};`,
+      `exports.DEFLECTION_PARTNER_PRICE_VARIANT = ${JSON.stringify(DEFLECTION_PARTNER_PRICE_VARIANT)};`,
       `exports.DEFLECTION_FULL_REPORT_PRICE_CENTS = ${DEFLECTION_FULL_REPORT_PRICE_CENTS};`,
+      'exports.DEFLECTION_PRICE_VARIANTS = [exports.DEFLECTION_DEFAULT_PRICE_VARIANT, exports.DEFLECTION_PARTNER_PRICE_VARIANT];',
       'exports.resolveDeflectionPriceVariant = (value) => {',
       '  if (value === undefined || value === null) return exports.DEFLECTION_DEFAULT_PRICE_VARIANT;',
       "  if (typeof value !== 'string') return null;",
-      '  return value.trim() === exports.DEFLECTION_DEFAULT_PRICE_VARIANT.id',
-      '    ? exports.DEFLECTION_DEFAULT_PRICE_VARIANT',
-      '    : null;',
+      '  return exports.DEFLECTION_PRICE_VARIANTS.find((variant) => variant.id === value.trim()) || null;',
       '};',
       '',
     ].join('\n'),
@@ -137,6 +139,59 @@ try {
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
   assert.equal(calls[0].body.get('metadata[price_id]'), 'price_standard123');
   assert.equal(calls[0].body.has('metadata[price_amount_cents]'), false);
+  assert.equal(
+    calls[0].body.get('success_url'),
+    'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=success',
+  );
+  assert.equal(
+    calls[0].body.get('cancel_url'),
+    'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=cancel',
+  );
+
+  installFetchMock({
+    ...defaultStripeSession,
+    amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
+  });
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
+    ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
+      `${DEFLECTION_FULL_REPORT_PRICE_CENTS}, ${DEFLECTION_PARTNER_PRICE_VARIANT.amountCents}`,
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_partner123');
+  assert.equal(calls[0].body.get('metadata[price_variant]'), 'partner');
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_partner123');
+  assert.equal(
+    calls[0].body.get('success_url'),
+    'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=success&priceVariant=partner',
+  );
+  assert.equal(
+    calls[0].body.get('cancel_url'),
+    'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=cancel&priceVariant=partner',
+  );
+
+  installFetchMock({
+    ...defaultStripeSession,
+    amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
+  });
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -379,6 +434,28 @@ try {
       requestId: 'request-123',
       attemptId: 'attempt-12345678',
       priceVariantId: 'standard',
+    },
+  ]);
+
+  checkoutRouteStub.calls.length = 0;
+  const partnerVariantResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'request-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'partner',
+      }),
+    }),
+  );
+  assert.equal(partnerVariantResponse.status, 503);
+  assert.deepEqual(await partnerVariantResponse.json(), { error: 'Could not start checkout.' });
+  assert.deepEqual(checkoutRouteStub.calls, [
+    {
+      requestId: 'request-123',
+      attemptId: 'attempt-12345678',
+      priceVariantId: 'partner',
     },
   ]);
 

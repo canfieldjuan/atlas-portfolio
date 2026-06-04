@@ -2,8 +2,11 @@
 
 import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
 import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
+import { DEFLECTION_PARTNER_PRICE_VARIANT } from '@/lib/deflection-pricing';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
-import { GAP_REPORT_INTAKE_HREF, pricingTiers } from '../landingConfig';
+import { pricingTiers } from '../landingConfig';
+
+const PARTNER_INTAKE_HREF = `/systems/support-ticket-deflection/intake?priceVariant=${DEFLECTION_PARTNER_PRICE_VARIANT.id}`;
 
 // Partner-priced twin of the public wedge (D-025): identical to the rewritten
 // landing except (1) the Full Deflection Report is $1,000 for the first 5 design
@@ -17,15 +20,16 @@ const partnerPricingTiers: DiagnosticPricingTier[] = pricingTiers.map((tier) =>
   tier.id === 'full-report'
     ? {
         ...tier,
-        price: '$1,000',
+        price: DEFLECTION_PARTNER_PRICE_VARIANT.priceLabel,
+        href: PARTNER_INTAKE_HREF,
         badge: 'FIRST 5 DESIGN PARTNERS',
         note: 'Partner price for the first 5 design partners, early teams that collaborate on direction and are OK sharing anonymized patterns as a case study.',
       }
-    : tier,
+    : { ...tier, href: PARTNER_INTAKE_HREF },
 );
 const partnerSnapshotCta = {
   label: 'Upload your tickets, get a free Deflection Snapshot',
-  href: GAP_REPORT_INTAKE_HREF,
+  href: PARTNER_INTAKE_HREF,
 };
 
 const partnerConfig = {

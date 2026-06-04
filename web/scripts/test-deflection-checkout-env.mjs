@@ -10,8 +10,10 @@ function validate(env, environment) {
 }
 
 const DEFAULT_ALLOWED_AMOUNT_CENTS = 1500 * 100;
+const PARTNER_ALLOWED_AMOUNT_CENTS = 1000 * 100;
 const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
 const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
+const PARTNER_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
@@ -19,6 +21,9 @@ const ALLOWED_AMOUNT_CENTS_ENV =
 const LEGACY_INLINE_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
   'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
+const PARTNER_ALLOWED_AMOUNT_ERROR =
+  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
+  `${PARTNER_PRICE_ID_ENV} is configured.`;
 
 {
   const result = validate(
@@ -108,6 +113,61 @@ const LEGACY_INLINE_AMOUNT_ERROR =
     DEFAULT_ALLOWED_AMOUNT_CENTS,
     VARIANT_ALLOWED_AMOUNT_CENTS,
   ]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [PARTNER_ALLOWED_AMOUNT_ERROR]);
+  assert.equal(result.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
+  assert.deepEqual(result.allowedAmountsCents, [DEFAULT_ALLOWED_AMOUNT_CENTS]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [ALLOWED_AMOUNT_CENTS_ENV]:
+        `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`,
+    },
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
+  assert.deepEqual(result.allowedAmountsCents, [
+    DEFAULT_ALLOWED_AMOUNT_CENTS,
+    PARTNER_ALLOWED_AMOUNT_CENTS,
+  ]);
+}
+
+{
+  const result = validate(
+    {
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'not_a_price',
+      [ALLOWED_AMOUNT_CENTS_ENV]:
+        `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`,
+    },
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.invalid, [`${PARTNER_PRICE_ID_ENV} must be a Stripe price_ id.`]);
 }
 
 {

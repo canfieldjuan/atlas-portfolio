@@ -500,10 +500,9 @@ try {
 
   const intakePage = await readFile(intakePageUrl, 'utf8');
   assert.ok(
-    intakePage.includes('/systems/support-ticket-deflection/results/'),
-    'intake success links to results route',
+    intakePage.includes('deflectionResultsPath'),
+    'intake delegates results URL validation to the shared helper',
   );
-  assert.ok(intakePage.includes('deflectionResultsHref'), 'intake validates report id before URL use');
   assert.ok(
     intakePage.includes('window.location.assign(resultsHref)'),
     'successful ATLAS submit redirects to results route',

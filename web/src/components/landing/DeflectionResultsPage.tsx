@@ -19,6 +19,7 @@ import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   DEFLECTION_DEFAULT_PRICE_VARIANT,
+  type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 
 const FINALIZING_ATTEMPTS = 10;
@@ -26,7 +27,6 @@ const FINALIZING_INTERVAL_MS = 1500;
 const ASSISTED_CONTACT_COST_MIN = 5;
 const ASSISTED_CONTACT_COST_MAX = 75;
 const ASSISTED_CONTACT_COST_STEP = 0.5;
-const FULL_REPORT_PRICE_LABEL = DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel;
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(Math.max(n, min), max);
@@ -346,13 +346,16 @@ export function DeflectionResultsPage({
   requestId,
   companyName,
   checkoutStatus,
+  priceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
 }: {
   snapshot: DeflectionSnapshot;
   requestId: string;
   companyName?: string;
   checkoutStatus?: 'success' | 'cancel';
+  priceVariant?: DeflectionPriceVariant;
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
+  const fullReportPriceLabel = priceVariant.priceLabel;
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   );
@@ -385,7 +388,7 @@ export function DeflectionResultsPage({
       ? 'Payment received'
       : loading
         ? 'Starting checkout...'
-        : `Unlock the full report - ${FULL_REPORT_PRICE_LABEL}`;
+        : `Unlock the full report - ${fullReportPriceLabel}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
   useEffect(() => {
@@ -441,7 +444,7 @@ export function DeflectionResultsPage({
       const res = await fetch('/api/deflection-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId, attemptId }),
+        body: JSON.stringify({ requestId, attemptId, priceVariant: priceVariant.id }),
       });
       const data = (await res.json()) as {
         url?: string;
@@ -799,7 +802,7 @@ export function DeflectionResultsPage({
               <div className="text-center mb-4">
                 <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time report price</div>
                 <div className="text-4xl font-extrabold text-foreground mt-1">
-                  {FULL_REPORT_PRICE_LABEL}
+                  {fullReportPriceLabel}
                 </div>
                 <div className="text-xs text-foreground/50 mt-1">No monthly subscription. Yours to keep.</div>
               </div>

@@ -29,7 +29,9 @@ this smoke.
   `ATLAS_ACCOUNT_ID`, and
   `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=price_...` for the current
   `standard` variant. `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...` remains a
-  legacy fallback for that same variant. A legacy
+  legacy fallback for that same variant. The partner URL variant also requires
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=price_...` and a `100000` allowed
+  amount in both portfolio and ATLAS. A legacy
   `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure production
   checkout. If
   `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is
@@ -93,7 +95,8 @@ is the Checkout Session metadata:
 
 The fixture must create or confirm a Checkout Session for:
 
-- amount: `150000`
+- amount: `150000` for the standard variant; `100000` for the partner variant
+  when partner checkout is enabled
 - currency: `usd`
 - amount allowlist: default full-report amount only unless both ATLAS and
   portfolio are configured with the same comma-separated cent values

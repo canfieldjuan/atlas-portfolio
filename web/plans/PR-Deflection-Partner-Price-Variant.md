@@ -1,0 +1,162 @@
+## Why this slice exists
+
+Issue #194's safety prerequisite is now live in ATLAS: the webhook amount gate
+accepts exact allowed amounts instead of one global floor. Portfolio still only
+has the `standard` price variant wired end to end, while the product decision
+D-025 already exposes a separate `/systems/support-ticket-deflection/partner`
+price.
+
+Today the partner landing page shows `$1,000`, but its CTA goes through the same
+intake/results/checkout path that falls back to the standard `$1,500` variant.
+That is a buyer-trust mismatch and blocks using the partner URL for real
+outbound.
+
+The estimated diff is slightly over the 400 LOC soft cap because the slice has
+to carry one price variant through the full buyer path: catalog, partner CTA,
+intake redirect/email links, results render, checkout payload, preflight, docs,
+and focused regression tests. Splitting those would leave an intermediate state
+where the partner page could still advertise one price and charge another.
+
+## Scope (this PR)
+
+Slice phase: Vertical slice
+
+1. Add a `partner` deflection price variant to the shared price catalog with its
+   own Stripe Price ID env key.
+2. Drive partner-page pricing from that catalog instead of hardcoded `$1,000`
+   copy.
+3. Preserve `priceVariant=partner` from the partner CTA through intake,
+   notification/results links, and the results page.
+4. Submit the selected variant to `/api/deflection-checkout`, so Stripe session
+   creation uses the partner Price ID and stamps partner metadata.
+5. Extend focused tests for the partner variant catalog, checkout metadata,
+   intake link preservation, and route forwarding.
+6. Update operator docs/runbooks for the partner Price ID env and allowed amount.
+
+### Files touched
+
+- `web/plans/PR-Deflection-Partner-Price-Variant.md`
+- `web/src/lib/deflection-pricing.ts`
+- `web/src/lib/deflection-checkout.ts`
+- `web/src/lib/gap-report-intake.ts`
+- `web/src/components/landing/SupportTicketCsvIntakePage.tsx`
+- `web/src/components/landing/DeflectionResultsPage.tsx`
+- `web/src/app/api/gap-report-intake/record/route.ts`
+- `web/src/app/systems/support-ticket-deflection/intake/page.tsx`
+- `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
+- `web/src/app/systems/support-ticket-deflection/partner/page.tsx`
+- `web/scripts/check-deflection-checkout-env.mjs`
+- `web/scripts/test-deflection-checkout.mjs`
+- `web/scripts/test-deflection-checkout-env.mjs`
+- `web/scripts/test-deflection-email-results-link.mjs`
+- `web/scripts/test-deflection-intake-atlas-submit.mjs`
+- `web/README.md`
+- `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md`
+
+## Mechanism
+
+The catalog gains a second variant:
+
+```ts
+{
+  id: 'partner',
+  amountUsd: 1000,
+  stripePriceIdEnvKey: 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER',
+}
+```
+
+The partner page links to the same intake route with `?priceVariant=partner`.
+The intake route validates that query against the catalog and passes the variant
+into the client intake component. The intake component includes the variant in
+Blob/client metadata, record-route metadata, analytics context, and generated
+results URLs. The server-side notification/customer links also append the
+validated non-default variant, so a later email click does not silently revert a
+partner buyer to the standard price.
+
+The results route validates `priceVariant` from search params and passes the
+resolved variant to the client results page. The unlock button uses that
+variant's label and sends the variant id to `/api/deflection-checkout`. Checkout
+already resolves variant-specific Price IDs and stamps `metadata[price_variant]`.
+
+## Intentional
+
+- No random A/B assignment is added. This slice wires the explicit partner URL
+  variant only.
+- Invalid or missing `priceVariant` query values fall back to the standard price
+  on page render; the checkout API still rejects invalid explicit request
+  payloads.
+- No new database column is added. Existing submission persistence stores the
+  full payload JSON, and top-level reporting tables do not need price-variant
+  filtering in this slice.
+- ATLAS allowed amounts must still include both `100000` and `150000` before
+  partner checkout is enabled in production.
+
+## Deferred
+
+- Issue #194 still owns generalized cohort/flag routing and any future
+  simultaneous price experiments beyond the explicit partner URL.
+- A shared runtime/preflight Price ID decision helper remains deferred from
+  #230; this slice extends the current preflight shape for the partner env.
+- Live Stripe verification is deferred until production has
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER` and the matching ATLAS allowed
+  amount configured.
+- The partner page `layout.tsx` still contains the historical `$1,000` metadata
+  description/noindex comment. That is intentional static partner-page context,
+  not active checkout/copy state.
+
+Parked hardening: none.
+
+## Verification
+
+- `npm --prefix web run test:deflection-checkout` - passed; printed expected
+  fail-closed checkout logs including `selected variant amount is not allowed`,
+  then `Deflection checkout tests passed.`
+- `npm --prefix web run test:deflection-checkout-env` - passed; printed
+  `Deflection checkout env tests passed.`
+- `npm --prefix web run test:deflection-email-results-link` - passed; printed
+  `Deflection email results-link tests passed.`
+- `npm --prefix web run test:deflection-intake-atlas-submit` - initially failed
+  on a stale source assertion for the old local results-link helper name.
+- `npm --prefix web run test:deflection-intake-atlas-submit` - passed after
+  updating the assertion to the shared `deflectionResultsPath` helper; printed
+  `Deflection intake ATLAS submit tests passed.`
+- `npm --prefix web run lint` - passed.
+- `npm --prefix web run build` - initially failed because this fresh worktree
+  had no `web/node_modules`; Turbopack could not resolve `next/package.json`
+  from `web/src/app`.
+- `npm --prefix web ci` - passed; added 378 packages, audited 379 packages, and
+  reported the existing 3 dependency audit findings already parked in
+  `HARDENING.md`.
+- `npm --prefix web run build` - passed after `npm ci`; compiled successfully,
+  completed TypeScript, generated 44 static pages, and copied the deterministic
+  routes manifest.
+- `rg -n "STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER|priceVariant=partner|\$1,000|100000|DEFLECTION_PARTNER_PRICE_VARIANT" web/src web/scripts web/README.md web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md -S` -
+  passed; matches are the partner catalog/env/docs/tests, route/query plumbing,
+  and the existing noindex partner-page metadata/comment.
+- `git diff --check` - passed.
+- `bash scripts/local_pr_review.sh` - passed; plan shape, files touched,
+  diff-size drift, cross-session drift, ESLint, Next build, and
+  `git diff --check` all passed.
+
+## Estimated diff size
+
+| File | Estimated LOC |
+| --- | ---: |
+| `web/plans/PR-Deflection-Partner-Price-Variant.md` | +131 |
+| `web/src/lib/deflection-pricing.ts` | +16 / -1 |
+| `web/src/lib/deflection-checkout.ts` | +20 / -6 |
+| `web/src/lib/gap-report-intake.ts` | +32 / -4 |
+| `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | +10 / -9 |
+| `web/src/components/landing/DeflectionResultsPage.tsx` | +7 / -4 |
+| `web/src/app/api/gap-report-intake/record/route.ts` | +1 |
+| `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | +27 / -3 |
+| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | +13 / -1 |
+| `web/src/app/systems/support-ticket-deflection/partner/page.tsx` | +8 / -4 |
+| `web/scripts/check-deflection-checkout-env.mjs` | +21 / -1 |
+| `web/scripts/test-deflection-checkout.mjs` | +80 / -3 |
+| `web/scripts/test-deflection-checkout-env.mjs` | +60 |
+| `web/scripts/test-deflection-email-results-link.mjs` | +44 / -1 |
+| `web/scripts/test-deflection-intake-atlas-submit.mjs` | +2 / -3 |
+| `web/README.md` | +11 / -7 |
+| `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | +5 / -2 |
+| Total | ~566 changed |

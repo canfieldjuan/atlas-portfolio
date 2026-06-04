@@ -10,11 +10,15 @@ import {
   fetchDeflectionSnapshot,
   fetchDeflectionArtifact,
 } from '@/lib/atlas-deflection-client';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+  resolveDeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 
 type PageProps = {
   params: Promise<{ requestId: string }>;
-  searchParams?: Promise<{ checkout?: string | string[] }>;
+  searchParams?: Promise<{ checkout?: string | string[]; priceVariant?: string | string[] }>;
 };
 
 // Per-request results page — never indexed.
@@ -52,6 +56,10 @@ function checkoutStatus(value: string | string[] | undefined): 'success' | 'canc
   return checkout === 'success' || checkout === 'cancel' ? checkout : undefined;
 }
 
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const artifact = await getArtifact(requestId);
@@ -59,11 +67,15 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
 
   const snapshot = await getSnapshot(requestId);
   const query = searchParams ? await searchParams : undefined;
+  const priceVariant =
+    resolveDeflectionPriceVariant(firstParam(query?.priceVariant)) ||
+    DEFLECTION_DEFAULT_PRICE_VARIANT;
   return (
     <DeflectionResultsPage
       snapshot={snapshot}
       requestId={requestId}
       checkoutStatus={checkoutStatus(query?.checkout)}
+      priceVariant={priceVariant}
     />
   );
 }
