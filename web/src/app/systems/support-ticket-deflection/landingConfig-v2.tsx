@@ -11,7 +11,6 @@ import {
 import { Fragment, type ReactNode } from 'react';
 import { type DeflectionLandingPageConfig } from '@/components/landing/DeflectionLandingPage';
 import {
-  GAP_REPORT_INTAKE_HREF,
   pricingFaqs,
   pricingTiers,
 } from './landingConfig';
@@ -25,6 +24,7 @@ import { generateFaqJsonLd } from '@/lib/seo';
 const faqJsonLd = generateFaqJsonLd(
   pricingFaqs.map((faq) => ({ question: faq.q, answer: faq.a })),
 );
+const SNAPSHOT_HREF = '/systems/support-ticket-deflection/snapshot';
 
 function CopyBlock({ children }: { children: ReactNode }) {
   return <div className="space-y-5 text-base leading-relaxed text-foreground/68">{children}</div>;
@@ -223,8 +223,8 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     body:
       'Upload 3 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
-      label: 'Upload your tickets, get a free Deflection Snapshot',
-      href: GAP_REPORT_INTAKE_HREF,
+      label: 'See the free Deflection Snapshot',
+      href: SNAPSHOT_HREF,
     },
   },
   problemAgitation: makeProblemAgitation(),
@@ -384,8 +384,8 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to start clearing the repeats.',
     ],
     cta: {
-      label: 'Upload your tickets, get a free Deflection Snapshot',
-      href: GAP_REPORT_INTAKE_HREF,
+      label: 'See the free Deflection Snapshot',
+      href: SNAPSHOT_HREF,
     },
     privacy:
       'Privacy: we delete your CSV after 30 days. No model training, no third-party sharing, no fine-tuning.',
