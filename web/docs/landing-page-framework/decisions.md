@@ -853,7 +853,7 @@ matters. Curiosity-gap headlines. Vague CTAs.
 
 ## D-027 -- Export window for first ask
 
-**Status:** SUPERSEDED by D-030 (2026-06-05) — the first-ask window is now **30 days**. The rationale below is retained for history.
+**Status:** SUPERSEDED by D-030 (2026-06-05). **D-030 is the current source of truth for the first-ask window (now 30 days).** Everything below in D-027 — including the "3 to 6 month export" decision and its "Copy implication" — is historical and no longer current guidance; it is retained only for the rationale trail.
 
 **Question:** What ticket export window do we ask for in the first ask?
 
