@@ -85,6 +85,14 @@ Slice phase: Product polish
 - **ContentOps "three months" left as-is** — the churn-survey demo and the
   "shipped three months ago" line are a different product / temporal usage, not
   the deflection upload ask.
+- **Infra-capacity comments left as-is** — two internal code comments,
+  `SupportTicketCsvIntakePage.tsx:110` and
+  `web/src/app/systems/.../api/gap-report-intake/upload/route.ts:7`, reference
+  "3-6 month exports" when explaining the browser→Blob direct-upload path and the
+  50 MB size bound. They describe upload *capacity* (the pipeline handles large
+  exports), not the first-ask *window*, so they stay accurate even though we now
+  ask for 30 days; rewriting them to "30 day" would understate the capacity
+  rationale. Flagged by review (Codex P2) and named here rather than swept.
 
 ## Deferred
 
@@ -99,14 +107,21 @@ Parked hardening: none.
 
 ## Verification
 
-- `node scripts/test-deflection-snapshot-landing-smoke.mjs` — pass.
-- `node scripts/test-deflection-teaser-rank-copy.mjs` — pass.
-- **Recurring-value grep (broadened to catch singular + hyphenated forms after
-  a review miss):** `rg -i "3[- ]months?|three[- ]months?|3-6 months|3–6 months"
-  web/src` returns only the intentional carve-outs (ContentOps churn demo
-  `ContentOpsDemo.tsx`, and the `ai-content-ops/ongoing-support` "three months
-  ago / three-month-old" temporal line); no first-ask deflection window remains.
-  `rg "every 90 days|held 90 days"` confirms the two carve-out lines are intact.
+- `node web/scripts/test-deflection-snapshot-landing-smoke.mjs` — pass. (Runnable
+  from repo root; the scripts live under `web/scripts/`, so a bare
+  `node scripts/...` fails from root — run with the `web/` prefix or `cd web`
+  first.)
+- `node web/scripts/test-deflection-teaser-rank-copy.mjs` — pass.
+- **Recurring-value grep (broadened over two review rounds to catch singular,
+  hyphenated, and the 3-6 range forms):**
+  `rg -in "3[- ]months?|three[- ]months?|3[-– ]?6[- ]months?|3–6 months" web/src`
+  returns only the intentional carve-outs: the ContentOps churn demo
+  (`ContentOpsDemo.tsx`), the `ai-content-ops/ongoing-support` "three months ago /
+  three-month-old" temporal line, and the two internal **infra-capacity** comments
+  (`SupportTicketCsvIntakePage.tsx:110`, `api/gap-report-intake/upload/route.ts:7`)
+  covered in `## Intentional`. No first-ask deflection *window* copy remains.
+  `rg "every 90 days|held 90 days"` confirms the cadence / retention carve-out
+  lines are intact.
 - Plan-doc audits (`audit_plan_doc.py`, `audit_plan_doc_files_touched.py`,
   `audit_plan_doc_diff_size.py`) green against the committed diff.
 - ESLint + Next build not run locally (deps not installed in this environment);
@@ -119,5 +134,5 @@ Parked hardening: none.
 |---|---|
 | First-ask window copy sweep (16 files) | ~34 |
 | Decision log (D-027 superseded + D-030) | ~37 |
-| This plan doc | ~100 |
-| **Total** | ~175 |
+| This plan doc | ~112 |
+| **Total** | ~185 |
