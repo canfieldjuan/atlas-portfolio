@@ -21,11 +21,13 @@ upload-window mismatch flagged in the `/snapshot` landing review (#250, epic
 
 Slice phase: Product polish
 
-1. **First-ask window copy** — every visitor-facing "3 months" / "last 3 months"
-   first-ask string across the deflection funnel (hero, intake, demo, playbook,
-   partner, both landing configs, calculator, how-it-works, snapshot + route SEO
-   metadata, systems index, and the deflection product card on the AI Content Ops
-   page) becomes "30 days" / "last 30 days".
+1. **First-ask window copy** — every visitor-facing first-ask window string
+   across the deflection funnel becomes "30 days" / "last 30 days". This covers
+   the plural ("3 months"), singular ("first 3 month batch"), and hyphenated
+   ("your 3-month ticket export") forms across the hero, intake, demo (page +
+   `DeflectionDemo` no-match state), playbook, partner, both landing configs,
+   calculator, how-it-works, snapshot + route SEO metadata, systems index, and
+   the deflection product card on the AI Content Ops page.
 2. **Decision log** — D-027 marked `SUPERSEDED`; new D-030 records the 30-day
    decision, its rationale, and the accepted trade-off.
 3. Left untouched: the **"every 90 days"** quarterly-refresh cadence and the
@@ -44,11 +46,12 @@ Slice phase: Product polish
 - `web/src/app/systems/support-ticket-deflection/demo/page.tsx` — demo body copy
 - `web/src/app/systems/support-ticket-deflection/playbook/page.tsx` — playbook body copy
 - `web/src/app/systems/support-ticket-deflection/partner/layout.tsx` — partner SEO meta
-- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — v1 snapshot description
+- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — v1 snapshot description + full-report batch line
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — v2 body copy + upload stage sub
 - `web/src/app/systems/support-ticket-deflection/snapshot/page.tsx` — snapshot SEO meta
 - `web/src/app/systems/page.tsx` — systems index customerData line
 - `web/src/components/deflection-demo/SupportTaxCalculator.tsx` — calculator copy
+- `web/src/components/deflection-demo/DeflectionDemo.tsx` — no-match empty-state copy ("3-month" → "30-day")
 - `web/src/components/deflection-demo/HowItWorks.tsx` — demo step copy
 - `web/src/app/systems/ai-content-ops/page.tsx` — deflection product-card summary
 
@@ -98,11 +101,12 @@ Parked hardening: none.
 
 - `node scripts/test-deflection-snapshot-landing-smoke.mjs` — pass.
 - `node scripts/test-deflection-teaser-rank-copy.mjs` — pass.
-- **Recurring-value grep:** `rg -i "3 months|three months|3-6 months|3–6 months"
+- **Recurring-value grep (broadened to catch singular + hyphenated forms after
+  a review miss):** `rg -i "3[- ]months?|three[- ]months?|3-6 months|3–6 months"
   web/src` returns only the intentional carve-outs (ContentOps churn demo
-  `ContentOpsDemo.tsx`, and the `ai-content-ops/ongoing-support` temporal line);
-  no first-ask deflection window remains. `rg "every 90 days|held 90 days"`
-  confirms the two carve-out lines are intact.
+  `ContentOpsDemo.tsx`, and the `ai-content-ops/ongoing-support` "three months
+  ago / three-month-old" temporal line); no first-ask deflection window remains.
+  `rg "every 90 days|held 90 days"` confirms the two carve-out lines are intact.
 - Plan-doc audits (`audit_plan_doc.py`, `audit_plan_doc_files_touched.py`,
   `audit_plan_doc_diff_size.py`) green against the committed diff.
 - ESLint + Next build not run locally (deps not installed in this environment);
@@ -113,7 +117,7 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| First-ask window copy sweep (14 files) | ~30 |
+| First-ask window copy sweep (16 files) | ~34 |
 | Decision log (D-027 superseded + D-030) | ~37 |
-| This plan doc | ~95 |
-| **Total** | ~160 |
+| This plan doc | ~100 |
+| **Total** | ~175 |

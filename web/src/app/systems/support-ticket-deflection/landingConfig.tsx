@@ -32,7 +32,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     title: `Full Deflection Report`,
     price: DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel,
     description:
-      `For the first 3 month batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
+      `For the first 30 day batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
     includes: [
       `Every recurring question, ranked by how often it was asked (typically 50+)`,
       `Customer wording clusters, the long-tail keywords needed to rank`,
