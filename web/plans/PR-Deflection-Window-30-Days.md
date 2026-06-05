@@ -46,7 +46,7 @@ Slice phase: Product polish
 - `web/src/app/systems/support-ticket-deflection/demo/page.tsx` — demo body copy
 - `web/src/app/systems/support-ticket-deflection/playbook/page.tsx` — playbook body copy
 - `web/src/app/systems/support-ticket-deflection/partner/layout.tsx` — partner SEO meta
-- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — v1 snapshot description + full-report batch line
+- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — v1 snapshot description, full-report batch line, and the export-window `pricingFaqs` answer (rendered on the page + FAQ JSON-LD, also shown via v2)
 - `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — v2 body copy + upload stage sub
 - `web/src/app/systems/support-ticket-deflection/snapshot/page.tsx` — snapshot SEO meta
 - `web/src/app/systems/page.tsx` — systems index customerData line
@@ -85,6 +85,12 @@ Slice phase: Product polish
 - **ContentOps "three months" left as-is** — the churn-survey demo and the
   "shipped three months ago" line are a different product / temporal usage, not
   the deflection upload ask.
+- **FAQ rewrite drops the "more history helps" clause.** The `pricingFaqs`
+  export-window answer previously said "Three to six months ... more history helps
+  the full report rank the repeats more confidently." That clause actively pulled
+  the buyer toward a longer export, contradicting the 30-day simplification, so it
+  is removed rather than reworded; the "a few hundred tickets is usually enough"
+  and "if the export is too thin we will say so" reassurances are kept.
 - **Infra-capacity comments left as-is** — two internal code comments,
   `SupportTicketCsvIntakePage.tsx:110` and
   `web/src/app/systems/.../api/gap-report-intake/upload/route.ts:7`, reference
@@ -112,16 +118,18 @@ Parked hardening: none.
   `node scripts/...` fails from root — run with the `web/` prefix or `cd web`
   first.)
 - `node web/scripts/test-deflection-teaser-rank-copy.mjs` — pass.
-- **Recurring-value grep (broadened over two review rounds to catch singular,
-  hyphenated, and the 3-6 range forms):**
-  `rg -in "3[- ]months?|three[- ]months?|3[-– ]?6[- ]months?|3–6 months" web/src`
-  returns only the intentional carve-outs: the ContentOps churn demo
-  (`ContentOpsDemo.tsx`), the `ai-content-ops/ongoing-support` "three months ago /
-  three-month-old" temporal line, and the two internal **infra-capacity** comments
+- **Recurring-value grep (broadened over three review rounds to catch singular,
+  hyphenated, numeric-range, and spelled-out-range forms):**
+  `rg -in "3[- ]months?|three[- ]months?|three to six months|3[-– ]?6[- ]months?|3–6 months|six months" web/src`
+  returns only the intentional carve-outs: the ContentOps demo (`ContentOpsDemo.tsx`
+  churn + "six months of reviews" — a different product), the
+  `ai-content-ops/ongoing-support` "three months ago / three-month-old" temporal
+  line, and the two internal **infra-capacity** comments
   (`SupportTicketCsvIntakePage.tsx:110`, `api/gap-report-intake/upload/route.ts:7`)
-  covered in `## Intentional`. No first-ask deflection *window* copy remains.
-  `rg "every 90 days|held 90 days"` confirms the cadence / retention carve-out
-  lines are intact.
+  covered in `## Intentional`. No first-ask deflection *window* copy remains —
+  including the `pricingFaqs` "How many tickets should I export?" answer, now
+  "About 30 days." `rg "every 90 days|held 90 days"` confirms the cadence /
+  retention carve-out lines are intact.
 - Plan-doc audits (`audit_plan_doc.py`, `audit_plan_doc_files_touched.py`,
   `audit_plan_doc_diff_size.py`) green against the committed diff.
 - ESLint + Next build not run locally (deps not installed in this environment);
@@ -134,5 +142,5 @@ Parked hardening: none.
 |---|---|
 | First-ask window copy sweep (16 files) | ~34 |
 | Decision log (D-027 superseded + D-030) | ~37 |
-| This plan doc | ~112 |
-| **Total** | ~185 |
+| This plan doc | ~124 |
+| **Total** | ~197 |

@@ -75,7 +75,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `How many tickets should I export?`,
-    a: `Three to six months of closed tickets is the sweet spot. A few hundred tickets is usually enough for the snapshot to show whether repeat patterns are there; more history helps the full report rank the repeats more confidently. If the export is too thin, we will say so.`,
+    a: `About 30 days of closed tickets is the sweet spot. A few hundred tickets is usually enough for the snapshot to show whether repeat patterns are there. If the export is too thin, we will say so.`,
   },
   {
     q: `What if my tickets are messy?`,
