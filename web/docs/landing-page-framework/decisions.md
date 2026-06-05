@@ -853,7 +853,7 @@ matters. Curiosity-gap headlines. Vague CTAs.
 
 ## D-027 -- Export window for first ask
 
-**Status:** DECIDED (2026-05-24)
+**Status:** SUPERSEDED by D-030 (2026-06-05) — the first-ask window is now **30 days**. The rationale below is retained for history.
 
 **Question:** What ticket export window do we ask for in the first ask?
 
@@ -920,3 +920,36 @@ detail reads as credibility, not friction.
 **Why:** the 6 stages mix what the *buyer* does with internal mechanics; for a
 15–75 operator the 3-step view lowers perceived effort, while the pipeline detail
 still earns trust where rigor = proof (D-002 specific, D-013 data-is-moat).
+
+---
+
+## D-030 -- First-ask export window simplified to 30 days
+
+**Status:** DECIDED (2026-06-05) — supersedes D-027.
+
+**Question:** What ticket export window do we ask for in the first ask?
+
+**Decision:** **30 days.** The first-ask copy across every deflection surface asks
+for "30 days" / "the last 30 days" of closed tickets, not "3 months" / "3-6
+months."
+
+**Why the window changed again:**
+
+- **Simplicity / lower friction.** "Last 30 days" is the smallest, most concrete
+  export a buyer can produce without it feeling like a project — the point of the
+  free snapshot is a fast value check, not a full audit.
+- **Consistency with the artifact.** The snapshot demo and the live snapshot are
+  built around a 30-day source window (`DEMO_DEFLECTION_SNAPSHOT.summary` uses
+  `source_window_days: 30`). Asking for 3 months while the snapshot reads as a
+  30-day window was an internal contradiction (tracked in the #250 landing review).
+
+**Trade-off (acknowledged, accepted):** D-027 argued a longer window produces
+stronger clustering and a more alarming annualized cost figure. That reasoning
+still holds; we are accepting a smaller first sample in exchange for a simpler
+ask and a consistent artifact. The snapshot already annualizes from the source
+window, so the cost framing survives a shorter window.
+
+**Carve-outs (unchanged):** the **quarterly refresh cadence stays "every 90
+days"**, and the **data-retention "held 90 days"** line is unrelated — neither is
+a first-ask export window. Copy swaps are per-instance, not a global
+find-replace.

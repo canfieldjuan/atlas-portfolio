@@ -14,7 +14,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     price: `Free`,
     sla: `Delivered in 24 hours after CSV upload`,
     description:
-      `Upload your last 3 months of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
+      `Upload your last 30 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
     includes: [
       `Your top 5 repeat questions, ranked by how often they were asked`,
       `Customer wording examples`,

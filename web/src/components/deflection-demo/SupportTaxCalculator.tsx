@@ -332,7 +332,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
           <div className={`rounded-xl border border-border bg-surface ${compact ? 'p-4' : 'p-5'}`}>
             <h3 className="text-sm font-semibold text-foreground">What to do with this number</h3>
             <p className={`${compact ? 'text-xs' : 'text-sm'} mt-2 leading-relaxed text-foreground/62`}>
-              Upload 3 months of tickets. The free snapshot shows whether repeat questions are
+              Upload 30 days of tickets. The free snapshot shows whether repeat questions are
               actually there, which customer wording is missing, and one review-ready FAQ draft
               built from resolved replies.
             </p>

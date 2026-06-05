@@ -43,7 +43,7 @@ const offers: Offer[] = [
     title: 'Support Ticket Deflection Report',
     tagline: 'Turn closed tickets into ranked self-service answers.',
     summary:
-      'Analyzes 3 months of closed support tickets, returns a ranked list of repeat questions in the words customers actually use, with draft answers your team reviews and publishes.',
+      'Analyzes 30 days of closed support tickets, returns a ranked list of repeat questions in the words customers actually use, with draft answers your team reviews and publishes.',
     points: [
       'Repeat-question clustering by customer intent',
       'Volume-ranked deflection opportunities',

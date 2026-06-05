@@ -4,7 +4,7 @@ import { generatePageMetadata } from '@/lib/seo';
 const baseMetadata = generatePageMetadata({
   title: 'Support Ticket Deflection, Design Partner',
   description:
-    'Design-partner access to the Support Ticket Deflection Report. Upload 3 months of closed support tickets; we send back a free Deflection Snapshot in 24 hours, and the full report is $1,000 for the first 5 design partners.',
+    'Design-partner access to the Support Ticket Deflection Report. Upload 30 days of closed support tickets; we send back a free Deflection Snapshot in 24 hours, and the full report is $1,000 for the first 5 design partners.',
   path: '/systems/support-ticket-deflection/partner',
   keywords: [
     'support ticket deflection design partner',

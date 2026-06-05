@@ -67,7 +67,7 @@ export default function SupportTicketDeflectionDemoPage() {
               See this run on your own tickets
             </h2>
             <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
-              Upload a CSV of your last 3 months of closed tickets. We send back a free Deflection
+              Upload a CSV of your last 30 days of closed tickets. We send back a free Deflection
               Snapshot: your top repeat questions, the wording customers use, and the paid report
               fields waiting behind the unlock.
             </p>

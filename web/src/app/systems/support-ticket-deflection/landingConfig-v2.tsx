@@ -221,7 +221,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     intro:
       'We read your support tickets, find the repeat questions your Help Center keeps missing, and hand your team review-ready FAQ drafts.',
     body:
-      'Upload 3 months of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
+      'Upload 30 days of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
       label: 'Get the free Snapshot first',
       href: SNAPSHOT_HREF,
@@ -262,7 +262,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     processDescription:
       'The report isolates the questions worth fixing, shows the exact wording gap behind each one, and returns drafts your team can ship without starting from a blank page.',
     stages: [
-      { label: 'Upload your tickets', sub: 'CSV export • 3 months • no integration' },
+      { label: 'Upload your tickets', sub: 'CSV export • 30 days • no integration' },
       { label: 'We rank the repeat questions', sub: 'Question clusters • wording gaps • source-ticket evidence' },
       { label: 'You review and publish', sub: 'Drafted FAQs • no auto-publish • nothing goes live without you' },
     ],
