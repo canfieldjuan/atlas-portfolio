@@ -171,12 +171,12 @@ function HeroProofPanel({
 
   return (
     <section
-      aria-label="Before and after Deflection Snapshot proof"
+      aria-label="Deflection Snapshot audit findings"
       className="rounded-md border border-border bg-surface p-5 shadow-[var(--card-shadow)]"
     >
       <div className="mb-5 flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="font-mono text-xs text-primary">BEFORE / AFTER SNAPSHOT PROOF</p>
+          <p className="font-mono text-xs text-primary">WHAT THE AUDIT FINDS</p>
           <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
             The Snapshot shows what repeats, what it costs, and one answer.
           </h2>

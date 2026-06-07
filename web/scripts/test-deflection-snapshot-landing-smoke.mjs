@@ -6,7 +6,7 @@ const SNAPSHOT_URL = 'https://portfolio.example.com/systems/support-ticket-defle
 const MARKER_KEYS = [
   'snapshotBadge',
   'promiseHeadline',
-  'beforeAfterProof',
+  'auditFinds',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
@@ -19,7 +19,7 @@ const GOOD_HTML = [
   '<main>',
   '<span>Free ticket analysis</span>',
   '<h1>Find the repeat support questions costing your team time.</h1>',
-  '<p>BEFORE / AFTER SNAPSHOT PROOF</p>',
+  '<p>WHAT THE AUDIT FINDS</p>',
   '<p>Support Tax projection</p>',
   '<label>Assisted-contact cost</label>',
   '<p>$1,500 full report is meant to be judged against that recurring backlog</p>',
@@ -109,11 +109,11 @@ const failureCases = [
     error: 'Snapshot landing page fetch failed before an HTTP response.',
     apiCalls: true,
   }],
-  ['missing proof marker', { response: { body: GOOD_HTML.replace('BEFORE / AFTER SNAPSHOT PROOF', '') } }, undefined, {
+  ['missing audit marker', { response: { body: GOOD_HTML.replace('WHAT THE AUDIT FINDS', '') } }, undefined, {
     ok: false,
     stage: 'render',
     error: 'Snapshot landing page is missing required render markers.',
-    missing: ['beforeAfterProof'],
+    missing: ['auditFinds'],
     forbidden: [],
   }],
   ['missing intake target', {
