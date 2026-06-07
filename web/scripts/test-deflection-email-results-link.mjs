@@ -162,6 +162,8 @@ try {
     sentText(1),
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
   );
+  assert.match(sentText(1), /save this email or bookmark your results link/);
+  assert.match(sentText(1), /upgrade to the full report during that window without re-uploading/);
   assert.doesNotMatch(sentText(1), /within 24 hours/);
 
   installFetchMock();
@@ -180,6 +182,7 @@ try {
     sentText(1),
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
   );
+  assert.match(sentText(1), /save this email or bookmark your results link/);
 
   installFetchMock();
   const withoutLink = await recordGapReportSubmission(baseInput);
@@ -188,6 +191,7 @@ try {
   assert.doesNotMatch(sentText(0), /Report request ID:/);
   assert.doesNotMatch(sentText(0), /\/systems\/support-ticket-deflection\/results\//);
   assert.doesNotMatch(sentText(1), /Your free Deflection Snapshot is ready:/);
+  assert.doesNotMatch(sentText(1), /bookmark your results link/);
   assert.match(sentText(1), /within 24 hours/);
 
   installFetchMock();

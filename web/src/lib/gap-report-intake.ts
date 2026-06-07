@@ -278,6 +278,12 @@ function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
     resultsUrl
       ? `3. If we find more data issues, we will follow up at this email.`
       : `3. We send your free ${offer.snapshotName} to this email within 24 hours.`,
+    ...(resultsUrl
+      ? [
+          '',
+          'Tip: save this email or bookmark your results link if you might come back later. Your CSV is held for 30 days, so you can upgrade to the full report during that window without re-uploading.',
+        ]
+      : []),
     '',
     'No next step is needed from you right now.',
     '',
