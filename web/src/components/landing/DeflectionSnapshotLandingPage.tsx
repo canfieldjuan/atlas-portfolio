@@ -590,9 +590,9 @@ function HeroUploadTrust() {
     },
     {
       icon: <ShieldCheck className="h-4 w-4" />,
-      title: 'Admin-gated access',
+      title: 'Server-side processing',
       body:
-        'Only authenticated intake admin access can retrieve the CSV after upload.',
+        'The report pipeline reads the private CSV server-side. Manual downloads require authenticated admin access.',
     },
     {
       icon: <FileText className="h-4 w-4" />,

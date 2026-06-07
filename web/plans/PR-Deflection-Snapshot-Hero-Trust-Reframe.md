@@ -16,8 +16,8 @@ Slice phase: Product polish
    jargon-first wording.
 2. Add a visible privacy/security trust block next to the hero upload CTA that
    explains the existing data-handling contract in plain language: private CSV
-   upload, limited/admin-gated access, no model training or third-party sharing,
-   and 30-day deletion.
+   upload, server-side report processing, admin-gated manual downloads, no
+   model training or third-party sharing, and 30-day deletion.
 3. Preserve the public route, CTA href, intake form behavior, Blob upload
    behavior, metadata, result page, checkout, pricing, partner funnel, and the
    downstream artifact/proof sections.
@@ -42,7 +42,9 @@ icons and states only behavior already present in the intake path:
 
 - the client uploads with `access: 'private'`;
 - `/record` validates that the Blob belongs to this app before recording it;
-- CSV retrieval is behind the authenticated admin intake route;
+- the server-side report pipeline reads the private CSV with the app Blob token
+  and forwards the bytes to ATLAS without exposing the Blob URL;
+- manual CSV downloads are behind the authenticated admin intake route;
 - existing intake copy already states no model training, no third-party sharing,
   no fine-tuning, and 30-day deletion.
 
@@ -66,6 +68,9 @@ body-rendered page text after the first-screen copy change.
   broader CTA naming sweep.
 - The smoke marker update is included here because the reviewer correctly
   flagged it as required for the slice to remain monitor-safe.
+- The trust access copy names both automated server-side processing and
+  admin-gated manual downloads because the normal Snapshot flow reads the
+  private CSV server-side before any admin download.
 
 ## Deferred
 
@@ -83,21 +88,25 @@ body-rendered page text after the first-screen copy change.
 - `rg -n "Get the free Snapshot that shows which support tickets to deflect first|estimates the Support Tax|CSV upload\\. No help-desk integration" web/src/components/landing/DeflectionSnapshotLandingPage.tsx -S` -
   passed; no matches, so the old artifact-led H1, first-screen Support Tax
   phrase, and low-emphasis CSV reassurance are absent from runtime source.
-- `rg -n "Find the repeat support questions costing your team time|Private CSV upload|No model training or sharing|Deleted after 30 days|No help-desk integration" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md -S` -
+- `rg -n "Find the repeat support questions costing your team time|Private CSV upload|Server-side processing|Manual downloads require authenticated admin access|No model training or sharing|Deleted after 30 days|No help-desk integration" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md -S` -
   passed.
+- `rg -n "Only authenticated intake admin access can retrieve the CSV after upload|Admin-gated access" web/src/components/landing/DeflectionSnapshotLandingPage.tsx -S` -
+  passed after the review fix; no matches, so the overstated admin-only access
+  copy is absent from runtime source.
 - `rg -n "Free ticket analysis|Find the repeat support questions costing your team time|Free Deflection Snapshot|Get the free Snapshot that shows which support tickets to deflect first" web/scripts/smoke-deflection-snapshot-landing.mjs web/scripts/test-deflection-snapshot-landing-smoke.mjs web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md -S` -
   passed after the review fix; the visible smoke marker and mocked fixture use
   the new badge/H1, while the old strings only remain in this plan's
   verification commands.
-- `npm --prefix web run smoke:deflection-snapshot-landing -- --base-url http://127.0.0.1:3114` -
+- `npm --prefix web run smoke:deflection-snapshot-landing -- --base-url http://127.0.0.1:3115` -
   passed after the review fix.
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
 - Browser spot-check of `/systems/support-ticket-deflection/snapshot` desktop
-  1440x1100 and mobile 390x844 at `127.0.0.1:3113` - passed; hero copy and
-  trust block render before the upload decision, old hero wording is absent, no
-  framework error overlay appears, and mobile has no horizontal overflow.
+  1440x1100 and mobile 390x844 at `127.0.0.1:3115` - passed; hero copy and the
+  corrected server-side processing trust copy render before the upload decision,
+  the overstated admin-only access copy is absent, no framework error overlay
+  appears, and mobile has no horizontal overflow.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
