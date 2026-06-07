@@ -20,14 +20,17 @@ Slice phase: Functional validation
    when available; if the database row is missing or unavailable, analytics
    still fires with an `unknown` age bucket.
 4. Add focused static regression coverage for the analytics contract.
+5. Enroll the focused analytics test in the pre-push audit workflow.
 
 ### Files touched
 
+- `.github/workflows/pre_push_audit.yml` - CI enrollment for the focused
+  analytics test.
 - `web/plans/PR-Deflection-Comeback-Analytics.md` - plan for this slice.
 - `web/package.json` - focused test script entry.
 - `web/src/lib/analytics.ts` - result-view and unlock-click event helpers.
 - `web/src/lib/gap-report-intake-database.ts` - report-request lookup for
-  submission metadata.
+  the submission timestamp.
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
   - server-side age-bucket context for the client page.
 - `web/src/components/landing/DeflectionResultsPage.tsx` - client-side event
@@ -38,8 +41,8 @@ Slice phase: Functional validation
 ## Mechanism
 
 The results route already queries the saved price variant by `reportRequestId`.
-This slice adds a sibling lookup that returns the persisted submission row for
-that same report request. The server computes a coarse age bucket:
+This slice adds a sibling lookup that selects only the persisted `submitted_at`
+timestamp for that same report request. The server computes a coarse age bucket:
 
 ```ts
 same_day | day_1_3 | day_4_7 | day_8_30 | over_30_days | unknown
@@ -52,6 +55,9 @@ same_day | day_1_3 | day_4_7 | day_8_30 | over_30_days | unknown
 
 Neither event includes request IDs, email, company name, exact timestamps, blob
 URLs, source IDs, answers, or free-text ticket content.
+
+The focused test is enrolled in `.github/workflows/pre_push_audit.yml` so CI runs
+the analytics regression instead of relying on the package-script audit alone.
 
 ## Intentional
 
@@ -74,9 +80,14 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-comeback-analytics` - PASS; printed
-  `Deflection comeback analytics tests passed.`
+  `Deflection comeback analytics tests passed.` The first post-review run failed
+  because the privacy assertion rejected the required
+  `payload->>'reportRequestId'` lookup predicate; the assertion was narrowed to
+  identity fields and rerun successfully.
 - `npm --prefix web run test:deflection-hosted-results-smoke` - PASS; printed
   `Deflection hosted results smoke tests passed.`
+- `node web/scripts/audit-test-enrollment.mjs` - PASS; printed
+  `All 23 test:* scripts are enrolled in .../.github/workflows/pre_push_audit.yml.`
 - `npm --prefix web run lint -- src/lib/analytics.ts src/lib/gap-report-intake-database.ts src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx src/components/landing/DeflectionResultsPage.tsx scripts/test-deflection-comeback-analytics.mjs`
   - PASS; no ESLint diagnostics.
 - `npm --prefix web run build` - PASS; compiled successfully, TypeScript
@@ -90,16 +101,18 @@ Parked hardening: none.
 - `rg -n "faq_report_results_viewed|faq_report_unlock_clicked" web/src web/scripts`
   - PASS; found only `web/src/lib/analytics.ts` event emission and
   `web/scripts/test-deflection-comeback-analytics.mjs` assertions.
-- `bash scripts/local_pr_review.sh` - PASS; plan shape/files/diff-size, drift
-  advisory, ESLint, Next build, and `git diff --check` all passed.
+- `bash scripts/local_pr_review.sh` - PASS after the review fix; plan
+  shape/files/diff-size, drift advisory, ESLint, Next build, and
+  `git diff --check` all passed.
 
 ## Estimated diff size
 
 | Area | Estimate |
 | --- | ---: |
-| Plan doc | +96 |
+| Workflow enrollment | +3 / -0 |
+| Plan doc | +105 |
 | Analytics helpers | +41 / -0 |
-| Database lookup + results route | +100 / -2 |
-| Results page event wiring | +25 / -1 |
-| Focused test + package script | +109 / -0 |
-| Total | ~373 changed |
+| Database lookup + results route | +70 / -1 |
+| Results page event wiring | +36 / -1 |
+| Focused test + package script | +127 / -0 |
+| Total | ~382 changed |

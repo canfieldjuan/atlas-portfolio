@@ -17,7 +17,7 @@ import {
 } from '@/lib/deflection-pricing';
 import {
   getGapReportPriceVariantByReportRequestId,
-  getGapReportSubmissionByReportRequestId,
+  getGapReportSubmittedAtByReportRequestId,
 } from '@/lib/gap-report-intake-database';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 import type {
@@ -100,9 +100,9 @@ async function getResultsAnalyticsContext(
   requestId: string,
 ): Promise<FaqReportResultsAnalyticsContext> {
   try {
-    const submission = await getGapReportSubmissionByReportRequestId(requestId);
+    const submittedAt = await getGapReportSubmittedAtByReportRequestId(requestId);
     return {
-      submissionAgeBucket: comebackAgeBucket(submission?.submittedAt),
+      submissionAgeBucket: comebackAgeBucket(submittedAt ?? undefined),
     };
   } catch (error) {
     console.error(

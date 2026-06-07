@@ -23,6 +23,7 @@ function sliceBetween(haystack, start, end, context) {
 
 const analytics = await source('src/lib/analytics.ts');
 const database = await source('src/lib/gap-report-intake-database.ts');
+const prePushWorkflow = await source('../.github/workflows/pre_push_audit.yml');
 const resultsRoute = await source(
   'src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx',
 );
@@ -59,21 +60,31 @@ for (const forbidden of [
 
 assertIncludes(
   database,
-  'export async function getGapReportSubmissionByReportRequestId',
-  'report-request submission lookup',
+  'export async function getGapReportSubmittedAtByReportRequestId',
+  'report-request submitted-at lookup',
+);
+const submittedAtLookup = sliceBetween(
+  database,
+  'export async function getGapReportSubmittedAtByReportRequestId',
+  'export async function getGapReportPriceVariantByReportRequestId',
+  'report-request submitted-at lookup',
 );
 assertIncludes(
-  database,
+  submittedAtLookup,
   "WHERE payload->>'reportRequestId' = $1",
-  'report-request submission lookup',
+  'report-request submitted-at lookup',
 );
+assertIncludes(submittedAtLookup, 'AS submitted_at', 'submitted-at lookup column');
+for (const forbidden of ['email', 'company_name', 'csv_blob_url']) {
+  assertNotIncludes(submittedAtLookup, forbidden, 'submitted-at lookup privacy');
+}
 
 assertIncludes(resultsRoute, 'function comebackAgeBucket', 'results age bucketing');
 assertIncludes(resultsRoute, "return 'same_day'", 'same-day bucket');
 assertIncludes(resultsRoute, "return 'day_8_30'", 'late-comeback bucket');
 assertIncludes(
   resultsRoute,
-  'getGapReportSubmissionByReportRequestId(requestId)',
+  'getGapReportSubmittedAtByReportRequestId(requestId)',
   'results route submission lookup',
 );
 assertIncludes(
@@ -97,12 +108,19 @@ assertIncludes(
   'trackFaqReportUnlockClicked(trackedResultsContext)',
   'unlock-click tracking call',
 );
+assertIncludes(resultsPage, 'useMemo(', 'stable analytics context memo');
 assertIncludes(resultsPage, 'resultsViewTracked.current', 'one-shot view guard');
 assertIncludes(resultsPage, "checkoutStatus: checkoutStatus ?? 'none'", 'checkout status dimension');
 assert.ok(
   resultsPage.indexOf('trackFaqReportUnlockClicked(trackedResultsContext)') <
     resultsPage.indexOf("fetch('/api/deflection-checkout'"),
   'unlock click should be tracked before checkout session creation',
+);
+
+assertIncludes(
+  prePushWorkflow,
+  'npm --prefix web run test:deflection-comeback-analytics',
+  'CI enrollment',
 );
 
 console.log('Deflection comeback analytics tests passed.');

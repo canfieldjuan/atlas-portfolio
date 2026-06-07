@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -96,14 +96,25 @@ export function DeflectionResultsPage({
         : `Unlock the full report - ${fullReportPriceLabel}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
-  const trackedResultsContext = {
-    submissionAgeBucket: analyticsContext?.submissionAgeBucket,
-    priceVariant: priceVariant.id,
-    checkoutStatus: checkoutStatus ?? 'none',
-    generatedQuestionCount: summary.generated,
-    draftedAnswerCount: summary.drafted_answer_count,
-    lockedQuestionCount: locked_questions.length,
-  } satisfies FaqReportResultsAnalyticsContext;
+  const trackedResultsContext = useMemo(
+    () =>
+      ({
+        submissionAgeBucket: analyticsContext?.submissionAgeBucket,
+        priceVariant: priceVariant.id,
+        checkoutStatus: checkoutStatus ?? 'none',
+        generatedQuestionCount: summary.generated,
+        draftedAnswerCount: summary.drafted_answer_count,
+        lockedQuestionCount: locked_questions.length,
+      }) satisfies FaqReportResultsAnalyticsContext,
+    [
+      analyticsContext?.submissionAgeBucket,
+      checkoutStatus,
+      locked_questions.length,
+      priceVariant.id,
+      summary.drafted_answer_count,
+      summary.generated,
+    ],
+  );
 
   useEffect(() => {
     if (resultsViewTracked.current) return;
