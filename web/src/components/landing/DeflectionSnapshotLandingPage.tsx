@@ -581,6 +581,60 @@ function ProofList() {
   );
 }
 
+function HeroUploadTrust() {
+  const items = [
+    {
+      icon: <Lock className="h-4 w-4" />,
+      title: 'Private CSV upload',
+      body: 'Your file is stored as a private upload, not a public download link.',
+    },
+    {
+      icon: <ShieldCheck className="h-4 w-4" />,
+      title: 'Admin-gated access',
+      body:
+        'Only authenticated intake admin access can retrieve the CSV after upload.',
+    },
+    {
+      icon: <FileText className="h-4 w-4" />,
+      title: 'No model training or sharing',
+      body: 'No fine-tuning, no model training, and no third-party sharing.',
+    },
+    {
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      title: 'Deleted after 30 days',
+      body:
+        'Your CSV is deleted after 30 days. Strip names or emails first if your export tool makes that easy.',
+    },
+  ];
+
+  return (
+    <div
+      aria-label="Upload privacy and security"
+      className="rounded-md border border-border bg-surface/80 p-4 shadow-[var(--card-shadow)]"
+    >
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <ShieldCheck className="h-4 w-4 text-primary" />
+        How your upload is handled
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <div key={item.title} className="flex gap-3">
+            <div className="mt-0.5 text-primary">{item.icon}</div>
+            <div>
+              <p className="text-sm font-semibold leading-tight text-foreground">
+                {item.title}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground/68">
+                {item.body}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function DeflectionSnapshotLandingPage() {
   return (
     <main className="deflection-landing min-h-screen px-6 pb-20 pt-12 md:pt-16">
@@ -588,23 +642,25 @@ export function DeflectionSnapshotLandingPage() {
         <div>
           <Eyebrow>
             <Upload className="h-3.5 w-3.5" />
-            Free Deflection Snapshot
+            Free ticket analysis
           </Eyebrow>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl">
-            Get the free Snapshot that shows which support tickets to deflect
-            first.
+            Find the repeat support questions costing your team time.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
-            Upload 30 days of closed tickets. Your Snapshot ranks the repeat
-            issues, quotes the wording customers use, estimates the Support Tax,
-            and gives you one sourced draft answer your team can review.
+            Upload 30 days of closed tickets. The free Snapshot shows which
+            issues repeat, the exact wording customers use, what those repeats
+            cost to answer, and one sourced draft your team can review.
           </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <PrimarySnapshotCta />
-            <p className="max-w-sm text-sm leading-relaxed text-foreground/50">
-              CSV upload. No help-desk integration. Your CSV is deleted after 30
-              days.
-            </p>
+          <div className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <PrimarySnapshotCta />
+              <p className="max-w-sm text-sm leading-relaxed text-foreground/68">
+                No help-desk integration required. Start with a private CSV
+                upload.
+              </p>
+            </div>
+            <HeroUploadTrust />
           </div>
         </div>
 
