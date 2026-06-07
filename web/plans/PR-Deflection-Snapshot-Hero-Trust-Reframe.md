@@ -19,12 +19,17 @@ Slice phase: Product polish
    upload, limited/admin-gated access, no model training or third-party sharing,
    and 30-day deletion.
 3. Preserve the public route, CTA href, intake form behavior, Blob upload
-   behavior, smoke markers, metadata, result page, checkout, pricing, partner
-   funnel, and the downstream artifact/proof sections.
+   behavior, metadata, result page, checkout, pricing, partner funnel, and the
+   downstream artifact/proof sections.
+4. Update the Snapshot landing smoke marker and mocked smoke fixture for the new
+   visible hero badge/H1 so the monitor keeps checking rendered body copy rather
+   than matching the old text through metadata.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md`
+- `web/scripts/smoke-deflection-snapshot-landing.mjs`
+- `web/scripts/test-deflection-snapshot-landing-smoke.mjs`
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx`
 
 ## Mechanism
@@ -43,6 +48,10 @@ icons and states only behavior already present in the intake path:
 
 No storage, API, auth, or submission behavior changes are introduced.
 
+The smoke marker script and its local mocked fixture are updated in tandem with
+the visible hero badge and H1. This keeps the live monitor aligned with the
+body-rendered page text after the first-screen copy change.
+
 ## Intentional
 
 - This closes the first-screen pieces of #248 and #249 together because the
@@ -55,6 +64,8 @@ No storage, API, auth, or submission behavior changes are introduced.
   claim PII redaction, SOC 2, encryption details, or broader compliance posture.
 - The CTA label remains `Get my free Deflection Snapshot` so this slice avoids a
   broader CTA naming sweep.
+- The smoke marker update is included here because the reviewer correctly
+  flagged it as required for the slice to remain monitor-safe.
 
 ## Deferred
 
@@ -74,6 +85,12 @@ No storage, API, auth, or submission behavior changes are introduced.
   phrase, and low-emphasis CSV reassurance are absent from runtime source.
 - `rg -n "Find the repeat support questions costing your team time|Private CSV upload|No model training or sharing|Deleted after 30 days|No help-desk integration" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md -S` -
   passed.
+- `rg -n "Free ticket analysis|Find the repeat support questions costing your team time|Free Deflection Snapshot|Get the free Snapshot that shows which support tickets to deflect first" web/scripts/smoke-deflection-snapshot-landing.mjs web/scripts/test-deflection-snapshot-landing-smoke.mjs web/plans/PR-Deflection-Snapshot-Hero-Trust-Reframe.md -S` -
+  passed after the review fix; the visible smoke marker and mocked fixture use
+  the new badge/H1, while the old strings only remain in this plan's
+  verification commands.
+- `npm --prefix web run smoke:deflection-snapshot-landing -- --base-url http://127.0.0.1:3114` -
+  passed after the review fix.
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
@@ -89,4 +106,5 @@ No storage, API, auth, or submission behavior changes are introduced.
 |---|---:|
 | Plan doc | ~85 |
 | Hero copy and trust block | ~75 |
-| Total | ~160 |
+| Smoke marker sync | ~4 |
+| Total | ~170 |

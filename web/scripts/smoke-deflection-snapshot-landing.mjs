@@ -7,8 +7,8 @@ const INTAKE_PATH = '/systems/support-ticket-deflection/intake';
 const INTAKE_HREF = `href="${INTAKE_PATH}"`;
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 const REQUIRED_MARKERS = [
-  ['snapshotBadge', 'Free Deflection Snapshot'],
-  ['promiseHeadline', 'Get the free Snapshot that shows which support tickets to deflect first.'],
+  ['snapshotBadge', 'Free ticket analysis'],
+  ['promiseHeadline', 'Find the repeat support questions costing your team time.'],
   ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
   ['snapshotAction', 'Snapshot action'],
   ['snapshotFirst', 'Snapshot comes before any paid report'],
