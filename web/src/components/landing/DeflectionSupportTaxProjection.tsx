@@ -134,6 +134,7 @@ export function DeflectionSupportTaxProjection({
   onAssistedContactCostChange,
   action,
   subjectLabel = 'Your uploaded repeat tickets',
+  valueAnchor,
   className = '',
 }: {
   repeatTicketCount: number;
@@ -142,6 +143,7 @@ export function DeflectionSupportTaxProjection({
   onAssistedContactCostChange?: (value: number) => void;
   action: ProjectionAction;
   subjectLabel?: string;
+  valueAnchor?: string;
   className?: string;
 }) {
   const [internalAssistedContactCost, setInternalAssistedContactCost] = useState(
@@ -266,6 +268,12 @@ export function DeflectionSupportTaxProjection({
           sub="same pace, no reduction"
         />
       </div>
+
+      {valueAnchor && (
+        <div className="mt-5 rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-sm leading-relaxed text-foreground/70">
+          {valueAnchor}
+        </div>
+      )}
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
         <ProjectionActionButton action={action} />

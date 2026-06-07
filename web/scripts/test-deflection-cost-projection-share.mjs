@@ -8,6 +8,7 @@ const read = (path) => readFileSync(join(webRoot, path), 'utf8');
 const projectionSource = read('src/components/landing/DeflectionSupportTaxProjection.tsx');
 const resultsSource = read('src/components/landing/DeflectionResultsPage.tsx');
 const landingSource = read('src/components/landing/DeflectionSnapshotLandingPage.tsx');
+const snapshotSource = read('src/lib/deflection-snapshot.ts');
 
 assert(
   projectionSource.includes('export function DeflectionSupportTaxProjection'),
@@ -19,6 +20,10 @@ assert(
     projectionSource.includes('12-month run-rate') &&
     projectionSource.includes('3-year run-rate'),
   'Shared projection should own the slider and production run-rate labels.',
+);
+assert(
+  projectionSource.includes('valueAnchor'),
+  'Shared projection should own the value-anchor copy hook.',
 );
 
 for (const [label, source] of [
@@ -45,9 +50,25 @@ assert(
 );
 assert(
   landingSource.includes('const [assistedContactCost, setAssistedContactCost] = useState') &&
+    landingSource.includes('DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD') &&
     landingSource.includes('assistedContactCost={assistedContactCost}') &&
     landingSource.includes('onAssistedContactCostChange={setAssistedContactCost}'),
   'Snapshot landing preview should share one assisted-contact cost state with the projection.',
+);
+assert(
+  landingSource.includes('DEFLECTION_FULL_REPORT_PRICE_LABEL') &&
+    landingSource.includes('function snapshotCostBasisLabel') &&
+    landingSource.includes("'At the Gartner benchmark'") &&
+    landingSource.includes('At your selected ${formatAssistedContactCost(assistedContactCost)} per assisted contact') &&
+    landingSource.includes('valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}') &&
+    landingSource.includes('larger representative queue'),
+  'Snapshot landing page should bridge the higher-volume representative sample to the full-report value frame without mislabeling slider-adjusted costs as the Gartner benchmark.',
+);
+assert(
+  snapshotSource.includes('repeat_ticket_count: 1700') &&
+    snapshotSource.includes('ticket_count: 310') &&
+    snapshotSource.includes('source_count: 310'),
+  'Representative snapshot fixture should use higher support volume while keeping the benchmark contact-cost default.',
 );
 
 console.log('Deflection cost projection sharing guard passed.');
