@@ -11,7 +11,7 @@ const REQUIRED_MARKERS = [
   ['promiseHeadline', 'Find the repeat support questions costing your team time.'],
   ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
   ['snapshotAction', 'Snapshot action'],
-  ['snapshotFirst', 'Snapshot comes before any paid report'],
+  ['snapshotFirst', 'A paid full report is optional after the free results'],
   ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],
 ];

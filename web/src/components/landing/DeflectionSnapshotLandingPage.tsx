@@ -105,7 +105,7 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
       label: 'Snapshot action',
       value: 'Free',
       detail:
-        'Upload the CSV first, then decide whether the full report is worth unlocking',
+        'Upload the CSV first; the free results show whether there is enough repeat volume',
     },
   ];
 
@@ -118,17 +118,16 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
             The Snapshot turns repeat volume into a benchmark cost estimate.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-            In this representative labeled-synthetic support set, the repeat
-            ticket count is multiplied by the{' '}
+            The repeat-ticket count is multiplied by the{' '}
             {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} assisted-contact
             benchmark. The point is not a savings promise. It is a fast value
             check before your team spends anything.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <PrimarySnapshotCta />
-            <p className="max-w-sm text-sm leading-relaxed text-foreground/50">
-              See whether your own queue has enough repeat volume before paying
-              for every draft and source trail.
+            <p className="max-w-sm text-sm leading-relaxed text-foreground/68">
+              See whether your own queue has enough repeat volume to justify
+              deeper drafting.
             </p>
           </div>
         </div>
@@ -152,10 +151,9 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
           ))}
 
           <p className="rounded-md border border-primary/25 bg-primary/[0.06] p-4 text-sm leading-relaxed text-foreground/66">
-            The free Snapshot earns the next step by showing the pattern first:
-            ranked repeats, customer wording, and one sourced answer sample. The
-            Snapshot comes before any paid report, so the decision starts with
-            evidence from your own queue.
+            The Snapshot earns the next step by showing the pattern first:
+            ranked repeats, customer wording, and one sourced answer sample. A
+            paid full report is optional after the free results.
           </p>
         </div>
       </div>
@@ -217,7 +215,7 @@ function AnswerTeaser({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
   return (
     <article className="rounded-md border border-primary/25 bg-primary/[0.05] p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-mono text-primary">
-        <span>Included free draft</span>
+        <span>Included draft</span>
         <span className="rounded-md border border-primary/25 px-2 py-0.5">
           Rank #{answer.rank}
         </span>
@@ -293,9 +291,9 @@ function LockedQuestionFomoRows({
           </div>
         ))}
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-foreground/58">
-        Counts and benchmark estimates stay visible; question text withheld
-        until the full report unlocks the complete backlog.
+      <p className="mt-3 text-sm leading-relaxed text-foreground/62">
+        Counts and benchmark estimates stay visible here; the complete report
+        adds the remaining question text and source trails.
       </p>
     </div>
   );
@@ -330,7 +328,7 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
           </h2>
         </div>
         <span className="w-fit max-w-[16rem] rounded-md border border-primary/25 px-2 py-1 text-xs font-mono leading-snug text-primary">
-          Representative labeled-synthetic support set
+          Representative synthetic example
         </span>
       </div>
 
@@ -396,28 +394,22 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
           <div className="mt-5 border-t border-border pt-4">
             <p className="text-xs font-mono uppercase tracking-wide text-primary">
-              Free Snapshot
+              Snapshot preview
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Ranked repeats, customer wording, Support Tax estimate, one
-              sourced drafted answer.
+              Ranked repeats, customer wording, benchmark estimate, one sourced
+              draft answer.
             </p>
             <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
-              Full report
+              Optional full report
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Complete backlog, drafts, source trail, write-next list if the
-              Snapshot proves enough repeat demand.
+              Complete backlog, drafts, source trail, and write-next list when
+              repeat demand is clear.
             </p>
           </div>
         </aside>
       </div>
-
-      <p className="mt-4 border-t border-border pt-4 text-xs leading-relaxed text-foreground/45">
-        Representative labeled-synthetic support set. Your uploaded snapshot
-        uses your own closed-ticket data. Benchmark estimates are not guaranteed
-        savings, and the full report stays behind checkout.
-      </p>
     </section>
   );
 }
@@ -444,8 +436,8 @@ function SnapshotArtifact({
     lockedRanks.length > 0 ? Math.max(...lockedRanks) : summary.generated;
   const lockedRangeLabel =
     firstLockedRank <= lastLockedRank
-      ? `Ranks ${firstLockedRank}-${lastLockedRank} stay locked`
-      : 'The remaining report stays locked';
+      ? `Ranks ${firstLockedRank}-${lastLockedRank} previewed by volume`
+      : 'Remaining question groups previewed by volume';
   const artifactMetrics = [
     {
       label: 'Repeat-ticket hits',
@@ -458,14 +450,14 @@ function SnapshotArtifact({
       detail: `${DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} benchmark`,
     },
     {
-      label: 'Included free draft',
+      label: 'Included draft',
       value: teaser.full_answer ? '1' : '0',
       detail: teaser.full_answer
         ? `${formatInteger(teaser.full_answer.source_count)} source tickets`
         : 'No scoped draft in this sample',
     },
     {
-      label: 'Locked backlog',
+      label: 'Remaining backlog',
       value: formatInteger(locked_questions.length),
       detail: 'rank and volume previewed',
     },
@@ -536,11 +528,9 @@ function SnapshotArtifact({
         </div>
       )}
 
-      <p className="mt-4 text-xs leading-relaxed text-foreground/45">
-        Representative labeled-synthetic support set. Your uploaded snapshot
-        uses your own closed-ticket data. Scores are relative ranking signals;
-        benchmark estimates are not guaranteed savings. The full report keeps
-        the remaining ranked backlog behind checkout.
+      <p className="mt-4 text-xs leading-relaxed text-foreground/62">
+        Your uploaded Snapshot uses your own closed-ticket data. Scores are
+        relative ranking signals.
       </p>
     </section>
   );
@@ -558,7 +548,7 @@ function ProofList() {
       icon: <FileText className="h-5 w-5" />,
       title: 'A real diagnostic, not a generic calculator',
       body:
-        'The Snapshot ranks the repeat questions and phrases from the uploaded queue before asking for a paid next step.',
+        'The Snapshot ranks the repeat questions and phrases from the uploaded queue before your team decides what to publish or expand.',
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
@@ -672,12 +662,12 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Artifact</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The free Snapshot is the artifact you inspect before paying.
+              The Snapshot is the artifact you inspect before deciding what to fix.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The panel below shows the offer shape: ranked repeat questions,
               customer wording, benchmark cost, one sourced draft answer, and
-              locked backlog depth before any paid report.
+              a preview of what remains.
             </p>
           </div>
           <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} />
@@ -691,12 +681,12 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Strong claims, bounded by the data.
+              Built for a narrow support decision.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The landing page can be direct because the product is deliberately
-              narrow: it reads your queue, shows the repeat pattern, and keeps
-              every publishable answer grounded in resolved support history.
+              The Snapshot has one job: read the queue, show the repeat pattern,
+              and keep every publishable answer grounded in resolved support
+              history.
             </p>
           </div>
           <ProofList />
@@ -710,9 +700,8 @@ export function DeflectionSnapshotLandingPage() {
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
           The only ask on this page is the CSV upload. If the repeat pattern is
-          weak, the Snapshot will show that. If it is strong, you will know
-          whether the complete ranked backlog, review-ready drafts, source
-          trail, and no-proven-answer list are worth unlocking.
+          weak, the Snapshot will show that. If it is strong, you will have a ranked
+          starting point and one answer draft to review before any next step.
         </p>
         <div className="mt-6">
           <PrimarySnapshotCta />
