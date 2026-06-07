@@ -20,6 +20,10 @@ import {
   type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 import {
+  DeflectionLockedQuestionRows,
+  DeflectionTopQuestionRows,
+} from './DeflectionSnapshotRows';
+import {
   DeflectionTeaserAnswer,
   DeflectionTeaserPreviewCard,
 } from './DeflectionSnapshotTeaser';
@@ -279,7 +283,6 @@ export function DeflectionResultsPage({
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   );
-  const maxTicketCount = top_questions.reduce((m, q) => Math.max(m, q.ticket_count), 0) || 1;
   const firstLockedRank = top_questions.length + 1;
   const lastLockedRank = locked_questions.at(-1)?.rank ?? summary.generated;
   const hasMoreQuestions = locked_questions.length > 0 || summary.generated > top_questions.length;
@@ -499,43 +502,10 @@ export function DeflectionResultsPage({
             real demand. ATLAS does not claim keyword volume, search rank, or
             traffic.
           </p>
-          <ol className="mt-5 space-y-3">
-            {top_questions.map((q) => (
-              <li
-                key={q.rank}
-                className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
-              >
-                <span className="font-mono text-sm text-primary font-bold mt-0.5 w-6 shrink-0 text-center">
-                  #{q.rank}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-foreground font-semibold leading-snug">{q.question}</p>
-                  <p className="text-xs text-foreground/50 mt-1">
-                    target phrase from your tickets: &ldquo;{q.customer_wording}&rdquo;
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-foreground/50">
-                    Hit your queue <strong className="text-foreground/70">{count(q.ticket_count)}</strong>{' '}
-                    times in this upload, possibly costing{' '}
-                    <strong className="text-foreground/70">
-                      {usd(q.ticket_count * assistedContactCost)}
-                    </strong>{' '}
-                    at {costLabel(assistedContactCost)} per assisted contact.
-                  </p>
-                </div>
-                <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
-                  <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
-                    {count(q.ticket_count)}x
-                  </span>
-                  <div className="mt-2 h-1.5 w-24 rounded-full bg-border overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
-                      style={{ width: `${Math.round((q.ticket_count / maxTicketCount) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <DeflectionTopQuestionRows
+            questions={top_questions}
+            assistedContactCost={assistedContactCost}
+          />
         </section>
 
         {locked_questions.length > 0 && (
@@ -544,40 +514,11 @@ export function DeflectionResultsPage({
               <Lock className="h-3.5 w-3.5" />
               <span id="locked-question-heading">Locked recurring questions</span>
             </div>
-            <div className="relative">
-              <ol className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-border bg-surface p-3 pr-2
-                [&::-webkit-scrollbar]:w-1.5
-                [&::-webkit-scrollbar-thumb]:bg-border/60
-                [&::-webkit-scrollbar-thumb]:rounded-full
-                [&::-webkit-scrollbar-track]:bg-transparent"
-              >
-                {locked_questions.map((q) => (
-                  <li
-                    key={q.rank}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-background/40 px-3 py-2.5 transition-colors hover:bg-background/60"
-                  >
-                    <span className="w-10 shrink-0 font-mono text-xs text-foreground/45 text-center">
-                      #{q.rank}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-foreground/60">
-                        <Lock className="h-3.5 w-3.5 text-foreground/30" />
-                        <span>Question text withheld</span>
-                      </div>
-                      <p className="mt-0.5 text-[11px] text-foreground/45">
-                        <strong className="text-foreground/60">{count(q.ticket_count)}</strong>{' '}
-                        repeat tickets -{' '}
-                        <strong className="text-foreground/60">
-                          {usd(q.ticket_count * assistedContactCost)}
-                        </strong>{' '}
-                        estimated cost
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none rounded-b-xl border-b border-border/10" />
-            </div>
+            <DeflectionLockedQuestionRows
+              questions={locked_questions}
+              assistedContactCost={assistedContactCost}
+              showFade
+            />
           </section>
         )}
 

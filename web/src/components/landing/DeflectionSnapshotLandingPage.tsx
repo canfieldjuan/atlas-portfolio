@@ -10,14 +10,16 @@ import {
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import {
+  DeflectionLockedQuestionRows,
+  DeflectionTopQuestionRows,
+} from './DeflectionSnapshotRows';
+import {
   DeflectionTeaserAnswer,
   DeflectionTeaserPreviewCard,
 } from './DeflectionSnapshotTeaser';
 import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
-  type DeflectionSnapshotLockedQuestion,
-  type DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
@@ -31,12 +33,6 @@ const integerFormatter = new Intl.NumberFormat('en-US');
 
 function formatInteger(value: number) {
   return integerFormatter.format(value);
-}
-
-function benchmarkEstimateForTickets(ticketCount: number) {
-  return formatDeflectionWholeUsd(
-    ticketCount * DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  );
 }
 
 function snapshotCostProof(snapshot: DeflectionSnapshot) {
@@ -163,95 +159,6 @@ function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
   );
 }
 
-function SnapshotQuestionRows({
-  questions,
-}: {
-  questions: DeflectionSnapshotQuestion[];
-}) {
-  const maxFrequency = questions.reduce(
-    (max, question) => Math.max(max, question.weighted_frequency),
-    1,
-  );
-
-  return (
-    <ol className="space-y-3">
-      {questions.slice(0, 3).map((question) => (
-        <li
-          key={question.rank}
-          className="grid gap-3 rounded-md border border-border bg-white/72 p-4 md:grid-cols-[2rem_minmax(0,1fr)_8rem]"
-        >
-          <span className="font-mono text-sm text-foreground/45">
-            #{question.rank}
-          </span>
-          <div className="min-w-0">
-            <p className="font-medium leading-snug text-foreground">
-              {question.question}
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-foreground/58">
-              Customer wording: &quot;{question.customer_wording}&quot;
-            </p>
-          </div>
-          <div className="md:text-right">
-            <p className="font-mono text-sm text-foreground/72">
-              {formatInteger(question.ticket_count)} tickets
-            </p>
-            <p className="mt-1 text-xs text-foreground/50">
-              priority score {question.weighted_frequency}
-            </p>
-            <div className="mt-2 h-1.5 rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-primary"
-                style={{
-                  width: `${Math.max(18, Math.round((question.weighted_frequency / maxFrequency) * 100))}%`,
-                }}
-              />
-            </div>
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-function LockedQuestionFomoRows({
-  label,
-  questions,
-}: {
-  label: string;
-  questions: DeflectionSnapshotLockedQuestion[];
-}) {
-  const rows = questions.slice(0, 3);
-
-  return (
-    <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
-      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
-        <Lock className="h-4 w-4 text-foreground/40" />
-        {label}
-      </div>
-      <div className="space-y-2">
-        {rows.map((question) => (
-          <div
-            key={question.rank}
-            className="grid gap-2 rounded-md border border-border/70 bg-white/62 p-3 text-xs sm:grid-cols-[4.5rem_minmax(0,1fr)_7rem] sm:items-center"
-          >
-            <span className="font-mono text-foreground/58">Rank #{question.rank}</span>
-            <span className="text-foreground/72">
-              {formatInteger(question.ticket_count)} repeat-ticket hits
-            </span>
-            <span className="font-mono text-foreground/72 sm:text-right">
-              {benchmarkEstimateForTickets(question.ticket_count)}
-            </span>
-          </div>
-        ))}
-      </div>
-      <p className="mt-3 text-sm leading-relaxed text-foreground/62">
-        Counts and benchmark estimates stay visible here; the complete report
-        adds the remaining question text and source trails.
-      </p>
-    </div>
-  );
-}
-
 function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
   const answer = snapshot.teaser.full_answer;
   const sourceQuestion = answer
@@ -375,7 +282,6 @@ function SnapshotArtifact({
   showTeaser?: boolean;
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
-  const visibleQuestions = top_questions.slice(0, 3);
   const artifactCostProof = snapshotCostProof(snapshot);
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
@@ -448,13 +354,27 @@ function SnapshotArtifact({
         </div>
       </div>
 
-      <SnapshotQuestionRows questions={visibleQuestions} />
+      <DeflectionTopQuestionRows
+        questions={top_questions}
+        assistedContactCost={DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD}
+        limit={3}
+      />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <LockedQuestionFomoRows
-          label={lockedRangeLabel}
-          questions={locked_questions}
-        />
+        <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
+          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+            <Lock className="h-4 w-4 text-foreground/40" />
+            {lockedRangeLabel}
+          </div>
+          <DeflectionLockedQuestionRows
+            questions={locked_questions}
+            assistedContactCost={DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD}
+          />
+          <p className="mt-3 text-sm leading-relaxed text-foreground/62">
+            Counts and benchmark estimates stay visible here; the complete
+            report adds the remaining question text and source trails.
+          </p>
+        </div>
         <div className="rounded-md border border-border bg-white/62 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Search className="h-4 w-4 text-primary" />

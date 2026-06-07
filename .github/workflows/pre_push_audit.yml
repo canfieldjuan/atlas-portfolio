@@ -78,6 +78,9 @@ jobs:
       - name: Deflection Snapshot landing smoke tests
         run: npm --prefix web run test:deflection-snapshot-landing-smoke
 
+      - name: Deflection row renderer share tests
+        run: npm --prefix web run test:deflection-row-renderer-share
+
       - name: Deflection rate-limit tests
         run: npm --prefix web run test:deflection-rate-limit
 
