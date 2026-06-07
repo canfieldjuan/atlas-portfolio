@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { validateDeflectionCheckoutEnv } from './check-deflection-checkout-env.mjs';
+import checkoutRequirements from '../src/lib/deflection-checkout-requirements.js';
+import pricingCatalog from '../src/lib/deflection-pricing-catalog.js';
 
 function validate(env, environment) {
   return validateDeflectionCheckoutEnv(env, { environment });
@@ -22,6 +24,10 @@ const PARTNER_CREDENTIAL_ENV =
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
+const STANDARD_AMOUNT_CENTS_ENV =
+  checkoutRequirements.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV;
+const PARTNER_AMOUNT_CENTS_ENV =
+  checkoutRequirements.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV;
 const LEGACY_INLINE_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
   'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
@@ -31,8 +37,14 @@ const STANDARD_ALLOWED_AMOUNT_ERROR =
 const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
+const CUSTOM_STANDARD_AMOUNT_CENTS = 1800 * 100;
+const CUSTOM_PARTNER_AMOUNT_CENTS = 1200 * 100;
 const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`;
 const PRODUCTION_PARTNER_ACCESS_TOKEN = 'partner_unit_access_token';
+const pricingSource = await readFile(
+  new URL('../src/lib/deflection-pricing.ts', import.meta.url),
+  'utf8',
+);
 
 function withProductionPartnerAccessToken(env) {
   return {
@@ -47,6 +59,46 @@ function withProductionPartnerSigningSecret(env) {
     [PARTNER_SIGNING_SECRETS_ENV]: 'partner_unit_signing_secret',
   };
 }
+
+function amountRequiredError(amountCents, reason) {
+  return `${ALLOWED_AMOUNT_CENTS_ENV} must include ${amountCents} when ${reason}.`;
+}
+
+{
+  const variants = pricingCatalog.buildDeflectionPriceVariants({
+    [STANDARD_AMOUNT_CENTS_ENV]: String(CUSTOM_STANDARD_AMOUNT_CENTS),
+    [PARTNER_AMOUNT_CENTS_ENV]: String(CUSTOM_PARTNER_AMOUNT_CENTS),
+  });
+  assert.equal(variants[0].amountCents, CUSTOM_STANDARD_AMOUNT_CENTS);
+  assert.equal(variants[0].priceLabel, '$1,800');
+  assert.equal(variants[1].amountCents, CUSTOM_PARTNER_AMOUNT_CENTS);
+  assert.equal(variants[1].priceLabel, '$1,200');
+}
+
+assert.throws(
+  () =>
+    pricingCatalog.buildDeflectionPriceVariants({
+      [STANDARD_AMOUNT_CENTS_ENV]: '1800.00',
+    }),
+  new RegExp(`${STANDARD_AMOUNT_CENTS_ENV} must contain a positive integer cents value\\.`),
+);
+
+assert(
+  pricingSource.includes(
+    'process.env.NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS',
+  ),
+  'browser-facing pricing must use a literal standard NEXT_PUBLIC env read',
+);
+assert(
+  pricingSource.includes(
+    'process.env.NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_PARTNER_AMOUNT_CENTS',
+  ),
+  'browser-facing pricing must use a literal partner NEXT_PUBLIC env read',
+);
+assert(
+  !pricingSource.includes('buildDeflectionPriceVariants()'),
+  'browser-facing pricing must pass the static public env object into the catalog',
+);
 
 {
   const result = validate(
@@ -75,6 +127,10 @@ function withProductionPartnerSigningSecret(env) {
     DEFAULT_ALLOWED_AMOUNT_CENTS,
     PARTNER_ALLOWED_AMOUNT_CENTS,
   ]);
+  assert.deepEqual(result.configuredPriceAmountsCents, {
+    standard: DEFAULT_ALLOWED_AMOUNT_CENTS,
+    partner: PARTNER_ALLOWED_AMOUNT_CENTS,
+  });
   assert(result.warnings.some((warning) => warning.includes('ignored')));
   assert(result.warnings.some((warning) => warning.includes(LEGACY_PRICE_ID_ENV)));
 }
@@ -251,6 +307,101 @@ function withProductionPartnerSigningSecret(env) {
     DEFAULT_ALLOWED_AMOUNT_CENTS,
     PARTNER_ALLOWED_AMOUNT_CENTS,
   ]);
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [STANDARD_AMOUNT_CENTS_ENV]: String(CUSTOM_STANDARD_AMOUNT_CENTS),
+      [PARTNER_AMOUNT_CENTS_ENV]: String(CUSTOM_PARTNER_AMOUNT_CENTS),
+      [ALLOWED_AMOUNT_CENTS_ENV]:
+        `${CUSTOM_STANDARD_AMOUNT_CENTS}, ${CUSTOM_PARTNER_AMOUNT_CENTS}`,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert(result.present.includes(STANDARD_AMOUNT_CENTS_ENV));
+  assert(result.present.includes(PARTNER_AMOUNT_CENTS_ENV));
+  assert.equal(result.keyModes[STANDARD_AMOUNT_CENTS_ENV], 'env');
+  assert.equal(result.keyModes[PARTNER_AMOUNT_CENTS_ENV], 'env');
+  assert.deepEqual(result.configuredPriceAmountsCents, {
+    standard: CUSTOM_STANDARD_AMOUNT_CENTS,
+    partner: CUSTOM_PARTNER_AMOUNT_CENTS,
+  });
+  assert.deepEqual(result.allowedAmountsCents, [
+    CUSTOM_STANDARD_AMOUNT_CENTS,
+    CUSTOM_PARTNER_AMOUNT_CENTS,
+  ]);
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [STANDARD_AMOUNT_CENTS_ENV]: String(CUSTOM_STANDARD_AMOUNT_CENTS),
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, [
+    amountRequiredError(
+      CUSTOM_STANDARD_AMOUNT_CENTS,
+      `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV} is configured`,
+    ),
+  ]);
+  assert.deepEqual(result.configuredPriceAmountsCents, {
+    standard: CUSTOM_STANDARD_AMOUNT_CENTS,
+    partner: PARTNER_ALLOWED_AMOUNT_CENTS,
+  });
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [STANDARD_AMOUNT_CENTS_ENV]: '1800.00',
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.invalid, [
+    `${STANDARD_AMOUNT_CENTS_ENV} must contain a positive integer cents value.`,
+  ]);
+  assert.equal(result.keyModes[STANDARD_AMOUNT_CENTS_ENV], 'invalid');
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [PARTNER_AMOUNT_CENTS_ENV]: '0',
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.invalid, [
+    `${PARTNER_AMOUNT_CENTS_ENV} must contain a positive integer cents value.`,
+  ]);
+  assert.equal(result.keyModes[PARTNER_AMOUNT_CENTS_ENV], 'invalid');
 }
 
 {

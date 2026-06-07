@@ -12,6 +12,10 @@ const requirementsSourceUrl = new URL(
   '../src/lib/deflection-checkout-requirements.js',
   import.meta.url,
 );
+const pricingCatalogSourceUrl = new URL(
+  '../src/lib/deflection-pricing-catalog.js',
+  import.meta.url,
+);
 const partnerTokenSourceUrl = new URL('../src/lib/deflection-partner-token.js', import.meta.url);
 const routeSourceUrl = new URL('../src/app/api/deflection-checkout/route.ts', import.meta.url);
 const compiledPath = join(testDir, 'deflection-checkout.cjs');
@@ -27,6 +31,8 @@ const ENV_KEYS = [
   'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER',
   'STRIPE_DEFLECTION_REPORT_PRICE_ID',
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS',
+  'NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS',
+  'NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_PARTNER_AMOUNT_CENTS',
   'VERCEL_ENV',
 ];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
@@ -73,6 +79,7 @@ try {
   await mkdir(seoStubDir, { recursive: true });
   await mkdir(nextStubDir, { recursive: true });
   const require = createRequire(compiledPath);
+  resetEnv();
   const pricingSource = await readFile(pricingSourceUrl, 'utf8');
   const compiledPricing = ts.transpileModule(pricingSource, {
     compilerOptions: {
@@ -82,6 +89,7 @@ try {
   });
   await writeFile(compiledPricingPath, compiledPricing.outputText);
   const requirementsSource = await readFile(requirementsSourceUrl, 'utf8');
+  const pricingCatalogSource = await readFile(pricingCatalogSourceUrl, 'utf8');
   const compiledRequirements = ts.transpileModule(requirementsSource, {
     compilerOptions: {
       allowJs: true,
@@ -92,6 +100,11 @@ try {
   await writeFile(
     join(seoStubDir, 'deflection-checkout-requirements.js'),
     compiledRequirements.outputText,
+  );
+  await writeFile(join(testDir, 'deflection-pricing-catalog.js'), pricingCatalogSource);
+  await writeFile(
+    join(seoStubDir, 'deflection-pricing-catalog.js'),
+    pricingCatalogSource,
   );
   await writeFile(
     join(seoStubDir, 'deflection-partner-token.js'),
@@ -315,6 +328,19 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
       `${DEFLECTION_FULL_REPORT_PRICE_CENTS},,${variantAmountCents}`,
+  });
+  assert.deepEqual(
+    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
+    NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS: '1500.00',
   });
   assert.deepEqual(
     await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),

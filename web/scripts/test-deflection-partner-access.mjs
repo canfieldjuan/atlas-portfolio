@@ -12,6 +12,7 @@ const checkoutRequirementsUrl = new URL(
   '../src/lib/deflection-checkout-requirements.js',
   import.meta.url,
 );
+const pricingCatalogUrl = new URL('../src/lib/deflection-pricing-catalog.js', import.meta.url);
 const partnerTokenUrl = new URL('../src/lib/deflection-partner-token.js', import.meta.url);
 const gapReportIntakeUrl = new URL('../src/lib/gap-report-intake.ts', import.meta.url);
 const recordRouteUrl = new URL(
@@ -71,11 +72,14 @@ try {
   await writeFile(join(testDir, 'deflection-partner-token.js'), partnerTokenSource);
   await writeFile(join(libStubDir, 'deflection-partner-token.js'), partnerTokenSource);
   const checkoutRequirementsSource = await readFile(checkoutRequirementsUrl, 'utf8');
+  const pricingCatalogSource = await readFile(pricingCatalogUrl, 'utf8');
   await writeFile(join(testDir, 'deflection-checkout-requirements.js'), checkoutRequirementsSource);
+  await writeFile(join(testDir, 'deflection-pricing-catalog.js'), pricingCatalogSource);
   await writeFile(
     join(libStubDir, 'deflection-checkout-requirements.js'),
     checkoutRequirementsSource,
   );
+  await writeFile(join(libStubDir, 'deflection-pricing-catalog.js'), pricingCatalogSource);
   const compiled = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,

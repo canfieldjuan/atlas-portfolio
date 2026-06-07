@@ -2,8 +2,6 @@
 
 const DEFLECTION_CHECKOUT_DEFAULT_ENVIRONMENT = 'local';
 const DEFLECTION_CHECKOUT_PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
-const DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS = 1500 * 100;
-const DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS = 1000 * 100;
 const DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV =
   'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
 const DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV =
@@ -18,21 +16,18 @@ const DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
 const DEFLECTION_CHECKOUT_PRICE_ID_MISSING_NAME =
   `${DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV} or ${DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV}`;
-const DEFLECTION_CHECKOUT_LEGACY_INLINE_AMOUNT_ERROR =
-  `${DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS} when ` +
-  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
-const DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR =
-  `${DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS} when ` +
-  `${DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV} or ${DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV} is configured.`;
-const DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR =
-  `${DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS} when ` +
-  `${DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV} is configured.`;
 // This file is a CommonJS module because Node preflight scripts import it
 // directly; keep the shared token parser in that same module boundary.
 const {
   configuredDeflectionPartnerAccessTokens,
   configuredDeflectionPartnerSigningSecrets,
 } = require('./deflection-partner-token');
+const pricingCatalog = require('./deflection-pricing-catalog');
+
+const DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS =
+  pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_DEFAULT;
+const DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS =
+  pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_DEFAULT;
 
 const DEFLECTION_CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
@@ -44,6 +39,8 @@ const DEFLECTION_CHECKOUT_ENV_KEYS = [
   DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV,
   DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV,
+  pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV,
+  pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
 ];
 
@@ -136,6 +133,23 @@ function addInvalidPriceId(invalid, key, value) {
   }
 }
 
+function amountRequiredError(amountCents, reason) {
+  return `${DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV} must include ${amountCents} when ${reason}.`;
+}
+
+const DEFLECTION_CHECKOUT_LEGACY_INLINE_AMOUNT_ERROR = amountRequiredError(
+  DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS,
+  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data',
+);
+const DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR = amountRequiredError(
+  DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS,
+  `${DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV} or ${DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV} is configured`,
+);
+const DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR = amountRequiredError(
+  DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS,
+  `${DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV} is configured`,
+);
+
 function classifyEnv(env) {
   const rak = clean(env.ATLAS_SAAS_STRIPE_RAK);
   const legacySecret = clean(env.ATLAS_SAAS_STRIPE_SECRET_KEY);
@@ -149,6 +163,7 @@ function classifyEnv(env) {
   const allowedAmounts = parseAllowedAmounts(
     env[DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV],
   );
+  const priceAmounts = pricingCatalog.configuredDeflectionPriceAmounts(env);
 
   return {
     present: [
@@ -162,6 +177,12 @@ function classifyEnv(env) {
       legacyPriceId ? DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV : '',
       clean(env[DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV])
         ? DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV
+        : '',
+      clean(env[pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV])
+        ? pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV
+        : '',
+      clean(env[pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV])
+        ? pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV
         : '',
     ].filter(Boolean),
     keyModes: {
@@ -184,6 +205,10 @@ function classifyEnv(env) {
         ? 'configured'
         : 'missing',
       [DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV]: allowedAmounts.mode,
+      [pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV]:
+        priceAmounts.sources.standard,
+      [pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV]:
+        priceAmounts.sources.partner,
     },
     rak,
     legacySecret,
@@ -195,6 +220,7 @@ function classifyEnv(env) {
     legacyPriceId,
     priceId,
     allowedAmounts,
+    priceAmounts,
   };
 }
 
@@ -242,6 +268,11 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
   if (!classified.allowedAmounts.ok) {
     addInvalid(invalid, classified.allowedAmounts.error);
   }
+  for (const error of classified.priceAmounts.errors) {
+    addInvalid(invalid, error);
+  }
+  const standardAmountCents = classified.priceAmounts.amounts.standard;
+  const partnerAmountCents = classified.priceAmounts.amounts.partner;
   addInvalidPriceId(
     invalid,
     DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
@@ -263,17 +294,31 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
     classified.priceId &&
     DEFLECTION_CHECKOUT_PRICE_ID_RE.test(classified.priceId) &&
     classified.allowedAmounts.ok &&
-    !classified.allowedAmounts.amounts.includes(DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS)
+    classified.priceAmounts.ok &&
+    !classified.allowedAmounts.amounts.includes(standardAmountCents)
   ) {
-    addInvalid(invalid, DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR);
+    addInvalid(
+      invalid,
+      amountRequiredError(
+        standardAmountCents,
+        `${DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV} or ${DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV} is configured`,
+      ),
+    );
   }
   if (
     classified.partnerPriceId &&
     DEFLECTION_CHECKOUT_PRICE_ID_RE.test(classified.partnerPriceId) &&
     classified.allowedAmounts.ok &&
-    !classified.allowedAmounts.amounts.includes(DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS)
+    classified.priceAmounts.ok &&
+    !classified.allowedAmounts.amounts.includes(partnerAmountCents)
   ) {
-    addInvalid(invalid, DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR);
+    addInvalid(
+      invalid,
+      amountRequiredError(
+        partnerAmountCents,
+        `${DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV} is configured`,
+      ),
+    );
   }
 
   if (isProduction) {
@@ -333,11 +378,18 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
       if (
         !classified.priceId &&
         classified.allowedAmounts.ok &&
+        classified.priceAmounts.ok &&
         !classified.allowedAmounts.amounts.includes(
-          DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS,
+          standardAmountCents,
         )
       ) {
-        addInvalid(invalid, DEFLECTION_CHECKOUT_LEGACY_INLINE_AMOUNT_ERROR);
+        addInvalid(
+          invalid,
+          amountRequiredError(
+            standardAmountCents,
+            'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data',
+          ),
+        );
       }
     } else {
       addMissing(missing, 'ATLAS_SAAS_STRIPE_RAK or ATLAS_SAAS_STRIPE_SECRET_KEY');
@@ -360,6 +412,7 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
     errors,
     keyModes: classified.keyModes,
     allowedAmountsCents: classified.allowedAmounts.amounts,
+    configuredPriceAmountsCents: classified.priceAmounts.amounts,
   };
 }
 
@@ -378,6 +431,10 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
   );
   if (!allowedAmounts.ok) {
     return { ok: false, message: 'configured allowed amount list is invalid' };
+  }
+  const priceAmounts = pricingCatalog.configuredDeflectionPriceAmounts(env);
+  if (!priceAmounts.ok) {
+    return { ok: false, message: 'configured price amount is invalid' };
   }
   const allowedAmountsCents = new Set(allowedAmounts.amounts);
 
@@ -463,6 +520,10 @@ module.exports = {
   DEFLECTION_CHECKOUT_PRICE_ID_RE,
   DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR,
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
+  DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV:
+    pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV,
+  DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV:
+    pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV,
   configuredDeflectionPartnerAccessTokens,
   configuredDeflectionPartnerSigningSecrets,
   resolveDeflectionCheckoutRuntimeConfig,
