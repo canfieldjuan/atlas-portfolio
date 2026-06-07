@@ -9,7 +9,7 @@ const ERROR_MARKERS = ['Application error', 'This page could not be found', '404
 const REQUIRED_MARKERS = [
   ['snapshotBadge', 'Free ticket analysis'],
   ['promiseHeadline', 'Find the repeat support questions costing your team time.'],
-  ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
+  ['auditFinds', 'WHAT THE AUDIT FINDS'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
   ['valueAnchor', '$1,500 full report is meant to be judged against that recurring backlog'],
