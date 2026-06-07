@@ -10,10 +10,12 @@ import {
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import {
+  DeflectionTeaserAnswer,
+  DeflectionTeaserPreviewCard,
+} from './DeflectionSnapshotTeaser';
+import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
-  type DeflectionSnapshotAnswerPreview,
-  type DeflectionSnapshotFullAnswer,
   type DeflectionSnapshotLockedQuestion,
   type DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
@@ -208,55 +210,6 @@ function SnapshotQuestionRows({
         </li>
       ))}
     </ol>
-  );
-}
-
-function AnswerTeaser({ answer }: { answer: DeflectionSnapshotFullAnswer }) {
-  return (
-    <article className="rounded-md border border-primary/25 bg-primary/[0.05] p-5">
-      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-mono text-primary">
-        <span>Included draft</span>
-        <span className="rounded-md border border-primary/25 px-2 py-0.5">
-          Rank #{answer.rank}
-        </span>
-        <span className="rounded-md border border-primary/25 px-2 py-0.5">
-          {answer.source_count} source tickets
-        </span>
-      </div>
-      <h3 className="text-lg font-semibold leading-snug text-foreground">
-        {answer.question}
-      </h3>
-      <p className="mt-3 text-sm leading-relaxed text-foreground/72">
-        {answer.answer}
-      </p>
-      <ol className="mt-4 grid gap-2 text-sm leading-relaxed text-foreground/62 md:grid-cols-3">
-        {answer.steps.map((step, index) => (
-          <li
-            key={step}
-            className="rounded-md border border-primary/15 bg-white/55 p-3"
-          >
-            <span className="mb-1 block font-mono text-xs text-primary">
-              Step {index + 1}
-            </span>
-            {step}
-          </li>
-        ))}
-      </ol>
-    </article>
-  );
-}
-
-function PreviewPill({ preview }: { preview: DeflectionSnapshotAnswerPreview }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-white/62 px-3 py-2 text-xs">
-      <div className="min-w-0">
-        <p className="truncate font-medium text-foreground">{preview.question}</p>
-        <p className="mt-0.5 text-foreground/50">
-          {preview.step_count} steps, {preview.source_count} sources
-        </p>
-      </div>
-      <Lock className="h-4 w-4 shrink-0 text-foreground/38" />
-    </div>
   );
 }
 
@@ -517,11 +470,11 @@ function SnapshotArtifact({
 
       {showTeaser && teaser.full_answer && (
         <div className="mt-5">
-          <AnswerTeaser answer={teaser.full_answer} />
+          <DeflectionTeaserAnswer answer={teaser.full_answer} />
           {teaser.previews.length > 0 && (
-            <div className="mt-3 grid gap-2 md:grid-cols-2">
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
               {teaser.previews.map((preview) => (
-                <PreviewPill key={preview.rank} preview={preview} />
+                <DeflectionTeaserPreviewCard key={preview.rank} preview={preview} />
               ))}
             </div>
           )}
