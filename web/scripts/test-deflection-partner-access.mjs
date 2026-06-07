@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -11,6 +12,7 @@ const checkoutRequirementsUrl = new URL(
   '../src/lib/deflection-checkout-requirements.js',
   import.meta.url,
 );
+const partnerTokenUrl = new URL('../src/lib/deflection-partner-token.js', import.meta.url);
 const gapReportIntakeUrl = new URL('../src/lib/gap-report-intake.ts', import.meta.url);
 const recordRouteUrl = new URL(
   '../src/app/api/gap-report-intake/record/route.ts',
@@ -61,6 +63,9 @@ try {
   await writeFile(join(libStubDir, 'deflection-pricing.js'), pricingStub);
 
   const source = await readFile(sourceUrl, 'utf8');
+  const partnerTokenSource = await readFile(partnerTokenUrl, 'utf8');
+  await writeFile(join(testDir, 'deflection-partner-token.js'), partnerTokenSource);
+  await writeFile(join(libStubDir, 'deflection-partner-token.js'), partnerTokenSource);
   const checkoutRequirementsSource = await readFile(checkoutRequirementsUrl, 'utf8');
   await writeFile(join(testDir, 'deflection-checkout-requirements.js'), checkoutRequirementsSource);
   await writeFile(
@@ -76,6 +81,11 @@ try {
   await writeFile(compiledPath, compiled.outputText);
   await writeFile(join(libStubDir, 'deflection-partner-access.js'), compiled.outputText);
   const require = createRequire(compiledPath);
+  const {
+    DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX,
+    createDeflectionPartnerSignedAccessToken,
+    hasDeflectionPartnerAccessToken,
+  } = require(join(testDir, 'deflection-partner-token.js'));
   const {
     DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM,
     hasDeflectionPartnerPriceAccessToken,
@@ -100,6 +110,37 @@ try {
   assert.equal(hasDeflectionPartnerPriceAccessToken('wrong-token'), false);
   assert.equal(resolveIntakePriceVariantId('partner', 'next-partner-token'), 'partner');
 
+  const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+  const signedToken = createDeflectionPartnerSignedAccessToken({
+    secret: 'signed-secret',
+    partner: 'acme',
+    expiresAt,
+  });
+  assert(signedToken.startsWith(`${DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX}.`));
+  resetToken('signed-secret');
+  assert.equal(hasDeflectionPartnerPriceAccessToken(signedToken), true);
+  assert.equal(resolveIntakePriceVariantId('partner', signedToken), 'partner');
+  assert.equal(hasDeflectionPartnerPriceAccessToken(`${signedToken.slice(0, -1)}x`), false);
+  assert.equal(
+    hasDeflectionPartnerAccessToken(signedToken, ['signed-secret'], { nowSeconds: expiresAt + 1 }),
+    false,
+  );
+  assert.equal(hasDeflectionPartnerAccessToken('partner_v1.not-json.signature', ['signed-secret']), false);
+
+  resetToken('old-signing-secret,current-signing-secret');
+  const oldSignedToken = createDeflectionPartnerSignedAccessToken({
+    secret: 'old-signing-secret',
+    partner: 'acme',
+    expiresAt,
+  });
+  const currentSignedToken = createDeflectionPartnerSignedAccessToken({
+    secret: 'current-signing-secret',
+    partner: 'acme',
+    expiresAt,
+  });
+  assert.equal(hasDeflectionPartnerPriceAccessToken(oldSignedToken), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken(currentSignedToken), true);
+
   resetToken(' , signed-partner-token ,, ');
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken(''), false);
@@ -111,6 +152,31 @@ try {
   resetToken(undefined);
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), false);
   assert.equal(resolveIntakePriceVariantId('partner', 'signed-partner-token'), 'standard');
+
+  const cliRun = spawnSync(
+    process.execPath,
+    [
+      new URL('./create-deflection-partner-token.mjs', import.meta.url).pathname,
+      '--partner',
+      'acme',
+      '--ttl-days',
+      '7',
+      '--no-local-env',
+    ],
+    {
+      cwd: new URL('..', import.meta.url).pathname,
+      env: { ...process.env, [ENV_KEY]: 'old-cli-secret,cli-signing-secret' },
+      encoding: 'utf8',
+    },
+  );
+  assert.equal(cliRun.status, 0, cliRun.stderr);
+  const cliToken = cliRun.stdout.trim();
+  assert(cliToken.startsWith(`${DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX}.`));
+  assert(!cliToken.includes('cli-signing-secret'));
+  resetToken('old-cli-secret');
+  assert.equal(hasDeflectionPartnerPriceAccessToken(cliToken), false);
+  resetToken('cli-signing-secret');
+  assert.equal(hasDeflectionPartnerPriceAccessToken(cliToken), true);
 
   const intakePage = await readFile(intakePageUrl, 'utf8');
   assert.ok(

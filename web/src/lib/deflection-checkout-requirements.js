@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const DEFLECTION_CHECKOUT_DEFAULT_ENVIRONMENT = 'local';
 const DEFLECTION_CHECKOUT_PRICE_ID_RE = /^price_[A-Za-z0-9_]{8,}$/;
 const DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS = 1500 * 100;
@@ -23,6 +25,11 @@ const DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR =
 const DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR =
   `${DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS} when ` +
   `${DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV} is configured.`;
+// This file is a CommonJS module because Node preflight scripts import it
+// directly; keep the shared token parser in that same module boundary.
+const {
+  configuredDeflectionPartnerAccessTokens,
+} = require('./deflection-partner-token');
 
 const DEFLECTION_CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
@@ -100,13 +107,6 @@ function parseAllowedAmounts(rawValue) {
     mode: 'configured',
     error: '',
   };
-}
-
-function configuredDeflectionPartnerAccessTokens(env = process.env) {
-  return clean(env[DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV])
-    .split(',')
-    .map((token) => token.trim())
-    .filter(Boolean);
 }
 
 function priceIdStatus(env, envKey) {
