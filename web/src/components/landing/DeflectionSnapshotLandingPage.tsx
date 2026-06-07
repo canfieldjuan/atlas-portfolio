@@ -83,10 +83,10 @@ function snapshotCostBasisLabel(assistedContactCost: number) {
 function snapshotValueAnchor(snapshot: DeflectionSnapshot, assistedContactCost: number) {
   const { annualPace } = snapshotCostProof(snapshot, assistedContactCost);
   return [
-    `${snapshotCostBasisLabel(assistedContactCost)}, this larger representative queue projects to ${formatDeflectionWholeUsd(
+    `${snapshotCostBasisLabel(assistedContactCost)}, a queue this size runs about ${formatDeflectionWholeUsd(
       annualPace,
-    )} over 12 months and ${formatDeflectionWholeUsd(annualPace * 3)} over three years.`,
-    `The ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report is meant to be judged against that recurring backlog, not the cost of one ticket.`,
+    )} a year, ${formatDeflectionWholeUsd(annualPace * 3)} over three years, answering the same repeat questions by hand.`,
+    `Same questions, again and again. The ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report is a one-time cost against that recurring bill, not the price of one ticket.`,
   ].join(' ');
 }
 
@@ -127,7 +127,7 @@ function CostProofBand({
           assistedContactCost={assistedContactCost}
           sourceWindow={snapshotSourceWindow(snapshot)}
           onAssistedContactCostChange={onAssistedContactCostChange}
-          subjectLabel="This representative Snapshot's repeat tickets"
+          subjectLabel="The repeat tickets in this sample"
           valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}
           action={{
             kind: 'link',
@@ -197,9 +197,9 @@ function HeroProofPanel({
               Customer asked: &ldquo;{customerPhrase}&rdquo;
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/58">
-              ATLAS finds the repeat wording across closed tickets, estimates
-              the assisted-contact Support Tax, then checks whether resolved replies
-              contain enough scoped evidence to draft an answer.
+              The Snapshot finds the repeat wording across closed tickets,
+              estimates the assisted-contact Support Tax, then checks whether
+              resolved replies contain enough scoped evidence to draft an answer.
             </p>
           </div>
 
@@ -444,7 +444,7 @@ function ProofList() {
       icon: <FileText className="h-5 w-5" />,
       title: 'A real diagnostic, not a generic calculator',
       body:
-        'The Snapshot ranks the repeat questions and phrases from the uploaded queue before your team decides what to publish or expand.',
+        'A calculator gives you one total. The Snapshot shows the recurring cost behind each repeat question, so you can fix the biggest losses first.',
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
@@ -565,12 +565,12 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Artifact</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              The Snapshot is the artifact you inspect before deciding what to fix.
+              Read the Snapshot, then decide what to fix.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The panel below shows the offer shape: ranked repeat questions,
-              customer wording, cost projection, one sourced draft answer, and
-              a preview of what remains.
+              The example below shows what you get: ranked repeat questions,
+              customer wording, a cost projection, one sourced draft answer, and
+              a preview of the remaining questions the full report unlocks.
             </p>
           </div>
           <SnapshotArtifact
@@ -591,7 +591,7 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Built for a narrow support decision.
+              Built for one narrow decision: what to fix first.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The Snapshot has one job: read the queue, show the repeat pattern,
@@ -606,12 +606,13 @@ export function DeflectionSnapshotLandingPage() {
       <section className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8">
         <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Start with the free Snapshot.
+          Every month, the same repeat questions bill you again.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          The only ask on this page is the CSV upload. If the repeat pattern is
-          weak, the Snapshot will show that. If it is strong, you will have a ranked
-          starting point and one answer draft to review before any next step.
+          The only ask on this page is the CSV upload, and seeing what those
+          repeats cost is free. If the repeat pattern is weak, the Snapshot will
+          show that. If it is strong, you will have a ranked starting point and one
+          answer draft to review before any next step.
         </p>
         <div className="mt-6">
           <PrimarySnapshotCta />

@@ -12,7 +12,7 @@ const REQUIRED_MARKERS = [
   ['auditFinds', 'WHAT THE AUDIT FINDS'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
-  ['valueAnchor', '$1,500 full report is meant to be judged against that recurring backlog'],
+  ['valueAnchor', 'one-time cost against that recurring bill'],
   ['snapshotFirst', 'Optional full report'],
   ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],
