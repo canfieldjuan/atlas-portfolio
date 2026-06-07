@@ -35,14 +35,18 @@ const compiledRecordRoutePath = join(testDir, 'gap-report-record-route.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
 const nextStubDir = join(testDir, 'node_modules', 'next');
-const ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
+const ACCESS_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
+const SIGNING_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const PERSIST_ENV_KEY = 'GAP_REPORT_TEST_PERSIST';
-const originalEnv = process.env[ENV_KEY];
+const originalAccessEnv = process.env[ACCESS_ENV_KEY];
+const originalSigningEnv = process.env[SIGNING_ENV_KEY];
 const originalPersistEnv = process.env[PERSIST_ENV_KEY];
 
-function resetToken(value) {
-  delete process.env[ENV_KEY];
-  if (value !== undefined) process.env[ENV_KEY] = value;
+function resetTokens({ access, signing } = {}) {
+  delete process.env[ACCESS_ENV_KEY];
+  delete process.env[SIGNING_ENV_KEY];
+  if (access !== undefined) process.env[ACCESS_ENV_KEY] = access;
+  if (signing !== undefined) process.env[SIGNING_ENV_KEY] = signing;
 }
 
 try {
@@ -82,6 +86,7 @@ try {
   await writeFile(join(libStubDir, 'deflection-partner-access.js'), compiled.outputText);
   const require = createRequire(compiledPath);
   const {
+    DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV,
     DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX,
     createDeflectionPartnerSignedAccessToken,
     hasDeflectionPartnerAccessToken,
@@ -93,8 +98,9 @@ try {
   } = require(compiledPath);
 
   assert.equal(DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM, 'partnerToken');
+  assert.equal(DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV, SIGNING_ENV_KEY);
 
-  resetToken('signed-partner-token');
+  resetTokens({ access: 'signed-partner-token' });
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken(' signed-partner-token '), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken('wrong-token'), false);
@@ -103,7 +109,7 @@ try {
   assert.equal(resolveIntakePriceVariantId('standard', 'signed-partner-token'), 'standard');
   assert.equal(resolveIntakePriceVariantId('unknown', 'signed-partner-token'), 'standard');
 
-  resetToken('old-partner-token, signed-partner-token , next-partner-token');
+  resetTokens({ access: 'old-partner-token, signed-partner-token , next-partner-token' });
   assert.equal(hasDeflectionPartnerPriceAccessToken('old-partner-token'), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken('next-partner-token'), true);
@@ -117,9 +123,11 @@ try {
     expiresAt,
   });
   assert(signedToken.startsWith(`${DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX}.`));
-  resetToken('signed-secret');
+  resetTokens({ signing: 'signed-secret' });
   assert.equal(hasDeflectionPartnerPriceAccessToken(signedToken), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('signed-secret'), false);
   assert.equal(resolveIntakePriceVariantId('partner', signedToken), 'partner');
+  assert.equal(hasDeflectionPartnerAccessToken(signedToken, ['signed-secret']), false);
   assert.equal(hasDeflectionPartnerPriceAccessToken(`${signedToken.slice(0, -1)}x`), false);
   assert.equal(
     hasDeflectionPartnerAccessToken(signedToken, ['signed-secret'], { nowSeconds: expiresAt + 1 }),
@@ -127,7 +135,7 @@ try {
   );
   assert.equal(hasDeflectionPartnerAccessToken('partner_v1.not-json.signature', ['signed-secret']), false);
 
-  resetToken('old-signing-secret,current-signing-secret');
+  resetTokens({ signing: 'old-signing-secret,current-signing-secret' });
   const oldSignedToken = createDeflectionPartnerSignedAccessToken({
     secret: 'old-signing-secret',
     partner: 'acme',
@@ -141,17 +149,54 @@ try {
   assert.equal(hasDeflectionPartnerPriceAccessToken(oldSignedToken), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken(currentSignedToken), true);
 
-  resetToken(' , signed-partner-token ,, ');
+  resetTokens({ access: 'old-signing-secret', signing: 'current-signing-secret' });
+  assert.equal(hasDeflectionPartnerPriceAccessToken(oldSignedToken), false);
+  assert.equal(hasDeflectionPartnerPriceAccessToken(currentSignedToken), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('old-signing-secret'), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('current-signing-secret'), false);
+
+  resetTokens({ access: 'legacy-signing-secret' });
+  const legacyFallbackSignedToken = createDeflectionPartnerSignedAccessToken({
+    secret: 'legacy-signing-secret',
+    partner: 'acme',
+    expiresAt,
+  });
+  assert.equal(hasDeflectionPartnerPriceAccessToken(legacyFallbackSignedToken), true);
+
+  resetTokens({ access: ' , signed-partner-token ,, ' });
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), true);
   assert.equal(hasDeflectionPartnerPriceAccessToken(''), false);
 
-  resetToken(' , ,, ');
+  resetTokens({ access: ' , ,, ' });
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), false);
   assert.equal(resolveIntakePriceVariantId('partner', 'signed-partner-token'), 'standard');
 
-  resetToken(undefined);
+  resetTokens();
   assert.equal(hasDeflectionPartnerPriceAccessToken('signed-partner-token'), false);
   assert.equal(resolveIntakePriceVariantId('partner', 'signed-partner-token'), 'standard');
+
+  const directOnlyCliRun = spawnSync(
+    process.execPath,
+    [
+      new URL('./create-deflection-partner-token.mjs', import.meta.url).pathname,
+      '--partner',
+      'acme',
+      '--ttl-days',
+      '7',
+      '--no-local-env',
+    ],
+    {
+      cwd: new URL('..', import.meta.url).pathname,
+      env: { ...process.env, [ACCESS_ENV_KEY]: 'direct-cli-token' },
+      encoding: 'utf8',
+    },
+  );
+  assert.equal(directOnlyCliRun.status, 1);
+  assert.equal(directOnlyCliRun.stdout, '');
+  assert(
+    directOnlyCliRun.stderr.includes(`Missing ${SIGNING_ENV_KEY}`),
+    directOnlyCliRun.stderr,
+  );
 
   const cliRun = spawnSync(
     process.execPath,
@@ -165,7 +210,11 @@ try {
     ],
     {
       cwd: new URL('..', import.meta.url).pathname,
-      env: { ...process.env, [ENV_KEY]: 'old-cli-secret,cli-signing-secret' },
+      env: {
+        ...process.env,
+        [ACCESS_ENV_KEY]: 'direct-cli-token',
+        [SIGNING_ENV_KEY]: 'old-cli-secret,cli-signing-secret',
+      },
       encoding: 'utf8',
     },
   );
@@ -173,10 +222,11 @@ try {
   const cliToken = cliRun.stdout.trim();
   assert(cliToken.startsWith(`${DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX}.`));
   assert(!cliToken.includes('cli-signing-secret'));
-  resetToken('old-cli-secret');
+  resetTokens({ access: 'direct-cli-token' });
   assert.equal(hasDeflectionPartnerPriceAccessToken(cliToken), false);
-  resetToken('cli-signing-secret');
+  resetTokens({ signing: 'cli-signing-secret' });
   assert.equal(hasDeflectionPartnerPriceAccessToken(cliToken), true);
+  assert.equal(hasDeflectionPartnerPriceAccessToken('cli-signing-secret'), false);
 
   const intakePage = await readFile(intakePageUrl, 'utf8');
   assert.ok(
@@ -245,7 +295,7 @@ try {
   await writeFile(compiledRecordRoutePath, compiledRecordRoute.outputText);
   const { POST } = require(compiledRecordRoutePath);
 
-  resetToken('signed-partner-token');
+  resetTokens({ access: 'signed-partner-token' });
   const forgedPartnerRecord = await POST(
     new Request('https://unit.test/api/gap-report-intake/record', {
       method: 'POST',
@@ -324,9 +374,11 @@ try {
 
   console.log('Deflection partner access tests passed.');
 } finally {
-  delete process.env[ENV_KEY];
+  delete process.env[ACCESS_ENV_KEY];
+  delete process.env[SIGNING_ENV_KEY];
   delete process.env[PERSIST_ENV_KEY];
-  if (originalEnv !== undefined) process.env[ENV_KEY] = originalEnv;
+  if (originalAccessEnv !== undefined) process.env[ACCESS_ENV_KEY] = originalAccessEnv;
+  if (originalSigningEnv !== undefined) process.env[SIGNING_ENV_KEY] = originalSigningEnv;
   if (originalPersistEnv !== undefined) process.env[PERSIST_ENV_KEY] = originalPersistEnv;
   await rm(testDir, { recursive: true, force: true });
 }

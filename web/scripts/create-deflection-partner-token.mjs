@@ -5,9 +5,9 @@ import { failCommand, isBareFlag, parseArgs } from './ads-cli-helpers.mjs';
 import { loadLocalEnv } from './local-env.mjs';
 
 const {
-  DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV,
+  DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV,
   createDeflectionPartnerSignedAccessToken,
-  configuredDeflectionPartnerAccessTokens,
+  configuredDeflectionPartnerSigningSecrets,
 } = partnerTokens;
 const DEFAULT_TTL_DAYS = 30;
 
@@ -45,10 +45,10 @@ async function main() {
     ? Math.floor(parsePositiveNumber(parsed.values.get('--expires-at'), '--expires-at'))
     : nowSeconds +
       Math.round(parsePositiveNumber(parsed.values.get('--ttl-days') || DEFAULT_TTL_DAYS, '--ttl-days') * 86400);
-  const secrets = configuredDeflectionPartnerAccessTokens(process.env);
+  const secrets = configuredDeflectionPartnerSigningSecrets(process.env);
   if (!secrets.length) {
     failCommand(
-      `Missing ${DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV}; configure at least one rotation secret.`,
+      `Missing ${DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV}; configure at least one signing secret.`,
       outputJson,
     );
   }

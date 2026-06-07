@@ -173,6 +173,7 @@ STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
 DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN=
+DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
@@ -197,19 +198,22 @@ returning the Stripe redirect URL, so a mismatched Price fails closed before the
 customer leaves the results page.
 
 Partner pricing is eligibility-gated with
-`DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN`. The env accepts one token or a
-comma-separated rotation list such as `old-token,current-token`. Prefer signed
-expiring partner tokens for new outreach:
+`DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` for legacy direct bearer links, or
+`DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS` for signed expiring links. Each env
+accepts one value or a comma-separated rotation list such as
+`old-token,current-token`. Prefer signed expiring partner tokens for new
+outreach:
 
 ```bash
 npm --prefix web run create:deflection-partner-token -- --partner acme --ttl-days 30
 ```
 
-The command signs with the last token in the rotation list, so keep env order
-`old-token,current-token`. The generated `partner_v1...` value goes in the URL as `partnerToken=<token>`.
-Existing direct-token links still work for compatibility; send new links with
-signed tokens, then remove old direct tokens after their outreach window closes.
-A partner intake link must include both `priceVariant=partner` and a valid
+The command signs with the last `DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS`
+entry, so keep signing-secret env order `old,current`. The generated
+`partner_v1...` value goes in the URL as `partnerToken=<token>`. Existing
+direct-token links still work for compatibility; send new links with signed
+tokens, then remove old direct tokens after their outreach window closes. A
+partner intake link must include both `priceVariant=partner` and a valid
 `partnerToken` before the server will persist the partner variant. Missing,
 expired, tampered, or invalid tokens fall back to the standard public price;
 partner-tagged checkout fails closed if the saved intake variant is missing.
