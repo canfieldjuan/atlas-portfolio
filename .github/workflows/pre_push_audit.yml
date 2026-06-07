@@ -36,8 +36,23 @@ jobs:
       - name: Install web deps
         run: npm --prefix web ci
 
+      - name: Test enrollment audit
+        run: node web/scripts/audit-test-enrollment.mjs
+
+      - name: Test enrollment audit tests
+        run: npm --prefix web run test:test-enrollment-audit
+
       - name: ESLint (web)
         run: npm --prefix web run lint
+
+      - name: Advertising helper tests
+        run: npm --prefix web run test:ads-helpers
+
+      - name: Google Ads API tests
+        run: npm --prefix web run test:google-ads-api
+
+      - name: Google Ads artifact contract tests
+        run: npm --prefix web run test:google-ads-artifacts
 
       - name: Deflection checkout tests
         run: npm --prefix web run test:deflection-checkout
@@ -86,3 +101,6 @@ jobs:
 
       - name: Deflection teaser rank-copy tests
         run: npm --prefix web run test:deflection-teaser-rank-copy
+
+      - name: Local env loader tests
+        run: npm --prefix web run test:local-env

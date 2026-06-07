@@ -55,9 +55,10 @@ async function testMultiPageAggregation() {
   // Subsequent pages must carry the token returned by the previous response.
   assert.equal(fetchDouble.seen[1].body.pageToken, 'tok-page-2');
   assert.equal(fetchDouble.seen[2].body.pageToken, 'tok-page-3');
-  // Page size should be propagated to every request.
+  // v22 dropped pageSize support; callers may still pass the compatibility
+  // option, but googleAdsSearch must not send the deprecated request field.
   for (const call of fetchDouble.seen) {
-    assert.equal(call.body.pageSize, 2);
+    assert.equal('pageSize' in call.body, false);
   }
   fetchDouble.assertDrained();
   teardown();
