@@ -12,10 +12,12 @@ Slice phase: Product polish
 
 1. Add long-tail SEO framing to the Snapshot preview bullet and the customer
    wording target-list subsection.
-2. Extend the Snapshot disclaimer so SEO outcomes are not implied as ranking
+2. Surface actual customer-wording examples from the Snapshot rows when they are
+   present, and fail closed instead of inventing phrases when they are absent.
+3. Extend the Snapshot disclaimer so SEO outcomes are not implied as ranking
    guarantees.
-3. Keep the Snapshot card eyebrow text `Customer wording found` unchanged.
-4. Add focused source-level assertions to the existing enrolled Snapshot landing
+4. Keep the Snapshot card eyebrow text `Customer wording found` unchanged.
+5. Add focused source-level assertions to the existing enrolled Snapshot landing
    smoke test.
 
 ### Files touched
@@ -34,6 +36,12 @@ inside a parenthetical, and the later customer-wording card names the bonus SEO
 value directly after the artifact has already established ranked repeats, cost,
 and one sourced answer.
 
+The customer-wording card derives up to five visible phrases from
+`top_questions.customer_wording`. If a future snapshot has no non-empty phrasing,
+the list does not render and the card states that it stays hidden instead of
+inventing terms. The existence claim stays conditional: `When the upload includes
+customer phrasing...`.
+
 The disclaimer adds the no-ranking-guarantee boundary alongside the existing
 closed-ticket-data and ranking-signal language.
 
@@ -44,11 +52,14 @@ unchanged eyebrow, and removal of the old weaker target-list line.
 ## Intentional
 
 - No new section, layout, or component is added. #271 is a copy-framing slice,
-  not a redesign.
+  not a redesign; the phrase list lives inside the existing customer-wording
+  card.
 - The heading uses `&rarr;` in JSX so the rendered copy shows an arrow while the
   source file stays ASCII-only.
 - Public SEO is framed as a byproduct of support deflection. The hero and
   Snapshot card remain support-cost/discovery first.
+- The wording-list claim stays conditional because real snapshots can omit
+  `customer_wording`; empty phrases are not fabricated.
 
 ## Deferred
 
@@ -62,16 +73,19 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - PASS;
-  printed `Deflection Snapshot landing smoke tests passed.`
+  printed `Deflection Snapshot landing smoke tests passed.` The first expanded
+  run failed on a brittle source-string assertion after JSX line wrapping; the
+  assertion was made whitespace-tolerant and rerun successfully.
 - `npm --prefix web run lint -- src/components/landing/DeflectionSnapshotLandingPage.tsx scripts/test-deflection-snapshot-landing-smoke.mjs`
   - PASS; no ESLint diagnostics.
 - `npm --prefix web run build` - PASS; compiled successfully, TypeScript
   finished, generated `44/44` static pages, and copied the deterministic routes
   manifest.
-- `rg -n "Customer wording found|long-tail SEO target list|SEO outcomes|Customer wording can become the target list|Customer wording found" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
-  - PASS; output showed the unchanged `Customer wording found` eyebrow, the new
-  long-tail SEO copy, the no-ranking-guarantee copy, and the old target-list
-  string only in the negative test assertion.
+- `rg -n "customerWordingExamples|Customer wording examples|When the upload includes customer phrasing|stays hidden instead of inventing terms|long-tail SEO target list|SEO outcomes|Customer wording can become the target list" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
+  - PASS; output showed the derived wording examples list, the conditional
+  wording claim, the fail-closed empty-state copy, the new long-tail SEO copy,
+  the no-ranking-guarantee copy, and the old target-list string only in the
+  negative test assertion.
 - `bash scripts/local_pr_review.sh` - PASS; plan shape/files/diff-size, drift
   advisory, ESLint, Next build, and `git diff --check` all passed.
 
@@ -79,7 +93,7 @@ Parked hardening: none.
 
 | Area | Estimate |
 | --- | ---: |
-| Plan doc | +85 |
-| Snapshot landing copy | +10 / -7 |
-| Focused smoke assertions | +33 / -0 |
-| Total | ~135 changed |
+| Plan doc | +99 |
+| Snapshot landing copy | +34 / -6 |
+| Focused smoke assertions | +50 / -0 |
+| Total | ~189 changed |

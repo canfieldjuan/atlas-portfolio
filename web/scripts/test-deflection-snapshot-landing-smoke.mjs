@@ -81,6 +81,7 @@ function assertResultFields(result, expected, name) {
 }
 
 const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
+const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 
 assert.ok(
   snapshotLandingSource.includes('Customer wording found'),
@@ -91,11 +92,27 @@ assert.ok(
   'Customer wording subsection should name the long-tail SEO target list.',
 );
 assert.ok(
+  snapshotLandingSource.includes('const customerWordingExamples = top_questions'),
+  'Customer wording subsection should derive examples from snapshot top questions.',
+);
+assert.ok(
+  snapshotLandingSource.includes('aria-label="Customer wording examples"'),
+  'Customer wording subsection should render actual wording examples when present.',
+);
+assert.ok(
   snapshotLandingSource.includes('customer wording (your long-tail SEO target'),
   'Snapshot preview bullet should parenthetically frame customer wording as SEO value.',
 );
 assert.ok(
-  snapshotLandingSource.includes('SEO outcomes vary; we make no ranking guarantees.'),
+  snapshotLandingSource.includes('When the upload includes customer phrasing'),
+  'Customer wording claim should stay conditional when phrasing is absent.',
+);
+assert.ok(
+  snapshotLandingSource.includes('stays hidden instead of inventing terms'),
+  'Customer wording subsection should fail closed instead of inventing phrases.',
+);
+assert.ok(
+  compactSnapshotLandingSource.includes('SEO outcomes vary; we make no ranking guarantees.'),
   'Customer wording subsection should avoid ranking guarantees.',
 );
 assert.ok(
