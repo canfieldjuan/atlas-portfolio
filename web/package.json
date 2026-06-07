@@ -49,6 +49,7 @@
     "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
     "test:deflection-snapshot-landing-smoke": "node scripts/test-deflection-snapshot-landing-smoke.mjs",
     "test:deflection-csv-privacy": "node scripts/test-deflection-csv-privacy-contract.mjs",
+    "test:deflection-cost-projection-share": "node scripts/test-deflection-cost-projection-share.mjs",
     "test:deflection-rate-limit": "node scripts/test-deflection-rate-limit.mjs",
     "test:deflection-row-renderer-share": "node scripts/test-deflection-row-renderer-share.mjs",
     "test:deflection-teaser-rank-copy": "node scripts/test-deflection-teaser-rank-copy.mjs",

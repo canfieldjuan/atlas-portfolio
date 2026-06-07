@@ -10,8 +10,9 @@ const REQUIRED_MARKERS = [
   ['snapshotBadge', 'Free ticket analysis'],
   ['promiseHeadline', 'Find the repeat support questions costing your team time.'],
   ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
-  ['snapshotAction', 'Snapshot action'],
-  ['snapshotFirst', 'A paid full report is optional after the free results'],
+  ['supportTaxProjection', 'Support Tax projection'],
+  ['assistedContactCost', 'Assisted-contact cost'],
+  ['snapshotFirst', 'Optional full report'],
   ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],
 ];
