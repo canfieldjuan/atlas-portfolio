@@ -19,7 +19,7 @@ const GOOD_HTML = [
   '<h1>Find the repeat support questions costing your team time.</h1>',
   '<p>BEFORE / AFTER SNAPSHOT PROOF</p>',
   '<p>Snapshot action</p>',
-  '<p>Snapshot comes before any paid report</p>',
+  '<p>A paid full report is optional after the free results</p>',
   '<p>The only ask on this page is the CSV upload</p>',
   '<a href="/systems/support-ticket-deflection/intake">Get my free Deflection Snapshot</a>',
   '</main>',
