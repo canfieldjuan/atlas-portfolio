@@ -8,6 +8,16 @@ type AnalyticsValue = string | number | boolean | null | undefined;
 type AnalyticsParams = Record<string, AnalyticsValue>;
 type GtagCommand = 'config' | 'event' | 'set';
 type Gtag = (command: GtagCommand, target: string, params?: AnalyticsParams) => void;
+const ANALYTICS_PATH_REDACTIONS = [
+  {
+    pattern: /^\/systems\/support-ticket-deflection\/results\/[^/?#]+/,
+    replacement: '/systems/support-ticket-deflection/results/[requestId]',
+  },
+  {
+    pattern: /^\/admin\/intake\/gap-report\/[^/?#]+/,
+    replacement: '/admin/intake/gap-report/[requestId]',
+  },
+] as const;
 export type FaqReportComebackAgeBucket =
   | 'same_day'
   | 'day_1_3'
@@ -51,14 +61,34 @@ function safeCount(value: number | undefined) {
     : undefined;
 }
 
+export function redactAnalyticsPath(path: string) {
+  let redactedPath = path || '/';
+
+  for (const { pattern, replacement } of ANALYTICS_PATH_REDACTIONS) {
+    redactedPath = redactedPath.replace(pattern, replacement);
+  }
+
+  return redactedPath;
+}
+
+function currentAnalyticsPageParams(): AnalyticsParams {
+  const safePath = redactAnalyticsPath(`${window.location.pathname}${window.location.search}`);
+  return {
+    page_path: safePath,
+    page_location: `${window.location.origin}${safePath}`,
+  };
+}
+
 export function trackPageView(path: string) {
   if (!canTrack()) {
     return;
   }
 
+  const safePath = redactAnalyticsPath(path);
+
   window.gtag?.('config', GA_MEASUREMENT_ID, {
-    page_path: path,
-    page_location: `${window.location.origin}${path}`,
+    page_path: safePath,
+    page_location: `${window.location.origin}${safePath}`,
     page_title: document.title,
   });
 }
@@ -68,7 +98,10 @@ export function trackEvent(eventName: string, params: AnalyticsParams = {}) {
     return;
   }
 
-  window.gtag?.('event', eventName, params);
+  window.gtag?.('event', eventName, {
+    ...params,
+    ...currentAnalyticsPageParams(),
+  });
 }
 
 export function trackAuditRequestSubmitted({
