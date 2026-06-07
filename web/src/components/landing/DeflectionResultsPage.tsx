@@ -273,14 +273,13 @@ export function DeflectionResultsPage({
             <span>Help-desk SEO targeting list</span>
           </div>
           <h2 id="ranked-question-heading" className="text-2xl font-semibold tracking-tight text-foreground">
-            Your top {top_questions.length} repeat questions, with help-desk target phrases.
+            Your top {top_questions.length} repeat questions from the uploaded queue.
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-foreground/65">
-            These visible rows are the ranking and the SEO targeting list:
-            each card includes the exact phrase customers used in your tickets,
-            so your team can write help-center titles and search wording around
-            real demand. ATLAS does not claim keyword volume, search rank, or
-            traffic.
+            These visible rows are the ranking list. When the upload includes
+            a separate customer phrase, the row shows that wording so your team
+            can shape help-center titles and search language around real demand.
+            ATLAS does not claim keyword volume, search rank, or traffic.
           </p>
           <DeflectionTopQuestionRows
             questions={top_questions}

@@ -353,7 +353,6 @@ function SnapshotArtifact({
       <DeflectionTopQuestionRows
         questions={top_questions}
         assistedContactCost={assistedContactCost}
-        limit={3}
       />
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -374,12 +373,12 @@ function SnapshotArtifact({
         <div className="rounded-md border border-border bg-white/62 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Search className="h-4 w-4 text-primary" />
-            Customer wording becomes the target list
+            Customer wording can become the target list
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
-            The Snapshot surfaces the phrases customers already use. Your team
-            gets the ranked target list, then decides what to publish and where
-            it should live.
+            When the upload includes customer phrasing, the Snapshot surfaces
+            it beside the ranked repeat questions. Your team then decides what
+            to publish and where it should live.
           </p>
         </div>
       </div>

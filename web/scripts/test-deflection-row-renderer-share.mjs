@@ -32,6 +32,16 @@ assert.match(
 );
 assert.match(
   rowSource,
+  /const customerWording = question\.customer_wording\.trim\(\);/,
+  'Shared top-question rows should trim customer wording before rendering the target phrase.',
+);
+assert.match(
+  rowSource,
+  /\{customerWording && \(/,
+  'Shared top-question rows should not render empty target-phrase quotes.',
+);
+assert.match(
+  rowSource,
   /Question text withheld/,
   'Shared locked-question rows should keep the production withheld-text label.',
 );
@@ -63,8 +73,13 @@ assert.match(
 );
 assert.match(
   landingSource,
-  /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+limit=\{3\}/,
-  'Snapshot landing page should render top questions through the shared row component and shared cost state.',
+  /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+\/>/,
+  'Snapshot landing page should render all fixture top questions through the shared row component and shared cost state.',
+);
+assert.equal(
+  landingSource.includes('limit={3}'),
+  false,
+  'Snapshot landing page should not mask ranks 4-5 by limiting the shared top-question rows to three.',
 );
 assert.match(
   landingSource,
