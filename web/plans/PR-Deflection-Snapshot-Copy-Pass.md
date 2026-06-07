@@ -21,7 +21,8 @@ Slice phase: Product polish
 4. Keep claims bounded: no savings guarantees, no SEO ranking/traffic promises,
    and no monitored CTA or CSV-upload marker drift.
 5. Update the Snapshot landing smoke marker and fixture for the new value-anchor
-   sentence.
+   sentence, including the enrolled cost-projection sharing guard that asserts
+   the value-anchor source text.
 
 ### Files touched
 
@@ -36,6 +37,8 @@ Slice phase: Product polish
   marker update.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - mocked smoke
   fixture update for the same marker.
+- `web/scripts/test-deflection-cost-projection-share.mjs` - source assertion
+  update for the rewritten value anchor.
 
 ## Mechanism
 
@@ -53,8 +56,9 @@ of the customer-facing page voice.
 The smoke script keeps the same marker shape and only replaces the old
 `$1,500 full report is meant to be judged against that recurring backlog`
 substring with the price-independent `one-time cost against that recurring
-bill` substring. The mocked fixture uses the same substring so the source-level
-test and live smoke remain aligned.
+bill` substring. The mocked fixture and cost-projection sharing guard use the
+same new value-anchor language so the source-level tests and live smoke remain
+aligned.
 
 ## Intentional
 
@@ -80,9 +84,11 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - PASS;
   printed `Deflection Snapshot landing smoke tests passed.`
-- `npm --prefix web run lint -- src/components/landing/DeflectionSnapshotLandingPage.tsx src/components/landing/DeflectionSupportTaxProjection.tsx src/components/landing/DeflectionResultsPage.tsx scripts/smoke-deflection-snapshot-landing.mjs scripts/test-deflection-snapshot-landing-smoke.mjs`
+- `npm --prefix web run test:deflection-cost-projection-share` - PASS;
+  printed `Deflection cost projection sharing guard passed.`
+- `npm --prefix web run lint -- src/components/landing/DeflectionSnapshotLandingPage.tsx src/components/landing/DeflectionSupportTaxProjection.tsx src/components/landing/DeflectionResultsPage.tsx scripts/smoke-deflection-snapshot-landing.mjs scripts/test-deflection-snapshot-landing-smoke.mjs scripts/test-deflection-cost-projection-share.mjs`
   - PASS; no ESLint diagnostics.
-- `rg -n "The Snapshot is the artifact|The panel below shows the offer shape|This representative Snapshot's repeat tickets|size up to .*assisted-contact work|ATLAS counted|source window ATLAS returned|ATLAS finds|ATLAS does not claim keyword volume|this larger representative queue projects|full report is meant to be judged|Built for a narrow support decision|The Snapshot ranks the repeat questions and phrases|Start with the free Snapshot" web/src web/scripts`
+- `rg -n "The Snapshot is the artifact|The panel below shows the offer shape|This representative Snapshot's repeat tickets|size up to .*assisted-contact work|ATLAS counted|source window ATLAS returned|ATLAS finds|ATLAS does not claim keyword volume|this larger representative queue projects|larger representative queue|full report is meant to be judged|Built for a narrow support decision|The Snapshot ranks the repeat questions and phrases|Start with the free Snapshot" web/src web/scripts`
   - PASS; no stale issue #275 strings remain in source or smoke scripts.
 - `rg -n "\bATLAS\b" web/src` - PASS; remaining hits are comments or unrelated
   ATLAS product pages, not buyer-facing Deflection Snapshot copy.
@@ -96,8 +102,8 @@ Parked hardening: none.
 
 | Area | Estimate |
 | --- | ---: |
-| Plan doc | +103 |
+| Plan doc | +109 |
 | Snapshot landing copy | +18 / -17 |
 | Support Tax and results copy | +4 / -4 |
-| Smoke marker fixtures | +2 / -2 |
-| Total | ~150 changed |
+| Smoke and guard fixtures | +4 / -3 |
+| Total | ~159 changed |

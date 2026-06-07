@@ -61,7 +61,8 @@ assert(
     landingSource.includes("'At the Gartner benchmark'") &&
     landingSource.includes('At your selected ${formatAssistedContactCost(assistedContactCost)} per assisted contact') &&
     landingSource.includes('valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}') &&
-    landingSource.includes('larger representative queue'),
+    landingSource.includes('a queue this size runs about') &&
+    landingSource.includes('one-time cost against that recurring bill'),
   'Snapshot landing page should bridge the higher-volume representative sample to the full-report value frame without mislabeling slider-adjusted costs as the Gartner benchmark.',
 );
 assert(
