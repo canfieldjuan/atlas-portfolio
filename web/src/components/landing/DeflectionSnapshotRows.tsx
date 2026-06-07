@@ -47,48 +47,54 @@ export function DeflectionTopQuestionRows({
 
   return (
     <ol className="mt-5 space-y-3">
-      {visibleQuestions.map((question) => (
-        <li
-          key={question.rank}
-          className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
-        >
-          <span className="mt-0.5 w-6 shrink-0 text-center font-mono text-sm font-bold text-primary">
-            #{question.rank}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold leading-snug text-foreground">
-              {question.question}
-            </p>
-            <p className="mt-1 text-xs text-foreground/50">
-              target phrase from your tickets: &ldquo;{question.customer_wording}&rdquo;
-            </p>
-            <p className="mt-2 text-xs leading-relaxed text-foreground/50">
-              Hit your queue{' '}
-              <strong className="text-foreground/70">
-                {count(question.ticket_count)}
-              </strong>{' '}
-              times in this upload, possibly costing{' '}
-              <strong className="text-foreground/70">
-                {usd(question.ticket_count * assistedContactCost)}
-              </strong>{' '}
-              at {costLabel(assistedContactCost)} per assisted contact.
-            </p>
-          </div>
-          <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
-            <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
-              {count(question.ticket_count)}x
+      {visibleQuestions.map((question) => {
+        const customerWording = question.customer_wording.trim();
+
+        return (
+          <li
+            key={question.rank}
+            className="glass flex items-start gap-4 rounded-xl border border-border/80 p-4 shadow-[0_4px_20px_rgba(23,35,31,0.01)] transition-all duration-300 hover:border-primary/30"
+          >
+            <span className="mt-0.5 w-6 shrink-0 text-center font-mono text-sm font-bold text-primary">
+              #{question.rank}
             </span>
-            <div className="mt-2 h-1.5 w-24 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
-                style={{
-                  width: `${Math.round((question.ticket_count / maxTicketCount) * 100)}%`,
-                }}
-              />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold leading-snug text-foreground">
+                {question.question}
+              </p>
+              {customerWording && (
+                <p className="mt-1 text-xs text-foreground/50">
+                  target phrase from your tickets: &ldquo;{customerWording}&rdquo;
+                </p>
+              )}
+              <p className="mt-2 text-xs leading-relaxed text-foreground/50">
+                Hit your queue{' '}
+                <strong className="text-foreground/70">
+                  {count(question.ticket_count)}
+                </strong>{' '}
+                times in this upload, possibly costing{' '}
+                <strong className="text-foreground/70">
+                  {usd(question.ticket_count * assistedContactCost)}
+                </strong>{' '}
+                at {costLabel(assistedContactCost)} per assisted contact.
+              </p>
             </div>
-          </div>
-        </li>
-      ))}
+            <div className="flex h-full shrink-0 flex-col items-end justify-center text-right">
+              <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs font-bold text-foreground/80">
+                {count(question.ticket_count)}x
+              </span>
+              <div className="mt-2 h-1.5 w-24 overflow-hidden rounded-full bg-border">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-primary-dark"
+                  style={{
+                    width: `${Math.round((question.ticket_count / maxTicketCount) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }
