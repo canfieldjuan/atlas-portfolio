@@ -595,7 +595,7 @@ export function DeflectionSnapshotLandingPage() {
             first.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
-            Upload 3 months of closed tickets. Your Snapshot ranks the repeat
+            Upload 30 days of closed tickets. Your Snapshot ranks the repeat
             issues, quotes the wording customers use, estimates the Support Tax,
             and gives you one sourced draft answer your team can review.
           </p>

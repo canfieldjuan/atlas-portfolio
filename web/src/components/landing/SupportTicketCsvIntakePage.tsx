@@ -362,7 +362,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             Upload your tickets. Get the repeat-question snapshot in 24 hours.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Send 3 months of closed support tickets. We&apos;ll rank the repeated questions,
+            Send 30 days of closed support tickets. We&apos;ll rank the repeated questions,
             surface the missing customer wording, and include a review-ready FAQ draft built
             from resolved replies.
           </p>

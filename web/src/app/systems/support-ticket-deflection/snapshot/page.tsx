@@ -4,7 +4,7 @@ import { generatePageMetadata } from '@/lib/seo';
 export const metadata = generatePageMetadata({
   title: 'Free Deflection Snapshot: Find Repeat Support Tickets to Deflect First',
   description:
-    'Upload 3 months of closed tickets and get a free Deflection Snapshot: ranked repeat-ticket issues, customer wording, a benchmark Support Tax estimate, and one sourced answer draft.',
+    'Upload 30 days of closed tickets and get a free Deflection Snapshot: ranked repeat-ticket issues, customer wording, a benchmark Support Tax estimate, and one sourced answer draft.',
   path: '/systems/support-ticket-deflection/snapshot',
   keywords: [
     'free Deflection Snapshot',
