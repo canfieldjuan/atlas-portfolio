@@ -251,8 +251,8 @@ function HeroProofPanel({
               Snapshot preview
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Ranked repeats, customer wording, cost estimate, one sourced
-              draft answer.
+              Ranked repeats, customer wording (your long-tail SEO target
+              list), Support Tax estimate, one sourced draft answer.
             </p>
             <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
               Optional full report
@@ -373,12 +373,13 @@ function SnapshotArtifact({
         <div className="rounded-md border border-border bg-white/62 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Search className="h-4 w-4 text-primary" />
-            Customer wording can become the target list
+            Customer wording &rarr; your long-tail SEO target list
           </div>
           <p className="text-sm leading-relaxed text-foreground/58">
-            When the upload includes customer phrasing, the Snapshot surfaces
-            it beside the ranked repeat questions. Your team then decides what
-            to publish and where it should live.
+            The Snapshot surfaces the literal phrases your customers already
+            use. Those are the same long-tail terms they type into Google and
+            your help center search. Your team gets a ranked list to publish
+            answers against. SEO outcomes vary; we make no ranking guarantees.
           </p>
         </div>
       </div>
@@ -398,7 +399,9 @@ function SnapshotArtifact({
 
       <p className="mt-4 text-xs leading-relaxed text-foreground/62">
         Your uploaded Snapshot uses your own closed-ticket data. Scores are
-        relative ranking signals.
+        relative ranking signals, benchmark estimates are not guaranteed
+        savings, SEO outcomes are not guaranteed rankings, and the full report
+        stays behind checkout.
       </p>
     </section>
   );

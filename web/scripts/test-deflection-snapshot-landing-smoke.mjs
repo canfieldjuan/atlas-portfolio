@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 import { runDeflectionSnapshotLandingSmoke } from './smoke-deflection-snapshot-landing.mjs';
 
 const SNAPSHOT_URL = 'https://portfolio.example.com/systems/support-ticket-deflection/snapshot';
@@ -28,6 +29,10 @@ const GOOD_HTML = [
   '<a href="/systems/support-ticket-deflection/intake">Get my free Deflection Snapshot</a>',
   '</main>',
 ].join('');
+
+async function source(path) {
+  return readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+}
 
 function makeFetchMock(response) {
   const calls = [];
@@ -74,6 +79,34 @@ function assertResultFields(result, expected, name) {
     assert.deepEqual(result[field], value, name);
   }
 }
+
+const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
+
+assert.ok(
+  snapshotLandingSource.includes('Customer wording found'),
+  'Snapshot card eyebrow should stay discovery-first.',
+);
+assert.ok(
+  snapshotLandingSource.includes('Customer wording &rarr; your long-tail SEO target list'),
+  'Customer wording subsection should name the long-tail SEO target list.',
+);
+assert.ok(
+  snapshotLandingSource.includes('customer wording (your long-tail SEO target'),
+  'Snapshot preview bullet should parenthetically frame customer wording as SEO value.',
+);
+assert.ok(
+  snapshotLandingSource.includes('SEO outcomes vary; we make no ranking guarantees.'),
+  'Customer wording subsection should avoid ranking guarantees.',
+);
+assert.ok(
+  snapshotLandingSource.includes('SEO outcomes are not guaranteed rankings'),
+  'Snapshot disclaimer should cover SEO ranking outcomes.',
+);
+assert.equal(
+  snapshotLandingSource.includes('Customer wording can become the target list'),
+  false,
+  'Old target-list copy should be removed.',
+);
 
 {
   const { result, calls } = await run({
