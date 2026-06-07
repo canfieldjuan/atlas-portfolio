@@ -34,11 +34,11 @@ this smoke.
   amount in both portfolio and ATLAS. Partner intake links must include a valid
   `partnerToken`; use
   `npm --prefix web run create:deflection-partner-token -- --partner <name> --ttl-days 30`
-  to mint signed expiring tokens from
-  the last/current `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` entry. Direct token links remain supported
-  for compatibility while old outreach expires. Missing, expired, tampered, or
-  invalid tokens fall back to the standard price before intake metadata is
-  persisted. A legacy
+  to mint signed expiring tokens from the last/current
+  `DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS` entry. Direct token links using
+  `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` remain supported for compatibility
+  while old outreach expires. Missing, expired, tampered, or invalid tokens fall
+  back to the standard price before intake metadata is persisted. A legacy
   `ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_...` does not configure production
   checkout. If
   `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is

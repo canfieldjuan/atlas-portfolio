@@ -10,6 +10,8 @@ const DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV =
   'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
 const DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV =
   'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
+const DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV =
+  'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV =
   'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV =
@@ -29,6 +31,7 @@ const DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR =
 // directly; keep the shared token parser in that same module boundary.
 const {
   configuredDeflectionPartnerAccessTokens,
+  configuredDeflectionPartnerSigningSecrets,
 } = require('./deflection-partner-token');
 
 const DEFLECTION_CHECKOUT_ENV_KEYS = [
@@ -38,6 +41,7 @@ const DEFLECTION_CHECKOUT_ENV_KEYS = [
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV,
+  DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV,
   DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV,
   'VERCEL_ENV',
@@ -139,6 +143,7 @@ function classifyEnv(env) {
   const standardPriceId = clean(env[DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV]);
   const partnerPriceId = clean(env[DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV]);
   const partnerAccessTokens = configuredDeflectionPartnerAccessTokens(env);
+  const partnerSigningSecrets = configuredDeflectionPartnerSigningSecrets(env);
   const legacyPriceId = clean(env[DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV]);
   const priceId = standardPriceId || legacyPriceId;
   const allowedAmounts = parseAllowedAmounts(
@@ -153,6 +158,7 @@ function classifyEnv(env) {
       standardPriceId ? DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV : '',
       partnerPriceId ? DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV : '',
       partnerAccessTokens.length ? DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV : '',
+      partnerSigningSecrets.length ? DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV : '',
       legacyPriceId ? DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV : '',
       clean(env[DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV])
         ? DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV
@@ -171,6 +177,9 @@ function classifyEnv(env) {
       [DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV]: partnerAccessTokens.length
         ? 'configured'
         : 'missing',
+      [DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV]: partnerSigningSecrets.length
+        ? 'configured'
+        : 'missing',
       [DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV]: legacyPriceId
         ? 'configured'
         : 'missing',
@@ -182,6 +191,7 @@ function classifyEnv(env) {
     standardPriceId,
     partnerPriceId,
     partnerAccessTokens,
+    partnerSigningSecrets,
     legacyPriceId,
     priceId,
     allowedAmounts,
@@ -282,8 +292,12 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
     if (!classified.partnerPriceId) {
       addMissing(missing, DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV);
     }
-    if (!classified.partnerAccessTokens.length) {
-      addMissing(missing, DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV);
+    if (!classified.partnerAccessTokens.length && !classified.partnerSigningSecrets.length) {
+      addMissing(
+        missing,
+        `${DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV} or ` +
+          DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV,
+      );
     }
 
     if (classified.legacySecret && classified.rak) {
@@ -441,6 +455,7 @@ module.exports = {
   DEFLECTION_CHECKOUT_LEGACY_INLINE_AMOUNT_ERROR,
   DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV,
+  DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV,
   DEFLECTION_CHECKOUT_PARTNER_ALLOWED_AMOUNT_ERROR,
   DEFLECTION_CHECKOUT_PARTNER_AMOUNT_CENTS,
   DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV,
@@ -449,6 +464,7 @@ module.exports = {
   DEFLECTION_CHECKOUT_STANDARD_ALLOWED_AMOUNT_ERROR,
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
   configuredDeflectionPartnerAccessTokens,
+  configuredDeflectionPartnerSigningSecrets,
   resolveDeflectionCheckoutRuntimeConfig,
   validateDeflectionCheckoutEnv,
 };

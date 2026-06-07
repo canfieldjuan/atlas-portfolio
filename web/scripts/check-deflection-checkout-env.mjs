@@ -12,6 +12,7 @@ const {
   DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV: LEGACY_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV: PARTNER_ACCESS_TOKEN_ENV,
   DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV: PARTNER_PRICE_ID_ENV,
+  DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV: PARTNER_SIGNING_SECRETS_ENV,
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV: STANDARD_PRICE_ID_ENV,
   validateDeflectionCheckoutEnv,
 } = checkoutRequirements;
@@ -37,7 +38,8 @@ Production requires:
   ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
   ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
   ${PARTNER_PRICE_ID_ENV}=price_... (partner variant)
-  ${PARTNER_ACCESS_TOKEN_ENV}=<long random token> (partner intake links)
+  ${PARTNER_ACCESS_TOKEN_ENV}=<long random token> (direct partner links)
+  ${PARTNER_SIGNING_SECRETS_ENV}=<old,current> (signed expiring partner links)
   ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,100000...] (required to include 100000 when partner is configured)
 
 Preview/development/local accept:

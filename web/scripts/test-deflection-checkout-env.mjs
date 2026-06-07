@@ -15,7 +15,10 @@ const VARIANT_ALLOWED_AMOUNT_CENTS = DEFAULT_ALLOWED_AMOUNT_CENTS + 30_000;
 const STANDARD_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD';
 const PARTNER_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER';
 const PARTNER_ACCESS_TOKEN_ENV = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
+const PARTNER_SIGNING_SECRETS_ENV = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
+const PARTNER_CREDENTIAL_ENV =
+  `${PARTNER_ACCESS_TOKEN_ENV} or ${PARTNER_SIGNING_SECRETS_ENV}`;
 const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
@@ -35,6 +38,13 @@ function withProductionPartnerAccessToken(env) {
   return {
     ...env,
     [PARTNER_ACCESS_TOKEN_ENV]: PRODUCTION_PARTNER_ACCESS_TOKEN,
+  };
+}
+
+function withProductionPartnerSigningSecret(env) {
+  return {
+    ...env,
+    [PARTNER_SIGNING_SECRETS_ENV]: 'partner_unit_signing_secret',
   };
 }
 
@@ -58,6 +68,7 @@ function withProductionPartnerAccessToken(env) {
   assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'configured');
+  assert.equal(result.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'missing');
   assert.equal(result.keyModes[LEGACY_PRICE_ID_ENV], 'configured');
   assert.equal(result.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
   assert.deepEqual(result.allowedAmountsCents, [
@@ -66,6 +77,25 @@ function withProductionPartnerAccessToken(env) {
   ]);
   assert(result.warnings.some((warning) => warning.includes('ignored')));
   assert(result.warnings.some((warning) => warning.includes(LEGACY_PRICE_ID_ENV)));
+}
+
+{
+  const result = validate(
+    withProductionPartnerSigningSecret({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
+      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
+  assert.equal(result.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'configured');
+  assert(result.present.includes(PARTNER_SIGNING_SECRETS_ENV));
 }
 
 {
@@ -80,10 +110,11 @@ function withProductionPartnerAccessToken(env) {
     'production',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, [PARTNER_ACCESS_TOKEN_ENV]);
+  assert.deepEqual(result.missing, [PARTNER_CREDENTIAL_ENV]);
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
-  assert(result.errors.includes(`Missing ${PARTNER_ACCESS_TOKEN_ENV}.`));
+  assert.equal(result.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'missing');
+  assert(result.errors.includes(`Missing ${PARTNER_CREDENTIAL_ENV}.`));
 }
 
 {
@@ -99,11 +130,13 @@ function withProductionPartnerAccessToken(env) {
     'production',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, [PARTNER_ACCESS_TOKEN_ENV]);
+  assert.deepEqual(result.missing, [PARTNER_CREDENTIAL_ENV]);
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
+  assert.equal(result.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'missing');
   assert(!result.present.includes(PARTNER_ACCESS_TOKEN_ENV));
-  assert(result.errors.includes(`Missing ${PARTNER_ACCESS_TOKEN_ENV}.`));
+  assert(!result.present.includes(PARTNER_SIGNING_SECRETS_ENV));
+  assert(result.errors.includes(`Missing ${PARTNER_CREDENTIAL_ENV}.`));
 }
 
 {
@@ -494,7 +527,7 @@ function withProductionPartnerAccessToken(env) {
       'ATLAS_ACCOUNT_ID=acct_unit',
       `${STANDARD_PRICE_ID_ENV}=price_standard123`,
       `${PARTNER_PRICE_ID_ENV}=price_partner123`,
-      `${PARTNER_ACCESS_TOKEN_ENV}=partner_unit_access_token`,
+      `${PARTNER_SIGNING_SECRETS_ENV}=old_partner_signing_secret,current_partner_signing_secret`,
       `${ALLOWED_AMOUNT_CENTS_ENV}=${DEFAULT_ALLOWED_AMOUNT_CENTS},${PARTNER_ALLOWED_AMOUNT_CENTS},${VARIANT_ALLOWED_AMOUNT_CENTS}`,
       '',
     ].join('\n'),
@@ -523,7 +556,7 @@ function withProductionPartnerAccessToken(env) {
     assert.deepEqual(payload.missing, [
       'ATLAS_SAAS_STRIPE_RAK',
       PARTNER_PRICE_ID_ENV,
-      PARTNER_ACCESS_TOKEN_ENV,
+      PARTNER_CREDENTIAL_ENV,
     ]);
     assert.equal(payload.keyModes.ATLAS_SAAS_STRIPE_SECRET_KEY, 'test_secret');
     assert.equal(run.stderr, '');
@@ -551,7 +584,8 @@ function withProductionPartnerAccessToken(env) {
     assert.equal(validPayload.keyModes.ATLAS_ACCOUNT_ID, 'configured');
     assert.equal(validPayload.keyModes[STANDARD_PRICE_ID_ENV], 'configured');
     assert.equal(validPayload.keyModes[PARTNER_PRICE_ID_ENV], 'configured');
-    assert.equal(validPayload.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'configured');
+    assert.equal(validPayload.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
+    assert.equal(validPayload.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'configured');
     assert.equal(validPayload.keyModes[ALLOWED_AMOUNT_CENTS_ENV], 'configured');
     assert.deepEqual(validPayload.allowedAmountsCents, [
       DEFAULT_ALLOWED_AMOUNT_CENTS,
