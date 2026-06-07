@@ -73,7 +73,8 @@ export function deflectionSnapshotPath(requestId: string): string {
 }
 
 // Preview fixture — used by the results route until the live endpoint + auth are
-// wired. Realistic 5-question SaaS shape so the page reviews like production.
+// wired. Realistic higher-volume SaaS shape so the page reviews like the
+// larger support teams this offer targets.
 // NOT real customer data. The byte-faithful 2-item contract example lives in
 // ATLAS docs/frontend/content_ops_faq_deflection_snapshot_example.json.
 export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
@@ -81,7 +82,7 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
     generated: 12,
     drafted_answer_count: 9,
     no_proven_answer_count: 3,
-    repeat_ticket_count: 170,
+    repeat_ticket_count: 1700,
     source_date_start: '2026-05-01',
     source_date_end: '2026-05-30',
     source_window_days: 30,
@@ -91,46 +92,46 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
       rank: 1,
       question: 'How do I cancel my subscription?',
       customer_wording: 'how do i cancel my subscription',
-      ticket_count: 31,
-      weighted_frequency: 412,
+      ticket_count: 310,
+      weighted_frequency: 4120,
     },
     {
       rank: 2,
       question: 'Why was I charged twice?',
       customer_wording: 'why was i charged twice this month',
-      ticket_count: 24,
-      weighted_frequency: 388,
+      ticket_count: 240,
+      weighted_frequency: 3880,
     },
     {
       rank: 3,
       question: 'How do I change the email on my account?',
       customer_wording: 'change the email on my account',
-      ticket_count: 19,
-      weighted_frequency: 301,
+      ticket_count: 190,
+      weighted_frequency: 3010,
     },
     {
       rank: 4,
       question: 'Can I export my data before downgrading?',
       customer_wording: 'export my data before i downgrade',
-      ticket_count: 18,
-      weighted_frequency: 245,
+      ticket_count: 180,
+      weighted_frequency: 2450,
     },
     {
       rank: 5,
       question: 'My team seat is not showing up after I invited someone.',
       customer_wording: 'team seat not showing up after invite',
-      ticket_count: 16,
-      weighted_frequency: 198,
+      ticket_count: 160,
+      weighted_frequency: 1980,
     },
   ],
   locked_questions: [
-    { rank: 6, ticket_count: 14 },
-    { rank: 7, ticket_count: 12 },
-    { rank: 8, ticket_count: 10 },
-    { rank: 9, ticket_count: 8 },
-    { rank: 10, ticket_count: 7 },
-    { rank: 11, ticket_count: 6 },
-    { rank: 12, ticket_count: 5 },
+    { rank: 6, ticket_count: 140 },
+    { rank: 7, ticket_count: 120 },
+    { rank: 8, ticket_count: 100 },
+    { rank: 9, ticket_count: 80 },
+    { rank: 10, ticket_count: 70 },
+    { rank: 11, ticket_count: 60 },
+    { rank: 12, ticket_count: 50 },
   ],
   teaser: {
     full_answer: {
@@ -145,8 +146,8 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
       ],
       answer_evidence_status: 'resolution_evidence',
       resolution_evidence_scope: 'scoped',
-      weighted_frequency: 412,
-      source_count: 31,
+      weighted_frequency: 4120,
+      source_count: 310,
     },
     previews: [
       {
@@ -154,9 +155,9 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
         question: 'Why was I charged twice?',
         answer_evidence_status: 'resolution_evidence',
         resolution_evidence_scope: 'scoped',
-        weighted_frequency: 388,
+        weighted_frequency: 3880,
         step_count: 2,
-        source_count: 24,
+        source_count: 240,
         body_withheld: true,
       },
       {
@@ -164,9 +165,9 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
         question: 'How do I change the email on my account?',
         answer_evidence_status: 'resolution_evidence',
         resolution_evidence_scope: 'scoped',
-        weighted_frequency: 301,
+        weighted_frequency: 3010,
         step_count: 2,
-        source_count: 19,
+        source_count: 190,
         body_withheld: true,
       },
     ],

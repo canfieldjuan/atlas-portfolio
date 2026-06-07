@@ -12,6 +12,7 @@ const REQUIRED_MARKERS = [
   ['beforeAfterProof', 'BEFORE / AFTER SNAPSHOT PROOF'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
+  ['valueAnchor', '$1,500 full report is meant to be judged against that recurring backlog'],
   ['snapshotFirst', 'Optional full report'],
   ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],

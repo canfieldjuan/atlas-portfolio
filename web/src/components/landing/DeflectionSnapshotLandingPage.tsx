@@ -26,6 +26,7 @@ import {
 } from '@/lib/deflection-snapshot';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  DEFLECTION_FULL_REPORT_PRICE_LABEL,
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
@@ -73,6 +74,22 @@ function snapshotCostProof(snapshot: DeflectionSnapshot, assistedContactCost: nu
   };
 }
 
+function snapshotCostBasisLabel(assistedContactCost: number) {
+  return assistedContactCost === DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD
+    ? 'At the Gartner benchmark'
+    : `At your selected ${formatAssistedContactCost(assistedContactCost)} per assisted contact`;
+}
+
+function snapshotValueAnchor(snapshot: DeflectionSnapshot, assistedContactCost: number) {
+  const { annualPace } = snapshotCostProof(snapshot, assistedContactCost);
+  return [
+    `${snapshotCostBasisLabel(assistedContactCost)}, this larger representative queue projects to ${formatDeflectionWholeUsd(
+      annualPace,
+    )} over 12 months and ${formatDeflectionWholeUsd(annualPace * 3)} over three years.`,
+    `The ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report is meant to be judged against that recurring backlog, not the cost of one ticket.`,
+  ].join(' ');
+}
+
 function PrimarySnapshotCta({ className = '' }: { className?: string }) {
   return (
     <Link
@@ -111,6 +128,7 @@ function CostProofBand({
           sourceWindow={snapshotSourceWindow(snapshot)}
           onAssistedContactCostChange={onAssistedContactCostChange}
           subjectLabel="This representative Snapshot's repeat tickets"
+          valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}
           action={{
             kind: 'link',
             href: INTAKE_HREF,
@@ -180,7 +198,7 @@ function HeroProofPanel({
             </p>
             <p className="mt-2 text-sm leading-relaxed text-foreground/58">
               ATLAS finds the repeat wording across closed tickets, estimates
-              the benchmark Support Tax, then checks whether resolved replies
+              the assisted-contact Support Tax, then checks whether resolved replies
               contain enough scoped evidence to draft an answer.
             </p>
           </div>
@@ -233,7 +251,7 @@ function HeroProofPanel({
               Snapshot preview
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/62">
-              Ranked repeats, customer wording, benchmark estimate, one sourced
+              Ranked repeats, customer wording, cost estimate, one sourced
               draft answer.
             </p>
             <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
@@ -349,7 +367,7 @@ function SnapshotArtifact({
             assistedContactCost={assistedContactCost}
           />
           <p className="mt-3 text-sm leading-relaxed text-foreground/62">
-            Counts and benchmark estimates stay visible here; the complete
+            Counts and cost estimates stay visible here; the complete
             report adds the remaining question text and source trails.
           </p>
         </div>
@@ -524,7 +542,7 @@ export function DeflectionSnapshotLandingPage() {
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The panel below shows the offer shape: ranked repeat questions,
-              customer wording, benchmark cost, one sourced draft answer, and
+              customer wording, cost projection, one sourced draft answer, and
               a preview of what remains.
             </p>
           </div>
