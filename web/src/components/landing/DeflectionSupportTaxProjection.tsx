@@ -184,13 +184,13 @@ export function DeflectionSupportTaxProjection({
             Support Tax projection
           </p>
           <h2 id="support-tax-heading" className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-            {subjectLabel} size up to {usd(batchCost)} of assisted-contact work.
+            {subjectLabel} add up to about {usd(batchCost)} in assisted-contact cost.
           </h2>
         </div>
       </div>
 
       <p className="text-sm leading-relaxed text-foreground/65">
-        ATLAS counted <strong className="text-foreground">{count(repeatTicketCount)}</strong>{' '}
+        The Snapshot counted <strong className="text-foreground">{count(repeatTicketCount)}</strong>{' '}
         repeat-ticket hits {windowLabel ? `from ${windowLabel}` : 'in this snapshot'}. The
         estimate below multiplies that measured count by a configurable assisted-contact
         benchmark, defaulting to Gartner&apos;s{' '}
@@ -286,7 +286,7 @@ export function DeflectionSupportTaxProjection({
       </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
         {sourceWindow
-          ? 'Estimate only. These run-rate rows normalize from the verified source window ATLAS returned; they are not savings guarantees.'
+          ? 'Estimate only. These run-rate rows normalize from the verified source window in your Snapshot; they are not savings guarantees.'
           : 'Estimate only. This sizes the repeat work visible in your uploaded data; it is not a savings guarantee and should be adjusted to your actual reporting window.'}
       </p>
     </section>

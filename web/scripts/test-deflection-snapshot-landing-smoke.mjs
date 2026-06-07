@@ -23,7 +23,7 @@ const GOOD_HTML = [
   '<p>WHAT THE AUDIT FINDS</p>',
   '<p>Support Tax projection</p>',
   '<label>Assisted-contact cost</label>',
-  '<p>$1,500 full report is meant to be judged against that recurring backlog</p>',
+  '<p>one-time cost against that recurring bill</p>',
   '<p>Optional full report</p>',
   '<p>The only ask on this page is the CSV upload</p>',
   '<a href="/systems/support-ticket-deflection/intake">Get my free Deflection Snapshot</a>',

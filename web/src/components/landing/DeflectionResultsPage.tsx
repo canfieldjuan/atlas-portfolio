@@ -314,7 +314,7 @@ export function DeflectionResultsPage({
             These visible rows are the ranking list. When the upload includes
             a separate customer phrase, the row shows that wording so your team
             can shape help-center titles and search language around real demand.
-            ATLAS does not claim keyword volume, search rank, or traffic.
+            We make no claims about keyword volume, search rank, or traffic.
           </p>
           <DeflectionTopQuestionRows
             questions={top_questions}
