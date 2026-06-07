@@ -16,11 +16,13 @@ Slice phase: Production hardening
    `page_path` or `page_location`.
 2. Apply the same sanitized page context to analytics events so inherited event
    page metadata does not reintroduce the raw ID.
-3. Preserve route-level analytics by reporting the route shape, not dropping the
+3. Disable Google Ads' automatic raw page view and emit the same redacted page
+   context to the Ads property when an Ads ID is configured.
+4. Preserve route-level analytics by reporting the route shape, not dropping the
    page view or event.
-4. Add focused regression coverage that exercises page-view and event tracking
+5. Add focused regression coverage that exercises page-view and event tracking
    with a real `gtag` stub.
-5. Enroll the focused regression test in the pre-push audit workflow.
+6. Enroll the focused regression test in the pre-push audit workflow.
 
 ### Files touched
 
@@ -28,6 +30,8 @@ Slice phase: Production hardening
   path-redaction test.
 - `web/plans/PR-Deflection-GA-Path-Redaction.md` - plan for this slice.
 - `web/package.json` - focused test script entry.
+- `web/src/components/GoogleAnalytics.tsx` - disables Google Ads' automatic raw
+  page view during bootstrap.
 - `web/src/lib/analytics.ts` - shared GA path redaction and event page context.
 - `web/scripts/test-deflection-ga-path-redaction.mjs` - focused regression
   coverage for redacted page views and events.
@@ -52,11 +56,15 @@ the current browser location. Those sanitized page fields override any caller
 provided page context, because the privacy boundary belongs in the shared
 analytics helper rather than each event caller.
 
+`GoogleAnalytics.tsx` will initialize both GA and Google Ads with
+`send_page_view: false`. `trackPageView(...)` then emits the explicit redacted
+page-view config to GA and, when configured, Google Ads. That prevents the Ads
+property from firing a raw `document.location` hit on direct results-page loads.
+
 ## Intentional
 
-- This does not change `GoogleAnalytics.tsx`; it can continue sending the
-  client pathname plus query string. The shared analytics helper owns redaction
-  so page views and events stay consistent.
+- The `GoogleAnalytics.tsx` change is limited to disabling Ads' automatic page
+  view. Script loading and the client pathname/query collection stay unchanged.
 - Public slugs, such as `/resources/[slug]`, are not redacted because the issue
   is opaque request IDs, not public content URLs.
 - Query strings are preserved. The current results-page query values are
@@ -78,14 +86,16 @@ Parked hardening: none.
   `Deflection GA path redaction tests passed.`
 - `node web/scripts/audit-test-enrollment.mjs` - PASS; printed
   `All 24 test:* scripts are enrolled in .../.github/workflows/pre_push_audit.yml.`
-- `npm --prefix web run lint -- src/lib/analytics.ts scripts/test-deflection-ga-path-redaction.mjs`
+- `npm --prefix web run lint -- src/components/GoogleAnalytics.tsx src/lib/analytics.ts scripts/test-deflection-ga-path-redaction.mjs`
   - PASS; no ESLint diagnostics.
 - `npm --prefix web run build` - PASS; compiled successfully, TypeScript
   finished, generated `44/44` static pages, and copied the deterministic routes
   manifest.
-- `rg -n "page_path|page_location|redactAnalyticsPath|/systems/support-ticket-deflection/results/\\[requestId\\]|/admin/intake/gap-report/\\[requestId\\]" web/src/lib/analytics.ts web/scripts/test-deflection-ga-path-redaction.mjs`
+- `rg -n "page_path|page_location|redactAnalyticsPath|send_page_view: false|GOOGLE_ADS_ID|/systems/support-ticket-deflection/results/\\[requestId\\]|/admin/intake/gap-report/\\[requestId\\]" web/src/components/GoogleAnalytics.tsx web/src/lib/analytics.ts web/scripts/test-deflection-ga-path-redaction.mjs`
   - PASS; output showed the redaction helper, both redacted route shapes, and
-  assertions for redacted page-view/event `page_path` and `page_location`.
+  assertions for redacted page-view/event `page_path` and `page_location`. The
+  old bare Ads config string appears only in the negative `assertNotIncludes`
+  fixture.
 - `bash scripts/local_pr_review.sh` - PASS; plan shape/files/diff-size, drift
   advisory, ESLint, Next build, and `git diff --check` all passed.
 
@@ -94,8 +104,9 @@ Parked hardening: none.
 | Area | Estimate |
 | --- | ---: |
 | Workflow enrollment | +3 / -0 |
-| Plan doc | +101 |
+| Plan doc | +110 |
 | Package script | +1 / -0 |
-| Analytics helper | +39 / -3 |
-| Focused test | +134 / -0 |
-| Total | ~278 changed |
+| Google Analytics bootstrap | +1 / -1 |
+| Analytics helper | +42 / -5 |
+| Focused test | +156 / -0 |
+| Total | ~320 changed |

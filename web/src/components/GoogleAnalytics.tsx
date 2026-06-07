@@ -48,7 +48,7 @@ export function GoogleAnalytics() {
             window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
             window.gtag('js', new Date());
             ${GA_MEASUREMENT_ID ? `window.gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });` : ''}
-            ${GOOGLE_ADS_ID ? `window.gtag('config', '${GOOGLE_ADS_ID}');` : ''}
+            ${GOOGLE_ADS_ID ? `window.gtag('config', '${GOOGLE_ADS_ID}', { send_page_view: false });` : ''}
           `,
         }}
       />

@@ -85,12 +85,16 @@ export function trackPageView(path: string) {
   }
 
   const safePath = redactAnalyticsPath(path);
-
-  window.gtag?.('config', GA_MEASUREMENT_ID, {
+  const params = {
     page_path: safePath,
     page_location: `${window.location.origin}${safePath}`,
     page_title: document.title,
-  });
+  };
+
+  window.gtag?.('config', GA_MEASUREMENT_ID, params);
+  if (GOOGLE_ADS_ID) {
+    window.gtag?.('config', GOOGLE_ADS_ID, params);
+  }
 }
 
 export function trackEvent(eventName: string, params: AnalyticsParams = {}) {

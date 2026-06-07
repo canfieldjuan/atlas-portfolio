@@ -19,6 +19,7 @@ function assertNotIncludes(haystack, needle, context) {
 
 async function importAnalyticsModule() {
   const analyticsSource = await source('src/lib/analytics.ts');
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID = 'AW-1234567890';
   const transpiled = ts.transpileModule(analyticsSource, {
     compilerOptions: {
       module: ts.ModuleKind.ES2022,
@@ -42,7 +43,9 @@ async function importAnalyticsModule() {
 }
 
 const analyticsSource = await source('src/lib/analytics.ts');
+const googleAnalyticsSource = await source('src/components/GoogleAnalytics.tsx');
 const prePushWorkflow = await source('../.github/workflows/pre_push_audit.yml');
+const previousGoogleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 const { module: analytics, cleanup } = await importAnalyticsModule();
 
 try {
@@ -82,14 +85,18 @@ try {
   trackPageView(
     '/systems/support-ticket-deflection/results/content-ops-unit-123?checkout=success&priceVariant=partner',
   );
-  const pageView = calls.at(-1);
-  assert.equal(pageView[0], 'config');
-  assert.equal(pageView[2].page_path, '/systems/support-ticket-deflection/results/[requestId]?checkout=success&priceVariant=partner');
-  assert.equal(
-    pageView[2].page_location,
-    'https://portfolio.example.com/systems/support-ticket-deflection/results/[requestId]?checkout=success&priceVariant=partner',
-  );
-  assertNotIncludes(JSON.stringify(pageView), 'content-ops-unit-123', 'redacted page view');
+  const pageViews = calls.filter((call) => call[0] === 'config');
+  assert.equal(pageViews.length, 2);
+  assert.equal(pageViews[0][1], analytics.GA_MEASUREMENT_ID);
+  assert.equal(pageViews[1][1], 'AW-1234567890');
+  for (const pageView of pageViews) {
+    assert.equal(pageView[2].page_path, '/systems/support-ticket-deflection/results/[requestId]?checkout=success&priceVariant=partner');
+    assert.equal(
+      pageView[2].page_location,
+      'https://portfolio.example.com/systems/support-ticket-deflection/results/[requestId]?checkout=success&priceVariant=partner',
+    );
+    assertNotIncludes(JSON.stringify(pageView), 'content-ops-unit-123', 'redacted page view');
+  }
 
   trackEvent('faq_report_results_viewed', {
     generated_questions: 18,
@@ -121,6 +128,16 @@ try {
   );
   assertIncludes(analyticsSource, '...currentAnalyticsPageParams()', 'event page context override');
   assertIncludes(
+    googleAnalyticsSource,
+    "window.gtag('config', '${GOOGLE_ADS_ID}', { send_page_view: false });",
+    'Google Ads auto page-view disabled',
+  );
+  assertNotIncludes(
+    googleAnalyticsSource,
+    "window.gtag('config', '${GOOGLE_ADS_ID}');",
+    'bare Google Ads config',
+  );
+  assertIncludes(
     prePushWorkflow,
     'npm --prefix web run test:deflection-ga-path-redaction',
     'CI enrollment',
@@ -130,5 +147,10 @@ try {
 } finally {
   delete globalThis.window;
   delete globalThis.document;
+  if (previousGoogleAdsId === undefined) {
+    delete process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  } else {
+    process.env.NEXT_PUBLIC_GOOGLE_ADS_ID = previousGoogleAdsId;
+  }
   await cleanup();
 }
