@@ -63,13 +63,13 @@ assert.match(
 );
 assert.match(
   landingSource,
-  /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD\}\s+limit=\{3\}/,
-  'Snapshot landing page should render top questions through the shared row component.',
+  /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+limit=\{3\}/,
+  'Snapshot landing page should render top questions through the shared row component and shared cost state.',
 );
 assert.match(
   landingSource,
-  /<DeflectionLockedQuestionRows\s+questions=\{locked_questions\}\s+assistedContactCost=\{DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD\}/,
-  'Snapshot landing page should render locked questions through the shared row component.',
+  /<DeflectionLockedQuestionRows\s+questions=\{locked_questions\}\s+assistedContactCost=\{assistedContactCost\}/,
+  'Snapshot landing page should render locked questions through the shared row component and shared cost state.',
 );
 assert.equal(
   /function\s+SnapshotQuestionRows|function\s+LockedQuestionFomoRows/.test(landingSource),

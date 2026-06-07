@@ -69,6 +69,9 @@ jobs:
       - name: Deflection CSV privacy contract
         run: npm --prefix web run test:deflection-csv-privacy
 
+      - name: Deflection cost projection share tests
+        run: npm --prefix web run test:deflection-cost-projection-share
+
       - name: Deflection email results-link tests
         run: npm --prefix web run test:deflection-email-results-link
 

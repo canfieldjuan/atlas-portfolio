@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ArrowRight,
   CheckCircle2,
@@ -8,7 +10,7 @@ import {
   Upload,
 } from 'lucide-react';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import {
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
@@ -20,12 +22,13 @@ import {
 import {
   DEMO_DEFLECTION_SNAPSHOT,
   type DeflectionSnapshot,
+  type DeflectionSnapshotSourceWindow,
 } from '@/lib/deflection-snapshot';
 import {
-  DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
+import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 const CTA_LABEL = 'Get my free Deflection Snapshot';
@@ -35,15 +38,29 @@ function formatInteger(value: number) {
   return integerFormatter.format(value);
 }
 
-function snapshotCostProof(snapshot: DeflectionSnapshot) {
+function formatAssistedContactCost(value: number) {
+  return value % 1 === 0 ? formatDeflectionWholeUsd(value) : `$${value.toFixed(2)}`;
+}
+
+function snapshotSourceWindow(snapshot: DeflectionSnapshot): DeflectionSnapshotSourceWindow | undefined {
+  const { summary } = snapshot;
+  return summary.source_date_start && summary.source_date_end && summary.source_window_days
+    ? {
+        source_date_start: summary.source_date_start,
+        source_date_end: summary.source_date_end,
+        source_window_days: summary.source_window_days,
+      }
+    : undefined;
+}
+
+function snapshotCostProof(snapshot: DeflectionSnapshot, assistedContactCost: number) {
   const repeatTicketCount = snapshot.summary.repeat_ticket_count;
   const sourceWindowDays =
     typeof snapshot.summary.source_window_days === 'number' &&
     snapshot.summary.source_window_days > 0
       ? snapshot.summary.source_window_days
       : undefined;
-  const uploadedWindowCost =
-    repeatTicketCount * DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD;
+  const uploadedWindowCost = repeatTicketCount * assistedContactCost;
   const annualPace = sourceWindowDays
     ? (uploadedWindowCost / sourceWindowDays) * 365
     : uploadedWindowCost * 12;
@@ -76,103 +93,62 @@ function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
-function CostProofBand({ snapshot }: { snapshot: DeflectionSnapshot }) {
-  const {
-    annualPace,
-    repeatTicketCount,
-    sourceWindowDays,
-    uploadedWindowCost,
-  } = snapshotCostProof(snapshot);
-  const windowLabel = sourceWindowDays
-    ? `${formatInteger(sourceWindowDays)} days`
-    : 'the uploaded window';
-  const metrics = [
-    {
-      label: 'Support Tax estimate',
-      value: formatDeflectionWholeUsd(uploadedWindowCost),
-      detail: `${formatInteger(repeatTicketCount)} repeat-ticket hits x ${DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} benchmark across ${windowLabel}`,
-    },
-    {
-      label: 'Annualized pace',
-      value: formatDeflectionWholeUsd(annualPace),
-      detail: sourceWindowDays
-        ? 'Same measured pace normalized to 365 days'
-        : 'Same measured pace projected across 12 similar windows',
-    },
-    {
-      label: 'Snapshot action',
-      value: 'Free',
-      detail:
-        'Upload the CSV first; the free results show whether there is enough repeat volume',
-    },
-  ];
-
+function CostProofBand({
+  snapshot,
+  assistedContactCost,
+  onAssistedContactCostChange,
+}: {
+  snapshot: DeflectionSnapshot;
+  assistedContactCost: number;
+  onAssistedContactCostChange: (value: number) => void;
+}) {
   return (
     <section className="section-band section-band-muted mt-16">
-      <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.88fr)_minmax(21rem,1fr)] lg:items-start">
-        <div>
-          <Eyebrow>Support Tax estimate</Eyebrow>
-          <h2 className="max-w-3xl text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-            The Snapshot turns repeat volume into a benchmark cost estimate.
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-            The repeat-ticket count is multiplied by the{' '}
-            {DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} assisted-contact
-            benchmark. The point is not a savings promise. It is a fast value
-            check before your team spends anything.
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <PrimarySnapshotCta />
-            <p className="max-w-sm text-sm leading-relaxed text-foreground/68">
-              See whether your own queue has enough repeat volume to justify
-              deeper drafting.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-3">
-          {metrics.map((metric) => (
-            <article
-              key={metric.label}
-              className="rounded-md border border-border bg-surface p-4 shadow-[var(--card-shadow)]"
-            >
-              <p className="font-mono text-[11px] uppercase tracking-wide text-foreground/45">
-                {metric.label}
-              </p>
-              <p className="mt-2 text-3xl font-semibold leading-none text-foreground">
-                {metric.value}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/58">
-                {metric.detail}
-              </p>
-            </article>
-          ))}
-
-          <p className="rounded-md border border-primary/25 bg-primary/[0.06] p-4 text-sm leading-relaxed text-foreground/66">
-            The Snapshot earns the next step by showing the pattern first:
-            ranked repeats, customer wording, and one sourced answer sample. A
-            paid full report is optional after the free results.
-          </p>
-        </div>
+      <div className="mx-auto max-w-6xl">
+        <DeflectionSupportTaxProjection
+          repeatTicketCount={snapshot.summary.repeat_ticket_count}
+          assistedContactCost={assistedContactCost}
+          sourceWindow={snapshotSourceWindow(snapshot)}
+          onAssistedContactCostChange={onAssistedContactCostChange}
+          subjectLabel="This representative Snapshot's repeat tickets"
+          action={{
+            kind: 'link',
+            href: INTAKE_HREF,
+            label: CTA_LABEL,
+            helper:
+              'See whether your own queue has enough repeat volume to justify deeper drafting.',
+          }}
+        />
       </div>
     </section>
   );
 }
 
-function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
+function HeroProofPanel({
+  snapshot,
+  assistedContactCost,
+}: {
+  snapshot: DeflectionSnapshot;
+  assistedContactCost: number;
+}) {
   const answer = snapshot.teaser.full_answer;
   const sourceQuestion = answer
     ? snapshot.top_questions.find((question) => question.rank === answer.rank)
     : undefined;
   const customerPhrase = sourceQuestion?.customer_wording ?? answer?.question ?? '';
   const previewCount = snapshot.teaser.previews.length;
-  const heroCostProof = snapshotCostProof(snapshot);
+  const heroCostProof = snapshotCostProof(snapshot, assistedContactCost);
   const supportTaxEstimate = formatDeflectionWholeUsd(
     heroCostProof.uploadedWindowCost,
   );
 
   if (!answer) {
-    return <SnapshotArtifact snapshot={snapshot} />;
+    return (
+      <SnapshotArtifact
+        snapshot={snapshot}
+        assistedContactCost={assistedContactCost}
+      />
+    );
   }
 
   return (
@@ -276,13 +252,15 @@ function HeroProofPanel({ snapshot }: { snapshot: DeflectionSnapshot }) {
 
 function SnapshotArtifact({
   snapshot,
+  assistedContactCost,
   showTeaser = true,
 }: {
   snapshot: DeflectionSnapshot;
+  assistedContactCost: number;
   showTeaser?: boolean;
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
-  const artifactCostProof = snapshotCostProof(snapshot);
+  const artifactCostProof = snapshotCostProof(snapshot, assistedContactCost);
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
   );
@@ -306,7 +284,7 @@ function SnapshotArtifact({
     {
       label: 'Support Tax estimate',
       value: supportTaxEstimate,
-      detail: `${DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL} benchmark`,
+      detail: `${formatAssistedContactCost(assistedContactCost)} assisted-contact value`,
     },
     {
       label: 'Included draft',
@@ -356,7 +334,7 @@ function SnapshotArtifact({
 
       <DeflectionTopQuestionRows
         questions={top_questions}
-        assistedContactCost={DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD}
+        assistedContactCost={assistedContactCost}
         limit={3}
       />
 
@@ -368,7 +346,7 @@ function SnapshotArtifact({
           </div>
           <DeflectionLockedQuestionRows
             questions={locked_questions}
-            assistedContactCost={DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD}
+            assistedContactCost={assistedContactCost}
           />
           <p className="mt-3 text-sm leading-relaxed text-foreground/62">
             Counts and benchmark estimates stay visible here; the complete
@@ -499,6 +477,10 @@ function HeroUploadTrust() {
 }
 
 export function DeflectionSnapshotLandingPage() {
+  const [assistedContactCost, setAssistedContactCost] = useState(
+    DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
+  );
+
   return (
     <main className="deflection-landing min-h-screen px-6 pb-20 pt-12 md:pt-16">
       <section className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,0.82fr)_minmax(27rem,1fr)] md:items-center">
@@ -527,7 +509,10 @@ export function DeflectionSnapshotLandingPage() {
           </div>
         </div>
 
-        <HeroProofPanel snapshot={DEMO_DEFLECTION_SNAPSHOT} />
+        <HeroProofPanel
+          snapshot={DEMO_DEFLECTION_SNAPSHOT}
+          assistedContactCost={assistedContactCost}
+        />
       </section>
 
       <section className="section-band">
@@ -543,11 +528,18 @@ export function DeflectionSnapshotLandingPage() {
               a preview of what remains.
             </p>
           </div>
-          <SnapshotArtifact snapshot={DEMO_DEFLECTION_SNAPSHOT} />
+          <SnapshotArtifact
+            snapshot={DEMO_DEFLECTION_SNAPSHOT}
+            assistedContactCost={assistedContactCost}
+          />
         </div>
       </section>
 
-      <CostProofBand snapshot={DEMO_DEFLECTION_SNAPSHOT} />
+      <CostProofBand
+        snapshot={DEMO_DEFLECTION_SNAPSHOT}
+        assistedContactCost={assistedContactCost}
+        onAssistedContactCostChange={setAssistedContactCost}
+      />
 
       <section className="section-band section-band-muted">
         <div className="mx-auto max-w-6xl">
