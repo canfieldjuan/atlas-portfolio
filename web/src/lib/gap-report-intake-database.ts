@@ -253,6 +253,64 @@ export async function getGapReportSubmissionByRequestId(
   };
 }
 
+export async function getGapReportSubmissionByReportRequestId(
+  reportRequestId: string
+): Promise<GapReportSummaryRow | null> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return null;
+  }
+
+  const rows = await sql.query(
+    `
+      SELECT
+        request_id::text AS request_id,
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
+        email,
+        company_name,
+        support_platform,
+        csv_blob_url,
+        csv_filename,
+        csv_size_bytes,
+        source_page,
+        source_offer,
+        notification_status,
+        notification_error
+      FROM portfolio_gap_report_submissions
+      WHERE payload->>'reportRequestId' = $1
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `,
+    [reportRequestId]
+  );
+
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    requestId: String(row.request_id),
+    submittedAt: String(row.submitted_at),
+    email: String(row.email),
+    companyName: String(row.company_name),
+    supportPlatform: typeof row.support_platform === 'string' ? row.support_platform : null,
+    csvBlobUrl: String(row.csv_blob_url),
+    csvFilename: String(row.csv_filename),
+    csvSizeBytes:
+      typeof row.csv_size_bytes === 'number'
+        ? row.csv_size_bytes
+        : row.csv_size_bytes != null
+          ? Number(row.csv_size_bytes)
+          : null,
+    sourcePage: typeof row.source_page === 'string' ? row.source_page : null,
+    sourceOffer: typeof row.source_offer === 'string' ? row.source_offer : null,
+    notificationStatus: String(row.notification_status),
+    notificationError:
+      typeof row.notification_error === 'string' ? row.notification_error : null,
+  };
+}
+
 export async function getGapReportPriceVariantByReportRequestId(
   reportRequestId: string
 ): Promise<DeflectionPriceVariantId | null> {

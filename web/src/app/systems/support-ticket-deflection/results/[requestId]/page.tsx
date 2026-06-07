@@ -15,8 +15,15 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
-import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
+import {
+  getGapReportPriceVariantByReportRequestId,
+  getGapReportSubmissionByReportRequestId,
+} from '@/lib/gap-report-intake-database';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
+import type {
+  FaqReportComebackAgeBucket,
+  FaqReportResultsAnalyticsContext,
+} from '@/lib/analytics';
 
 type PageProps = {
   params: Promise<{ requestId: string }>;
@@ -62,6 +69,21 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function comebackAgeBucket(
+  submittedAt: string | undefined,
+  now = new Date(),
+): FaqReportComebackAgeBucket {
+  if (!submittedAt) return 'unknown';
+  const submittedMs = Date.parse(submittedAt);
+  if (!Number.isFinite(submittedMs)) return 'unknown';
+  const elapsedDays = Math.max(0, Math.floor((now.getTime() - submittedMs) / 86_400_000));
+  if (elapsedDays === 0) return 'same_day';
+  if (elapsedDays <= 3) return 'day_1_3';
+  if (elapsedDays <= 7) return 'day_4_7';
+  if (elapsedDays <= 30) return 'day_8_30';
+  return 'over_30_days';
+}
+
 async function getServerBoundPriceVariantId(requestId: string) {
   try {
     return await getGapReportPriceVariantByReportRequestId(requestId);
@@ -74,6 +96,23 @@ async function getServerBoundPriceVariantId(requestId: string) {
   }
 }
 
+async function getResultsAnalyticsContext(
+  requestId: string,
+): Promise<FaqReportResultsAnalyticsContext> {
+  try {
+    const submission = await getGapReportSubmissionByReportRequestId(requestId);
+    return {
+      submissionAgeBucket: comebackAgeBucket(submission?.submittedAt),
+    };
+  } catch (error) {
+    console.error(
+      'deflection results: failed to load submission analytics context:',
+      error instanceof Error ? error.message : error,
+    );
+    return { submissionAgeBucket: 'unknown' };
+  }
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const artifact = await getArtifact(requestId);
@@ -82,6 +121,7 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   const snapshot = await getSnapshot(requestId);
   const query = searchParams ? await searchParams : undefined;
   const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
+  const analyticsContext = await getResultsAnalyticsContext(requestId);
   const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
   if (
     process.env.NODE_ENV === 'production' &&
@@ -103,6 +143,7 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
       requestId={requestId}
       checkoutStatus={checkoutStatus(query?.checkout)}
       priceVariant={priceVariant}
+      analyticsContext={analyticsContext}
     />
   );
 }

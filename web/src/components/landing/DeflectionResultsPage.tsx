@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -14,6 +14,11 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import {
+  trackFaqReportResultsViewed,
+  trackFaqReportUnlockClicked,
+  type FaqReportResultsAnalyticsContext,
+} from '@/lib/analytics';
 import {
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
@@ -45,12 +50,14 @@ export function DeflectionResultsPage({
   companyName,
   checkoutStatus,
   priceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
+  analyticsContext,
 }: {
   snapshot: DeflectionSnapshot;
   requestId: string;
   companyName?: string;
   checkoutStatus?: 'success' | 'cancel';
   priceVariant?: DeflectionPriceVariant;
+  analyticsContext?: FaqReportResultsAnalyticsContext;
 }) {
   const { summary, top_questions, locked_questions, teaser } = snapshot;
   const fullReportPriceLabel = priceVariant.priceLabel;
@@ -79,6 +86,7 @@ export function DeflectionResultsPage({
   const [finalizing, setFinalizing] = useState(checkoutStatus === 'success');
   const [finalizingTimedOut, setFinalizingTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const resultsViewTracked = useRef(false);
   const unlockLabel = finalizing
     ? 'Finalizing report...'
     : finalizingTimedOut
@@ -87,6 +95,21 @@ export function DeflectionResultsPage({
         ? 'Starting checkout...'
         : `Unlock the full report - ${fullReportPriceLabel}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
+
+  const trackedResultsContext = {
+    submissionAgeBucket: analyticsContext?.submissionAgeBucket,
+    priceVariant: priceVariant.id,
+    checkoutStatus: checkoutStatus ?? 'none',
+    generatedQuestionCount: summary.generated,
+    draftedAnswerCount: summary.drafted_answer_count,
+    lockedQuestionCount: locked_questions.length,
+  } satisfies FaqReportResultsAnalyticsContext;
+
+  useEffect(() => {
+    if (resultsViewTracked.current) return;
+    resultsViewTracked.current = true;
+    trackFaqReportResultsViewed(trackedResultsContext);
+  }, [trackedResultsContext]);
 
   useEffect(() => {
     if (checkoutStatus !== 'success') return undefined;
@@ -133,6 +156,7 @@ export function DeflectionResultsPage({
   async function handleUnlock() {
     setLoading(true);
     setError(null);
+    trackFaqReportUnlockClicked(trackedResultsContext);
     const attemptId =
       typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()

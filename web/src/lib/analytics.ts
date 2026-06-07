@@ -8,6 +8,22 @@ type AnalyticsValue = string | number | boolean | null | undefined;
 type AnalyticsParams = Record<string, AnalyticsValue>;
 type GtagCommand = 'config' | 'event' | 'set';
 type Gtag = (command: GtagCommand, target: string, params?: AnalyticsParams) => void;
+export type FaqReportComebackAgeBucket =
+  | 'same_day'
+  | 'day_1_3'
+  | 'day_4_7'
+  | 'day_8_30'
+  | 'over_30_days'
+  | 'unknown';
+
+export type FaqReportResultsAnalyticsContext = {
+  submissionAgeBucket?: FaqReportComebackAgeBucket;
+  priceVariant?: string;
+  checkoutStatus?: string;
+  generatedQuestionCount?: number;
+  draftedAnswerCount?: number;
+  lockedQuestionCount?: number;
+};
 
 declare global {
   interface Window {
@@ -27,6 +43,12 @@ function canTrack() {
 function safeDimension(value: string | undefined, fallback: string) {
   const trimmed = value?.trim();
   return (trimmed || fallback).slice(0, 100);
+}
+
+function safeCount(value: number | undefined) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+    ? Math.round(value)
+    : undefined;
 }
 
 export function trackPageView(path: string) {
@@ -88,4 +110,23 @@ export function trackFaqReportCsvSubmitted({
     source_offer: safeDimension(sourceOffer, 'none'),
     submission_status: safeDimension(status, 'submitted'),
   });
+}
+
+function faqReportResultsParams(context: FaqReportResultsAnalyticsContext) {
+  return {
+    submission_age_bucket: safeDimension(context.submissionAgeBucket, 'unknown'),
+    price_variant: safeDimension(context.priceVariant, 'standard'),
+    checkout_status: safeDimension(context.checkoutStatus, 'none'),
+    generated_questions: safeCount(context.generatedQuestionCount),
+    drafted_answers: safeCount(context.draftedAnswerCount),
+    locked_questions: safeCount(context.lockedQuestionCount),
+  };
+}
+
+export function trackFaqReportResultsViewed(context: FaqReportResultsAnalyticsContext) {
+  trackEvent('faq_report_results_viewed', faqReportResultsParams(context));
+}
+
+export function trackFaqReportUnlockClicked(context: FaqReportResultsAnalyticsContext) {
+  trackEvent('faq_report_unlock_clicked', faqReportResultsParams(context));
 }
