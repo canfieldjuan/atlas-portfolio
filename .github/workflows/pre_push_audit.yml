@@ -75,6 +75,9 @@ jobs:
       - name: Deflection email results-link tests
         run: npm --prefix web run test:deflection-email-results-link
 
+      - name: Deflection comeback analytics tests
+        run: npm --prefix web run test:deflection-comeback-analytics
+
       - name: Deflection hosted Checkout smoke tests
         run: npm --prefix web run test:deflection-hosted-checkout-smoke
 

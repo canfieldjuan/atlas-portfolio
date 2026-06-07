@@ -253,6 +253,34 @@ export async function getGapReportSubmissionByRequestId(
   };
 }
 
+export async function getGapReportSubmittedAtByReportRequestId(
+  reportRequestId: string
+): Promise<string | null> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return null;
+  }
+
+  const rows = await sql.query(
+    `
+      SELECT
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at
+      FROM portfolio_gap_report_submissions
+      WHERE payload->>'reportRequestId' = $1
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `,
+    [reportRequestId]
+  );
+
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return String(row.submitted_at);
+}
+
 export async function getGapReportPriceVariantByReportRequestId(
   reportRequestId: string
 ): Promise<DeflectionPriceVariantId | null> {
