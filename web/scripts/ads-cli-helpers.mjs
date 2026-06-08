@@ -70,7 +70,7 @@ export function isBareFlag(parsed, name) {
   return typeof raw === 'string' && raw.trim() === '';
 }
 
-export function resolveRepoPath(path) {
+function resolveRepoPath(path) {
   return isAbsolute(path) ? path : resolve(repoRoot, path);
 }
 

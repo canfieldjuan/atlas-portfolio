@@ -5,11 +5,6 @@
   "issues": [
     {
       "type": "exports",
-      "file": "scripts/ads-cli-helpers.mjs",
-      "name": "resolveRepoPath"
-    },
-    {
-      "type": "exports",
       "file": "scripts/ads-spec-io.mjs",
       "name": "readCsv"
     },
