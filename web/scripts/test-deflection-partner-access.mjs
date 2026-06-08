@@ -39,9 +39,11 @@ const nextStubDir = join(testDir, 'node_modules', 'next');
 const ACCESS_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const SIGNING_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const PERSIST_ENV_KEY = 'GAP_REPORT_TEST_PERSIST';
+const SUBMIT_REASON_ENV_KEY = 'ATLAS_SUBMIT_TEST_REASON';
 const originalAccessEnv = process.env[ACCESS_ENV_KEY];
 const originalSigningEnv = process.env[SIGNING_ENV_KEY];
 const originalPersistEnv = process.env[PERSIST_ENV_KEY];
+const originalSubmitReasonEnv = process.env[SUBMIT_REASON_ENV_KEY];
 
 function resetTokens({ access, signing } = {}) {
   delete process.env[ACCESS_ENV_KEY];
@@ -264,12 +266,24 @@ try {
 
   await writeFile(
     join(libStubDir, 'gap-report-intake-database.js'),
-    "exports.persistGapReportSubmission = async () => process.env.GAP_REPORT_TEST_PERSIST !== 'false';\n",
+    [
+      'exports.persistGapReportSubmission = async () => {',
+      '  globalThis.__gapReportPersistCalls = (globalThis.__gapReportPersistCalls || 0) + 1;',
+      "  return process.env.GAP_REPORT_TEST_PERSIST !== 'false';",
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(join(libStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
     join(libStubDir, 'atlas-deflection-client.js'),
-    "exports.submitDeflectionReportCsv = async () => ({ ok: true, requestId: 'content-ops-unit-123' });\n",
+    [
+      'exports.submitDeflectionReportCsv = async () => {',
+      '  const reason = process.env.ATLAS_SUBMIT_TEST_REASON;',
+      "  return reason ? { ok: false, reason } : { ok: true, requestId: 'content-ops-unit-123' };",
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(blobStubDir, 'index.js'),
@@ -298,6 +312,7 @@ try {
   });
   await writeFile(compiledRecordRoutePath, compiledRecordRoute.outputText);
   const { POST } = require(compiledRecordRoutePath);
+  globalThis.__gapReportPersistCalls = 0;
 
   resetTokens({ access: 'signed-partner-token' });
   const forgedPartnerRecord = await POST(
@@ -322,6 +337,78 @@ try {
     ok: false,
     error: 'Invalid partner price access token.',
   });
+
+  const submitFailureFixtures = [
+    {
+      reason: 'not_configured',
+      status: 503,
+      error:
+        'Deflection report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+    },
+    {
+      reason: 'blob_not_found',
+      status: 400,
+      error: 'We could not read the uploaded CSV. Please retry the upload.',
+    },
+    {
+      reason: 'invalid_response',
+      status: 502,
+      error:
+        'Deflection report generation returned an unexpected response. Please try again or email us directly.',
+    },
+    {
+      reason: 'rejected',
+      status: 502,
+      error:
+        'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+    },
+    {
+      reason: 'error',
+      status: 503,
+      error:
+        'Deflection report generation failed. Please try again in a moment or email us directly.',
+    },
+  ];
+  const originalConsoleError = console.error;
+  console.error = () => {};
+  try {
+    for (const { reason, status, error } of submitFailureFixtures) {
+      process.env[SUBMIT_REASON_ENV_KEY] = reason;
+      const persistCallsBeforeSubmitFailure = globalThis.__gapReportPersistCalls;
+      const atlasSubmitFailure = await POST(
+        new Request('https://unit.test/api/gap-report-intake/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Alex Lee',
+            email: 'alex@example.com',
+            companyName: 'Effingham Office Maids',
+            supportPlatform: 'helpscout',
+            csvFilename: 'tickets.csv',
+            sourcePage: '/systems/support-ticket-deflection/intake',
+            sourceOffer: 'support-ticket-deflection-intake',
+            priceVariant: 'standard',
+            blobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
+          }),
+        }),
+      );
+      assert.equal(atlasSubmitFailure.status, status);
+      assert.deepEqual(await atlasSubmitFailure.json(), {
+        ok: false,
+        status: 'failed_to_submit',
+        reason,
+        error,
+      });
+      assert.equal(
+        globalThis.__gapReportPersistCalls,
+        persistCallsBeforeSubmitFailure,
+        'failed ATLAS submit should not persist a successful local intake row',
+      );
+    }
+  } finally {
+    console.error = originalConsoleError;
+    delete process.env[SUBMIT_REASON_ENV_KEY];
+  }
 
   process.env[PERSIST_ENV_KEY] = 'false';
   const validPartnerWithoutPersistence = await POST(
@@ -381,8 +468,13 @@ try {
   delete process.env[ACCESS_ENV_KEY];
   delete process.env[SIGNING_ENV_KEY];
   delete process.env[PERSIST_ENV_KEY];
+  delete process.env[SUBMIT_REASON_ENV_KEY];
   if (originalAccessEnv !== undefined) process.env[ACCESS_ENV_KEY] = originalAccessEnv;
   if (originalSigningEnv !== undefined) process.env[SIGNING_ENV_KEY] = originalSigningEnv;
   if (originalPersistEnv !== undefined) process.env[PERSIST_ENV_KEY] = originalPersistEnv;
+  if (originalSubmitReasonEnv !== undefined) {
+    process.env[SUBMIT_REASON_ENV_KEY] = originalSubmitReasonEnv;
+  }
+  delete globalThis.__gapReportPersistCalls;
   await rm(testDir, { recursive: true, force: true });
 }
