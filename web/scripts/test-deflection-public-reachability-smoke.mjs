@@ -155,6 +155,33 @@ const intakeLayoutSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/intake/layout.tsx', import.meta.url),
   'utf8',
 );
+const staleDeliverySources = [
+  [
+    'long-form landing config',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/landingConfig-v2.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'shared pricing config',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/landingConfig.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'partner metadata',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/partner/layout.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'confirmation email fallback',
+    await readFile(new URL('../src/lib/gap-report-intake.ts', import.meta.url), 'utf8'),
+  ],
+];
 
 assert.ok(
   intakePageSource.includes('Upload your tickets. Get the repeat-question snapshot in seconds.'),
@@ -176,5 +203,11 @@ assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),
   'partner intake should keep partner route attribution',
 );
+for (const [label, source] of staleDeliverySources) {
+  assert.ok(
+    !source.includes('24 hours'),
+    `${label} should not retain stale 24-hour deflection delivery copy`,
+  );
+}
 
 console.log('Deflection public reachability smoke tests passed.');
