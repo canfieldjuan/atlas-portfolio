@@ -32,22 +32,22 @@ function cleanBlobToken(value: string | undefined) {
   return token || undefined;
 }
 
-// The atlas-portfolio project has multiple Vercel Blob stores connected. The
-// raw CSV intake uses private blobs, so prefer the private-capable default store
-// and keep the legacy prefixed store only as a fallback for older environments.
-// The ordered list lets URL-based reads/deletes retry legacy CSV blobs created
-// before the private-store switch.
+// New raw CSV uploads use the private-capable default Blob store only. If that
+// token is missing, fail closed instead of falling through to the legacy public
+// store.
+export function gapReportBlobToken(): string | undefined {
+  return cleanBlobToken(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+// The atlas-portfolio project previously wrote CSVs to a prefixed legacy Blob
+// store. URL-based reads/deletes keep the ordered list so admin download, ATLAS
+// submit, and retention cleanup can still reach legacy CSV blobs created before
+// the private-store switch.
 export function gapReportBlobTokens(): string[] {
   return [
     cleanBlobToken(process.env.BLOB_READ_WRITE_TOKEN),
     cleanBlobToken(process.env.ticke_deflection_blob_READ_WRITE_TOKEN),
   ].filter((token, index, tokens): token is string => Boolean(token) && tokens.indexOf(token) === index);
-}
-
-// Returns undefined when neither is set, so the SDK surfaces its own "no token"
-// error rather than us masking it. One source of truth for new CSV Blob writes.
-export function gapReportBlobToken(): string | undefined {
-  return gapReportBlobTokens()[0];
 }
 
 export type GapReportMetadata = {
