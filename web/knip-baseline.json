@@ -50,11 +50,6 @@
     },
     {
       "type": "exports",
-      "file": "src/lib/admin-intake-auth.ts",
-      "name": "adminIntakeToken"
-    },
-    {
-      "type": "exports",
       "file": "src/lib/analytics.ts",
       "name": "redactAnalyticsPath"
     },
