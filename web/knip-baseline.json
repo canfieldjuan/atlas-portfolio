@@ -20,11 +20,6 @@
     },
     {
       "type": "exports",
-      "file": "scripts/google-ads-api.mjs",
-      "name": "formatDashedCustomerId"
-    },
-    {
-      "type": "exports",
       "file": "scripts/google-ads-artifact-contracts.mjs",
       "name": "GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS"
     },

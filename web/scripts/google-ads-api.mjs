@@ -2,7 +2,7 @@ import { envValue, maskCustomerId, normalizeCustomerId } from './google-ads-env.
 
 export const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
-export function formatDashedCustomerId(value) {
+function formatDashedCustomerId(value) {
   const normalized = normalizeCustomerId(value);
   if (normalized.length !== 10) {
     return normalized;
