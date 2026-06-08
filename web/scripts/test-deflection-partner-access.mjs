@@ -41,10 +41,12 @@ const ACCESS_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const SIGNING_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const PERSIST_ENV_KEY = 'GAP_REPORT_TEST_PERSIST';
 const SUBMIT_REASON_ENV_KEY = 'ATLAS_SUBMIT_TEST_REASON';
+const HEAD_FAIL_ENV_KEY = 'GAP_REPORT_TEST_HEAD_FAIL';
 const originalAccessEnv = process.env[ACCESS_ENV_KEY];
 const originalSigningEnv = process.env[SIGNING_ENV_KEY];
 const originalPersistEnv = process.env[PERSIST_ENV_KEY];
 const originalSubmitReasonEnv = process.env[SUBMIT_REASON_ENV_KEY];
+const originalHeadFailEnv = process.env[HEAD_FAIL_ENV_KEY];
 
 function resetTokens({ access, signing } = {}) {
   delete process.env[ACCESS_ENV_KEY];
@@ -297,6 +299,7 @@ try {
     [
       'exports.head = async () => {',
       '  globalThis.__gapReportHeadCalls = (globalThis.__gapReportHeadCalls || 0) + 1;',
+      "  if (process.env.GAP_REPORT_TEST_HEAD_FAIL === 'true') throw new Error('not found');",
       "  return { url: 'https://blob.example/gap-report-csvs/unit.csv' };",
       '};',
       '',
@@ -406,6 +409,22 @@ try {
   assert.equal(globalThis.__atlasSubmitCalls, submitCallsBeforeDuplicate);
   assert.equal(globalThis.__gapReportPersistCalls, persistCallsBeforeDuplicate);
   delete globalThis.__gapReportExistingSubmission;
+  delete globalThis.__atlasDeflectionRateLimitStore;
+
+  process.env[HEAD_FAIL_ENV_KEY] = 'true';
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const forgedBlob = await POST(
+      recordRequest({ ip: `198.51.100.${attempt + 10}`, email: 'victim@example.com' }),
+    );
+    assert.equal(forgedBlob.status, 400);
+    assert.deepEqual(await forgedBlob.json(), { ok: false, error: 'Upload not found.' });
+  }
+  delete process.env[HEAD_FAIL_ENV_KEY];
+  const validVictimRecord = await POST(
+    recordRequest({ ip: '198.51.100.50', email: 'victim@example.com' }),
+  );
+  assert.equal(validVictimRecord.status, 200);
+  assert.equal((await validVictimRecord.json()).reportRequestId, 'content-ops-unit-123');
   delete globalThis.__atlasDeflectionRateLimitStore;
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -563,12 +582,14 @@ try {
   delete process.env[SIGNING_ENV_KEY];
   delete process.env[PERSIST_ENV_KEY];
   delete process.env[SUBMIT_REASON_ENV_KEY];
+  delete process.env[HEAD_FAIL_ENV_KEY];
   if (originalAccessEnv !== undefined) process.env[ACCESS_ENV_KEY] = originalAccessEnv;
   if (originalSigningEnv !== undefined) process.env[SIGNING_ENV_KEY] = originalSigningEnv;
   if (originalPersistEnv !== undefined) process.env[PERSIST_ENV_KEY] = originalPersistEnv;
   if (originalSubmitReasonEnv !== undefined) {
     process.env[SUBMIT_REASON_ENV_KEY] = originalSubmitReasonEnv;
   }
+  if (originalHeadFailEnv !== undefined) process.env[HEAD_FAIL_ENV_KEY] = originalHeadFailEnv;
   delete globalThis.__atlasDeflectionRateLimitStore;
   delete globalThis.__atlasSubmitCalls;
   delete globalThis.__gapReportDuplicateLookupCalls;

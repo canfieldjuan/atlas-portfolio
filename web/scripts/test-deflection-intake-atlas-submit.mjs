@@ -506,8 +506,9 @@ try {
     'record route returns a typed ATLAS submit failure status',
   );
   assert.ok(
-    recordRoute.includes('consumeRecordRateLimits(request.headers, meta.value.email)'),
-    'record route rate-limits support deflection record submissions by client/email',
+    recordRoute.includes('consumeRecordClientRateLimit(request.headers)') &&
+      recordRoute.includes('consumeRecordEmailRateLimit(meta.value.email)'),
+    'record route rate-limits support deflection record submissions by client and email',
   );
   assert.ok(
     recordRoute.includes('getRecentGapReportSubmissionByEmailAndBlob'),

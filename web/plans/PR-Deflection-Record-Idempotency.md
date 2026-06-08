@@ -15,7 +15,7 @@ Slice phase: Production hardening
 Ownership lane: deflection/go-live
 
 1. Rate-limit support-ticket-deflection `/record` submissions by client IP and
-   normalized email.
+   normalized email without charging email buckets for unowned blob URLs.
 2. Before `submitDeflectionReportCsv(...)`, look up an existing
    support-ticket-deflection row for the same `email + csvBlobUrl` within one
    hour.
@@ -42,8 +42,9 @@ Ownership lane: deflection/go-live
 ### Review Contract
 
 Acceptance criteria:
-- Exhausted IP or email buckets return `429` with `Retry-After` before Blob
-  ownership, ATLAS submit, or persistence.
+- Exhausted IP buckets return `429` before Blob ownership; exhausted email
+  buckets return `429` only after Blob ownership is confirmed and before ATLAS
+  submit or persistence.
 - A duplicate support-ticket-deflection record request for the same email and
   blob URL within one hour returns the existing `requestId` and `reportRequestId`
   with `ok: true` and `status: "already_submitted"`.
@@ -68,8 +69,9 @@ Triggered reviewer rules:
 
 ## Mechanism
 
-After metadata validation, the route consumes two best-effort in-memory buckets:
-client IP and normalized email.
+After metadata validation, the route consumes the client-IP bucket before Blob
+ownership. After `hasOwnedBlob(...)` confirms the upload belongs to our store,
+it consumes the normalized-email bucket before duplicate lookup or ATLAS submit.
 
 For support-ticket-deflection records, the route then asks the database helper
 for a recent row matching lowercased email, exact CSV blob URL, the support
@@ -102,7 +104,8 @@ Parked hardening: none.
   `test:deflection-partner-access`, `test:deflection-intake-atlas-submit`,
   `test:deflection-browser-upload-smoke`, `test:deflection-csv-privacy`, and
   `test:deflection-email-results-link`. The partner harness covers duplicate
-  no-ATLAS/no-persistence and 429-before-side-effects branches.
+  no-ATLAS/no-persistence, forged-unowned-blob no-email-quota, and
+  429-before-side-effects branches.
 - `npm --prefix web run check:dead-code` - passed; Knip baseline still matches
   16 known findings.
 - `npm --prefix web run lint` - passed.
@@ -110,17 +113,17 @@ Parked hardening: none.
 - `git diff --check` - passed.
 - `bash scripts/local_pr_review.sh` - passed; plan audits, drift check, Knip,
   ESLint, Next build, and `git diff --check` all passed.
-- `rg -n "already_submitted|Too many submission attempts|getRecentGapReportSubmissionByEmailAndBlob|consumeDeflectionIdentifierRateLimit|disabled=\\{isSubmitting\\}|submitDeflectionReportCsv" web/src web/scripts web/plans/PR-Deflection-Record-Idempotency.md`
+- `rg -n "already_submitted|Too many submission attempts|getRecentGapReportSubmissionByEmailAndBlob|consumeRecordClientRateLimit|consumeRecordEmailRateLimit|disabled=\\{isSubmitting\\}|submitDeflectionReportCsv" web/src web/scripts web/plans/PR-Deflection-Record-Idempotency.md`
   - confirmed new duplicate, rate-limit, and in-flight button hooks.
 
 ## Estimated diff size
 
 | Area | Estimate |
 | --- | ---: |
-| Plan doc | +126 |
+| Plan doc | +128 |
 | Rate-limit helper and focused test | +55 / -5 |
 | DB duplicate lookup | +45 |
 | Record route hook | +50 |
-| Route harness regressions | +90 / -10 |
+| Route harness regressions | +110 / -10 |
 | Intake button state | +10 |
-| Total | ~417 changed |
+| Total | ~445 changed |

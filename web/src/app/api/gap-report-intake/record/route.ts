@@ -89,13 +89,11 @@ function recordRateLimitResponse(retryAfterSeconds: number) {
   );
 }
 
-function consumeRecordRateLimits(headers: Headers, email: string) {
-  const clientRateLimit = consumeDeflectionRateLimit(
-    headers,
-    'record',
-    RECORD_CLIENT_RATE_LIMIT,
-  );
-  if (!clientRateLimit.ok) return clientRateLimit;
+function consumeRecordClientRateLimit(headers: Headers) {
+  return consumeDeflectionRateLimit(headers, 'record', RECORD_CLIENT_RATE_LIMIT);
+}
+
+function consumeRecordEmailRateLimit(email: string) {
   return consumeDeflectionIdentifierRateLimit(email, RECORD_EMAIL_RATE_LIMIT);
 }
 
@@ -161,7 +159,7 @@ export async function POST(request: Request) {
   }
 
   if (meta.value.sourceOffer === SUPPORT_DEFLECTION_SOURCE_OFFER) {
-    const rateLimit = consumeRecordRateLimits(request.headers, meta.value.email);
+    const rateLimit = consumeRecordClientRateLimit(request.headers);
     if (!rateLimit.ok) {
       return recordRateLimitResponse(rateLimit.retryAfterSeconds);
     }
@@ -173,6 +171,13 @@ export async function POST(request: Request) {
   // against the store the private CSV was actually uploaded to.
   if (!(await hasOwnedBlob(blobUrl))) {
     return NextResponse.json({ ok: false, error: 'Upload not found.' }, { status: 400 });
+  }
+
+  if (meta.value.sourceOffer === SUPPORT_DEFLECTION_SOURCE_OFFER) {
+    const rateLimit = consumeRecordEmailRateLimit(meta.value.email);
+    if (!rateLimit.ok) {
+      return recordRateLimitResponse(rateLimit.retryAfterSeconds);
+    }
   }
 
   try {
