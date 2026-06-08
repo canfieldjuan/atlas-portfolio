@@ -6,10 +6,59 @@ import {
   parseGapReportMetadata,
   recordGapReportSubmission,
 } from '@/lib/gap-report-intake';
-import { submitDeflectionReportCsv } from '@/lib/atlas-deflection-client';
+import {
+  submitDeflectionReportCsv,
+  type DeflectionSubmitResult,
+} from '@/lib/atlas-deflection-client';
 import { DEFLECTION_PARTNER_PRICE_VARIANT_ID } from '@/lib/deflection-pricing';
 
 export const runtime = 'nodejs';
+
+type DeflectionSubmitFailureReason = Extract<DeflectionSubmitResult, { ok: false }>['reason'];
+
+const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
+  DeflectionSubmitFailureReason,
+  { httpStatus: number; error: string }
+> = {
+  not_configured: {
+    httpStatus: 503,
+    error:
+      'Deflection report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+  },
+  blob_not_found: {
+    httpStatus: 400,
+    error: 'We could not read the uploaded CSV. Please retry the upload.',
+  },
+  invalid_response: {
+    httpStatus: 502,
+    error:
+      'Deflection report generation returned an unexpected response. Please try again or email us directly.',
+  },
+  rejected: {
+    httpStatus: 502,
+    error:
+      'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+  },
+  error: {
+    httpStatus: 503,
+    error:
+      'Deflection report generation failed. Please try again in a moment or email us directly.',
+  },
+};
+
+function deflectionSubmitFailureResponse(reason: DeflectionSubmitFailureReason) {
+  const failure = DEFLECTION_SUBMIT_FAILURE_COPY[reason];
+  console.error(`deflection record: ATLAS submit failed (${reason})`);
+  return NextResponse.json(
+    {
+      ok: false,
+      status: 'failed_to_submit',
+      reason,
+      error: failure.error,
+    },
+    { status: failure.httpStatus },
+  );
+}
 
 async function hasOwnedBlob(blobUrl: string) {
   const tokens = gapReportBlobTokens();
@@ -75,7 +124,7 @@ export async function POST(request: Request) {
       if (submit.ok) {
         reportRequestId = submit.requestId;
       } else {
-        warnings.push('Deflection report was not generated immediately.');
+        return deflectionSubmitFailureResponse(submit.reason);
       }
     }
 

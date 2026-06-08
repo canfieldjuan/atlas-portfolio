@@ -497,6 +497,19 @@ try {
   const recordRoute = await readFile(recordRouteUrl, 'utf8');
   assert.ok(recordRoute.includes('submitDeflectionReportCsv'), 'record route calls ATLAS submit');
   assert.ok(recordRoute.includes('reportRequestId'), 'record route returns reportRequestId');
+  assert.ok(
+    recordRoute.includes('deflectionSubmitFailureResponse(submit.reason)'),
+    'record route fails closed when ATLAS submit fails',
+  );
+  assert.ok(
+    recordRoute.includes("status: 'failed_to_submit'"),
+    'record route returns a typed ATLAS submit failure status',
+  );
+  assert.equal(
+    recordRoute.includes('Deflection report was not generated immediately.'),
+    false,
+    'record route should not turn ATLAS submit failures into success warnings',
+  );
 
   const intakePage = await readFile(intakePageUrl, 'utf8');
   assert.ok(

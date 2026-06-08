@@ -319,19 +319,24 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
     {},
     [
       {
-        status: 200,
+        status: 502,
         body: {
-          ok: true,
-          requestId: '11111111-1111-4111-8111-111111111111',
-          warnings: ['Deflection report was not generated immediately.'],
+          ok: false,
+          status: 'failed_to_submit',
+          reason: 'rejected',
+          error:
+            'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
         },
       },
     ],
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'record');
-  assert.equal(result.error, 'Record route did not return a valid reportRequestId for redirect.');
-  assert.deepEqual(result.warnings, ['Deflection report was not generated immediately.']);
+  assert.equal(result.recordStatus, 502);
+  assert.equal(
+    result.error,
+    'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+  );
 }
 
 {
