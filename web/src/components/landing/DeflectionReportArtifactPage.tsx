@@ -147,7 +147,7 @@ function MarkdownDeliverable({ markdown }: { markdown: string }) {
           const [header, ...body] = block.rows;
           return (
             <div key={block.key} className="mt-4 overflow-x-auto rounded-xl border border-border">
-              <table className="min-w-full border-collapse text-left text-sm">
+              <table className="w-full min-w-[760px] border-collapse text-left text-sm">
                 <thead className="bg-background/50 text-foreground">
                   <tr>
                     {header.map((cell, cellIndex) => (
@@ -224,7 +224,7 @@ function ProofBadges({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
   );
 }
 
-function ReportContentsPanel({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
+function ReportContentsPrimer({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
   const contents = [
     {
       label: 'Support Tax Confirmation',
@@ -249,20 +249,26 @@ function ReportContentsPanel({ artifact }: { artifact: FAQDeflectionReportArtifa
   ];
 
   return (
-    <aside className="rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-6 lg:self-start">
-      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
-        <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-        Paid report contents
+    <aside className="rounded-2xl border border-border bg-surface p-5 md:p-6">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          Paid report contents
+        </div>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/60">
+          A quick map of the unlocked report before the full ranked backlog,
+          copy drafts, and evidence appendix.
+        </p>
       </div>
 
-      <dl className="mt-4 space-y-3 text-sm">
+      <dl className="mt-5 grid gap-4 border-t border-border/70 pt-5 text-sm md:grid-cols-[minmax(0,1fr)_180px]">
         <div>
           <dt className="text-foreground/45">First ranked opportunity</dt>
           <dd className="mt-1 font-medium leading-snug text-foreground">
             {artifact.summary.top_question}
           </dd>
         </div>
-        <div>
+        <div className="border-t border-border/60 pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
           <dt className="text-foreground/45">Top opportunity score</dt>
           <dd className="mt-1 font-mono text-foreground">
             {artifact.summary.top_opportunity_score}
@@ -270,17 +276,22 @@ function ReportContentsPanel({ artifact }: { artifact: FAQDeflectionReportArtifa
         </div>
       </dl>
 
-      <ul className="mt-5 space-y-3 text-sm leading-relaxed text-foreground/65">
-        {contents.map((item) => (
-          <li key={item.label} className="flex gap-2">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span>
-              <strong className="text-foreground">{item.label}</strong>
-              <span className="block text-foreground/55">{item.detail}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-5 border-t border-border/70 pt-5">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+          Report map
+        </div>
+        <ul className="mt-3 grid gap-x-5 gap-y-4 text-sm leading-relaxed text-foreground/65 md:grid-cols-2">
+          {contents.map((item) => (
+            <li key={item.label} className="flex gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>
+                <strong className="text-foreground">{item.label}</strong>
+                <span className="block text-foreground/55">{item.detail}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </aside>
   );
 }
@@ -374,9 +385,9 @@ export function DeflectionReportArtifactPage({
 
         <ProofBadges artifact={artifact} />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mt-8 space-y-8">
+          <ReportContentsPrimer artifact={artifact} />
           <MarkdownDeliverable markdown={artifact.markdown} />
-          <ReportContentsPanel artifact={artifact} />
         </div>
 
         <PaidReviewerGuidance artifact={artifact} />
