@@ -88,7 +88,11 @@ Parked hardening: none.
 - `npm --prefix web run check:dead-code` - passed; Knip baseline matches 22
   known findings.
 - `npm --prefix web run test:dead-code-baseline` - passed; fixture tests cover
-  pass, new finding, resolved finding, and malformed input failure cases.
+  pass, new finding, resolved finding, namespace export/type findings, and
+  malformed input failure cases.
+- `npm exec -- knip --reporter json --no-exit-code --no-progress` from `web/` -
+  passed; no current `nsExports` or `nsTypes` findings, so the baseline remains
+  22 findings after adding namespace issue types.
 - `npm --prefix web run lint` - passed.
 - `npm --prefix web run build` - passed.
 - `bash scripts/local_pr_review.sh` - passed.

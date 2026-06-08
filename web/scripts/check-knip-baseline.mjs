@@ -12,6 +12,8 @@ const ISSUE_TYPES = [
   'exports',
   'files',
   'namespaceMembers',
+  'nsExports',
+  'nsTypes',
   'optionalPeerDependencies',
   'types',
   'unlisted',

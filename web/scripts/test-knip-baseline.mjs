@@ -58,6 +58,24 @@ const currentReport = {
 
 {
   const current = normalizeKnipReport({
+    issues: [
+      ...currentReport.issues,
+      {
+        file: 'src/namespace.ts',
+        nsExports: [{ name: 'NamespaceExport' }],
+        nsTypes: [{ name: 'NamespaceType' }],
+      },
+    ],
+  });
+  const diff = diffFindings(normalizeBaseline(baselineJson), current);
+  assert.deepEqual(
+    diff.added.map((finding) => `${finding.type}:${finding.name}`),
+    ['nsExports:NamespaceExport', 'nsTypes:NamespaceType'],
+  );
+}
+
+{
+  const current = normalizeKnipReport({
     issues: [currentReport.issues[0]],
   });
   const diff = diffFindings(normalizeBaseline(baselineJson), current);
