@@ -6,13 +6,32 @@ import {
   parseGapReportMetadata,
   recordGapReportSubmission,
 } from '@/lib/gap-report-intake';
+import { getRecentGapReportSubmissionByEmailAndBlob } from '@/lib/gap-report-intake-database';
 import {
   submitDeflectionReportCsv,
   type DeflectionSubmitResult,
 } from '@/lib/atlas-deflection-client';
 import { DEFLECTION_PARTNER_PRICE_VARIANT_ID } from '@/lib/deflection-pricing';
+import {
+  consumeDeflectionIdentifierRateLimit,
+  consumeDeflectionRateLimit,
+  type DeflectionRateLimitConfig,
+} from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
+
+const SUPPORT_DEFLECTION_SOURCE_OFFER = 'support-ticket-deflection-intake';
+const RECORD_CLIENT_RATE_LIMIT = {
+  scope: 'gap-report-record-ip',
+  limit: 3,
+  windowMs: 10 * 60 * 1000,
+} satisfies DeflectionRateLimitConfig;
+const RECORD_EMAIL_RATE_LIMIT = {
+  scope: 'gap-report-record-email',
+  limit: 3,
+  windowMs: 10 * 60 * 1000,
+} satisfies DeflectionRateLimitConfig;
+const RECENT_RECORD_DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
 
 type DeflectionSubmitFailureReason = Extract<DeflectionSubmitResult, { ok: false }>['reason'];
 
@@ -60,6 +79,47 @@ function deflectionSubmitFailureResponse(reason: DeflectionSubmitFailureReason) 
   );
 }
 
+function recordRateLimitResponse(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { ok: false, error: 'Too many submission attempts. Please try again later.' },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(retryAfterSeconds) },
+    },
+  );
+}
+
+function consumeRecordRateLimits(headers: Headers, email: string) {
+  const clientRateLimit = consumeDeflectionRateLimit(
+    headers,
+    'record',
+    RECORD_CLIENT_RATE_LIMIT,
+  );
+  if (!clientRateLimit.ok) return clientRateLimit;
+  return consumeDeflectionIdentifierRateLimit(email, RECORD_EMAIL_RATE_LIMIT);
+}
+
+async function findRecentDuplicateSubmission(email: string, blobUrl: string) {
+  const submittedAfterIso = new Date(Date.now() - RECENT_RECORD_DUPLICATE_WINDOW_MS).toISOString();
+  try {
+    return await getRecentGapReportSubmissionByEmailAndBlob(email, blobUrl, submittedAfterIso);
+  } catch (error) {
+    console.error('deflection record: duplicate lookup failed', error);
+    return null;
+  }
+}
+
+function duplicateRecordResponse(existing: { requestId: string; reportRequestId: string }) {
+  return NextResponse.json({
+    ok: true,
+    requestId: existing.requestId,
+    reportRequestId: existing.reportRequestId,
+    status: 'already_submitted',
+    warnings: [],
+    estimatedResponseHours: 24,
+  });
+}
+
 async function hasOwnedBlob(blobUrl: string) {
   const tokens = gapReportBlobTokens();
   const readTokens = tokens.length > 0 ? tokens : [gapReportBlobToken()];
@@ -100,6 +160,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'Invalid upload reference.' }, { status: 400 });
   }
 
+  if (meta.value.sourceOffer === SUPPORT_DEFLECTION_SOURCE_OFFER) {
+    const rateLimit = consumeRecordRateLimits(request.headers, meta.value.email);
+    if (!rateLimit.ok) {
+      return recordRateLimitResponse(rateLimit.retryAfterSeconds);
+    }
+  }
+
   // head() uses our store's token, so it only resolves blobs we own; this is the
   // authoritative check that the reported URL is a real upload in our namespace.
   // Same explicit intake-store token as /upload, so the ownership check runs
@@ -112,7 +179,12 @@ export async function POST(request: Request) {
     const warnings: string[] = [];
     let reportRequestId: string | undefined;
 
-    if (meta.value.sourceOffer === 'support-ticket-deflection-intake') {
+    if (meta.value.sourceOffer === SUPPORT_DEFLECTION_SOURCE_OFFER) {
+      const duplicate = await findRecentDuplicateSubmission(meta.value.email, blobUrl);
+      if (duplicate) {
+        return duplicateRecordResponse(duplicate);
+      }
+
       const submit = await submitDeflectionReportCsv({
         csvBlobUrl: blobUrl,
         csvFilename: meta.value.csvFilename,

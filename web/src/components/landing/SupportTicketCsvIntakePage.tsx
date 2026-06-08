@@ -78,6 +78,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
   const [errors, setErrors] = useState<FormErrors>({});
   const [submission, setSubmission] = useState<SubmissionStatus>({ phase: 'idle' });
   const processingHeadingRef = useRef<HTMLHeadingElement>(null);
+  const isSubmitting = submission.phase === 'submitting' || submission.phase === 'processing';
 
   useEffect(() => {
     if (submission.phase !== 'processing') return;
@@ -126,7 +127,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submission.phase === 'submitting') return;
+    if (isSubmitting) return;
     if (!validate()) return;
 
     const file = csvFile;
@@ -676,6 +677,8 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           <div className="pt-2">
             <button
               type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
               className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-black font-medium rounded-md hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm"
             >
               {copy.submitLabel}

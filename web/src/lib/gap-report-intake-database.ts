@@ -29,6 +29,12 @@ export type GapReportCleanupCandidate = {
   csvBlobUrl: string;
 };
 
+export type GapReportRecentDuplicateRow = {
+  requestId: string;
+  reportRequestId: string;
+  submittedAt: string;
+};
+
 function gapReportDatabaseUrl() {
   // Vercel's Neon/Postgres integration injects POSTGRES_URL by default, so falling
   // back to it lets persistence work on Vercel without a separate env-var alias.
@@ -250,6 +256,47 @@ export async function getGapReportSubmissionByRequestId(
     notificationStatus: String(row.notification_status),
     notificationError:
       typeof row.notification_error === 'string' ? row.notification_error : null,
+  };
+}
+
+export async function getRecentGapReportSubmissionByEmailAndBlob(
+  email: string,
+  csvBlobUrl: string,
+  submittedAfterIso: string,
+): Promise<GapReportRecentDuplicateRow | null> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return null;
+  }
+
+  const rows = await sql.query(
+    `
+      SELECT
+        request_id::text AS request_id,
+        payload->>'reportRequestId' AS report_request_id,
+        to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at
+      FROM portfolio_gap_report_submissions
+      WHERE lower(email) = lower($1)
+        AND csv_blob_url = $2
+        AND source_offer = 'support-ticket-deflection-intake'
+        AND submitted_at >= $3::timestamptz
+        AND payload->>'reportRequestId' IS NOT NULL
+        AND payload->>'reportRequestId' <> ''
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `,
+    [email, csvBlobUrl, submittedAfterIso]
+  );
+
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    requestId: String(row.request_id),
+    reportRequestId: String(row.report_request_id),
+    submittedAt: String(row.submitted_at),
   };
 }
 

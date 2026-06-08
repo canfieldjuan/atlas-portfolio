@@ -1,4 +1,4 @@
-type DeflectionRateLimitConfig = {
+export type DeflectionRateLimitConfig = {
   scope: string;
   limit: number;
   windowMs: number;
@@ -52,16 +52,14 @@ function nextRetryAfterSeconds(limitStore: Map<string, DeflectionRateLimitEntry>
   return Math.max(1, Math.ceil((resetAt - now) / 1000));
 }
 
-export function consumeDeflectionRateLimit(
-  headers: Headers,
-  requestId: string,
+function consumeDeflectionRateLimitKey(
+  key: string,
   config: DeflectionRateLimitConfig,
 ): DeflectionRateLimitResult {
   const now = Date.now();
   const limitStore = store();
   pruneExpired(limitStore, now);
 
-  const key = `${config.scope}:${clientIdentifier(headers)}:${requestId}`;
   const current = limitStore.get(key);
   if (!current || current.resetAt <= now) {
     if (limitStore.size >= MAX_ACTIVE_RATE_LIMIT_BUCKETS) {
@@ -80,4 +78,25 @@ export function consumeDeflectionRateLimit(
 
   current.count += 1;
   return { ok: true };
+}
+
+function cleanIdentifier(value: string) {
+  return value.trim().toLowerCase().slice(0, 128) || 'unknown';
+}
+
+export function consumeDeflectionRateLimit(
+  headers: Headers,
+  requestId: string,
+  config: DeflectionRateLimitConfig,
+): DeflectionRateLimitResult {
+  const key = `${config.scope}:${clientIdentifier(headers)}:${requestId}`;
+  return consumeDeflectionRateLimitKey(key, config);
+}
+
+export function consumeDeflectionIdentifierRateLimit(
+  identifier: string,
+  config: DeflectionRateLimitConfig,
+): DeflectionRateLimitResult {
+  const key = `${config.scope}:identifier:${cleanIdentifier(identifier)}`;
+  return consumeDeflectionRateLimitKey(key, config);
 }

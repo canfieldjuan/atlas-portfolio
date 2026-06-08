@@ -505,6 +505,18 @@ try {
     recordRoute.includes("status: 'failed_to_submit'"),
     'record route returns a typed ATLAS submit failure status',
   );
+  assert.ok(
+    recordRoute.includes('consumeRecordRateLimits(request.headers, meta.value.email)'),
+    'record route rate-limits support deflection record submissions by client/email',
+  );
+  assert.ok(
+    recordRoute.includes('getRecentGapReportSubmissionByEmailAndBlob'),
+    'record route checks for a recent duplicate before ATLAS submit',
+  );
+  assert.ok(
+    recordRoute.includes("status: 'already_submitted'"),
+    'record route returns a typed duplicate submission status',
+  );
   assert.equal(
     recordRoute.includes('Deflection report was not generated immediately.'),
     false,
@@ -524,6 +536,10 @@ try {
     intakePage.includes('window.setTimeout') &&
       intakePage.includes('window.location.assign(submission.resultsHref)'),
     'processing transition redirects to the validated results route after a delay',
+  );
+  assert.ok(
+    intakePage.includes('disabled={isSubmitting}') && intakePage.includes('aria-busy={isSubmitting}'),
+    'intake submit button is disabled while upload/record submission is in flight',
   );
   assert.ok(
     intakePage.includes('Snapshot processing steps') &&
