@@ -50,11 +50,6 @@
     },
     {
       "type": "exports",
-      "file": "src/app/systems/support-ticket-deflection/landingConfig.tsx",
-      "name": "GAP_REPORT_INTAKE_HREF"
-    },
-    {
-      "type": "exports",
       "file": "src/lib/admin-intake-auth.ts",
       "name": "adminIntakeToken"
     },
