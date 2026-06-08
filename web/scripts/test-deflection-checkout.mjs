@@ -120,6 +120,16 @@ try {
     ...defaultStripeSession,
     amount_total: DEFLECTION_FULL_REPORT_PRICE_CENTS,
   };
+  const standardCheckout = {
+    amountCents: DEFLECTION_FULL_REPORT_PRICE_CENTS,
+    currency: 'usd',
+    priceId: 'price_atlas_standard123',
+  };
+  const partnerCheckout = {
+    amountCents: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
+    currency: 'usd',
+    priceId: 'price_atlas_partner123',
+  };
 
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
@@ -153,6 +163,13 @@ try {
   await writeFile(compiledPath, compiled.outputText);
 
   const { createDeflectionCheckoutSession } = require(compiledPath);
+  const createSession = (checkout = standardCheckout, priceVariantId = undefined) =>
+    createDeflectionCheckoutSession(
+      'request-123',
+      'attempt-12345678',
+      checkout,
+      priceVariantId,
+    );
   installFetchMock();
 
   resetEnv({
@@ -162,18 +179,22 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
   assert.equal(calls[0].headers.Authorization, 'Bearer rk_live_unit_restricted');
-  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_standard123');
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
   assert.equal(calls[0].body.has('line_items[0][price_data][unit_amount]'), false);
   assert.equal(calls[0].body.get('metadata[account_id]'), 'acct_unit');
   assert.equal(calls[0].body.get('metadata[request_id]'), 'request-123');
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
-  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_standard123');
-  assert.equal(calls[0].body.has('metadata[price_amount_cents]'), false);
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_atlas_standard123');
+  assert.equal(
+    calls[0].body.get('metadata[price_amount_cents]'),
+    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
+  );
+  assert.equal(calls[0].body.get('metadata[price_currency]'), 'usd');
   assert.equal(
     calls[0].body.get('success_url'),
     'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=success',
@@ -196,13 +217,13 @@ try {
       `${DEFLECTION_FULL_REPORT_PRICE_CENTS}, ${DEFLECTION_PARTNER_PRICE_VARIANT.amountCents}`,
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
+    await createSession(partnerCheckout, 'partner'),
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_partner123');
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_partner123');
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'partner');
-  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_partner123');
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_atlas_partner123');
   assert.equal(
     calls[0].body.get('success_url'),
     'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=success&priceVariant=partner',
@@ -225,7 +246,7 @@ try {
       `${DEFLECTION_FULL_REPORT_PRICE_CENTS}, ${DEFLECTION_PARTNER_PRICE_VARIANT.amountCents}`,
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
+    await createSession(partnerCheckout, 'partner'),
     { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
@@ -241,10 +262,10 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'partner'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(partnerCheckout, 'partner'),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({
@@ -254,10 +275,11 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
 
   installFetchMock();
   resetEnv({
@@ -266,7 +288,7 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678', 'unknown'),
+    await createSession(standardCheckout, 'unknown'),
     { ok: false, reason: 'invalid_request' },
   );
   assert.equal(calls.length, 0);
@@ -278,7 +300,7 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
@@ -292,7 +314,7 @@ try {
       `${DEFLECTION_FULL_REPORT_PRICE_CENTS}, ${variantAmountCents}`,
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
@@ -304,7 +326,7 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
@@ -316,7 +338,7 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'error' },
   );
   assert.equal(calls.length, 1);
@@ -330,10 +352,10 @@ try {
       `${DEFLECTION_FULL_REPORT_PRICE_CENTS},,${variantAmountCents}`,
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({
@@ -343,10 +365,10 @@ try {
     NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS: '1500.00',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({
@@ -356,7 +378,7 @@ try {
     VERCEL_ENV: 'production',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'not_configured' },
   );
   assert.equal(calls.length, 0);
@@ -369,7 +391,7 @@ try {
     VERCEL_ENV: 'preview',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
@@ -381,10 +403,10 @@ try {
     ATLAS_ACCOUNT_ID: 'acct_unit',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({
@@ -393,26 +415,19 @@ try {
     VERCEL_ENV: 'preview',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
   assert.equal(calls[0].headers.Authorization, 'Bearer sk_test_unit_secret');
-  assert.equal(
-    calls[0].body.get('line_items[0][price_data][unit_amount]'),
-    String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
-  );
-  assert.equal(
-    calls[0].body.get('line_items[0][price_data][product_data][name]'),
-    DEFLECTION_DEFAULT_PRICE_VARIANT.stripeProductName,
-  );
-  assert.equal(calls[0].body.has('line_items[0][price]'), false);
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
+  assert.equal(calls[0].body.has('line_items[0][price_data][unit_amount]'), false);
   assert.equal(calls[0].body.get('metadata[price_variant]'), 'standard');
   assert.equal(
     calls[0].body.get('metadata[price_amount_cents]'),
     String(DEFLECTION_FULL_REPORT_PRICE_CENTS),
   );
-  assert.equal(calls[0].body.has('metadata[price_id]'), false);
+  assert.equal(calls[0].body.get('metadata[price_id]'), 'price_atlas_standard123');
 
   installFetchMock();
   resetEnv({
@@ -423,10 +438,10 @@ try {
       String(variantAmountCents),
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
-    { ok: false, reason: 'not_configured' },
+    await createSession(),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({
@@ -435,7 +450,7 @@ try {
     VERCEL_ENV: 'production',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'not_configured' },
   );
   assert.equal(calls.length, 0);
@@ -447,22 +462,35 @@ try {
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
   assert.deepEqual(
-    await createDeflectionCheckoutSession('request-123', 'attempt-12345678'),
+    await createSession(),
     { ok: false, reason: 'not_configured' },
   );
   assert.equal(calls.length, 0);
 
   await writeFile(
     join(seoStubDir, 'atlas-deflection-client.js'),
-    "exports.fetchDeflectionArtifact = async () => ({ ok: false, reason: 'locked' });\n",
+    [
+      'const authorizationCalls = [];',
+      'let authorizationResult = {',
+      '  ok: true,',
+      '  checkout: { amountCents: 150000, currency: "usd", priceId: "price_atlas_route123" },',
+      '};',
+      'exports.authorizationCalls = authorizationCalls;',
+      'exports.setAuthorizationResult = (value) => { authorizationResult = value; };',
+      'exports.authorizeDeflectionCheckout = async (requestId) => {',
+      '  authorizationCalls.push({ requestId });',
+      '  return authorizationResult;',
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(seoStubDir, 'deflection-checkout.js'),
     [
       'const calls = [];',
       'exports.calls = calls;',
-      'exports.createDeflectionCheckoutSession = async (requestId, attemptId, priceVariantId) => {',
-      '  calls.push({ requestId, attemptId, priceVariantId });',
+      'exports.createDeflectionCheckoutSession = async (requestId, attemptId, checkout, priceVariantId) => {',
+      '  calls.push({ requestId, attemptId, checkout, priceVariantId });',
       "  return { ok: false, reason: 'not_configured' };",
       '};',
       '',
@@ -491,8 +519,13 @@ try {
   await writeFile(compiledRoutePath, compiledRoute.outputText);
   const { POST } = require(compiledRoutePath);
   const checkoutRouteStub = require(join(seoStubDir, 'deflection-checkout.js'));
+  const atlasRouteStub = require(join(seoStubDir, 'atlas-deflection-client.js'));
   const checkoutDatabaseStub = require(join(seoStubDir, 'gap-report-intake-database.js'));
   checkoutDatabaseStub.setSavedPriceVariantId(null);
+  atlasRouteStub.setAuthorizationResult({
+    ok: true,
+    checkout: { amountCents: 150000, currency: 'usd', priceId: 'price_atlas_route123' },
+  });
   const routeResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
       method: 'POST',
@@ -506,15 +539,18 @@ try {
   );
   assert.equal(routeResponse.status, 503);
   assert.deepEqual(await routeResponse.json(), { error: 'Could not start checkout.' });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
   assert.deepEqual(checkoutRouteStub.calls, [
     {
       requestId: 'request-123',
       attemptId: 'attempt-12345678',
+      checkout: { amountCents: 150000, currency: 'usd', priceId: 'price_atlas_route123' },
       priceVariantId: 'standard',
     },
   ]);
 
   checkoutRouteStub.calls.length = 0;
+  atlasRouteStub.authorizationCalls.length = 0;
   checkoutDatabaseStub.setSavedPriceVariantId(null);
   const unsignedDiscountResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
@@ -531,9 +567,11 @@ try {
   assert.deepEqual(await unsignedDiscountResponse.json(), {
     error: 'Could not start checkout. Please try again.',
   });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, []);
   assert.deepEqual(checkoutRouteStub.calls, []);
 
   checkoutRouteStub.calls.length = 0;
+  atlasRouteStub.authorizationCalls.length = 0;
   checkoutDatabaseStub.setSavedPriceVariantId('partner');
   const partnerVariantResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
@@ -548,15 +586,59 @@ try {
   );
   assert.equal(partnerVariantResponse.status, 503);
   assert.deepEqual(await partnerVariantResponse.json(), { error: 'Could not start checkout.' });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
   assert.deepEqual(checkoutRouteStub.calls, [
     {
       requestId: 'request-123',
       attemptId: 'attempt-12345678',
+      checkout: { amountCents: 150000, currency: 'usd', priceId: 'price_atlas_route123' },
       priceVariantId: 'partner',
     },
   ]);
 
   checkoutRouteStub.calls.length = 0;
+  atlasRouteStub.authorizationCalls.length = 0;
+  checkoutDatabaseStub.setSavedPriceVariantId(null);
+  atlasRouteStub.setAuthorizationResult({ ok: false, reason: 'not_found' });
+  const missingReportResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'missing-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'standard',
+      }),
+    }),
+  );
+  assert.equal(missingReportResponse.status, 404);
+  assert.deepEqual(await missingReportResponse.json(), { error: 'Report not found.' });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'missing-123' }]);
+  assert.deepEqual(checkoutRouteStub.calls, []);
+
+  atlasRouteStub.setAuthorizationResult({ ok: false, reason: 'already_paid' });
+  atlasRouteStub.authorizationCalls.length = 0;
+  const alreadyPaidResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'request-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'standard',
+      }),
+    }),
+  );
+  assert.equal(alreadyPaidResponse.status, 200);
+  assert.deepEqual(await alreadyPaidResponse.json(), { alreadyPaid: true });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
+  assert.deepEqual(checkoutRouteStub.calls, []);
+
+  atlasRouteStub.setAuthorizationResult({
+    ok: true,
+    checkout: { amountCents: 150000, currency: 'usd', priceId: 'price_atlas_route123' },
+  });
+  atlasRouteStub.authorizationCalls.length = 0;
   const invalidVariantResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
       method: 'POST',
@@ -570,6 +652,7 @@ try {
   );
   assert.equal(invalidVariantResponse.status, 400);
   assert.deepEqual(await invalidVariantResponse.json(), { error: 'Invalid request.' });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, []);
   assert.deepEqual(checkoutRouteStub.calls, []);
 
   console.log('Deflection checkout tests passed.');
