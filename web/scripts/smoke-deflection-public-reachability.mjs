@@ -13,7 +13,7 @@ const LANDING_MARKERS = [
 ];
 const INTAKE_MARKERS = [
   ['uploadEyebrow', 'UPLOAD YOUR CSV'],
-  ['headline', 'Upload your tickets. Get the repeat-question snapshot in 24 hours.'],
+  ['headline', 'Upload your tickets. Get the repeat-question snapshot in seconds.'],
   ['workEmail', 'Work email'],
   ['submitCta', 'Upload CSV, get your free Deflection Snapshot'],
 ];

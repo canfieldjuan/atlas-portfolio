@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { runDeflectionPublicReachabilitySmoke } from './smoke-deflection-public-reachability.mjs';
 
 const LANDING_URL = 'https://portfolio.example.com/systems/support-ticket-deflection';
@@ -11,7 +12,7 @@ const GOOD_LANDING = [
 ].join('');
 const GOOD_INTAKE = [
   'UPLOAD YOUR CSV',
-  'Upload your tickets. Get the repeat-question snapshot in 24 hours.',
+  'Upload your tickets. Get the repeat-question snapshot in seconds.',
   'Work email',
   'Upload CSV, get your free Deflection Snapshot',
 ].join('');
@@ -141,5 +142,39 @@ for (const testCase of cases) {
   assert.deepEqual(result.missing, testCase.missing, testCase.name);
   assert.equal(calls.length, testCase.calls, testCase.name);
 }
+
+const intakePageSource = await readFile(
+  new URL('../src/components/landing/SupportTicketCsvIntakePage.tsx', import.meta.url),
+  'utf8',
+);
+const intakeRouteSource = await readFile(
+  new URL('../src/app/systems/support-ticket-deflection/intake/page.tsx', import.meta.url),
+  'utf8',
+);
+const intakeLayoutSource = await readFile(
+  new URL('../src/app/systems/support-ticket-deflection/intake/layout.tsx', import.meta.url),
+  'utf8',
+);
+
+assert.ok(
+  intakePageSource.includes('Upload your tickets. Get the repeat-question snapshot in seconds.'),
+  'intake headline should promise seconds, not 24-hour delivery',
+);
+assert.ok(
+  !intakePageSource.includes('24 hours'),
+  'intake visible copy should not retain 24-hour delivery language',
+);
+assert.ok(
+  !intakeLayoutSource.includes('24 hours'),
+  'intake metadata should not retain 24-hour delivery language',
+);
+assert.ok(
+  intakeRouteSource.includes("'/systems/support-ticket-deflection/snapshot'"),
+  'non-partner intake should route back/source attribution to the Snapshot landing',
+);
+assert.ok(
+  intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),
+  'partner intake should keep partner route attribution',
+);
 
 console.log('Deflection public reachability smoke tests passed.');
