@@ -504,10 +504,24 @@ try {
     'intake delegates results URL validation to the shared helper',
   );
   assert.ok(
-    intakePage.includes('window.location.assign(resultsHref)'),
-    'successful ATLAS submit redirects to results route',
+    intakePage.includes("phase: 'processing'"),
+    'successful ATLAS submit enters the processing transition state',
   );
-  assert.ok(intakePage.includes('View free snapshot'), 'intake success has results CTA');
+  assert.ok(
+    intakePage.includes('window.setTimeout') &&
+      intakePage.includes('window.location.assign(submission.resultsHref)'),
+    'processing transition redirects to the validated results route after a delay',
+  );
+  assert.ok(
+    intakePage.includes('Snapshot processing steps') &&
+      intakePage.includes('Reading the ticket export') &&
+      intakePage.includes('Pulling customer wording from tickets'),
+    'processing screen shows bounded Snapshot preparation steps',
+  );
+  assert.ok(
+    intakePage.includes('Open Snapshot now'),
+    'processing screen has a manual Snapshot link while redirect is pending',
+  );
 
   console.log('Deflection intake ATLAS submit tests passed.');
 } finally {
