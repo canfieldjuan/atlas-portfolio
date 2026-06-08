@@ -7,7 +7,7 @@ const INTAKE_URL = `${LANDING_URL}/intake`;
 const GOOD_LANDING = [
   'SUPPORT TICKET DEFLECTION',
   '<a href="/systems/support-ticket-deflection/intake">',
-  'Upload your tickets, get a free Deflection Snapshot',
+  'Get the free Snapshot first',
   'PRICING',
 ].join('');
 const GOOD_INTAKE = [
@@ -91,8 +91,32 @@ const cases = [
     calls: 1,
   },
   {
+    name: 'landing visible not-found error',
+    responses: routes({ landing: { body: 'This page could not be found' } }),
+    stage: 'landing',
+    error: 'Deflection public landing page rendered an error marker: This page could not be found.',
+    missing: ['productEyebrow', 'snapshotCta', 'pricing'],
+    calls: 1,
+  },
+  {
     name: 'landing marker missing',
     responses: routes({ landing: { body: GOOD_LANDING.replace('PRICING', '') } }),
+    stage: 'landing',
+    error: 'Deflection public landing page is missing required render markers.',
+    missing: ['pricing'],
+    calls: 1,
+  },
+  {
+    name: 'landing marker missing with dormant not-found payload',
+    responses: routes({
+      landing: {
+        body: [
+          GOOD_LANDING.replace('PRICING', ''),
+          '<script>self.__next_f.push(["This page could not be found"])</script>',
+          '<template>This page could not be found</template>',
+        ].join(''),
+      },
+    }),
     stage: 'landing',
     error: 'Deflection public landing page is missing required render markers.',
     missing: ['pricing'],

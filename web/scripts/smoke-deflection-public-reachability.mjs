@@ -8,7 +8,7 @@ const INTAKE_HREF = `href="${INTAKE_PATH}"`;
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 const LANDING_MARKERS = [
   ['productEyebrow', 'SUPPORT TICKET DEFLECTION'],
-  ['snapshotCta', 'Upload your tickets, get a free Deflection Snapshot'],
+  ['snapshotCta', 'Get the free Snapshot first'],
   ['pricing', 'PRICING'],
 ];
 const INTAKE_MARKERS = [
@@ -52,6 +52,13 @@ function normalizeBaseUrl(value) {
 function markerMap(markers) {
   return Object.fromEntries(markers.map(([key]) => [key, true]));
 }
+function htmlWithoutNonRenderedBlocks(html) {
+  return String(html || '')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<template\b[^>]*>[\s\S]*?<\/template>/gi, '')
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, '');
+}
 async function fetchHtml(fetchImpl, url, stage) {
   let response;
   try {
@@ -79,7 +86,8 @@ function validateHtml(html, markers, stage, url) {
   if (missing.length === 0) {
     return { ok: true, markers: markerMap(markers) };
   }
-  const errorMarker = ERROR_MARKERS.find((marker) => html.includes(marker));
+  const visibleHtml = htmlWithoutNonRenderedBlocks(html);
+  const errorMarker = ERROR_MARKERS.find((marker) => visibleHtml.includes(marker));
   return {
     ok: false,
     error: errorMarker
