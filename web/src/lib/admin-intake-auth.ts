@@ -6,7 +6,7 @@ export const ADMIN_INTAKE_COOKIE = 'atlas_admin_intake';
 // and cannot be conflated with a generic SHA-256 of the same token used elsewhere.
 const ADMIN_INTAKE_COOKIE_HASH_CONTEXT = 'atlas-admin-intake-cookie:v1:';
 
-export function adminIntakeToken() {
+function adminIntakeToken() {
   return process.env.ADMIN_INTAKE_TOKEN?.trim() || '';
 }
 
