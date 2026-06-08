@@ -12,6 +12,8 @@ const DEFLECTION_CHECKOUT_PARTNER_SIGNING_SECRETS_ENV =
   'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV =
   'STRIPE_DEFLECTION_REPORT_PRICE_ID';
+const DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV = 'ATLAS_API_BASE_URL';
+const DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV = 'ATLAS_B2B_SERVICE_TOKEN';
 const DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
 const DEFLECTION_CHECKOUT_PRICE_ID_MISSING_NAME =
@@ -33,6 +35,8 @@ const DEFLECTION_CHECKOUT_ENV_KEYS = [
   'ATLAS_SAAS_STRIPE_RAK',
   'ATLAS_SAAS_STRIPE_SECRET_KEY',
   'ATLAS_ACCOUNT_ID',
+  DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV,
+  DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV,
   DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV,
   DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV,
@@ -154,6 +158,8 @@ function classifyEnv(env) {
   const rak = clean(env.ATLAS_SAAS_STRIPE_RAK);
   const legacySecret = clean(env.ATLAS_SAAS_STRIPE_SECRET_KEY);
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
+  const atlasApiBaseUrl = clean(env[DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV]);
+  const atlasServiceToken = clean(env[DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV]);
   const standardPriceId = clean(env[DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV]);
   const partnerPriceId = clean(env[DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV]);
   const partnerAccessTokens = configuredDeflectionPartnerAccessTokens(env);
@@ -170,6 +176,8 @@ function classifyEnv(env) {
       rak ? 'ATLAS_SAAS_STRIPE_RAK' : '',
       legacySecret ? 'ATLAS_SAAS_STRIPE_SECRET_KEY' : '',
       accountId ? 'ATLAS_ACCOUNT_ID' : '',
+      atlasApiBaseUrl ? DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV : '',
+      atlasServiceToken ? DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV : '',
       standardPriceId ? DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV : '',
       partnerPriceId ? DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV : '',
       partnerAccessTokens.length ? DEFLECTION_CHECKOUT_PARTNER_ACCESS_TOKEN_ENV : '',
@@ -189,6 +197,12 @@ function classifyEnv(env) {
       ATLAS_SAAS_STRIPE_RAK: modeForKey(rak),
       ATLAS_SAAS_STRIPE_SECRET_KEY: modeForKey(legacySecret),
       ATLAS_ACCOUNT_ID: accountId ? 'configured' : 'missing',
+      [DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV]: atlasApiBaseUrl
+        ? 'configured'
+        : 'missing',
+      [DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV]: atlasServiceToken
+        ? 'configured'
+        : 'missing',
       [DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV]: standardPriceId
         ? 'configured'
         : 'missing',
@@ -213,6 +227,8 @@ function classifyEnv(env) {
     rak,
     legacySecret,
     accountId,
+    atlasApiBaseUrl,
+    atlasServiceToken,
     standardPriceId,
     partnerPriceId,
     partnerAccessTokens,
@@ -264,6 +280,12 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
 
   if (!classified.accountId) {
     addMissing(missing, 'ATLAS_ACCOUNT_ID');
+  }
+  if (!classified.atlasApiBaseUrl) {
+    addMissing(missing, DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV);
+  }
+  if (!classified.atlasServiceToken) {
+    addMissing(missing, DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV);
   }
   if (!classified.allowedAmounts.ok) {
     addInvalid(invalid, classified.allowedAmounts.error);
@@ -506,6 +528,8 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
 
 module.exports = {
   DEFLECTION_CHECKOUT_ALLOWED_AMOUNT_CENTS_ENV,
+  DEFLECTION_CHECKOUT_ATLAS_API_BASE_URL_ENV,
+  DEFLECTION_CHECKOUT_ATLAS_SERVICE_TOKEN_ENV,
   DEFLECTION_CHECKOUT_DEFAULT_AMOUNT_CENTS,
   DEFLECTION_CHECKOUT_DEFAULT_ENVIRONMENT,
   DEFLECTION_CHECKOUT_ENV_KEYS,

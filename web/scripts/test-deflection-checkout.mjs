@@ -585,16 +585,11 @@ try {
     }),
   );
   assert.equal(partnerVariantResponse.status, 503);
-  assert.deepEqual(await partnerVariantResponse.json(), { error: 'Could not start checkout.' });
-  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
-  assert.deepEqual(checkoutRouteStub.calls, [
-    {
-      requestId: 'request-123',
-      attemptId: 'attempt-12345678',
-      checkout: { amountCents: 150000, currency: 'usd', priceId: 'price_atlas_route123' },
-      priceVariantId: 'partner',
-    },
-  ]);
+  assert.deepEqual(await partnerVariantResponse.json(), {
+    error: 'Could not start checkout. Please try again.',
+  });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, []);
+  assert.deepEqual(checkoutRouteStub.calls, []);
 
   checkoutRouteStub.calls.length = 0;
   atlasRouteStub.authorizationCalls.length = 0;

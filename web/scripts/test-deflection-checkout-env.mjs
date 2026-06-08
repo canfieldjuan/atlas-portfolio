@@ -37,6 +37,10 @@ const STANDARD_ALLOWED_AMOUNT_ERROR =
 const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
+const ATLAS_AUTH_ENV = {
+  ATLAS_API_BASE_URL: 'https://atlas.example.test',
+  ATLAS_B2B_SERVICE_TOKEN: 'atlas_unit_token',
+};
 const CUSTOM_STANDARD_AMOUNT_CENTS = 1800 * 100;
 const CUSTOM_PARTNER_AMOUNT_CENTS = 1200 * 100;
 const PRODUCTION_ALLOWED_AMOUNTS = `${DEFAULT_ALLOWED_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`;
@@ -48,6 +52,7 @@ const pricingSource = await readFile(
 
 function withProductionPartnerAccessToken(env) {
   return {
+    ...ATLAS_AUTH_ENV,
     ...env,
     [PARTNER_ACCESS_TOKEN_ENV]: PRODUCTION_PARTNER_ACCESS_TOKEN,
   };
@@ -55,6 +60,7 @@ function withProductionPartnerAccessToken(env) {
 
 function withProductionPartnerSigningSecret(env) {
   return {
+    ...ATLAS_AUTH_ENV,
     ...env,
     [PARTNER_SIGNING_SECRETS_ENV]: 'partner_unit_signing_secret',
   };
@@ -157,6 +163,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
@@ -176,6 +183,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
@@ -530,6 +538,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
@@ -545,6 +554,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
@@ -558,6 +568,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
     },
@@ -570,6 +581,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
       ATLAS_ACCOUNT_ID: 'acct_unit',
     },
@@ -583,6 +595,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
       ATLAS_ACCOUNT_ID: 'acct_unit',
       [ALLOWED_AMOUNT_CENTS_ENV]: String(VARIANT_ALLOWED_AMOUNT_CENTS),
@@ -597,6 +610,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_live_unit_secret',
       ATLAS_ACCOUNT_ID: 'acct_unit',
     },
@@ -613,6 +627,8 @@ assert(
   assert.equal(result.ok, false);
   assert.deepEqual(result.missing, [
     'ATLAS_ACCOUNT_ID',
+    'ATLAS_API_BASE_URL',
+    'ATLAS_B2B_SERVICE_TOKEN',
     'ATLAS_SAAS_STRIPE_RAK or ATLAS_SAAS_STRIPE_SECRET_KEY',
   ]);
 }
@@ -633,6 +649,7 @@ assert(
 {
   const result = validate(
     {
+      ...ATLAS_AUTH_ENV,
       ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_test_unit_secret',
     },
     'preview',
@@ -674,9 +691,11 @@ assert(
   await writeFile(
     validEnvFile,
     [
-      'ATLAS_SAAS_STRIPE_RAK=rk_live_candidate_restricted',
-      'ATLAS_ACCOUNT_ID=acct_unit',
-      `${STANDARD_PRICE_ID_ENV}=price_standard123`,
+	      'ATLAS_SAAS_STRIPE_RAK=rk_live_candidate_restricted',
+	      'ATLAS_ACCOUNT_ID=acct_unit',
+	      'ATLAS_API_BASE_URL=https://atlas.example.test',
+	      'ATLAS_B2B_SERVICE_TOKEN=atlas_unit_token',
+	      `${STANDARD_PRICE_ID_ENV}=price_standard123`,
       `${PARTNER_PRICE_ID_ENV}=price_partner123`,
       `${PARTNER_SIGNING_SECRETS_ENV}=old_partner_signing_secret,current_partner_signing_secret`,
       `${ALLOWED_AMOUNT_CENTS_ENV}=${DEFAULT_ALLOWED_AMOUNT_CENTS},${PARTNER_ALLOWED_AMOUNT_CENTS},${VARIANT_ALLOWED_AMOUNT_CENTS}`,
@@ -704,8 +723,10 @@ assert(
     assert.equal(run.status, 1);
     const payload = JSON.parse(run.stdout);
     assert.equal(payload.ok, false);
-    assert.deepEqual(payload.missing, [
-      'ATLAS_SAAS_STRIPE_RAK',
+	    assert.deepEqual(payload.missing, [
+	      'ATLAS_API_BASE_URL',
+	      'ATLAS_B2B_SERVICE_TOKEN',
+	      'ATLAS_SAAS_STRIPE_RAK',
       PARTNER_PRICE_ID_ENV,
       PARTNER_CREDENTIAL_ENV,
     ]);

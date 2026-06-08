@@ -84,6 +84,12 @@ export async function POST(request: Request) {
   if (priceVariantId !== (expectedPriceVariantId || DEFLECTION_DEFAULT_PRICE_VARIANT_ID)) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
+  if (priceVariantId !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) {
+    return NextResponse.json(
+      { error: 'Could not start checkout. Please try again.' },
+      { status: 503 },
+    );
+  }
 
   const authorization = await authorizeDeflectionCheckout(requestId);
   if (!authorization.ok && authorization.reason === 'already_paid') {
