@@ -519,6 +519,12 @@ try {
     'processing screen shows bounded Snapshot preparation steps',
   );
   assert.ok(
+    intakePage.includes('processingHeadingRef') &&
+      intakePage.includes('processingHeadingRef.current?.focus()') &&
+      intakePage.includes('tabIndex={-1}'),
+    'processing screen moves focus to the new heading after the form mode switch',
+  );
+  assert.ok(
     intakePage.includes('Open Snapshot now'),
     'processing screen has a manual Snapshot link while redirect is pending',
   );

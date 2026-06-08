@@ -43,6 +43,8 @@ Acceptance criteria:
 - The final destination remains the same shared `deflectionResultsPath(...)`
   results URL.
 - A manual Snapshot link is available while the redirect is pending.
+- Focus moves to the new processing heading on the form-to-processing mode
+  switch.
 - The no-`reportRequestId` fallback success screen remains available.
 
 Affected surfaces:
@@ -71,7 +73,10 @@ URL, the same screen keeps rendering and stores that URL.
 A `useEffect` watches the ready processing state and schedules the same
 `window.location.assign(resultsHref)` after a short delay. The processing screen
 shows the bounded step list immediately; once the results URL exists, it also
-shows a normal link to the Snapshot results URL as a fallback.
+shows a normal link to the Snapshot results URL as a fallback. A separate effect
+moves focus to the processing heading when the form switches into the
+submitting/processing mode so keyboard and screen-reader users get a state
+change cue before the redirect.
 
 ## Intentional
 
@@ -114,6 +119,6 @@ Parked hardening: none.
 | Area | Estimate |
 | --- | ---: |
 | Plan doc | +118 |
-| Intake page processing state | +131 / -21 |
-| Source-level test assertions | +17 / -3 |
-| Total | ~289 changed |
+| Intake page processing state | +143 / -25 |
+| Source-level test assertions | +23 / -3 |
+| Total | ~318 changed |

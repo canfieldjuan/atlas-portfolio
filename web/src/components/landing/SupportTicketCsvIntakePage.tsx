@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { upload } from '@vercel/blob/client';
@@ -17,7 +17,6 @@ type SubmissionStatus =
   | { phase: 'submitting' }
   | {
       phase: 'processing';
-      requestId: string;
       reportRequestId: string;
       resultsHref: string;
     }
@@ -78,6 +77,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submission, setSubmission] = useState<SubmissionStatus>({ phase: 'idle' });
+  const processingHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (submission.phase !== 'processing') return;
@@ -86,6 +86,11 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     }, PROCESSING_REDIRECT_DELAY_MS);
     return () => window.clearTimeout(redirectTimer);
   }, [submission]);
+
+  useEffect(() => {
+    if (submission.phase !== 'submitting' && submission.phase !== 'processing') return;
+    processingHeadingRef.current?.focus();
+  }, [submission.phase]);
 
   function validate(): boolean {
     const next: FormErrors = {};
@@ -202,7 +207,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         });
         setSubmission({
           phase: 'processing',
-          requestId: payload.requestId || '',
           reportRequestId: payload.reportRequestId || '',
           resultsHref,
         });
@@ -260,7 +264,11 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
               <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
                 PREPARING SNAPSHOT
               </div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
+              <h1
+                ref={processingHeadingRef}
+                tabIndex={-1}
+                className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4 focus:outline-none"
+              >
                 Preparing your {copy.snapshotName}.
               </h1>
               <p className="text-foreground/70 leading-relaxed mb-6">
