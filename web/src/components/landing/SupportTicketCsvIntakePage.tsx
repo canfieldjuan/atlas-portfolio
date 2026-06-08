@@ -247,8 +247,8 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 <>
                   <p className="text-foreground/70 leading-relaxed mb-3">
                     We have your file. Your confirmation email is on the way to{' '}
-                    <span className="text-foreground">{email}</span>, and the free {copy.snapshotName} will be
-                    sent there within 24 hours.
+                    <span className="text-foreground">{email}</span>. We&apos;ll send the free{' '}
+                    {copy.snapshotName} as soon as processing finishes.
                   </p>
                   <p className="text-foreground/65 leading-relaxed mb-6">
                     No next step is needed from you right now.
@@ -283,7 +283,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                   </div>
                   <p className="text-xs text-foreground/65 leading-relaxed">
                     Your CSV was received, but something went wrong on our end during processing.
-                    If you don&apos;t hear back within 24 hours, email us directly at{' '}
+                    If processing does not complete, email us directly at{' '}
                     <a
                       href="mailto:juan@juancanfield.com"
                       className="text-primary underline underline-offset-2"
@@ -359,12 +359,12 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             UPLOAD YOUR CSV
           </div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-            Upload your tickets. Get the repeat-question snapshot in 24 hours.
+            Upload your tickets. Get the repeat-question snapshot in seconds.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Send 30 days of closed support tickets. We&apos;ll rank the repeated questions,
-            surface the missing customer wording, and include a review-ready FAQ draft built
-            from resolved replies.
+            Upload 30 days of closed support tickets. The Snapshot ranks the repeats,
+            surfaces the customer wording your docs miss, and includes one review-ready
+            FAQ draft from resolved replies.
           </p>
         </div>
 

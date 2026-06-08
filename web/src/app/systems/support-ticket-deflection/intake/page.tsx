@@ -34,11 +34,11 @@ export default async function SupportTicketDeflectionIntakePage({ searchParams }
       copy={{
         backHref: isPartner
           ? '/systems/support-ticket-deflection/partner'
-          : '/systems/support-ticket-deflection',
-        backLabel: 'Back to Deflection Report',
+          : '/systems/support-ticket-deflection/snapshot',
+        backLabel: isPartner ? 'Back to Deflection Report' : 'Back to Deflection Snapshot',
         sourcePage: isPartner
           ? '/systems/support-ticket-deflection/partner'
-          : '/systems/support-ticket-deflection',
+          : '/systems/support-ticket-deflection/snapshot',
         sourceOffer: 'support-ticket-deflection-intake',
         snapshotName: 'Deflection Snapshot',
         submitLabel: 'Upload CSV, get your free Deflection Snapshot',
