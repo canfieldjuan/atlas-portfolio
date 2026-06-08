@@ -42,6 +42,9 @@ assertIncludes(intakePage, 'Privacy: we delete your CSV after 30 days', 'CSV int
 assertIncludes(uploadRoute, "pathname.startsWith('gap-report-csvs/')", 'CSV upload token scope');
 assertIncludes(uploadRoute, 'allowedContentTypes: CSV_CONTENT_TYPES', 'CSV upload content type gate');
 assertIncludes(uploadRoute, 'maximumSizeInBytes: MAX_CSV_BYTES', 'CSV upload size gate');
+assertIncludes(uploadRoute, 'consumeDeflectionRateLimit', 'CSV upload IP rate limit');
+assertIncludes(uploadRoute, 'consumeDeflectionIdentifierRateLimit', 'CSV upload email rate limit');
+assertIncludes(uploadRoute, 'UploadRateLimitError', 'CSV upload token-callback rate limit');
 
 assertIncludes(recordRoute, "blobUrl.startsWith('https://')", 'CSV record upload reference');
 assertIncludes(recordRoute, "blobUrl.includes('/gap-report-csvs/')", 'CSV record namespace check');
@@ -99,9 +102,121 @@ assertNotIncludes(landingConfig, 'we drop PII in our intake step', 'CSV public P
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-csv-privacy-'));
 try {
+  const compiledUploadRoutePath = join(testDir, 'gap-report-upload-route.cjs');
   const compiledPath = join(testDir, 'gap-report-cleanup.cjs');
+  const libStubDir = join(testDir, 'node_modules', '@', 'lib');
+  const nextStubDir = join(testDir, 'node_modules', 'next');
   const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
+  await mkdir(libStubDir, { recursive: true });
+  await mkdir(nextStubDir, { recursive: true });
   await mkdir(blobStubDir, { recursive: true });
+  await writeFile(
+    join(testDir, 'node_modules', '@vercel', 'blob', 'client.js'),
+    `
+exports.handleUpload = async (options) => {
+  globalThis.__csvPrivacyUploadHandleCalls = (globalThis.__csvPrivacyUploadHandleCalls || 0) + 1;
+  const payload = globalThis.__csvPrivacyUploadClientPayload || JSON.stringify({
+    name: 'Alex Lee',
+    email: 'buyer@example.com',
+    companyName: 'Effingham Office Maids',
+    supportPlatform: 'helpscout',
+    csvFilename: 'tickets.csv',
+    sourceOffer: 'support-ticket-deflection-intake'
+  });
+  const tokenPayload = await options.onBeforeGenerateToken('gap-report-csvs/unit.csv', payload);
+  globalThis.__csvPrivacyUploadGeneratedTokens = (globalThis.__csvPrivacyUploadGeneratedTokens || 0) + 1;
+  return { ok: true, tokenPayload };
+};
+`,
+  );
+  await writeFile(
+    join(nextStubDir, 'server.js'),
+    "exports.NextResponse = { json: (body, init) => Response.json(body, init) };\n",
+  );
+  await writeFile(
+    join(libStubDir, 'gap-report-intake.js'),
+    `
+exports.gapReportBlobToken = () => 'blob-token';
+exports.parseGapReportMetadata = (raw) => {
+  const email = typeof raw?.email === 'string' ? raw.email.trim() : '';
+  if (!email) return { ok: false, error: 'A valid work email is required.' };
+  return { ok: true, value: { ...raw, email } };
+};
+`,
+  );
+  await writeFile(
+    join(libStubDir, 'deflection-rate-limit.js'),
+    ts.transpileModule(await source('src/lib/deflection-rate-limit.ts'), {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+  );
+  await writeFile(
+    compiledUploadRoutePath,
+    ts.transpileModule(uploadRoute, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+  );
+  const uploadRequire = createRequire(compiledUploadRoutePath);
+  const { POST: uploadPOST } = uploadRequire(compiledUploadRoutePath);
+
+  function uploadRequest(ip, email) {
+    globalThis.__csvPrivacyUploadClientPayload = JSON.stringify({
+      name: 'Alex Lee',
+      email,
+      companyName: 'Effingham Office Maids',
+      supportPlatform: 'helpscout',
+      csvFilename: 'tickets.csv',
+      sourceOffer: 'support-ticket-deflection-intake',
+    });
+    return new Request('https://unit.test/api/gap-report-intake/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+      body: JSON.stringify({ type: 'blob.generate-client-token' }),
+    });
+  }
+
+  delete globalThis.__atlasDeflectionRateLimitStore;
+  globalThis.__csvPrivacyUploadHandleCalls = 0;
+  globalThis.__csvPrivacyUploadGeneratedTokens = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = await uploadPOST(
+      uploadRequest('203.0.113.10', `ip-bucket-${attempt}@example.com`),
+    );
+    assert.equal(response.status, 200);
+  }
+  const ipLimited = await uploadPOST(uploadRequest('203.0.113.10', 'ip-bucket-6@example.com'));
+  assert.equal(ipLimited.status, 429);
+  assert.equal(Number(ipLimited.headers.get('Retry-After')) > 0, true);
+  assert.deepEqual(await ipLimited.json(), {
+    error: 'Too many upload attempts. Please try again later.',
+  });
+  assert.equal(globalThis.__csvPrivacyUploadHandleCalls, 5);
+  assert.equal(globalThis.__csvPrivacyUploadGeneratedTokens, 5);
+
+  delete globalThis.__atlasDeflectionRateLimitStore;
+  globalThis.__csvPrivacyUploadHandleCalls = 0;
+  globalThis.__csvPrivacyUploadGeneratedTokens = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = await uploadPOST(
+      uploadRequest(`198.51.100.${attempt + 10}`, 'buyer@example.com'),
+    );
+    assert.equal(response.status, 200);
+  }
+  const emailLimited = await uploadPOST(uploadRequest('198.51.100.99', 'BUYER@example.com'));
+  assert.equal(emailLimited.status, 429);
+  assert.equal(Number(emailLimited.headers.get('Retry-After')) > 0, true);
+  assert.deepEqual(await emailLimited.json(), {
+    error: 'Too many upload attempts. Please try again later.',
+  });
+  assert.equal(globalThis.__csvPrivacyUploadHandleCalls, 6);
+  assert.equal(globalThis.__csvPrivacyUploadGeneratedTokens, 5);
+
   await writeFile(
     join(blobStubDir, 'index.js'),
     `
@@ -192,6 +307,10 @@ exports.deleteGapReportSubmissions = async (ids) => ids.length;
     'cleanup retries legacy token for legacy-store URLs without blocking private-store deletes',
   );
 } finally {
+  delete globalThis.__atlasDeflectionRateLimitStore;
+  delete globalThis.__csvPrivacyUploadClientPayload;
+  delete globalThis.__csvPrivacyUploadGeneratedTokens;
+  delete globalThis.__csvPrivacyUploadHandleCalls;
   delete globalThis.__csvPrivacyBlobTokens;
   delete globalThis.__csvPrivacyExpiredBatches;
   delete globalThis.__csvPrivacyBlobDel;
