@@ -14,8 +14,8 @@ framework bootstrap payloads for customer-visible failures.
 
 ## Scope (this PR)
 
-Ownership lane: deflection/go-live
 Slice phase: Production hardening
+Ownership lane: deflection/go-live
 
 1. Update the public reachability smoke landing CTA marker to the current
    long-form landing CTA.
