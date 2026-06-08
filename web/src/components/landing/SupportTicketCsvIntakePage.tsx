@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Loader2 } from 'lucide-react';
 import { upload } from '@vercel/blob/client';
@@ -15,6 +15,11 @@ import type { DeflectionPriceVariantId } from '@/lib/deflection-pricing';
 type SubmissionStatus =
   | { phase: 'idle' }
   | { phase: 'submitting' }
+  | {
+      phase: 'processing';
+      reportRequestId: string;
+      resultsHref: string;
+    }
   | { phase: 'success'; requestId: string; reportRequestId?: string; warnings: string[] }
   | { phase: 'error'; message: string };
 
@@ -29,6 +34,29 @@ type FormErrors = Partial<{
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 50;
 const CSV_UPLOAD_CONTENT_TYPES = new Set(['text/csv', 'application/csv', 'application/vnd.ms-excel']);
+const PROCESSING_REDIRECT_DELAY_MS = 3200;
+const SNAPSHOT_PROCESSING_STEPS = [
+  {
+    title: 'Reading the ticket export',
+    detail: 'Confirming the CSV upload and support platform context.',
+  },
+  {
+    title: 'Grouping repeat customer questions',
+    detail: 'Finding the issues customers ask about more than once.',
+  },
+  {
+    title: 'Pulling customer wording from tickets',
+    detail: 'Keeping the phrases customers used instead of inventing keywords.',
+  },
+  {
+    title: 'Building the free Snapshot preview',
+    detail: 'Preparing the ranked questions and one review-ready answer sample.',
+  },
+  {
+    title: 'Preparing deflection targets',
+    detail: 'Turning repeated questions into help-center work your team can review.',
+  },
+];
 
 export type SupportTicketCsvIntakeCopy = {
   backHref: string;
@@ -49,6 +77,20 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submission, setSubmission] = useState<SubmissionStatus>({ phase: 'idle' });
+  const processingHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (submission.phase !== 'processing') return;
+    const redirectTimer = window.setTimeout(() => {
+      window.location.assign(submission.resultsHref);
+    }, PROCESSING_REDIRECT_DELAY_MS);
+    return () => window.clearTimeout(redirectTimer);
+  }, [submission]);
+
+  useEffect(() => {
+    if (submission.phase !== 'submitting' && submission.phase !== 'processing') return;
+    processingHeadingRef.current?.focus();
+  }, [submission.phase]);
 
   function validate(): boolean {
     const next: FormErrors = {};
@@ -163,7 +205,11 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           sourceOffer: copy.sourceOffer,
           status: 'submitted',
         });
-        window.location.assign(resultsHref);
+        setSubmission({
+          phase: 'processing',
+          reportRequestId: payload.reportRequestId || '',
+          resultsHref,
+        });
         return;
       }
 
@@ -195,6 +241,95 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     if (file && errors.csv) {
       setErrors((prev) => ({ ...prev, csv: undefined }));
     }
+  }
+
+  if (submission.phase === 'submitting' || submission.phase === 'processing') {
+    const processingSubmission = submission.phase === 'processing' ? submission : null;
+    return (
+      <>
+        <main className="min-h-screen pt-20 pb-20 px-6 relative z-10">
+          <div className="max-w-2xl mx-auto">
+            <Link
+              href={copy.backHref}
+              className="inline-flex items-center gap-2 text-sm text-foreground/55 hover:text-foreground transition-colors mb-10"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {copy.backLabel}
+            </Link>
+
+            <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-8 md:p-12 shadow-[var(--primary-glow)]">
+              <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+              <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
+                PREPARING SNAPSHOT
+              </div>
+              <h1
+                ref={processingHeadingRef}
+                tabIndex={-1}
+                className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4 focus:outline-none"
+              >
+                Preparing your {copy.snapshotName}.
+              </h1>
+              <p className="text-foreground/70 leading-relaxed mb-6">
+                {processingSubmission
+                  ? "Your CSV was received. We're opening the free Snapshot now and sending the confirmation email to "
+                  : "Your CSV is uploading. We're starting the same deterministic Snapshot path that reads the export, groups repeat questions, and prepares the ranked targets for review."}
+                {processingSubmission && <span className="text-foreground">{email}</span>}
+                {processingSubmission && '.'}
+              </p>
+
+              <div
+                aria-label="Snapshot processing steps"
+                aria-live="polite"
+                aria-busy="true"
+                className="space-y-3"
+              >
+                {SNAPSHOT_PROCESSING_STEPS.map((step, index) => (
+                  <div
+                    key={step.title}
+                    className="flex gap-3 rounded-lg border border-border/70 bg-surface/70 p-4"
+                  >
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary/40 text-[11px] font-mono text-primary">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{step.title}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+                        {step.detail}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {processingSubmission ? (
+                <div className="mt-8 flex flex-col gap-3 border-t border-border/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-xs font-mono text-foreground/45">
+                    Report: {processingSubmission.reportRequestId}
+                  </div>
+                  <Link
+                    href={processingSubmission.resultsHref}
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-black transition-all hover:bg-primary/90"
+                  >
+                    Open Snapshot now
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-8 rounded-lg border border-border/70 bg-surface/70 p-4 text-xs leading-relaxed text-foreground/55">
+                  The Snapshot opens automatically when the report id is ready.
+                </div>
+              )}
+              <p className="text-xs text-foreground/45 mt-8 leading-relaxed">
+                Privacy: we delete your CSV after 30 days. No model training, no third-party
+                sharing, no fine-tuning.
+              </p>
+            </div>
+          </div>
+        </main>
+      </>
+    );
   }
 
   if (submission.phase === 'success') {
@@ -340,8 +475,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
     );
   }
 
-  const submitting = submission.phase === 'submitting';
-
   return (
     <>
       <main className="min-h-screen pt-20 pb-20 px-6 relative z-10">
@@ -384,7 +517,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
               }}
-              disabled={submitting}
               className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Your name"
               aria-invalid={Boolean(errors.name)}
@@ -412,7 +544,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 setEmail(e.target.value);
                 if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
               }}
-              disabled={submitting}
               className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="you@yourcompany.com"
               aria-invalid={Boolean(errors.email)}
@@ -441,7 +572,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 if (errors.companyName)
                   setErrors((prev) => ({ ...prev, companyName: undefined }));
               }}
-              disabled={submitting}
               className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
               placeholder="Acme Inc."
               aria-invalid={Boolean(errors.companyName)}
@@ -471,7 +601,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 if (errors.supportPlatform)
                   setErrors((prev) => ({ ...prev, supportPlatform: undefined }));
               }}
-              disabled={submitting}
               className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/60 disabled:opacity-50"
               aria-invalid={Boolean(errors.supportPlatform)}
               aria-describedby={
@@ -508,7 +637,6 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
                 accept=".csv,text/csv,application/csv,application/vnd.ms-excel"
                 required
                 onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-                disabled={submitting}
                 className="block w-full text-sm text-foreground/70 file:mr-4 file:rounded-md file:border-0 file:bg-primary/10 file:text-primary file:px-4 file:py-2.5 file:text-sm file:font-medium hover:file:bg-primary/20 disabled:opacity-50"
                 aria-invalid={Boolean(errors.csv)}
                 aria-describedby={errors.csv ? 'csv-error' : 'csv-hint'}
@@ -548,20 +676,10 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           <div className="pt-2">
             <button
               type="submit"
-              disabled={submitting}
               className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-black font-medium rounded-md hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm"
             >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Uploading…
-                </>
-              ) : (
-                <>
-                  {copy.submitLabel}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
+              {copy.submitLabel}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
               Privacy: we delete your CSV after 30 days. No model training, no third-party
