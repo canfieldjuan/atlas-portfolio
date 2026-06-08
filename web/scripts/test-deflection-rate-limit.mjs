@@ -30,7 +30,7 @@ try {
   await writeFile(compiledPath, compiled.outputText);
 
   const require = createRequire(import.meta.url);
-  const { consumeDeflectionRateLimit } = require(compiledPath);
+  const { consumeDeflectionIdentifierRateLimit, consumeDeflectionRateLimit } = require(compiledPath);
   Date.now = () => now;
 
   resetStore();
@@ -69,6 +69,20 @@ try {
   );
   assert.deepEqual(
     consumeDeflectionRateLimit(testHeaders('198.51.100.4'), 'report-a', singleUseConfig),
+    { ok: true },
+  );
+
+  resetStore();
+  assert.deepEqual(
+    consumeDeflectionIdentifierRateLimit(' buyer@example.com ', singleUseConfig),
+    { ok: true },
+  );
+  assert.deepEqual(
+    consumeDeflectionIdentifierRateLimit('BUYER@example.com', singleUseConfig),
+    { ok: false, retryAfterSeconds: 60 },
+  );
+  assert.deepEqual(
+    consumeDeflectionIdentifierRateLimit('other@example.com', singleUseConfig),
     { ok: true },
   );
 

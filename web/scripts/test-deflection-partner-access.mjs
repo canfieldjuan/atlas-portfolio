@@ -15,6 +15,7 @@ const checkoutRequirementsUrl = new URL(
 const pricingCatalogUrl = new URL('../src/lib/deflection-pricing-catalog.js', import.meta.url);
 const partnerTokenUrl = new URL('../src/lib/deflection-partner-token.js', import.meta.url);
 const gapReportIntakeUrl = new URL('../src/lib/gap-report-intake.ts', import.meta.url);
+const rateLimitUrl = new URL('../src/lib/deflection-rate-limit.ts', import.meta.url);
 const recordRouteUrl = new URL(
   '../src/app/api/gap-report-intake/record/route.ts',
   import.meta.url,
@@ -40,10 +41,12 @@ const ACCESS_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN';
 const SIGNING_ENV_KEY = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const PERSIST_ENV_KEY = 'GAP_REPORT_TEST_PERSIST';
 const SUBMIT_REASON_ENV_KEY = 'ATLAS_SUBMIT_TEST_REASON';
+const HEAD_FAIL_ENV_KEY = 'GAP_REPORT_TEST_HEAD_FAIL';
 const originalAccessEnv = process.env[ACCESS_ENV_KEY];
 const originalSigningEnv = process.env[SIGNING_ENV_KEY];
 const originalPersistEnv = process.env[PERSIST_ENV_KEY];
 const originalSubmitReasonEnv = process.env[SUBMIT_REASON_ENV_KEY];
+const originalHeadFailEnv = process.env[HEAD_FAIL_ENV_KEY];
 
 function resetTokens({ access, signing } = {}) {
   delete process.env[ACCESS_ENV_KEY];
@@ -271,6 +274,11 @@ try {
       '  globalThis.__gapReportPersistCalls = (globalThis.__gapReportPersistCalls || 0) + 1;',
       "  return process.env.GAP_REPORT_TEST_PERSIST !== 'false';",
       '};',
+      'exports.getRecentGapReportSubmissionByEmailAndBlob = async (email, csvBlobUrl, submittedAfterIso) => {',
+      '  globalThis.__gapReportDuplicateLookupCalls = (globalThis.__gapReportDuplicateLookupCalls || 0) + 1;',
+      '  globalThis.__gapReportLastDuplicateLookup = { email, csvBlobUrl, submittedAfterIso };',
+      '  return globalThis.__gapReportExistingSubmission || null;',
+      '};',
       '',
     ].join('\n'),
   );
@@ -279,6 +287,7 @@ try {
     join(libStubDir, 'atlas-deflection-client.js'),
     [
       'exports.submitDeflectionReportCsv = async () => {',
+      '  globalThis.__atlasSubmitCalls = (globalThis.__atlasSubmitCalls || 0) + 1;',
       '  const reason = process.env.ATLAS_SUBMIT_TEST_REASON;',
       "  return reason ? { ok: false, reason } : { ok: true, requestId: 'content-ops-unit-123' };",
       '};',
@@ -287,7 +296,14 @@ try {
   );
   await writeFile(
     join(blobStubDir, 'index.js'),
-    "exports.head = async () => ({ url: 'https://blob.example/gap-report-csvs/unit.csv' });\n",
+    [
+      'exports.head = async () => {',
+      '  globalThis.__gapReportHeadCalls = (globalThis.__gapReportHeadCalls || 0) + 1;',
+      "  if (process.env.GAP_REPORT_TEST_HEAD_FAIL === 'true') throw new Error('not found');",
+      "  return { url: 'https://blob.example/gap-report-csvs/unit.csv' };",
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(nextStubDir, 'server.js'),
@@ -302,6 +318,14 @@ try {
     },
   });
   await writeFile(join(libStubDir, 'gap-report-intake.js'), compiledGapReportIntake.outputText);
+  const rateLimitSource = await readFile(rateLimitUrl, 'utf8');
+  const compiledRateLimit = ts.transpileModule(rateLimitSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(join(libStubDir, 'deflection-rate-limit.js'), compiledRateLimit.outputText);
 
   const recordRouteSource = await readFile(recordRouteUrl, 'utf8');
   const compiledRecordRoute = ts.transpileModule(recordRouteSource, {
@@ -313,6 +337,28 @@ try {
   await writeFile(compiledRecordRoutePath, compiledRecordRoute.outputText);
   const { POST } = require(compiledRecordRoutePath);
   globalThis.__gapReportPersistCalls = 0;
+  globalThis.__gapReportDuplicateLookupCalls = 0;
+  globalThis.__gapReportHeadCalls = 0;
+  globalThis.__atlasSubmitCalls = 0;
+  delete globalThis.__atlasDeflectionRateLimitStore;
+
+  function recordRequest({ ip = '203.0.113.10', email = 'alex@example.com', priceVariant = 'standard' } = {}) {
+    return new Request('https://unit.test/api/gap-report-intake/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+      body: JSON.stringify({
+        name: 'Alex Lee',
+        email,
+        companyName: 'Effingham Office Maids',
+        supportPlatform: 'helpscout',
+        csvFilename: 'tickets.csv',
+        sourcePage: '/systems/support-ticket-deflection/intake',
+        sourceOffer: 'support-ticket-deflection-intake',
+        priceVariant,
+        blobUrl: 'https://blob.example/gap-report-csvs/unit.csv',
+      }),
+    });
+  }
 
   resetTokens({ access: 'signed-partner-token' });
   const forgedPartnerRecord = await POST(
@@ -337,6 +383,72 @@ try {
     ok: false,
     error: 'Invalid partner price access token.',
   });
+
+  globalThis.__gapReportExistingSubmission = {
+    requestId: '22222222-2222-4222-8222-222222222222',
+    reportRequestId: 'content-ops-existing-456',
+    submittedAt: '2026-06-08T19:40:00.000Z',
+  };
+  const submitCallsBeforeDuplicate = globalThis.__atlasSubmitCalls;
+  const persistCallsBeforeDuplicate = globalThis.__gapReportPersistCalls;
+  const duplicateRecord = await POST(recordRequest({ ip: '203.0.113.21' }));
+  assert.equal(duplicateRecord.status, 200);
+  assert.deepEqual(await duplicateRecord.json(), {
+    ok: true,
+    requestId: '22222222-2222-4222-8222-222222222222',
+    reportRequestId: 'content-ops-existing-456',
+    status: 'already_submitted',
+    warnings: [],
+    estimatedResponseHours: 24,
+  });
+  assert.equal(globalThis.__gapReportLastDuplicateLookup.email, 'alex@example.com');
+  assert.equal(
+    globalThis.__gapReportLastDuplicateLookup.csvBlobUrl,
+    'https://blob.example/gap-report-csvs/unit.csv',
+  );
+  assert.equal(globalThis.__atlasSubmitCalls, submitCallsBeforeDuplicate);
+  assert.equal(globalThis.__gapReportPersistCalls, persistCallsBeforeDuplicate);
+  delete globalThis.__gapReportExistingSubmission;
+  delete globalThis.__atlasDeflectionRateLimitStore;
+
+  process.env[HEAD_FAIL_ENV_KEY] = 'true';
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const forgedBlob = await POST(
+      recordRequest({ ip: `198.51.100.${attempt + 10}`, email: 'victim@example.com' }),
+    );
+    assert.equal(forgedBlob.status, 400);
+    assert.deepEqual(await forgedBlob.json(), { ok: false, error: 'Upload not found.' });
+  }
+  delete process.env[HEAD_FAIL_ENV_KEY];
+  const validVictimRecord = await POST(
+    recordRequest({ ip: '198.51.100.50', email: 'victim@example.com' }),
+  );
+  assert.equal(validVictimRecord.status, 200);
+  assert.equal((await validVictimRecord.json()).reportRequestId, 'content-ops-unit-123');
+  delete globalThis.__atlasDeflectionRateLimitStore;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const accepted = await POST(
+      recordRequest({ ip: '203.0.113.77', email: 'rate-limited@example.com' }),
+    );
+    assert.equal(accepted.status, 200);
+  }
+  const headCallsBeforeRateLimit = globalThis.__gapReportHeadCalls;
+  const submitCallsBeforeRateLimit = globalThis.__atlasSubmitCalls;
+  const persistCallsBeforeRateLimit = globalThis.__gapReportPersistCalls;
+  const rateLimitedRecord = await POST(
+    recordRequest({ ip: '203.0.113.77', email: 'rate-limited@example.com' }),
+  );
+  assert.equal(rateLimitedRecord.status, 429);
+  assert.equal(Number(rateLimitedRecord.headers.get('Retry-After')) > 0, true);
+  assert.deepEqual(await rateLimitedRecord.json(), {
+    ok: false,
+    error: 'Too many submission attempts. Please try again later.',
+  });
+  assert.equal(globalThis.__gapReportHeadCalls, headCallsBeforeRateLimit);
+  assert.equal(globalThis.__atlasSubmitCalls, submitCallsBeforeRateLimit);
+  assert.equal(globalThis.__gapReportPersistCalls, persistCallsBeforeRateLimit);
+  delete globalThis.__atlasDeflectionRateLimitStore;
 
   const submitFailureFixtures = [
     {
@@ -373,6 +485,7 @@ try {
   console.error = () => {};
   try {
     for (const { reason, status, error } of submitFailureFixtures) {
+      delete globalThis.__atlasDeflectionRateLimitStore;
       process.env[SUBMIT_REASON_ENV_KEY] = reason;
       const persistCallsBeforeSubmitFailure = globalThis.__gapReportPersistCalls;
       const atlasSubmitFailure = await POST(
@@ -469,12 +582,20 @@ try {
   delete process.env[SIGNING_ENV_KEY];
   delete process.env[PERSIST_ENV_KEY];
   delete process.env[SUBMIT_REASON_ENV_KEY];
+  delete process.env[HEAD_FAIL_ENV_KEY];
   if (originalAccessEnv !== undefined) process.env[ACCESS_ENV_KEY] = originalAccessEnv;
   if (originalSigningEnv !== undefined) process.env[SIGNING_ENV_KEY] = originalSigningEnv;
   if (originalPersistEnv !== undefined) process.env[PERSIST_ENV_KEY] = originalPersistEnv;
   if (originalSubmitReasonEnv !== undefined) {
     process.env[SUBMIT_REASON_ENV_KEY] = originalSubmitReasonEnv;
   }
+  if (originalHeadFailEnv !== undefined) process.env[HEAD_FAIL_ENV_KEY] = originalHeadFailEnv;
+  delete globalThis.__atlasDeflectionRateLimitStore;
+  delete globalThis.__atlasSubmitCalls;
+  delete globalThis.__gapReportDuplicateLookupCalls;
+  delete globalThis.__gapReportExistingSubmission;
+  delete globalThis.__gapReportHeadCalls;
+  delete globalThis.__gapReportLastDuplicateLookup;
   delete globalThis.__gapReportPersistCalls;
   await rm(testDir, { recursive: true, force: true });
 }
