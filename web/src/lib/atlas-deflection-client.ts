@@ -300,6 +300,23 @@ export type ArtifactFetchResult =
   | { ok: true; artifact: FAQDeflectionReportArtifact }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
 
+export type DeflectionCheckoutAuthorization = {
+  amountCents: number;
+  currency: string;
+  priceId: string;
+};
+
+type CheckoutAuthorizationFailureReason =
+  | 'not_configured'
+  | 'not_found'
+  | 'already_paid'
+  | 'unavailable'
+  | 'error';
+
+export type CheckoutAuthorizationResult =
+  | { ok: true; checkout: DeflectionCheckoutAuthorization }
+  | { ok: false; reason: CheckoutAuthorizationFailureReason };
+
 export type DeflectionSubmitResult =
   | { ok: true; requestId: string }
   | {
@@ -323,6 +340,10 @@ const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
   helpscout: 'help_scout',
   other: 'other',
 };
+
+function deflectionCheckoutAuthorizationPath(requestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/checkout-authorization`;
+}
 
 function safeCsvFilename(filename: string) {
   const safe = filename.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120) || 'support-tickets.csv';
@@ -408,6 +429,92 @@ export async function submitDeflectionReportCsv(
     return { ok: true, requestId };
   } catch (err) {
     console.error('deflection submit error:', err instanceof Error ? err.message : err);
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseCheckoutAuthorization(v: unknown): DeflectionCheckoutAuthorization | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const response = v as Record<string, unknown>;
+  const checkout = response.checkout;
+  if (typeof checkout !== 'object' || checkout === null) return null;
+  const terms = checkout as Record<string, unknown>;
+  const amountCents = terms.amount_cents;
+  const currency = terms.currency;
+  const priceId = terms.price_id;
+  if (
+    response.status === 'authorized' &&
+    typeof amountCents === 'number' &&
+    Number.isSafeInteger(amountCents) &&
+    amountCents > 0 &&
+    typeof currency === 'string' &&
+    /^[a-zA-Z]{3}$/.test(currency) &&
+    typeof priceId === 'string' &&
+    priceId.trim().length > 0
+  ) {
+    return {
+      amountCents,
+      currency: currency.trim().toLowerCase(),
+      priceId: priceId.trim(),
+    };
+  }
+  return null;
+}
+
+function checkoutAuthorizationConflictReason(
+  value: unknown,
+): CheckoutAuthorizationFailureReason {
+  if (typeof value !== 'object' || value === null) return 'unavailable';
+  const detail = (value as Record<string, unknown>).detail;
+  if (typeof detail !== 'string') return 'unavailable';
+  if (detail.toLowerCase().includes('already paid')) return 'already_paid';
+  return 'unavailable';
+}
+
+export async function authorizeDeflectionCheckout(
+  requestId: string,
+): Promise<CheckoutAuthorizationResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+  if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${deflectionCheckoutAuthorizationPath(requestId)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 404) return { ok: false, reason: 'not_found' };
+    if (res.status === 409) {
+      return {
+        ok: false,
+        reason: checkoutAuthorizationConflictReason(await res.json().catch(() => null)),
+      };
+    }
+    if (res.status === 503) return { ok: false, reason: 'not_configured' };
+    if (!res.ok) {
+      console.error(`deflection checkout authorization failed: HTTP ${res.status}`);
+      return { ok: false, reason: 'error' };
+    }
+    const checkout = parseCheckoutAuthorization(await res.json());
+    if (!checkout) {
+      console.error('deflection checkout authorization: upstream shape rejected');
+      return { ok: false, reason: 'error' };
+    }
+    return { ok: true, checkout };
+  } catch (err) {
+    console.error(
+      'deflection checkout authorization error:',
+      err instanceof Error ? err.message : err,
+    );
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

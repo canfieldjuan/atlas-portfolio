@@ -18,7 +18,7 @@ import {
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
-import * as checkoutRequirements from '@/lib/deflection-checkout-requirements';
+import type { DeflectionCheckoutAuthorization } from '@/lib/atlas-deflection-client';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const ATTEMPT_ID_RE = /^[A-Za-z0-9._:-]{8,160}$/;
@@ -38,8 +38,6 @@ export type CheckoutResult =
 type StripeCheckoutConfig = {
   apiKey: string;
   accountId: string;
-  priceId: string | null;
-  allowedAmountsCents: ReadonlySet<number>;
 };
 
 type StripeCheckoutSessionResponse = {
@@ -48,27 +46,46 @@ type StripeCheckoutSessionResponse = {
   currency?: unknown;
 };
 
-function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfig | null {
-  const resolved = checkoutRequirements.resolveDeflectionCheckoutRuntimeConfig(
-    process.env,
-    priceVariant,
-    {
-      environment: process.env.VERCEL_ENV,
-    },
-  );
-  if (!resolved.ok) {
-    if (resolved.message) {
-      console.error(`stripe checkout create: ${resolved.message}`);
+function stripeConfig(): StripeCheckoutConfig | null {
+  const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
+  const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
+  const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
+  const isProduction = (process.env.VERCEL_ENV || '').trim().toLowerCase() === 'production';
+  if (!accountId) return null;
+  if (restrictedKey) {
+    if (!restrictedKey.startsWith('rk_')) {
+      console.error('stripe checkout create: restricted key must start with rk_');
+      return null;
     }
+    if (isProduction && !restrictedKey.startsWith('rk_live_')) {
+      console.error('stripe checkout create: live restricted key is required in production');
+      return null;
+    }
+    if (!isProduction && restrictedKey.startsWith('rk_live_')) {
+      console.error('stripe checkout create: live restricted key is not accepted outside production');
+      return null;
+    }
+    return { apiKey: restrictedKey, accountId };
+  }
+  if (!legacyTestSecretKey) return null;
+  if (isProduction) {
+    console.error('stripe checkout create: restricted key is required in production');
     return null;
   }
-  if (!resolved.config) return null;
-  return resolved.config;
+  if (legacyTestSecretKey.startsWith('sk_live_')) {
+    console.error('stripe checkout create: full live secret key is not accepted');
+    return null;
+  }
+  if (!legacyTestSecretKey.startsWith('sk_test_')) {
+    console.error('stripe checkout create: fallback secret key must be test-mode');
+    return null;
+  }
+  return { apiKey: legacyTestSecretKey, accountId };
 }
 
 function isAllowedCheckoutSession(
   session: StripeCheckoutSessionResponse,
-  priceVariant: DeflectionPriceVariant,
+  checkout: DeflectionCheckoutAuthorization,
 ): session is StripeCheckoutSessionResponse & { url: string } {
   if (typeof session.url !== 'string' || !session.url) {
     console.error('stripe checkout create: missing session url');
@@ -79,12 +96,15 @@ function isAllowedCheckoutSession(
     console.error('stripe checkout create: missing session amount');
     return false;
   }
-  if (amountTotal !== priceVariant.amountCents) {
-    console.error('stripe checkout create: session amount does not match selected variant');
+  if (amountTotal !== checkout.amountCents) {
+    console.error('stripe checkout create: session amount does not match ATLAS authorization');
     return false;
   }
-  if (typeof session.currency !== 'string' || session.currency.toLowerCase() !== 'usd') {
-    console.error('stripe checkout create: session currency is not allowed');
+  if (
+    typeof session.currency !== 'string' ||
+    session.currency.toLowerCase() !== checkout.currency
+  ) {
+    console.error('stripe checkout create: session currency does not match ATLAS authorization');
     return false;
   }
   return true;
@@ -105,14 +125,22 @@ function checkoutReturnUrl(
 export async function createDeflectionCheckoutSession(
   requestId: string,
   attemptId: string,
+  checkout: DeflectionCheckoutAuthorization,
   priceVariantId: DeflectionPriceVariantId = DEFAULT_PRICE_VARIANT.id,
 ): Promise<CheckoutResult> {
   const priceVariant = resolveDeflectionPriceVariant(priceVariantId);
   if (!priceVariant) return { ok: false, reason: 'invalid_request' };
 
-  const config = stripeConfig(priceVariant);
+  const config = stripeConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
-  if (!REQUEST_ID_RE.test(requestId) || !ATTEMPT_ID_RE.test(attemptId)) {
+  if (
+    !REQUEST_ID_RE.test(requestId) ||
+    !ATTEMPT_ID_RE.test(attemptId) ||
+    !Number.isSafeInteger(checkout.amountCents) ||
+    checkout.amountCents <= 0 ||
+    !/^[a-z]{3}$/.test(checkout.currency) ||
+    !checkout.priceId
+  ) {
     return { ok: false, reason: 'invalid_request' };
   }
 
@@ -124,23 +152,14 @@ export async function createDeflectionCheckoutSession(
   form.set('success_url', checkoutReturnUrl(requestId, 'success', priceVariant));
   form.set('cancel_url', checkoutReturnUrl(requestId, 'cancel', priceVariant));
   form.set('line_items[0][quantity]', '1');
-  if (config.priceId) {
-    form.set('line_items[0][price]', config.priceId);
-  } else {
-    form.set('line_items[0][price_data][currency]', 'usd');
-    form.set('line_items[0][price_data][unit_amount]', String(priceVariant.amountCents));
-    form.set(
-      'line_items[0][price_data][product_data][name]',
-      priceVariant.stripeProductName,
-    );
-  }
+  form.set('line_items[0][price]', checkout.priceId);
   // ATLAS reads source/account_id/request_id off the session in its webhook
   // handler. Price metadata is attribution for the variant selected here.
   form.set('metadata[source]', 'content_ops_deflection_report');
   form.set('metadata[account_id]', config.accountId);
   form.set('metadata[request_id]', requestId);
   form.set('metadata[price_variant]', priceVariant.metadataValue);
-  setPriceMetadata(form, config, priceVariant);
+  setPriceMetadata(form, checkout);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -165,7 +184,7 @@ export async function createDeflectionCheckoutSession(
       return { ok: false, reason: 'error' };
     }
     const session = (await res.json()) as StripeCheckoutSessionResponse;
-    if (!isAllowedCheckoutSession(session, priceVariant)) {
+    if (!isAllowedCheckoutSession(session, checkout)) {
       return { ok: false, reason: 'error' };
     }
     return { ok: true, url: session.url };
@@ -179,12 +198,9 @@ export async function createDeflectionCheckoutSession(
 
 function setPriceMetadata(
   form: URLSearchParams,
-  config: StripeCheckoutConfig,
-  priceVariant: DeflectionPriceVariant,
+  checkout: DeflectionCheckoutAuthorization,
 ) {
-  if (config.priceId) {
-    form.set('metadata[price_id]', config.priceId);
-    return;
-  }
-  form.set('metadata[price_amount_cents]', String(priceVariant.amountCents));
+  form.set('metadata[price_id]', checkout.priceId);
+  form.set('metadata[price_amount_cents]', String(checkout.amountCents));
+  form.set('metadata[price_currency]', checkout.currency);
 }
