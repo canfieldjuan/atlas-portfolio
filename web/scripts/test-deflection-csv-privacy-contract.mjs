@@ -17,6 +17,14 @@ function assertNotIncludes(haystack, needle, context) {
   assert.equal(haystack.includes(needle), false, `${context}: unexpected ${needle}`);
 }
 
+function sourceSlice(haystack, startNeedle, endNeedle, context) {
+  const start = haystack.indexOf(startNeedle);
+  assert.notEqual(start, -1, `${context}: expected to find ${startNeedle}`);
+  const end = haystack.indexOf(endNeedle, start);
+  assert.notEqual(end, -1, `${context}: expected to find ${endNeedle}`);
+  return haystack.slice(start, end);
+}
+
 const intakePage = await source('src/components/landing/SupportTicketCsvIntakePage.tsx');
 const uploadRoute = await source('src/app/api/gap-report-intake/upload/route.ts');
 const recordRoute = await source('src/app/api/gap-report-intake/record/route.ts');
@@ -47,10 +55,26 @@ assertIncludes(
   'Privacy: we delete the uploaded CSV and submission record after 30 days.',
   'CSV confirmation retention copy',
 );
+const writeTokenResolver = sourceSlice(
+  intakeLib,
+  'export function gapReportBlobToken()',
+  'export function gapReportBlobTokens()',
+  'CSV Blob write token resolver',
+);
+assertIncludes(
+  writeTokenResolver,
+  'return cleanBlobToken(process.env.BLOB_READ_WRITE_TOKEN);',
+  'CSV Blob write token resolver',
+);
+assertNotIncludes(
+  writeTokenResolver,
+  'ticke_deflection_blob_READ_WRITE_TOKEN',
+  'CSV Blob write token resolver',
+);
 assert.ok(
   intakeLib.indexOf('cleanBlobToken(process.env.BLOB_READ_WRITE_TOKEN)') <
     intakeLib.indexOf('cleanBlobToken(process.env.ticke_deflection_blob_READ_WRITE_TOKEN)'),
-  'CSV Blob token resolver prefers the private-capable default store before the legacy public store',
+  'CSV Blob URL fallback list prefers the private-capable default store before the legacy public store',
 );
 assertIncludes(intakeLib, 'export function gapReportBlobTokens()', 'CSV Blob token fallback list');
 
