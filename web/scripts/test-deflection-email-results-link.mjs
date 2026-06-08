@@ -192,7 +192,8 @@ try {
   assert.doesNotMatch(sentText(0), /\/systems\/support-ticket-deflection\/results\//);
   assert.doesNotMatch(sentText(1), /Your free Deflection Snapshot is ready:/);
   assert.doesNotMatch(sentText(1), /bookmark your results link/);
-  assert.match(sentText(1), /within 24 hours/);
+  assert.match(sentText(1), /as soon as processing finishes/);
+  assert.doesNotMatch(sentText(1), /within 24 hours/);
 
   installFetchMock();
   await recordGapReportSubmission({

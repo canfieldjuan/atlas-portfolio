@@ -12,7 +12,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     badge: `FREE · NO CARD`,
     title: `Deflection Snapshot`,
     price: `Free`,
-    sla: `Delivered in 24 hours after CSV upload`,
+    sla: `Delivered in seconds after CSV upload`,
     description:
       `Upload your last 30 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
     includes: [

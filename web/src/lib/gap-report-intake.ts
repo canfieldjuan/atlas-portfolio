@@ -277,7 +277,7 @@ function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
     '2. We look for repeat questions and the words customers use when they get stuck.',
     resultsUrl
       ? `3. If we find more data issues, we will follow up at this email.`
-      : `3. We send your free ${offer.snapshotName} to this email within 24 hours.`,
+      : `3. We send your free ${offer.snapshotName} to this email as soon as processing finishes.`,
     ...(resultsUrl
       ? [
           '',

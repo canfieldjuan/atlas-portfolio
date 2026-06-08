@@ -47,7 +47,7 @@ function ComparisonGrid() {
   const rows = [
     {
       current: 'Scan tags. Poll agents. Chase the loudest complaint.',
-      next: 'Upload a CSV. Get a ranked fix list in 24 hours, ordered by how often each question reaches support.',
+      next: 'Upload a CSV. Get a ranked fix list in seconds, ordered by how often each question reaches support.',
     },
     {
       current: 'Write docs from internal assumptions and product jargon.',
@@ -221,7 +221,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     intro:
       'We read your support tickets, find the repeat questions your Help Center keeps missing, and hand your team review-ready FAQ drafts.',
     body:
-      'Upload 30 days of tickets. In 24 hours, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
+      'Upload 30 days of tickets. In seconds, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
       label: 'Get the free Snapshot first',
       href: SNAPSHOT_HREF,
@@ -254,7 +254,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
           Export a CSV from Zendesk, Intercom, Help Scout, or any desk that gives you one. That file already contains the language customers use, the answers agents write, and the evidence needed to rank what should be fixed first.
         </p>
         <p>
-          Within 24 hours you get a ranked fix list: every repeat-question cluster ordered by frequency, customer-term-to-doc-term gaps, source-ticket evidence, a drafted FAQ for every gap your tickets already answer, and a flagged list of the ones they do not. You review, edit, and publish what you approve.
+          In seconds you get a ranked fix list: every repeat-question cluster ordered by frequency, customer-term-to-doc-term gaps, source-ticket evidence, a drafted FAQ for every gap your tickets already answer, and a flagged list of the ones they do not. You review, edit, and publish what you approve.
         </p>
       </CopyBlock>
     ),
@@ -380,7 +380,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     label: 'START HERE',
     title: 'Find the gaps fueling your ticket volume.',
     body: [
-      'Every day you wait, your team spends hours answering the same preventable questions. Upload your CSV today, and within 24 hours, you will see exactly which repeat questions and wording gaps are costing you the most time, complete with publishable drafts.',
+      'Every day you wait, your team spends hours answering the same preventable questions. Upload your CSV today, and in seconds, you will see exactly which repeat questions and wording gaps are costing you the most time, complete with publishable drafts.',
       'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to start clearing the repeats.',
     ],
     cta: {
