@@ -42,6 +42,12 @@ jobs:
       - name: Test enrollment audit tests
         run: npm --prefix web run test:test-enrollment-audit
 
+      - name: Dead code baseline
+        run: npm --prefix web run check:dead-code
+
+      - name: Dead code baseline tests
+        run: npm --prefix web run test:dead-code-baseline
+
       - name: ESLint (web)
         run: npm --prefix web run lint
 

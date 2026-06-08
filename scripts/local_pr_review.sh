@@ -94,6 +94,7 @@ if [ -f scripts/audit_pr_session_drift.py ]; then
 fi
 
 # Node gates: our real "does it compile / lint" check. Run from web/.
+run_check "Dead code baseline (web)" npm --prefix web run check:dead-code
 run_check "ESLint (web)" npm --prefix web run lint
 run_check "Next build (web)" npm --prefix web run build
 
