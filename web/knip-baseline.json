@@ -59,11 +59,6 @@
       "name": "trackEvent"
     },
     {
-      "type": "exports",
-      "file": "src/lib/no-chrome-routes.ts",
-      "name": "NO_CHROME_ROUTES"
-    },
-    {
       "type": "files",
       "file": "scripts/audit-test-enrollment.mjs",
       "name": "scripts/audit-test-enrollment.mjs"
@@ -97,11 +92,6 @@
       "type": "types",
       "file": "src/lib/deflection-report-contract.ts",
       "name": "TicketFAQMarkdownResult"
-    },
-    {
-      "type": "types",
-      "file": "src/lib/no-chrome-routes.ts",
-      "name": "NoChromeRoute"
     }
   ]
 }

@@ -3,7 +3,7 @@
 // escape hatches. Per-route opt-in (not opt-out) so it's hard to accidentally
 // strip chrome from a page that needs it.
 
-export const NO_CHROME_ROUTES = [
+const NO_CHROME_ROUTES = [
   '/systems/ai-content-ops',
   '/systems/support-ticket-deflection',
   '/systems/support-ticket-deflection/demo',
@@ -16,8 +16,6 @@ export const NO_CHROME_ROUTES = [
 
 const NO_CHROME_PREFIXES = ['/systems/support-ticket-deflection/results/'] as const;
 
-type NoChromeRoute = (typeof NO_CHROME_ROUTES)[number];
-
 export function shouldHideChrome(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
   const normalized = pathname.replace(/(.)\/+$/, '$1');
@@ -26,6 +24,3 @@ export function shouldHideChrome(pathname: string | null | undefined): boolean {
     NO_CHROME_PREFIXES.some((prefix) => normalized.startsWith(prefix))
   );
 }
-
-// Convenience re-exports for components that need the typed list.
-export type { NoChromeRoute };
