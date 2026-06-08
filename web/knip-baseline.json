@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "tool": "knip",
+  "command": "knip --reporter json --no-exit-code --no-progress",
+  "issues": [
+    {
+      "type": "exports",
+      "file": "scripts/ads-cli-helpers.mjs",
+      "name": "resolveRepoPath"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/ads-spec-io.mjs",
+      "name": "readCsv"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/ads-spec-io.mjs",
+      "name": "readJson"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/ads-spec-io.mjs",
+      "name": "specDir"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/google-ads-api.mjs",
+      "name": "formatDashedCustomerId"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/google-ads-artifact-contracts.mjs",
+      "name": "GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/google-ads-env.mjs",
+      "name": "DEFAULT_GOOGLE_ADS_API_VERSION"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/google-ads-env.mjs",
+      "name": "OPTIONAL_GOOGLE_ADS_ENV"
+    },
+    {
+      "type": "exports",
+      "file": "scripts/google-ads-env.mjs",
+      "name": "REQUIRED_GOOGLE_ADS_ENV"
+    },
+    {
+      "type": "exports",
+      "file": "src/app/systems/support-ticket-deflection/landingConfig.tsx",
+      "name": "GAP_REPORT_INTAKE_HREF"
+    },
+    {
+      "type": "exports",
+      "file": "src/lib/admin-intake-auth.ts",
+      "name": "adminIntakeToken"
+    },
+    {
+      "type": "exports",
+      "file": "src/lib/analytics.ts",
+      "name": "redactAnalyticsPath"
+    },
+    {
+      "type": "exports",
+      "file": "src/lib/analytics.ts",
+      "name": "trackEvent"
+    },
+    {
+      "type": "exports",
+      "file": "src/lib/no-chrome-routes.ts",
+      "name": "NO_CHROME_ROUTES"
+    },
+    {
+      "type": "files",
+      "file": "scripts/audit-test-enrollment.mjs",
+      "name": "scripts/audit-test-enrollment.mjs"
+    },
+    {
+      "type": "files",
+      "file": "src/components/ContentOpsDemo.tsx",
+      "name": "src/components/ContentOpsDemo.tsx"
+    },
+    {
+      "type": "files",
+      "file": "src/components/landing/DiagnosticReportLandingPage.tsx",
+      "name": "src/components/landing/DiagnosticReportLandingPage.tsx"
+    },
+    {
+      "type": "types",
+      "file": "src/components/landing/LandingPrimitives.tsx",
+      "name": "DiagnosticCard"
+    },
+    {
+      "type": "types",
+      "file": "src/components/landing/LandingPrimitives.tsx",
+      "name": "DiagnosticUseCase"
+    },
+    {
+      "type": "types",
+      "file": "src/lib/deflection-report-contract.ts",
+      "name": "FAQDeflectionReportSummary"
+    },
+    {
+      "type": "types",
+      "file": "src/lib/deflection-report-contract.ts",
+      "name": "TicketFAQMarkdownResult"
+    },
+    {
+      "type": "types",
+      "file": "src/lib/no-chrome-routes.ts",
+      "name": "NoChromeRoute"
+    }
+  ]
+}
