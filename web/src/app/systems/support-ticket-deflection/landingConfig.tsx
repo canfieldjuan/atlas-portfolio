@@ -4,7 +4,7 @@ import { DEFLECTION_DEFAULT_PRICE_VARIANT } from '@/lib/deflection-pricing';
 // All on-page CTAs route to the focused deflection report intake (CSV upload),
 // not the broader /audit form. Kept as a single constant so future renames
 // or per-CTA tracking params are one-edit-one-file.
-export const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
+const GAP_REPORT_INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 
 export const pricingTiers: DiagnosticPricingTier[] = [
   {
