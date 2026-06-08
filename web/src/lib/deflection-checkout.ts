@@ -61,6 +61,10 @@ function stripeConfig(): StripeCheckoutConfig | null {
       console.error('stripe checkout create: live restricted key is required in production');
       return null;
     }
+    if (!isProduction && restrictedKey.startsWith('rk_live_')) {
+      console.error('stripe checkout create: live restricted key is not accepted outside production');
+      return null;
+    }
     return { apiKey: restrictedKey, accountId };
   }
   if (!legacyTestSecretKey) return null;

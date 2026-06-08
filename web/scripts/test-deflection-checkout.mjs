@@ -173,7 +173,7 @@ try {
   installFetchMock();
 
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
@@ -183,7 +183,7 @@ try {
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].headers.Authorization, 'Bearer rk_live_unit_restricted');
+  assert.equal(calls[0].headers.Authorization, 'Bearer rk_test_unit_restricted');
   assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
   assert.equal(calls[0].body.has('line_items[0][price_data][unit_amount]'), false);
   assert.equal(calls[0].body.get('metadata[account_id]'), 'acct_unit');
@@ -209,7 +209,7 @@ try {
     amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
   });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
@@ -238,7 +238,7 @@ try {
     amount_total: DEFLECTION_FULL_REPORT_PRICE_CENTS,
   });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
@@ -256,7 +256,7 @@ try {
     amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
   });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER: 'price_partner123',
@@ -269,7 +269,7 @@ try {
 
   installFetchMock();
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'not_a_price',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_legacy123',
@@ -283,7 +283,7 @@ try {
 
   installFetchMock();
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
@@ -295,7 +295,7 @@ try {
 
   installFetchMock({ ...defaultStripeSession, amount_total: variantAmountCents });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
@@ -307,7 +307,7 @@ try {
 
   installFetchMock({ ...defaultStripeSession, amount_total: variantAmountCents });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
@@ -321,7 +321,7 @@ try {
 
   installFetchMock({ ...defaultStripeSession, currency: 'eur' });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
@@ -333,7 +333,7 @@ try {
 
   installFetchMock({ url: 'https://checkout.stripe.test/session', currency: 'usd' });
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
   });
@@ -345,7 +345,7 @@ try {
 
   installFetchMock();
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
@@ -359,7 +359,7 @@ try {
 
   installFetchMock();
   resetEnv({
-    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
     STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS: '1500.00',
@@ -401,12 +401,26 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'production',
   });
   assert.deepEqual(
     await createSession(),
     { ok: true, url: 'https://checkout.stripe.test/session' },
   );
   assert.equal(calls.length, 1);
+  assert.equal(calls[0].headers.Authorization, 'Bearer rk_live_unit_restricted');
+
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    VERCEL_ENV: 'preview',
+  });
+  assert.deepEqual(
+    await createSession(),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -504,8 +518,16 @@ try {
     join(seoStubDir, 'gap-report-intake-database.js'),
     [
       'let savedPriceVariantId = null;',
-      'exports.setSavedPriceVariantId = (value) => { savedPriceVariantId = value; };',
-      'exports.getGapReportPriceVariantByReportRequestId = async () => savedPriceVariantId;',
+      'let shouldFailLookup = false;',
+      'exports.setSavedPriceVariantId = (value) => {',
+      '  savedPriceVariantId = value;',
+      '  shouldFailLookup = false;',
+      '};',
+      'exports.setLookupFailure = () => { shouldFailLookup = true; };',
+      'exports.getGapReportPriceVariantByReportRequestId = async () => {',
+      "  if (shouldFailLookup) throw new Error('lookup failed');",
+      '  return savedPriceVariantId;',
+      '};',
       '',
     ].join('\n'),
   );
@@ -565,6 +587,27 @@ try {
   );
   assert.equal(unsignedDiscountResponse.status, 503);
   assert.deepEqual(await unsignedDiscountResponse.json(), {
+    error: 'Could not start checkout. Please try again.',
+  });
+  assert.deepEqual(atlasRouteStub.authorizationCalls, []);
+  assert.deepEqual(checkoutRouteStub.calls, []);
+
+  checkoutRouteStub.calls.length = 0;
+  atlasRouteStub.authorizationCalls.length = 0;
+  checkoutDatabaseStub.setLookupFailure();
+  const lookupFailureResponse = await POST(
+    new Request('https://unit.test/api/deflection-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: 'request-123',
+        attemptId: 'attempt-12345678',
+        priceVariant: 'standard',
+      }),
+    }),
+  );
+  assert.equal(lookupFailureResponse.status, 503);
+  assert.deepEqual(await lookupFailureResponse.json(), {
     error: 'Could not start checkout. Please try again.',
   });
   assert.deepEqual(atlasRouteStub.authorizationCalls, []);

@@ -29,7 +29,12 @@ Slice phase: Production hardening
    variant-aware, preventing the partner funnel from charging standard terms.
 5. Add ATLAS API base URL and service token to the checkout env preflight so
    deploy checks cover the runtime authorization dependency.
-6. Extend checkout tests to prove missing authorization blocks Stripe, ATLAS
+6. Keep Stripe restricted-key handling environment-safe: production requires
+   `rk_live_`, while preview/local rejects copied live restricted keys before
+   any Stripe call.
+7. Distinguish saved-variant lookup failure from "no saved variant" so lookup
+   drift fails closed before accepting default checkout terms.
+8. Extend checkout tests to prove missing authorization blocks Stripe, ATLAS
    terms are used verbatim, and local price/currency config no longer decides
    the live line item.
 
@@ -61,6 +66,14 @@ Until ATLAS exposes variant-aware authorization, the route rejects non-standard
 checkout before calling ATLAS or Stripe. That is intentionally fail-closed: it
 preserves the standard path while preventing a partner-priced report from being
 charged standard terms.
+
+Saved price-variant lookup failure is distinct from an absent saved variant.
+The route returns 503 on lookup failure before ATLAS authorization or Stripe, so
+database/read drift cannot silently fall back to standard checkout.
+
+Stripe restricted-key handling mirrors the preflight contract at runtime:
+`rk_live_` is accepted only in production, and preview/local deployments must use
+test-mode restricted keys or the existing test-mode fallback.
 
 ## Intentional
 
@@ -110,12 +123,12 @@ Parked hardening: none.
 
 | File | LOC |
 |---|---:|
-| `web/plans/PR-Deflection-Checkout-Atlas-Authorization.md` | 121 |
+| `web/plans/PR-Deflection-Checkout-Atlas-Authorization.md` | 134 |
 | `web/src/lib/atlas-deflection-client.ts` | 107 |
-| `web/src/lib/deflection-checkout.ts` | 96 |
-| `web/src/app/api/deflection-checkout/route.ts` | 35 |
+| `web/src/lib/deflection-checkout.ts` | 100 |
+| `web/src/app/api/deflection-checkout/route.ts` | 59 |
 | `web/src/lib/deflection-checkout-requirements.js` | 24 |
 | `web/scripts/check-deflection-checkout-env.mjs` | 4 |
-| `web/scripts/test-deflection-checkout.mjs` | 192 |
+| `web/scripts/test-deflection-checkout.mjs` | 261 |
 | `web/scripts/test-deflection-checkout-env.mjs` | 31 |
-| Total | 609 |
+| Total | 720 |
