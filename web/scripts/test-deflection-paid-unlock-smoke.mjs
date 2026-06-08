@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   makeVercelCurlFetch,
   runDeflectionPaidUnlockSmoke,
@@ -16,6 +17,21 @@ const PAID_HTML = [
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const reportPageSourceUrl = new URL('../src/components/landing/DeflectionReportArtifactPage.tsx', import.meta.url);
+
+function assertIncludes(haystack, needle, context) {
+  assert.ok(
+    haystack.includes(needle),
+    `${context} should include ${JSON.stringify(needle)}`,
+  );
+}
+
+function assertExcludes(haystack, needle, context) {
+  assert.ok(
+    !haystack.includes(needle),
+    `${context} should not include ${JSON.stringify(needle)}`,
+  );
+}
 
 function makeFetchMock(responses) {
   const calls = [];
@@ -350,6 +366,36 @@ function run(options, responses, deps = {}) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.deepEqual(result.lockedMarkers, ['Unlock your full Backlog Report']);
+}
+
+{
+  const source = await readFile(reportPageSourceUrl, 'utf8');
+  const primerRender = '<ReportContentsPrimer artifact={artifact} />';
+  const reportRender = '<MarkdownDeliverable markdown={artifact.markdown} />';
+
+  assertIncludes(source, 'function ReportContentsPrimer', 'paid report contents primer');
+  assertExcludes(source, 'function ReportContentsPanel', 'paid report contents primer');
+  assertIncludes(source, 'mt-8 space-y-8', 'paid report stacked layout');
+  assertIncludes(source, primerRender, 'paid report stacked layout');
+  assertIncludes(source, reportRender, 'paid report stacked layout');
+  assert.ok(
+    source.indexOf(primerRender) < source.indexOf(reportRender),
+    'paid report contents primer should render before the markdown report',
+  );
+  assertExcludes(
+    source,
+    'lg:grid-cols-[minmax(0,1fr)_320px]',
+    'paid report stacked layout',
+  );
+  assertExcludes(source, 'lg:sticky', 'paid report contents primer');
+  assertExcludes(source, 'lg:top-6', 'paid report contents primer');
+  assertExcludes(source, 'lg:self-start', 'paid report contents primer');
+  assertIncludes(source, 'overflow-x-auto rounded-xl border border-border', 'markdown table scroll wrapper');
+  assertIncludes(
+    source,
+    'w-full min-w-[760px] border-collapse text-left text-sm',
+    'markdown table readable minimum width',
+  );
 }
 
 console.log('Deflection paid unlock smoke tests passed.');
