@@ -13,6 +13,10 @@ const GOOD_HTML = [
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
 ].join('');
+const NO_PROVEN_ANSWER_HTML = GOOD_HTML.replace(
+  '<p>One drafted answer you can inspect before paying</p>',
+  '<p>9 have no proven answer yet</p>',
+);
 
 function makeFetchMock(response) {
   const calls = [];
@@ -52,12 +56,29 @@ async function run(options, response) {
     headline: true,
     keywordReframe: true,
     runRateComparison: true,
-    teaserAnswer: true,
+    snapshotAnswerState: true,
     supportTax: true,
     unlockCta: true,
   });
   assert.equal(fetchImpl.calls.length, 1);
   assert.equal(fetchImpl.calls[0].init.cache, 'no-store');
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/' },
+    { status: 200, body: `${NO_PROVEN_ANSWER_HTML}<template>This page could not be found</template>` },
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.markers, {
+    snapshotBadge: true,
+    headline: true,
+    keywordReframe: true,
+    runRateComparison: true,
+    snapshotAnswerState: true,
+    supportTax: true,
+    unlockCta: true,
+  });
 }
 
 {
@@ -158,11 +179,38 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    {
+      status: 200,
+      body: GOOD_HTML.replace('One drafted answer you can inspect before paying', '').replace(
+        'no proven answer yet',
+        '',
+      ),
+    },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['snapshotAnswerState']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
     { status: 200, body: 'Application error' },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.equal(result.error, 'Hosted results page rendered an error marker: Application error.');
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    { status: 200, body: '404: This page could not be found.' },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.error, 'Hosted results page rendered an error marker: This page could not be found.');
 }
 
 console.log('Deflection hosted results smoke tests passed.');
