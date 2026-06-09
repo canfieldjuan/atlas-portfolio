@@ -45,9 +45,9 @@ to `sendSnapshotEmail(...)`, records `snapshotEmailStatus` /
 
 The hosted results smoke now treats the teaser answer as one of two acceptable
 locked snapshot states: either the page has a drafted-answer teaser, or it has
-the no-proven-answer copy produced by ATLAS when the upload has no proven
-resolution evidence. It only reports a Next not-found marker when the actual
-page marker is present and the required Snapshot markers are absent.
+both the zero-drafted summary and the locked-report copy for zero drafted
+answers. It only reports a Next not-found marker when the actual page marker is
+present and the required Snapshot markers are absent.
 
 ## Intentional
 

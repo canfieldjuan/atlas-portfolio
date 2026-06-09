@@ -9,13 +9,17 @@ const GOOD_HTML = [
   '<p>Support Tax projection</p>',
   '<p>Help-desk SEO targeting list</p>',
   '<p>This backlog at current pace</p>',
+  '<p>3 of them already have a publishable answer drafted</p>',
   '<p>One drafted answer you can inspect before paying</p>',
   '<h2>Unlock your full Backlog Report</h2>',
   '</main>',
 ].join('');
 const NO_PROVEN_ANSWER_HTML = GOOD_HTML.replace(
+  '<p>3 of them already have a publishable answer drafted</p>',
+  '<p>0 of them already have a publishable answer drafted</p>',
+).replace(
   '<p>One drafted answer you can inspect before paying</p>',
-  '<p>9 have no proven answer yet</p>',
+  '<p>0 drafted answers built from your team resolved tickets</p>',
 );
 
 function makeFetchMock(response) {
@@ -184,6 +188,23 @@ async function run(options, response) {
       body: GOOD_HTML.replace('One drafted answer you can inspect before paying', '').replace(
         'no proven answer yet',
         '',
+      ),
+    },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['snapshotAnswerState']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    {
+      status: 200,
+      body: GOOD_HTML.replace('One drafted answer you can inspect before paying', '').replace(
+        '3 of them already have a publishable answer drafted',
+        '0 of them already have a publishable answer drafted',
       ),
     },
   );

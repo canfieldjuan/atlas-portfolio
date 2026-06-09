@@ -12,10 +12,10 @@ const REQUIRED_MARKERS = [
   { key: 'runRateComparison', label: 'This backlog at current pace' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
-const SNAPSHOT_ANSWER_STATE_MARKERS = [
-  { key: 'teaserAnswer', label: 'One drafted answer you can inspect before paying' },
-  { key: 'noProvenAnswer', label: 'no proven answer yet' },
-];
+const TEASER_ANSWER_LABEL = 'One drafted answer you can inspect before paying';
+const ZERO_DRAFTED_SUMMARY_RE =
+  /(?:^|[>\s])0(?:\s|<[^>]*>|<!--.*?-->)*of them already have a publishable answer drafted/;
+const NO_DRAFTED_REPORT_COPY = 'built from your team';
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 
 function printUsage() {
@@ -60,10 +60,15 @@ function resultUrl(baseUrl, requestId) {
 
 function missingMarkers(html) {
   const missing = REQUIRED_MARKERS.filter((marker) => !html.includes(marker.label)).map((marker) => marker.key);
-  if (!SNAPSHOT_ANSWER_STATE_MARKERS.some((marker) => html.includes(marker.label))) {
+  if (!hasSnapshotAnswerState(html)) {
     missing.push('snapshotAnswerState');
   }
   return missing;
+}
+
+function hasSnapshotAnswerState(html) {
+  if (html.includes(TEASER_ANSWER_LABEL)) return true;
+  return ZERO_DRAFTED_SUMMARY_RE.test(html) && html.includes(NO_DRAFTED_REPORT_COPY);
 }
 
 function renderedErrorMarker(html, missing) {
