@@ -490,15 +490,16 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
         <div className="mb-10">
           <div className="text-[10px] font-mono text-primary/80 tracking-widest mb-3">
-            UPLOAD YOUR CSV
+            FAQ DEFLECTION INTAKE
           </div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-            Upload your tickets. Get the repeat-question snapshot in seconds.
+            Start a deterministic FAQ gap audit.
           </h1>
           <p className="text-foreground/65 leading-relaxed">
-            Upload 30 days of closed support tickets. The Snapshot ranks the repeats,
-            surfaces the customer wording your docs miss, and includes one review-ready
-            FAQ draft from resolved replies.
+            Upload 30 days of closed support tickets. The Snapshot ranks repeated
+            questions, keeps customer wording your docs miss, and includes one
+            review-ready FAQ draft from resolved replies using repeatable clustering,
+            not chatbot interpretation.
           </p>
         </div>
 
@@ -661,9 +662,15 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
               Subject lines and ticket bodies are enough. A few hundred closed tickets can
               work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Strip PII before
               uploading if your export tool can, we recommend it; we don&apos;t need names or
-              emails to find your repeat questions. Files are deleted after 30 days, and the
-              analysis is 100% deterministic, no AI.
+              emails to find your repeat questions. Files are deleted after 30 days.
             </p>
+            <div className="mt-4 rounded-lg border border-primary/35 bg-primary/[0.08] p-4">
+              <p className="text-sm font-semibold text-primary">100% Deterministic Engine</p>
+              <p className="mt-1 text-xs leading-relaxed text-foreground/75">
+                This intake does not use LLMs or generative AI to analyze your ticket
+                logs. We use exact mathematical clustering to sort repeated questions.
+              </p>
+            </div>
           </div>
 
           {/* Error */}
