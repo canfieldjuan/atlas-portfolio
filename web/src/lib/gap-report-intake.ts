@@ -1,4 +1,6 @@
 import { persistGapReportSubmission } from './gap-report-intake-database';
+import type { DeflectionSnapshot } from './deflection-snapshot';
+import { createDeflectionSnapshotPdfAttachment } from './deflection-snapshot-pdf';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
@@ -166,6 +168,7 @@ export type GapReportSubmissionResult = {
 
 type GapReportSubmissionOptions = {
   requirePersistence?: boolean;
+  snapshot?: DeflectionSnapshot;
 };
 
 type IntakeOfferCopy = {
@@ -348,12 +351,28 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
   }
 }
 
-async function sendSnapshotEmail(record: GapReportSubmissionRecord) {
+async function sendSnapshotEmail(record: GapReportSubmissionRecord, snapshot?: DeflectionSnapshot) {
   const { resendApiKey, fromEmail } = emailConfig();
 
   if (!resendApiKey || !fromEmail) {
     throw new Error('Gap Report snapshot email is not fully configured.');
   }
+
+  const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
+  const attachment = snapshot
+    ? createDeflectionSnapshotPdfAttachment({
+        snapshot,
+        companyName: record.companyName,
+        resultsUrl,
+      })
+    : null;
+  const payload = {
+    from: fromEmail,
+    to: [record.email],
+    subject: intakeOfferCopy(record.sourceOffer).customerSubject,
+    text: buildSnapshotEmailText(record),
+    ...(attachment ? { attachments: [attachment] } : {}),
+  };
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -361,12 +380,7 @@ async function sendSnapshotEmail(record: GapReportSubmissionRecord) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${resendApiKey}`,
     },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [record.email],
-      subject: intakeOfferCopy(record.sourceOffer).customerSubject,
-      text: buildSnapshotEmailText(record),
-    }),
+    body: JSON.stringify(payload),
     cache: 'no-store',
   });
 
@@ -450,7 +464,7 @@ export async function recordGapReportSubmission(
   }
 
   try {
-    await sendSnapshotEmail(pendingRecord);
+    await sendSnapshotEmail(pendingRecord, options.snapshot);
     snapshotEmailStatus = 'sent';
   } catch (error) {
     snapshotEmailStatus = 'failed';

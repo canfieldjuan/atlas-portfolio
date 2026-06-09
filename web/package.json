@@ -42,6 +42,7 @@
     "test:deflection-checkout-env": "node scripts/test-deflection-checkout-env.mjs",
     "test:deflection-browser-upload-smoke": "node scripts/test-deflection-browser-upload-smoke.mjs",
     "test:deflection-email-results-link": "node scripts/test-deflection-email-results-link.mjs",
+    "test:deflection-snapshot-pdf-email": "node scripts/test-deflection-snapshot-pdf-email.mjs",
     "test:deflection-comeback-analytics": "node scripts/test-deflection-comeback-analytics.mjs",
     "test:deflection-ga-path-redaction": "node scripts/test-deflection-ga-path-redaction.mjs",
     "test:deflection-hosted-checkout-smoke": "node scripts/test-deflection-hosted-checkout-smoke.mjs",

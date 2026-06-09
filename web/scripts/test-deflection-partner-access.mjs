@@ -284,12 +284,34 @@ try {
   );
   await writeFile(join(libStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
+    join(libStubDir, 'deflection-snapshot-pdf.js'),
+    [
+      'exports.createDeflectionSnapshotPdfAttachment = () => ({',
+      '  filename: "deflection-snapshot-unit.pdf",',
+      '  content: Buffer.from("%PDF-1.4\\n%%EOF\\n").toString("base64"),',
+      '});',
+      '',
+    ].join('\n'),
+  );
+  await writeFile(
     join(libStubDir, 'atlas-deflection-client.js'),
     [
       'exports.submitDeflectionReportCsv = async () => {',
       '  globalThis.__atlasSubmitCalls = (globalThis.__atlasSubmitCalls || 0) + 1;',
       '  const reason = process.env.ATLAS_SUBMIT_TEST_REASON;',
       "  return reason ? { ok: false, reason } : { ok: true, requestId: 'content-ops-unit-123' };",
+      '};',
+      'exports.fetchDeflectionSnapshot = async () => {',
+      '  globalThis.__atlasSnapshotFetchCalls = (globalThis.__atlasSnapshotFetchCalls || 0) + 1;',
+      '  return {',
+      '    ok: true,',
+      '    snapshot: {',
+      '      summary: { generated: 1, drafted_answer_count: 1, no_proven_answer_count: 0, repeat_ticket_count: 3 },',
+      '      top_questions: [],',
+      '      locked_questions: [],',
+      '      teaser: { full_answer: null, previews: [] },',
+      '    },',
+      '  };',
       '};',
       '',
     ].join('\n'),
