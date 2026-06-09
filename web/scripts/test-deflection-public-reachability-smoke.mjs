@@ -15,7 +15,7 @@ const GOOD_INTAKE = [
   'Start a deterministic FAQ gap audit.',
   'Work email',
   '100% Deterministic Engine',
-  'Upload CSV, get your free Deflection Snapshot',
+  'Upload my CSV, get my free Deflection Snapshot',
 ].join('');
 
 function routes({ landing = {}, intake = {} } = {}) {
@@ -216,6 +216,14 @@ assert.ok(
 assert.ok(
   intakePageSource.includes('100% Deterministic Engine'),
   'intake page should render the deterministic trust badge',
+);
+assert.ok(
+  intakePageSource.includes('We use deterministic clustering to sort repeated questions.'),
+  'intake trust badge subtext should use deterministic clustering phrasing',
+);
+assert.ok(
+  !intakePageSource.includes('exact mathematical clustering'),
+  'intake trust badge subtext should not use exact mathematical clustering wording',
 );
 assert.ok(
   !intakePageSource.includes('24 hours'),
