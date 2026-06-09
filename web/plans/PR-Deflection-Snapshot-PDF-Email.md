@@ -41,6 +41,8 @@ Slice phase: Production hardening
   transport test to prove Snapshot emails include the attachment when available.
 - `web/scripts/test-deflection-snapshot-pdf-email.mjs` - focused PDF contract
   test for free-only content, attachment shape, and fail-closed locked content.
+- `web/scripts/test-deflection-partner-access.mjs` - keep the partner route
+  harness aligned with the new Snapshot PDF import and Snapshot fetch.
 - `web/package.json` - add the focused Snapshot PDF email test script.
 - `.github/workflows/pre_push_audit.yml` - enroll the new test script in CI.
 
@@ -85,6 +87,9 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-email-results-link` - passed.
 - `npm --prefix web run test:deflection-snapshot-pdf-email` - passed.
+- `npm --prefix web run test:deflection-partner-access` - passed after adding
+  the missing temp-module stubs for the new Snapshot PDF helper and Snapshot
+  fetch import.
 - `node web/scripts/audit-test-enrollment.mjs` - passed; all 26 `test:*`
   scripts are enrolled in `.github/workflows/pre_push_audit.yml`.
 - `npm --prefix web run test:test-enrollment-audit` - passed.
@@ -104,6 +109,7 @@ Parked hardening: none.
 | `web/src/app/api/gap-report-intake/record/route.ts` | ~20 |
 | `web/scripts/test-deflection-email-results-link.mjs` | ~57 |
 | `web/scripts/test-deflection-snapshot-pdf-email.mjs` | ~141 |
+| `web/scripts/test-deflection-partner-access.mjs` | ~20 |
 | `web/package.json` | ~1 |
 | `.github/workflows/pre_push_audit.yml` | ~3 |
-| Total | ~558 |
+| Total | ~578 |
