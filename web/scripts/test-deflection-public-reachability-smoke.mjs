@@ -218,6 +218,14 @@ assert.ok(
   'intake page should render the deterministic trust badge',
 );
 assert.ok(
+  intakePageSource.includes('We use deterministic clustering to sort repeated questions.'),
+  'intake trust badge subtext should use deterministic clustering phrasing',
+);
+assert.ok(
+  !intakePageSource.includes('exact mathematical clustering'),
+  'intake trust badge subtext should not use exact mathematical clustering wording',
+);
+assert.ok(
   !intakePageSource.includes('24 hours'),
   'intake visible copy should not retain 24-hour delivery language',
 );

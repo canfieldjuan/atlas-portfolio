@@ -7,6 +7,9 @@ analytics churn while shipping deterministic messaging + trust badge work for
 #1367. That follow-up is now due: the intake submit CTA should align with the
 current "Get my free Deflection Snapshot" offer language, and analytics should
 preserve stable machine attribution while also capturing the visible CTA label.
+This slice also closes the claims-precision NIT from #300 by tightening badge
+subtext wording from "exact mathematical clustering" to the safer
+"deterministic clustering" phrasing.
 
 ## Scope (this PR)
 
@@ -19,8 +22,11 @@ Slice phase: Product polish
    visible submit CTA label.
 3. Update deflection public reachability smoke markers/tests to enforce the new
    submit CTA string.
-4. Keep upload mechanics, backend submit payload shape, source-offer slug, and
-   deflection report processing behavior unchanged.
+4. Harden trust-badge subtext phrasing to "deterministic clustering" and add a
+  source assertion preventing the old "exact mathematical clustering" wording
+  from reappearing.
+5. Keep upload mechanics, backend submit payload shape, source-offer slug, and
+  deflection report processing behavior unchanged.
 
 ### Files touched
 
@@ -46,7 +52,9 @@ an optional `sourceOfferLabel` field so the event carries both stable slug and
 human-facing CTA wording.
 
 Reachability smoke marker strings are updated so the hosted smoke fails if the
-submit CTA regresses.
+submit CTA regresses. The source-level smoke assertions also pin the trust
+badge subtext to "deterministic clustering" and reject the older
+"exact mathematical clustering" phrase.
 
 ## Intentional
 
@@ -67,6 +75,7 @@ Parked hardening: none.
 
 - `cd /home/juan-canfield/Desktop/atlas-portfolio/web && node scripts/test-deflection-public-reachability-smoke.mjs` - pass.
 - `cd /home/juan-canfield/Desktop/atlas-portfolio && rg -n "Upload CSV, get your free Deflection Snapshot" web/src web/scripts || true` - no stale runtime/smoke marker usage after update.
+- `cd /home/juan-canfield/Desktop/atlas-portfolio && rg -n "exact mathematical clustering" web/src web/scripts || true` - no active badge usage in runtime or smoke tests.
 - `cd /home/juan-canfield/Desktop/atlas-portfolio && bash scripts/local_pr_review.sh` - pass.
 
 ## Estimated diff size
@@ -75,8 +84,8 @@ Parked hardening: none.
 |---|---:|
 | `web/plans/PR-Deflection-Intake-CTA-Attribution-Align.md` | ~85 |
 | `web/src/app/systems/support-ticket-deflection/intake/page.tsx` | ~1 |
-| `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | ~6 |
+| `web/src/components/landing/SupportTicketCsvIntakePage.tsx` | ~7 |
 | `web/src/lib/analytics.ts` | ~8 |
 | `web/scripts/smoke-deflection-public-reachability.mjs` | ~1 |
-| `web/scripts/test-deflection-public-reachability-smoke.mjs` | ~6 |
-| Total | ~107 |
+| `web/scripts/test-deflection-public-reachability-smoke.mjs` | ~12 |
+| Total | ~113 |

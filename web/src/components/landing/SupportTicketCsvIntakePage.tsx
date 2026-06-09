@@ -670,7 +670,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
               <p className="text-sm font-semibold text-primary">100% Deterministic Engine</p>
               <p className="mt-1 text-xs leading-relaxed text-foreground/75">
                 This intake does not use LLMs or generative AI to analyze your ticket
-                logs. We use exact mathematical clustering to sort repeated questions.
+                logs. We use deterministic clustering to sort repeated questions.
               </p>
             </div>
           </div>
