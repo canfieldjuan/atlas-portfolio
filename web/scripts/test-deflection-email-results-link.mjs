@@ -103,6 +103,16 @@ try {
     ].join('\n'),
   );
   await writeFile(join(testDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
+  await writeFile(
+    join(testDir, 'deflection-snapshot-pdf.js'),
+    [
+      'exports.createDeflectionSnapshotPdfAttachment = ({ snapshot, companyName, resultsUrl }) => ({',
+      '  filename: "deflection-snapshot-unit.pdf",',
+      '  content: Buffer.from(JSON.stringify({ companyName, resultsUrl, topQuestions: snapshot.top_questions.length })).toString("base64"),',
+      '});',
+      '',
+    ].join('\n'),
+  );
 
   const source = await readFile(sourceUrl, 'utf8');
   const compiled = ts.transpileModule(source, {
@@ -119,6 +129,40 @@ try {
     parseGapReportMetadata,
     recordGapReportSubmission,
   } = require(compiledPath);
+  const snapshotFixture = {
+    summary: {
+      generated: 3,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 2,
+      repeat_ticket_count: 22,
+      source_date_start: '2026-05-01',
+      source_date_end: '2026-05-30',
+      source_window_days: 30,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I cancel?',
+        customer_wording: 'cancel my subscription',
+        ticket_count: 22,
+        weighted_frequency: 34,
+      },
+    ],
+    locked_questions: [{ rank: 2, ticket_count: 11 }],
+    teaser: {
+      full_answer: {
+        rank: 1,
+        question: 'How do I cancel?',
+        answer: 'Open billing and choose cancel.',
+        steps: ['Open billing.', 'Choose cancel.'],
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 34,
+        source_count: 22,
+      },
+      previews: [],
+    },
+  };
 
   assert.equal(
     deflectionResultsPath('content-ops-unit-123', 'partner'),
@@ -157,7 +201,7 @@ try {
   const withLink = await recordGapReportSubmission({
     ...baseInput,
     reportRequestId: 'content-ops-unit-123',
-  });
+  }, { snapshot: snapshotFixture });
   assert.equal(withLink.status, 'submitted');
   assert.equal(calls.length, 2);
   assert.equal(globalThis.__gapReportPersistedRecords.length, 1);
@@ -178,6 +222,15 @@ try {
   assert.match(sentText(1), /save this email or bookmark your results link/);
   assert.match(sentText(1), /upgrade to the full report during that window without re-uploading/);
   assert.doesNotMatch(sentText(1), /within 24 hours/);
+  assert.deepEqual(calls[1].body.attachments?.map((attachment) => attachment.filename), [
+    'deflection-snapshot-unit.pdf',
+  ]);
+  assert.deepEqual(JSON.parse(Buffer.from(calls[1].body.attachments[0].content, 'base64')), {
+    companyName: 'Effingham Office Maids',
+    resultsUrl:
+      'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123',
+    topQuestions: 1,
+  });
 
   installFetchMock();
   globalThis.__gapReportPersistedRecords = [];
@@ -199,6 +252,7 @@ try {
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
   );
   assert.match(sentText(1), /save this email or bookmark your results link/);
+  assert.equal(calls[1].body.attachments, undefined);
 
   installFetchMock();
   globalThis.__gapReportPersistedRecords = [];
@@ -213,6 +267,7 @@ try {
   assert.doesNotMatch(sentText(1), /bookmark your results link/);
   assert.match(sentText(1), /as soon as processing finishes/);
   assert.doesNotMatch(sentText(1), /within 24 hours/);
+  assert.equal(calls[1].body.attachments, undefined);
 
   installFetchMock();
   globalThis.__gapReportPersistedRecords = [];

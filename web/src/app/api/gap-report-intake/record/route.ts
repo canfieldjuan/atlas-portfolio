@@ -8,9 +8,11 @@ import {
 } from '@/lib/gap-report-intake';
 import { getRecentGapReportSubmissionByEmailAndBlob } from '@/lib/gap-report-intake-database';
 import {
+  fetchDeflectionSnapshot,
   submitDeflectionReportCsv,
   type DeflectionSubmitResult,
 } from '@/lib/atlas-deflection-client';
+import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
 import { DEFLECTION_PARTNER_PRICE_VARIANT_ID } from '@/lib/deflection-pricing';
 import {
   consumeDeflectionIdentifierRateLimit,
@@ -183,6 +185,7 @@ export async function POST(request: Request) {
   try {
     const warnings: string[] = [];
     let reportRequestId: string | undefined;
+    let snapshot: DeflectionSnapshot | undefined;
 
     if (meta.value.sourceOffer === SUPPORT_DEFLECTION_SOURCE_OFFER) {
       const duplicate = await findRecentDuplicateSubmission(meta.value.email, blobUrl);
@@ -200,6 +203,14 @@ export async function POST(request: Request) {
 
       if (submit.ok) {
         reportRequestId = submit.requestId;
+        const snapshotResult = await fetchDeflectionSnapshot(submit.requestId);
+        if (snapshotResult.ok) {
+          snapshot = snapshotResult.snapshot;
+        } else {
+          console.error(
+            `deflection record: Snapshot PDF attachment skipped (${snapshotResult.reason})`,
+          );
+        }
       } else {
         return deflectionSubmitFailureResponse(submit.reason);
       }
@@ -221,7 +232,10 @@ export async function POST(request: Request) {
         priceVariant: meta.value.priceVariant,
         reportRequestId,
       },
-      { requirePersistence: requiresDurableVariantPersistence },
+      {
+        requirePersistence: requiresDurableVariantPersistence,
+        snapshot,
+      },
     );
     warnings.push(...result.warnings);
 
