@@ -151,6 +151,8 @@ export type GapReportSubmissionRecord = GapReportSubmissionInput & {
   submittedAt: string;
   notificationStatus: 'pending' | 'sent' | 'failed';
   notificationError?: string;
+  snapshotEmailStatus?: 'pending' | 'sent' | 'failed';
+  snapshotEmailError?: string;
   confirmationStatus?: 'pending' | 'sent' | 'failed';
   confirmationError?: string;
 };
@@ -261,7 +263,7 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
   ].join('\n');
 }
 
-function buildCustomerConfirmationText(record: GapReportSubmissionRecord) {
+function buildSnapshotEmailText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
   const offer = intakeOfferCopy(record.sourceOffer);
   const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
@@ -346,11 +348,11 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
   }
 }
 
-async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) {
+async function sendSnapshotEmail(record: GapReportSubmissionRecord) {
   const { resendApiKey, fromEmail } = emailConfig();
 
   if (!resendApiKey || !fromEmail) {
-    throw new Error('Gap Report customer confirmation email is not fully configured.');
+    throw new Error('Gap Report snapshot email is not fully configured.');
   }
 
   const response = await fetch('https://api.resend.com/emails', {
@@ -363,7 +365,7 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
       from: fromEmail,
       to: [record.email],
       subject: intakeOfferCopy(record.sourceOffer).customerSubject,
-      text: buildCustomerConfirmationText(record),
+      text: buildSnapshotEmailText(record),
     }),
     cache: 'no-store',
   });
@@ -372,8 +374,8 @@ async function sendCustomerConfirmationEmail(record: GapReportSubmissionRecord) 
     const detail = await response.text().catch(() => '');
     throw new Error(
       detail
-        ? `Gap Report customer confirmation email failed: ${detail.slice(0, 240)}`
-        : 'Gap Report customer confirmation email failed.'
+        ? `Gap Report snapshot email failed: ${detail.slice(0, 240)}`
+        : 'Gap Report snapshot email failed.'
     );
   }
 }
@@ -411,14 +413,15 @@ export async function recordGapReportSubmission(
 
   let notificationStatus: 'sent' | 'failed' | 'pending' = 'pending';
   let notificationError: string | undefined;
-  let confirmationStatus: 'sent' | 'failed' | 'pending' = 'pending';
-  let confirmationError: string | undefined;
+  let snapshotEmailStatus: 'sent' | 'failed' | 'pending' = 'pending';
+  let snapshotEmailError: string | undefined;
 
   const pendingRecord: GapReportSubmissionRecord = {
     ...input,
     requestId,
     submittedAt,
     notificationStatus: 'pending',
+    snapshotEmailStatus: 'pending',
     confirmationStatus: 'pending',
   };
 
@@ -447,12 +450,12 @@ export async function recordGapReportSubmission(
   }
 
   try {
-    await sendCustomerConfirmationEmail(pendingRecord);
-    confirmationStatus = 'sent';
+    await sendSnapshotEmail(pendingRecord);
+    snapshotEmailStatus = 'sent';
   } catch (error) {
-    confirmationStatus = 'failed';
-    confirmationError = error instanceof Error ? error.message : String(error);
-    warnings.push('Gap Report customer confirmation email failed.');
+    snapshotEmailStatus = 'failed';
+    snapshotEmailError = error instanceof Error ? error.message : String(error);
+    warnings.push('Gap Report snapshot email failed.');
   }
 
   const record: GapReportSubmissionRecord = {
@@ -461,8 +464,10 @@ export async function recordGapReportSubmission(
     submittedAt,
     notificationStatus,
     notificationError,
-    confirmationStatus,
-    confirmationError,
+    snapshotEmailStatus,
+    snapshotEmailError,
+    confirmationStatus: snapshotEmailStatus,
+    confirmationError: snapshotEmailError,
   };
 
   const finalPersistence = await persistGapReportRecord(record);

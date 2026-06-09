@@ -10,9 +10,12 @@ const REQUIRED_MARKERS = [
   { key: 'supportTax', label: 'Support Tax projection' },
   { key: 'keywordReframe', label: 'Help-desk SEO targeting list' },
   { key: 'runRateComparison', label: 'This backlog at current pace' },
-  { key: 'teaserAnswer', label: 'One drafted answer you can inspect before paying' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
+const TEASER_ANSWER_LABEL = 'One drafted answer you can inspect before paying';
+const ZERO_DRAFTED_SUMMARY_RE =
+  /(?:^|[>\s])0(?:\s|<[^>]*>|<!--.*?-->)*of them already have a publishable answer drafted/;
+const NO_DRAFTED_REPORT_COPY = 'built from your team';
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 
 function printUsage() {
@@ -56,7 +59,23 @@ function resultUrl(baseUrl, requestId) {
 }
 
 function missingMarkers(html) {
-  return REQUIRED_MARKERS.filter((marker) => !html.includes(marker.label)).map((marker) => marker.key);
+  const missing = REQUIRED_MARKERS.filter((marker) => !html.includes(marker.label)).map((marker) => marker.key);
+  if (!hasSnapshotAnswerState(html)) {
+    missing.push('snapshotAnswerState');
+  }
+  return missing;
+}
+
+function hasSnapshotAnswerState(html) {
+  if (html.includes(TEASER_ANSWER_LABEL)) return true;
+  return ZERO_DRAFTED_SUMMARY_RE.test(html) && html.includes(NO_DRAFTED_REPORT_COPY);
+}
+
+function renderedErrorMarker(html, missing) {
+  if (missing.length === 0) return undefined;
+  const pageShellMissing = missing.includes('snapshotBadge') || missing.includes('headline');
+  if (!pageShellMissing) return undefined;
+  return ERROR_MARKERS.find((marker) => html.includes(marker));
 }
 
 export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
@@ -111,7 +130,7 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
   const html = await response.text();
   const missing = missingMarkers(html);
   if (missing.length > 0) {
-    const errorMarker = ERROR_MARKERS.find((marker) => html.includes(marker));
+    const errorMarker = renderedErrorMarker(html, missing);
     return {
       ok: false,
       error: errorMarker
@@ -132,7 +151,10 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
     checkedAt: now(),
     requestId,
     url,
-    markers: Object.fromEntries(REQUIRED_MARKERS.map((marker) => [marker.key, true])),
+    markers: {
+      ...Object.fromEntries(REQUIRED_MARKERS.map((marker) => [marker.key, true])),
+      snapshotAnswerState: true,
+    },
   };
 }
 

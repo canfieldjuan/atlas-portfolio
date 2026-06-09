@@ -70,7 +70,14 @@ const baseInput = {
 try {
   await writeFile(
     join(testDir, 'gap-report-intake-database.js'),
-    'exports.persistGapReportSubmission = async () => true;\n',
+    [
+      'exports.persistGapReportSubmission = async (record) => {',
+      '  globalThis.__gapReportPersistedRecords = globalThis.__gapReportPersistedRecords || [];',
+      '  globalThis.__gapReportPersistedRecords.push(record);',
+      '  return true;',
+      '};',
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(testDir, 'deflection-pricing.js'),
@@ -146,12 +153,18 @@ try {
   });
 
   installFetchMock();
+  globalThis.__gapReportPersistedRecords = [];
   const withLink = await recordGapReportSubmission({
     ...baseInput,
     reportRequestId: 'content-ops-unit-123',
   });
   assert.equal(withLink.status, 'submitted');
   assert.equal(calls.length, 2);
+  assert.equal(globalThis.__gapReportPersistedRecords.length, 1);
+  assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailStatus, 'sent');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailError, undefined);
+  assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationError, undefined);
   assert.match(sentText(0), /Report request ID: content-ops-unit-123/);
   assert.match(
     sentText(0),
@@ -167,6 +180,7 @@ try {
   assert.doesNotMatch(sentText(1), /within 24 hours/);
 
   installFetchMock();
+  globalThis.__gapReportPersistedRecords = [];
   const partnerLink = await recordGapReportSubmission({
     ...baseInput,
     priceVariant: 'partner',
@@ -174,6 +188,8 @@ try {
   });
   assert.equal(partnerLink.status, 'submitted');
   assert.equal(calls.length, 2);
+  assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailStatus, 'sent');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
   assert.match(
     sentText(0),
     /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
@@ -185,9 +201,12 @@ try {
   assert.match(sentText(1), /save this email or bookmark your results link/);
 
   installFetchMock();
+  globalThis.__gapReportPersistedRecords = [];
   const withoutLink = await recordGapReportSubmission(baseInput);
   assert.equal(withoutLink.status, 'submitted');
   assert.equal(calls.length, 2);
+  assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailStatus, 'sent');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
   assert.doesNotMatch(sentText(0), /Report request ID:/);
   assert.doesNotMatch(sentText(0), /\/systems\/support-ticket-deflection\/results\//);
   assert.doesNotMatch(sentText(1), /Your free Deflection Snapshot is ready:/);
@@ -196,12 +215,45 @@ try {
   assert.doesNotMatch(sentText(1), /within 24 hours/);
 
   installFetchMock();
+  globalThis.__gapReportPersistedRecords = [];
   await recordGapReportSubmission({
     ...baseInput,
     reportRequestId: 'https://evil.example/report',
   });
   assert.doesNotMatch(sentText(0), /https:\/\/evil\.example/);
   assert.doesNotMatch(sentText(1), /https:\/\/evil\.example/);
+
+  globalThis.fetch = async (url, init) => {
+    calls.push({
+      url: String(url),
+      body: JSON.parse(String(init?.body ?? '{}')),
+    });
+    return calls.length === 2
+      ? new Response('snapshot email rejected', { status: 503 })
+      : new Response(JSON.stringify({ id: 'email_unit' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+  };
+  calls = [];
+  globalThis.__gapReportPersistedRecords = [];
+  const failedSnapshotEmail = await recordGapReportSubmission({
+    ...baseInput,
+    reportRequestId: 'content-ops-unit-456',
+  });
+  assert.equal(failedSnapshotEmail.status, 'submitted_with_warnings');
+  assert.deepEqual(failedSnapshotEmail.warnings, ['Gap Report snapshot email failed.']);
+  assert.equal(globalThis.__gapReportPersistedRecords[0].notificationStatus, 'sent');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailStatus, 'failed');
+  assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'failed');
+  assert.match(
+    globalThis.__gapReportPersistedRecords[0].snapshotEmailError,
+    /Gap Report snapshot email failed: snapshot email rejected/,
+  );
+  assert.equal(
+    globalThis.__gapReportPersistedRecords[0].confirmationError,
+    globalThis.__gapReportPersistedRecords[0].snapshotEmailError,
+  );
 
   console.log('Deflection email results-link tests passed.');
 } finally {

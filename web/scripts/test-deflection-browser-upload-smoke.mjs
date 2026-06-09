@@ -156,8 +156,8 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
     headline: true,
     keywordReframe: true,
     runRateComparison: true,
+    snapshotAnswerState: true,
     supportTax: true,
-    teaserAnswer: true,
     unlockCta: true,
   });
   assert.equal(fetchImpl.calls.length, 2);
