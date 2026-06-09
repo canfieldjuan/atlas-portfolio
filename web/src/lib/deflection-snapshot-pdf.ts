@@ -18,7 +18,7 @@ type DeflectionSnapshotPdfInput = {
 };
 
 const MAX_TEXT_LINE_LENGTH = 92;
-const MAX_PDF_LINES = 58;
+export const DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE = 48;
 
 function asciiText(value: unknown) {
   return String(value ?? '')
@@ -155,14 +155,23 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
     }
   }
 
-  return lines.slice(0, MAX_PDF_LINES);
+  return lines;
+}
+
+export function buildDeflectionSnapshotPdfPages(input: DeflectionSnapshotPdfInput) {
+  const lines = buildDeflectionSnapshotPdfLines(input);
+  const pages: string[][] = [];
+  for (let index = 0; index < lines.length; index += DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE) {
+    pages.push(lines.slice(index, index + DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE));
+  }
+  return pages.length > 0 ? pages : [['Deflection Snapshot']];
 }
 
 function pdfString(value: string) {
   return asciiText(value).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
-function buildPdf(lines: string[]) {
+function contentStream(lines: string[]) {
   const contentLines = [
     'BT',
     '/F1 10 Tf',
@@ -171,14 +180,26 @@ function buildPdf(lines: string[]) {
     ...lines.map((line, index) => `${index === 0 ? '' : 'T* '}(${pdfString(line)}) Tj`),
     'ET',
   ];
-  const stream = `${contentLines.join('\n')}\n`;
+  return `${contentLines.join('\n')}\n`;
+}
+
+function buildPdf(pages: string[][]) {
+  const kids = pages.map((_, index) => `${4 + index * 2} 0 R`).join(' ');
   const objects = [
     '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
-    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
-    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n',
-    '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
-    `5 0 obj\n<< /Length ${Buffer.byteLength(stream, 'ascii')} >>\nstream\n${stream}endstream\nendobj\n`,
+    `2 0 obj\n<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>\nendobj\n`,
+    '3 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
   ];
+  for (let index = 0; index < pages.length; index += 1) {
+    const pageLines = pages[index];
+    const pageId = 4 + index * 2;
+    const contentId = pageId + 1;
+    const stream = contentStream(pageLines);
+    objects.push(
+      `${pageId} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentId} 0 R >>\nendobj\n`,
+      `${contentId} 0 obj\n<< /Length ${Buffer.byteLength(stream, 'ascii')} >>\nstream\n${stream}endstream\nendobj\n`,
+    );
+  }
   let pdf = '%PDF-1.4\n';
   const offsets = [0];
   for (const object of objects) {
@@ -198,7 +219,7 @@ function buildPdf(lines: string[]) {
 export function createDeflectionSnapshotPdfAttachment(
   input: DeflectionSnapshotPdfInput,
 ): DeflectionSnapshotPdfAttachment {
-  const pdf = buildPdf(buildDeflectionSnapshotPdfLines(input));
+  const pdf = buildPdf(buildDeflectionSnapshotPdfPages(input));
   return {
     filename: `deflection-snapshot-${safeFilenamePart(input.companyName)}.pdf`,
     content: pdf.toString('base64'),

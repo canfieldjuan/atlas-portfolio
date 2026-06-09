@@ -32,7 +32,9 @@ try {
 
   const require = createRequire(compiledPath);
   const {
+    DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE,
     buildDeflectionSnapshotPdfLines,
+    buildDeflectionSnapshotPdfPages,
     createDeflectionSnapshotPdfAttachment,
   } = require(compiledPath);
 
@@ -134,6 +136,57 @@ try {
   assert.match(pdfText, /%%EOF/);
   assert.doesNotMatch(pdfText, /source-secret/);
   assert.doesNotMatch(pdfText, /Hidden locked question text/);
+
+  const contentRichSnapshot = {
+    ...snapshot,
+    top_questions: Array.from({ length: 5 }, (_, index) => ({
+      rank: index + 1,
+      question: `How do I solve repeat issue ${index + 1} when the customer wording is long enough to wrap inside the PDF export?`,
+      customer_wording: `customer wording for repeat issue ${index + 1} that should still fit without clipping the attached snapshot pdf`,
+      ticket_count: 50 - index,
+      weighted_frequency: 100 - index,
+    })),
+    locked_questions: Array.from({ length: 8 }, (_, index) => ({
+      rank: index + 6,
+      ticket_count: 40 - index,
+    })),
+    teaser: {
+      ...snapshot.teaser,
+      full_answer: {
+        ...snapshot.teaser.full_answer,
+        steps: [
+          'Open the settings page and review the current account state.',
+          'Confirm the customer has the required permissions before changing anything.',
+          'Apply the documented fix and save the confirmation screen.',
+          'Send the customer the confirmation email and expected timing.',
+          'Escalate only when the documented fix does not resolve the issue.',
+        ],
+      },
+    },
+  };
+  const pages = buildDeflectionSnapshotPdfPages({
+    snapshot: contentRichSnapshot,
+    companyName: 'Content Rich Co',
+    resultsUrl: 'https://juancanfield.com/systems/support-ticket-deflection/results/content-rich',
+  });
+  assert(
+    pages.length >= 2,
+    'content-rich snapshots should paginate instead of clipping to a single page',
+  );
+  assert(
+    pages.every((page) => page.length <= DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE),
+    'each PDF page should stay inside the line budget',
+  );
+
+  const richAttachment = createDeflectionSnapshotPdfAttachment({
+    snapshot: contentRichSnapshot,
+    companyName: 'Content Rich Co',
+    resultsUrl: 'https://juancanfield.com/systems/support-ticket-deflection/results/content-rich',
+  });
+  const richPdfText = Buffer.from(richAttachment.content, 'base64').toString('ascii');
+  assert.equal((richPdfText.match(/\/Type \/Page\b/g) ?? []).length, pages.length);
+  assert.match(richPdfText, /#13: 33 repeat tickets - question text, evidence, and answer body stay locked/);
+  assert.doesNotMatch(richPdfText, /Hidden locked answer body/);
 
   console.log('Deflection Snapshot PDF email tests passed.');
 } finally {

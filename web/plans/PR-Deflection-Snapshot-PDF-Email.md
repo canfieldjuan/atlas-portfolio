@@ -55,8 +55,8 @@ from ATLAS after a successful submit, using the same validated
 fetch succeeds, the route passes the `DeflectionSnapshot` into the existing
 customer Snapshot email function.
 
-`createDeflectionSnapshotPdfAttachment(...)` builds a small valid PDF from
-plain text sections. The text is derived only from the snapshot summary,
+`createDeflectionSnapshotPdfAttachment(...)` builds a small valid paginated PDF
+from plain text sections. The text is derived only from the snapshot summary,
 `top_questions`, `teaser.full_answer`, and locked rank/count placeholders. The
 customer email adds a Resend `attachments` array only when that helper returns a
 PDF attachment; otherwise the email stays link-only and the existing submission
@@ -86,7 +86,9 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-email-results-link` - passed.
-- `npm --prefix web run test:deflection-snapshot-pdf-email` - passed.
+- `npm --prefix web run test:deflection-snapshot-pdf-email` - passed; includes
+  a content-rich Snapshot pagination regression that asserts every page stays
+  within the line budget and the locked preview remains present in the PDF.
 - `npm --prefix web run test:deflection-partner-access` - passed after adding
   the missing temp-module stubs for the new Snapshot PDF helper and Snapshot
   fetch import.
@@ -104,12 +106,12 @@ Parked hardening: none.
 | File | LOC |
 |---|---:|
 | `web/plans/PR-Deflection-Snapshot-PDF-Email.md` | ~105 |
-| `web/src/lib/deflection-snapshot-pdf.ts` | ~206 |
+| `web/src/lib/deflection-snapshot-pdf.ts` | ~230 |
 | `web/src/lib/gap-report-intake.ts` | ~25 |
 | `web/src/app/api/gap-report-intake/record/route.ts` | ~20 |
 | `web/scripts/test-deflection-email-results-link.mjs` | ~57 |
-| `web/scripts/test-deflection-snapshot-pdf-email.mjs` | ~141 |
+| `web/scripts/test-deflection-snapshot-pdf-email.mjs` | ~190 |
 | `web/scripts/test-deflection-partner-access.mjs` | ~20 |
 | `web/package.json` | ~1 |
 | `.github/workflows/pre_push_audit.yml` | ~3 |
-| Total | ~578 |
+| Total | ~650 |
