@@ -134,17 +134,20 @@ export function trackFaqReportCsvSubmitted({
   supportPlatform,
   sourcePage,
   sourceOffer,
+  sourceOfferLabel,
   status,
 }: {
   supportPlatform?: string;
   sourcePage?: string;
   sourceOffer?: string;
+  sourceOfferLabel?: string;
   status?: string;
 }) {
   trackEvent('faq_report_csv_submitted', {
     support_platform: safeDimension(supportPlatform, 'unknown'),
     source_page: safeDimension(sourcePage, 'direct'),
     source_offer: safeDimension(sourceOffer, 'none'),
+    source_offer_label: safeDimension(sourceOfferLabel, 'none'),
     submission_status: safeDimension(status, 'submitted'),
   });
 }

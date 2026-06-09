@@ -15,7 +15,7 @@ const GOOD_INTAKE = [
   'Start a deterministic FAQ gap audit.',
   'Work email',
   '100% Deterministic Engine',
-  'Upload CSV, get your free Deflection Snapshot',
+  'Upload my CSV, get my free Deflection Snapshot',
 ].join('');
 
 function routes({ landing = {}, intake = {} } = {}) {

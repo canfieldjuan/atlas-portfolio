@@ -204,6 +204,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           supportPlatform,
           sourcePage: copy.sourcePage,
           sourceOffer: copy.sourceOffer,
+          sourceOfferLabel: copy.submitLabel,
           status: 'submitted',
         });
         setSubmission({
@@ -224,6 +225,7 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
         supportPlatform,
         sourcePage: copy.sourcePage,
         sourceOffer: copy.sourceOffer,
+        sourceOfferLabel: copy.submitLabel,
         status: 'submitted',
       });
     } catch (error) {

@@ -16,7 +16,7 @@ const INTAKE_MARKERS = [
   ['headline', 'Start a deterministic FAQ gap audit.'],
   ['workEmail', 'Work email'],
   ['deterministicBadge', '100% Deterministic Engine'],
-  ['submitCta', 'Upload CSV, get your free Deflection Snapshot'],
+  ['submitCta', 'Upload my CSV, get my free Deflection Snapshot'],
 ];
 
 function printUsage() {

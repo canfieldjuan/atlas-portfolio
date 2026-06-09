@@ -41,7 +41,7 @@ export default async function SupportTicketDeflectionIntakePage({ searchParams }
           : '/systems/support-ticket-deflection/snapshot',
         sourceOffer: 'support-ticket-deflection-intake',
         snapshotName: 'Deflection Snapshot',
-        submitLabel: 'Upload CSV, get your free Deflection Snapshot',
+        submitLabel: 'Upload my CSV, get my free Deflection Snapshot',
         priceVariantId: priceVariant.id,
         partnerAccessToken: isPartner ? partnerToken : undefined,
       }}
