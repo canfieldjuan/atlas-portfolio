@@ -12,9 +12,10 @@ const LANDING_MARKERS = [
   ['pricing', 'PRICING'],
 ];
 const INTAKE_MARKERS = [
-  ['uploadEyebrow', 'UPLOAD YOUR CSV'],
-  ['headline', 'Upload your tickets. Get the repeat-question snapshot in seconds.'],
+  ['uploadEyebrow', 'FAQ DEFLECTION INTAKE'],
+  ['headline', 'Start a deterministic FAQ gap audit.'],
   ['workEmail', 'Work email'],
+  ['deterministicBadge', '100% Deterministic Engine'],
   ['submitCta', 'Upload CSV, get your free Deflection Snapshot'],
 ];
 

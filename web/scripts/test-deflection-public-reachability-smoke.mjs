@@ -11,9 +11,10 @@ const GOOD_LANDING = [
   'PRICING',
 ].join('');
 const GOOD_INTAKE = [
-  'UPLOAD YOUR CSV',
-  'Upload your tickets. Get the repeat-question snapshot in seconds.',
+  'FAQ DEFLECTION INTAKE',
+  'Start a deterministic FAQ gap audit.',
   'Work email',
+  '100% Deterministic Engine',
   'Upload CSV, get your free Deflection Snapshot',
 ].join('');
 
@@ -62,6 +63,7 @@ async function run({ baseUrl = 'https://portfolio.example.com/', responses = rou
     uploadEyebrow: true,
     headline: true,
     workEmail: true,
+    deterministicBadge: true,
     submitCta: true,
   });
   assert.equal(calls.length, 2);
@@ -152,7 +154,7 @@ const cases = [
     responses: routes({ intake: { body: 'Application error' } }),
     stage: 'intake',
     error: 'Deflection public intake page rendered an error marker: Application error.',
-    missing: ['uploadEyebrow', 'headline', 'workEmail', 'submitCta'],
+    missing: ['uploadEyebrow', 'headline', 'workEmail', 'deterministicBadge', 'submitCta'],
     calls: 2,
   },
 ];
@@ -208,8 +210,12 @@ const staleDeliverySources = [
 ];
 
 assert.ok(
-  intakePageSource.includes('Upload your tickets. Get the repeat-question snapshot in seconds.'),
-  'intake headline should promise seconds, not 24-hour delivery',
+  intakePageSource.includes('Start a deterministic FAQ gap audit.'),
+  'intake headline should frame deterministic FAQ analysis',
+);
+assert.ok(
+  intakePageSource.includes('100% Deterministic Engine'),
+  'intake page should render the deterministic trust badge',
 );
 assert.ok(
   !intakePageSource.includes('24 hours'),
