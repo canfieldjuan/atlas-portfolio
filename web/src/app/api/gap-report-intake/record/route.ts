@@ -21,6 +21,11 @@ import {
 } from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
+// The deflection submit forwards up to 50 MB of CSV to ATLAS and waits for
+// the full deterministic report build (~52s measured at 35k rows) plus the
+// snapshot fetch and email send, so the default function duration is far too
+// short for a real full-volume export.
+export const maxDuration = 300;
 
 const SUPPORT_DEFLECTION_SOURCE_OFFER = 'support-ticket-deflection-intake';
 const RECORD_CLIENT_RATE_LIMIT = {
