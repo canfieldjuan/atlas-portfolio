@@ -18,8 +18,8 @@ Slice phase: Production hardening
 
 1. Add `scripts/audit_pr_body.py` (adapted from the ATLAS version, plan
    prefix `web/plans/`): validates the Plan lead line (and that the named
-   plan doc exists in the checkout), a Slice phase line before the first
-   section, and the five required sections in order.
+   plan doc exists in the checkout), a Slice phase line and a one-paragraph
+   why before the first section, and the five required sections in order.
 2. Add `.github/workflows/pr_body_contract.yml`: on pull_request
    opened/edited/reopened/synchronize, write the event payload body to a
    file (no GitHub API call) and run the audit.
@@ -35,9 +35,10 @@ Slice phase: Production hardening
 `audit_pr_body(body, root)` is a pure function over the body text: the
 first non-empty line must be a Plan lead line naming a doc under
 `web/plans/`, and that doc must exist under the repo root; a `Slice phase:`
-line must appear before the first `##` heading; the five required `##`
-sections must all be present and in relative order (other sections may be
-interleaved). Failures are listed one per line; exit 1 on any failure, 2 on
+line and at least one why line (a non-empty lead line that is neither the
+Plan nor the Slice phase line) must appear before the first `##` heading;
+the five required `##` sections must all be present and in relative order
+(other sections may be interleaved). Failures are listed one per line; exit 1 on any failure, 2 on
 usage errors.
 
 The workflow materializes the PR body via an `env:` binding of the event
