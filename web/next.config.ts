@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
         destination: '/systems/support-ticket-deflection/intake',
         permanent: true,
       },
+      {
+        // Legacy FAQ-deflection result links should land on the canonical
+        // Support Ticket Deflection result route instead of a 404.
+        source: '/services/faq-deflection/results/:requestId',
+        destination: '/systems/support-ticket-deflection/results/:requestId',
+        permanent: true,
+      },
     ];
   },
 };
