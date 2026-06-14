@@ -16,7 +16,12 @@ const TEASER_ANSWER_LABEL = 'One drafted answer you can inspect before paying';
 const ZERO_DRAFTED_SUMMARY_RE =
   /(?:^|[>\s])0(?:\s|<[^>]*>|<!--.*?-->)*of them already have a publishable answer drafted/;
 const NO_DRAFTED_REPORT_COPY = 'built from your team';
-const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
+const ERROR_MARKERS = [
+  'Application error',
+  'This page could not be found',
+  '404: This page could not be found',
+  'SNAPSHOT TEMPORARILY UNAVAILABLE',
+];
 
 function printUsage() {
   console.log(`Deflection hosted results smoke
