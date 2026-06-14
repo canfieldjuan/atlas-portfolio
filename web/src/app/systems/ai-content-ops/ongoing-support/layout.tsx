@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Ongoing Optimization for AI Content Ops",
   description:
-    "Productized monthly retainer that keeps an AI content workflow tuned as your business changes. Prompt and template tuning, integration updates, quality gate improvements, monthly performance reporting. Starts at $2,500/month.",
+    "A productized monthly retainer that keeps your AI content workflow tuned: prompt and template tuning, integration updates, and quality gates. From $2,500/mo.",
   path: "/systems/ai-content-ops/ongoing-support",
   keywords: [
     "AI content workflow maintenance",

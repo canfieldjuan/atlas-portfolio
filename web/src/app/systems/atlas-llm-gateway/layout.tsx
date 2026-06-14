@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Atlas LLM Gateway",
   description:
-    "Atlas LLM Gateway is a hosted BYOK API for LLM cost control: exact and semantic cache, Anthropic batch, provider-billing reconciliation, budget guards, routing, usage tracking, and plan gates behind one gateway.",
+    "Hosted BYOK API for LLM cost control: exact and semantic cache, Anthropic batch, billing reconciliation, budget guards, routing, and usage tracking.",
   path: "/systems/atlas-llm-gateway",
   keywords: [
     "LLM gateway",

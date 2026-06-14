@@ -20,7 +20,7 @@ export const SITE_URL = "https://juancanfield.com";
 export const SITE_NAME = "Juan Canfield";
 export const SITE_TITLE = "Juan Canfield | AI Solutions Architect & AI Automation Consultant";
 export const SITE_DESCRIPTION =
-  "AI automation consultant and AI solutions architect for teams with real operational workflows. Fixed-fee AI systems roadmaps, custom AI development, proof of concept, pricing, and delivery scope are defined before build work begins.";
+  "AI automation consultant and AI solutions architect. Fixed-fee AI systems roadmaps and custom AI development, with scope and price set before any build.";
 export const SITE_KEYWORDS = [
   "AI solutions architect",
   "AI automation consultant",

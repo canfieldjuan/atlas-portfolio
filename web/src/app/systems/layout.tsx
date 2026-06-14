@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Productized AI Systems",
   description:
-    "Prebuilt AI system architectures: the Competitive / Vendor Intelligence Platform and AI Content Ops Station. Bring your data and workflows; customize the implementation around your business.",
+    "Prebuilt AI system architectures, the Competitive/Vendor Intelligence Platform and AI Content Ops Station. Bring your data and workflows; we customize.",
   path: "/systems",
   keywords: [
     "productized AI systems",

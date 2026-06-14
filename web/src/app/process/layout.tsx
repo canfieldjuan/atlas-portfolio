@@ -3,7 +3,7 @@ import { generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Process — From Inquiry to Live System",
   description:
-    "Every AI systems engagement follows a transparent two-phase process: Phase 1 Roadmap (2 weeks, $4,500) and Phase 2 Custom Build (2–16 weeks, fixed price). See every step from discovery to deployment.",
+    "The transparent two-phase AI engagement: Phase 1 Roadmap (2 weeks, $4,500) and Phase 2 Custom Build (fixed price), every step from discovery to deployment.",
   path: "/process",
   keywords: [
     "AI consulting engagement process",

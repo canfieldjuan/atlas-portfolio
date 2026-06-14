@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Content Ops — Productized Content Systems From Your Own Data",
   description:
-    "Content Ops turns your business data into publish-ready content your team reviews and approves. Start with a focused offer — like the Support Ticket Deflection Report — then expand to blogs, comparison pages, email, and campaign assets.",
+    "Content Ops turns your business data into publish-ready content your team reviews and approves. Start with the Support Ticket Deflection Report, then expand.",
   path: "/systems/ai-content-ops",
   keywords: [
     "AI content operations",
