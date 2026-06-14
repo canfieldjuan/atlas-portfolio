@@ -234,4 +234,17 @@ async function run(options, response) {
   assert.equal(result.error, 'Hosted results page rendered an error marker: This page could not be found.');
 }
 
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
+    { status: 200, body: 'SNAPSHOT TEMPORARILY UNAVAILABLE' },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(
+    result.error,
+    'Hosted results page rendered an error marker: SNAPSHOT TEMPORARILY UNAVAILABLE.',
+  );
+}
+
 console.log('Deflection hosted results smoke tests passed.');

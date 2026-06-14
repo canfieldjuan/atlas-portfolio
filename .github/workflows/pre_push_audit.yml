@@ -108,6 +108,9 @@ jobs:
       - name: Deflection public reachability smoke tests
         run: npm --prefix web run test:deflection-public-reachability-smoke
 
+      - name: Deflection results state tests
+        run: npm --prefix web run test:deflection-results-state
+
       - name: Deflection Snapshot landing smoke tests
         run: npm --prefix web run test:deflection-snapshot-landing-smoke
 
