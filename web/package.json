@@ -48,6 +48,7 @@
     "test:deflection-hosted-checkout-smoke": "node scripts/test-deflection-hosted-checkout-smoke.mjs",
     "test:deflection-hosted-results-smoke": "node scripts/test-deflection-hosted-results-smoke.mjs",
     "test:deflection-intake-atlas-submit": "node scripts/test-deflection-intake-atlas-submit.mjs",
+    "test:deflection-legacy-results-redirect": "node scripts/test-deflection-legacy-results-redirect.mjs",
     "test:deflection-partner-access": "node scripts/test-deflection-partner-access.mjs",
     "test:deflection-live-submit-smoke": "node scripts/test-deflection-live-submit-smoke.mjs",
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
