@@ -1,7 +1,13 @@
+'use client';
+
 import { AlertTriangle, ArrowLeft, RotateCw } from 'lucide-react';
 import Link from 'next/link';
 
 export function DeflectionResultsUnavailablePage() {
+  function retryCurrentUrl() {
+    window.location.reload();
+  }
+
   return (
     <main className="min-h-screen pt-16 pb-20 px-6 relative z-10">
       <div className="max-w-xl mx-auto">
@@ -20,13 +26,14 @@ export function DeflectionResultsUnavailablePage() {
             temporarily unavailable. Try again in a moment.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
-              href="?retry=1"
+            <button
+              type="button"
+              onClick={retryCurrentUrl}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-black hover:bg-primary/90 transition-colors"
             >
               <RotateCw className="h-4 w-4" />
               Try again
-            </Link>
+            </button>
             <Link
               href="/systems/support-ticket-deflection"
               className="inline-flex items-center justify-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-surface-hover transition-colors"
