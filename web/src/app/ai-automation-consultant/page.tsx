@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { generateBreadcrumbJsonLd, generateFaqJsonLd } from '@/lib/seo';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { RelatedGuides } from '@/components/RelatedGuides';
 
 const faqJsonLd = generateFaqJsonLd([
   {
@@ -305,6 +306,9 @@ export default function AiAutomationConsultantPage() {
               </Link>
             </div>
           </section>
+
+        <RelatedGuides slugs={["ai-automation-consultant-cost", "how-to-scope-ai-automation-project"]} />
+
         </div>
       </main>
     </>

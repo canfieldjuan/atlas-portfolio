@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, MessageSquare, Search, FileText, Hammer, CheckCircle2, Rocket, LifeBuoy, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { RelatedGuides } from '@/components/RelatedGuides';
 
 const steps = [
   {
@@ -443,6 +444,9 @@ export default function ProcessPage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>
+
+        <RelatedGuides slugs={["how-to-scope-ai-automation-project", "what-should-stay-human-reviewed"]} />
+
 
       </div>
     </main>

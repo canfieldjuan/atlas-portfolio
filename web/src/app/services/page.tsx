@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, FileText, HelpCircle, Map, Radar, Wrench } fr
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
+import { RelatedGuides } from '@/components/RelatedGuides';
 
 const faqJsonLd = generateFaqJsonLd([
   {
@@ -537,6 +538,9 @@ export default function ServicesPage() {
         >
           All engagements require a completed Phase 1 Roadmap. Phase 2 pricing is finalized in the blueprint and fixed before any build begins. No hourly billing, no surprise invoices.
         </motion.p>
+
+        <RelatedGuides slugs={["ai-automation-consultant-cost", "custom-ai-development-vs-saas"]} />
+
 
       </div>
     </main>

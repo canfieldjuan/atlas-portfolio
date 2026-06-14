@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, BrainCircuit, Bot, BarChart3, Cpu, FileText, Radar } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { RelatedGuides } from '@/components/RelatedGuides';
 
 const domains = [
   {
@@ -284,6 +285,9 @@ export default function CapabilitiesPage() {
             </Link>
           </div>
         </motion.div>
+
+        <RelatedGuides slugs={["custom-ai-development-vs-saas", "what-should-stay-human-reviewed"]} />
+
 
       </div>
     </main>
