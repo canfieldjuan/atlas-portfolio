@@ -13,6 +13,8 @@ a real, page-specific target.
 
 ## Scope (this PR)
 
+Slice phase: Product polish
+
 1. **Homepage gets page-specific metadata.** Because `page.tsx` is a
    `'use client'` component (framer-motion), it cannot export `metadata`. It is
    split the standard App Router way: `page.tsx` becomes a thin server wrapper
@@ -24,15 +26,36 @@ a real, page-specific target.
    and ASCII (removing Unicode em/en-dashes), with every product claim and
    price preserved.
 
+### Files touched
+- `web/src/app/page.tsx`
+- `web/src/app/HomeClient.tsx`
+- `web/src/lib/seo.ts`
+- `web/src/app/about/layout.tsx`
+- `web/src/app/architecture/layout.tsx`
+- `web/src/app/capabilities/layout.tsx`
+- `web/src/app/privacy/layout.tsx`
+- `web/src/app/process/layout.tsx`
+- `web/src/app/proof/layout.tsx`
+- `web/src/app/security/layout.tsx`
+- `web/src/app/services/layout.tsx`
+- `web/src/app/systems/ai-content-ops/layout.tsx`
+- `web/src/app/systems/ai-content-ops/ongoing-support/layout.tsx`
+- `web/src/app/systems/atlas-llm-gateway/layout.tsx`
+- `web/src/app/systems/layout.tsx`
+- `web/plans/PR-Homepage-SEO-Snippet.md`
+
 ## Mechanism
 
 The split is the standard Next.js pattern (server `page.tsx` for metadata +
-client child for interactivity); the homepage body moves byte-for-byte to
+client child for interactivity); the homepage body moves verbatim to
 `HomeClient.tsx`. Descriptions are swapped in place through
 `generatePageMetadata`'s `description` field; titles, keywords, canonical, OG,
 and JSON-LD are unchanged. The homepage title "AI Automation Consultant & AI
 Solutions Architect" (keyword-first) renders as "... | Juan Canfield" via the
-existing root title template.
+existing root title template. The git move is recorded as a rewrite of
+`page.tsx` plus an add of `HomeClient.tsx` (no rename detected, since `page.tsx`
+keeps its path with new content), which is why the raw LOC count is large for a
+behaviorally small change.
 
 ## Intentional
 
@@ -53,16 +76,26 @@ existing root title template.
   that does not set its own metadata inherits canonical `/` -- a separate
   canonical-correctness follow-up.
 
+## Parked hardening
+
+None.
+
 ## Verification
 
 - `npx tsc --noEmit` clean (the homepage split typechecks).
 - `npx eslint src/app/page.tsx src/app/HomeClient.tsx src/lib/seo.ts` clean.
 - All 13 tightened descriptions measured <= 157 chars (homepage 140,
   `SITE_DESCRIPTION` 150).
-- Vercel preview build on the PR is the full-build gate.
+- Vercel preview build on the PR is the full-build gate (passing).
 
 ## Estimated diff size
 
-14 files: `page.tsx` (new server wrapper), `HomeClient.tsx` (rename + 1 line),
-`seo.ts` (1 line), 12 `layout.tsx` (1 line each), this plan. ~30 net LOC plus
-the renamed homepage body.
+| Area | LOC |
+|---|---:|
+| Homepage server/client split (`page.tsx` rewrite + `HomeClient.tsx` add) | ~830 |
+| `seo.ts` + 12 `layout.tsx` description rewrites | ~26 |
+| Plan | ~75 |
+| **Total** | **~930** |
+
+The behavioral change is ~30 LOC; the large raw total is the homepage body
+recorded as add + delete because git did not detect the move as a rename.
