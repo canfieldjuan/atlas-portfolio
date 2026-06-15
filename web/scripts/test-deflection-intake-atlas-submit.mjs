@@ -110,6 +110,12 @@ function minimalArtifact() {
   };
 }
 
+function extractNumericConst(source, name) {
+  const match = source.match(new RegExp(`(?:export\\s+)?const\\s+${name}\\s+=\\s+([0-9_]+)`));
+  assert.ok(match, `${name} constant should be present`);
+  return Number(match[1].replaceAll('_', ''));
+}
+
 globalThis.__atlasSubmitBlobGet = async (url, options) => {
   blobCalls.push({ url, options });
   return {
@@ -592,9 +598,12 @@ try {
   );
 
   const resultsRoute = await readFile(resultsRouteUrl, 'utf8');
+  const artifactFetchTimeoutMs = extractNumericConst(source, 'ARTIFACT_FETCH_TIMEOUT_MS');
+  const resultsRouteMaxDurationSeconds = extractNumericConst(resultsRoute, 'maxDuration');
+  assert.equal(artifactFetchTimeoutMs, 60_000);
   assert.ok(
-    resultsRoute.includes('export const maxDuration = 60'),
-    'results page should allow the paid artifact render path to outlive the artifact fetch budget',
+    resultsRouteMaxDurationSeconds * 1000 > artifactFetchTimeoutMs,
+    'results page route budget should exceed the artifact fetch timeout so fallback can render',
   );
 
   const intakePage = await readFile(intakePageUrl, 'utf8');

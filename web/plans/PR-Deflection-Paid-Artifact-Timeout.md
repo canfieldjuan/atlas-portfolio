@@ -34,9 +34,10 @@ Slice phase: Vertical slice
 `FETCH_TIMEOUT_MS` remains the small JSON timeout for snapshot, checkout
 authorization, and report-status checks. A new `ARTIFACT_FETCH_TIMEOUT_MS`
 constant is used only by `fetchDeflectionArtifact`, because the paid report JSON
-can be multi-megabyte. The result page exports `maxDuration = 60` so the
-server-rendered paid artifact path has the same function budget as the client
-fetch timeout.
+can be multi-megabyte. The result page exports `maxDuration = 90`, leaving
+route-level headroom above the 60s artifact fetch abort so a slow artifact fetch
+can still fall back to the snapshot instead of racing the Vercel function
+deadline.
 
 ## Intentional
 
@@ -58,6 +59,9 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-intake-atlas-submit` - passed.
 - `npm --prefix web run lint -- src/lib/atlas-deflection-client.ts 'src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx' scripts/test-deflection-intake-atlas-submit.mjs` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
+- Review follow-up: `npm --prefix web run test:deflection-intake-atlas-submit`
+  and targeted lint passed after changing the route budget guard to assert
+  `maxDuration * 1000 > ARTIFACT_FETCH_TIMEOUT_MS`.
 - Live diagnostic before this PR: production token mismatch fixed, redeployed,
   locked snapshot URL renders `YOUR DEFLECTION SNAPSHOT`; unlocked request still
   logs artifact abort at the old 10s budget.
