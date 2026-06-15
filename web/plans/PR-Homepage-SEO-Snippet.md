@@ -20,15 +20,16 @@ Slice phase: Product polish
    split the standard App Router way: `page.tsx` becomes a thin server wrapper
    that exports the metadata and renders the existing UI, moved verbatim to
    `HomeClient.tsx` (only the function name changes, `Home` -> `HomeClient`).
-2. **`SITE_DESCRIPTION` tightened** 232 -> 150 chars (the site-wide default /
+2. **`SITE_DESCRIPTION` tightened** 232 -> 152 chars (the site-wide default /
    OG fallback).
-3. **12 over-160-char page descriptions tightened** to <= 157, keyword-first
+3. **13 over-160-char page descriptions tightened** to <= 157, keyword-first
    and ASCII (removing Unicode em/en-dashes), with every product claim and
    price preserved.
 
 ### Files touched
 - `web/src/app/page.tsx`
 - `web/src/app/HomeClient.tsx`
+- `web/src/app/ai-automation-consultant/layout.tsx`
 - `web/src/lib/seo.ts`
 - `web/src/app/about/layout.tsx`
 - `web/src/app/architecture/layout.tsx`
@@ -84,8 +85,8 @@ None.
 
 - `npx tsc --noEmit` clean (the homepage split typechecks).
 - `npx eslint src/app/page.tsx src/app/HomeClient.tsx src/lib/seo.ts` clean.
-- All 13 tightened descriptions measured <= 157 chars (homepage 140,
-  `SITE_DESCRIPTION` 150).
+- Homepage, `SITE_DESCRIPTION`, and 13 page descriptions measured <= 157 chars
+  (homepage 145, `SITE_DESCRIPTION` 152).
 - Vercel preview build on the PR is the full-build gate (passing).
 
 ## Estimated diff size
@@ -93,7 +94,7 @@ None.
 | Area | LOC |
 |---|---:|
 | Homepage server/client split (`page.tsx` rewrite + `HomeClient.tsx` add) | ~830 |
-| `seo.ts` + 12 `layout.tsx` description rewrites | ~26 |
+| `seo.ts` + 13 `layout.tsx` description rewrites | ~28 |
 | Plan | ~75 |
 | **Total** | **~930** |
 
