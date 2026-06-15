@@ -27,6 +27,7 @@ import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const FETCH_TIMEOUT_MS = 10_000;
+const ARTIFACT_FETCH_TIMEOUT_MS = 60_000;
 // The full-volume submit streams up to 50 MB of CSV to ATLAS and waits for
 // the deterministic report build (~52s measured at 35k rows), so it needs a
 // much larger budget than the small JSON fetches. Keep it below the /record
@@ -614,7 +615,7 @@ export async function fetchDeflectionArtifact(
   if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), ARTIFACT_FETCH_TIMEOUT_MS);
   try {
     const res = await fetch(`${config.baseUrl}${deflectionArtifactPath(requestId)}`, {
       headers: {

@@ -8,6 +8,10 @@ import ts from 'typescript';
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-submit-'));
 const sourceUrl = new URL('../src/lib/atlas-deflection-client.ts', import.meta.url);
 const recordRouteUrl = new URL('../src/app/api/gap-report-intake/record/route.ts', import.meta.url);
+const resultsRouteUrl = new URL(
+  '../src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx',
+  import.meta.url,
+);
 const intakePageUrl = new URL(
   '../src/components/landing/SupportTicketCsvIntakePage.tsx',
   import.meta.url,
@@ -18,6 +22,8 @@ const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
 const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN'];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
+const originalSetTimeout = globalThis.setTimeout;
+const originalClearTimeout = globalThis.clearTimeout;
 const originalConsoleError = console.error;
 
 let blobCalls = [];
@@ -62,6 +68,45 @@ function minimalSnapshot(summaryExtras = {}) {
     top_questions: [],
     locked_questions: [],
     teaser: { full_answer: null, previews: [] },
+  };
+}
+
+function minimalArtifact() {
+  return {
+    markdown: '# Paid deflection report',
+    summary: {
+      generated: 1,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 0,
+      ticket_source_count: 2,
+      top_question: 'How do I export reports?',
+      top_opportunity_score: 2,
+      output_checks: {
+        uses_user_vocabulary: true,
+        condensed: true,
+        has_action_items: true,
+      },
+    },
+    faq_result: {
+      generated: 1,
+      markdown: '# FAQ source',
+      items: [
+        {
+          topic: 'exports',
+          question: 'How do I export reports?',
+          answer: 'Open Analytics and select Export.',
+          when_to_contact_support: 'Contact support if Export is unavailable.',
+          answer_evidence_status: 'resolution_evidence',
+          ticket_count: 2,
+          opportunity_score: 2,
+          steps: ['Open Analytics.', 'Select Export.'],
+          action_items: ['Confirm the export completed.'],
+          source_ids: ['ticket-export-1', 'ticket-export-2'],
+          source_labels: ['`ticket-export-1` - Export reports'],
+          term_mappings: [],
+        },
+      ],
+    },
   };
 }
 
@@ -122,7 +167,8 @@ try {
   await writeFile(compiledPath, compiled.outputText);
 
   const require = createRequire(compiledPath);
-  const { fetchDeflectionSnapshot, submitDeflectionReportCsv } = require(compiledPath);
+  const { fetchDeflectionSnapshot, fetchDeflectionArtifact, submitDeflectionReportCsv } =
+    require(compiledPath);
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
@@ -386,6 +432,27 @@ try {
   }
 
   resetCalls();
+  fetchPayload = minimalArtifact();
+  const timeoutDelays = [];
+  globalThis.setTimeout = (callback, delay, ...args) => {
+    timeoutDelays.push(delay);
+    return originalSetTimeout(callback, 2 ** 31 - 1, ...args);
+  };
+  globalThis.clearTimeout = (timer) => originalClearTimeout(timer);
+  try {
+    const artifactResult = await fetchDeflectionArtifact('content-ops-unit-123');
+    assert.equal(artifactResult.ok, true);
+    assert.equal(timeoutDelays.at(-1), 60_000);
+    assert.equal(
+      fetchCalls.at(-1).url,
+      'https://atlas.example.com/api/v1/content-ops/deflection-reports/content-ops-unit-123/artifact',
+    );
+  } finally {
+    globalThis.setTimeout = originalSetTimeout;
+    globalThis.clearTimeout = originalClearTimeout;
+  }
+
+  resetCalls();
   fetchPayload = {
     summary: {
       generated: 1,
@@ -524,6 +591,12 @@ try {
     'record route should not turn ATLAS submit failures into success warnings',
   );
 
+  const resultsRoute = await readFile(resultsRouteUrl, 'utf8');
+  assert.ok(
+    resultsRoute.includes('export const maxDuration = 60'),
+    'results page should allow the paid artifact render path to outlive the artifact fetch budget',
+  );
+
   const intakePage = await readFile(intakePageUrl, 'utf8');
   assert.ok(
     intakePage.includes('deflectionResultsPath'),
@@ -562,6 +635,8 @@ try {
   console.log('Deflection intake ATLAS submit tests passed.');
 } finally {
   globalThis.fetch = originalFetch;
+  globalThis.setTimeout = originalSetTimeout;
+  globalThis.clearTimeout = originalClearTimeout;
   console.error = originalConsoleError;
   restoreEnv();
   delete globalThis.__atlasSubmitBlobGet;
