@@ -37,6 +37,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+export const maxDuration = 90;
+
 // Live snapshot from ATLAS. 404 -> notFound; expected upstream/config failures
 // render an explicit unavailable state instead of throwing a production 500.
 // Missing service-account env still falls back to the demo fixture only in local
