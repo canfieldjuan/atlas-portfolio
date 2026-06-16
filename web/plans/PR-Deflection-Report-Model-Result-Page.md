@@ -39,9 +39,13 @@ Slice phase: Vertical slice
    the evidence export.
 8. Update the paid-unlock smoke to accept either the legacy artifact page or the
    new model-backed page as an unlocked paid render.
-9. Add focused Node tests for route preference, parser fail-closed behavior,
+9. Validate known web section data types before treating a model as supported,
+   while skipping malformed non-web/export-only sections for the hosted web
+   consumer.
+10. Add focused Node tests for route preference, parser fail-closed behavior,
    evidence exclusion, legacy fallback, model-only status unlock, paid-smoke
-   marker compatibility, and CI enrollment.
+   marker compatibility, web-section type guards, export-only drift, and CI
+   enrollment.
 
 ### Files touched
 
@@ -91,8 +95,12 @@ unknown/export-only sections, and renders the known section data for
 `outcome_diagnostics`, and `question_details`. It uses counts and pointers to
 the complete evidence export, not `evidence_quotes` or raw source IDs, so the
 hosted result page remains a concise dashboard rather than a complete archive.
-Outcome diagnostics are capped like the ranked/detail sections, with the
-evidence export as the uncapped surface.
+The model parser validates the typed fields those web sections render, so a
+malformed count/cost/list fails closed instead of showing `0` or `$0`.
+Non-web/export-only sections are not required for this surface and are skipped
+if they drift. SEO targets and outcome diagnostics are capped by local maxima
+even if the upstream model carries a larger `limit` or `default_limit`, with
+the evidence export as the uncapped surface.
 
 ## Intentional
 
@@ -135,14 +143,14 @@ Parked hardening: none.
 |---|---:|
 | `.github/workflows/pre_push_audit.yml` | ~3 |
 | `web/package.json` | ~1 |
-| `web/plans/PR-Deflection-Report-Model-Result-Page.md` | ~162 |
+| `web/plans/PR-Deflection-Report-Model-Result-Page.md` | ~156 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | ~6 |
 | `web/scripts/test-deflection-paid-unlock-smoke.mjs` | ~24 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | ~320 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~379 |
 | `web/scripts/smoke-deflection-paid-unlock.mjs` | ~17 |
 | `web/src/app/api/deflection-report-status/route.ts` | ~12 |
 | `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | ~19 |
-| `web/src/components/landing/DeflectionReportModelPage.tsx` | ~295 |
-| `web/src/lib/atlas-deflection-client.ts` | ~111 |
+| `web/src/components/landing/DeflectionReportModelPage.tsx` | ~297 |
+| `web/src/lib/atlas-deflection-client.ts` | ~235 |
 | `web/src/lib/deflection-report-contract.ts` | ~21 |
-| Total | ~991 |
+| Total | ~1,170 |

@@ -4,6 +4,7 @@ import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/
 const RANKED_ROW_LIMIT = 25;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
 const QUESTION_DETAIL_LIMIT = 10;
+const SEO_TARGET_LIMIT = 20;
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -97,7 +98,9 @@ function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
 
 function SeoTargets({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
-  const phrases = texts(data.phrases).slice(0, int(data.limit) || 20);
+  const requestedLimit = int(data.limit) || SEO_TARGET_LIMIT;
+  const limit = Math.min(SEO_TARGET_LIMIT, requestedLimit);
+  const phrases = texts(data.phrases).slice(0, limit);
   if (phrases.length === 0) return null;
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
@@ -158,7 +161,8 @@ function RankedQuestions({ section }: { section?: DeflectionReportSection }) {
 function OutcomeDiagnostics({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const allDiagnostics = rows(data.rows);
-  const limit = int(section?.default_limit) || OUTCOME_DIAGNOSTIC_LIMIT;
+  const requestedLimit = int(section?.default_limit) || OUTCOME_DIAGNOSTIC_LIMIT;
+  const limit = Math.min(OUTCOME_DIAGNOSTIC_LIMIT, requestedLimit);
   const diagnostics = allDiagnostics.slice(0, limit);
   if (diagnostics.length === 0) return null;
   return (

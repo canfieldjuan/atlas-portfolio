@@ -61,31 +61,63 @@ function resetCalls() {
   consoleErrors = [];
 }
 
+function supportTaxSection(dataOverrides = {}) {
+  return {
+    id: 'support_tax',
+    title: 'Support Tax Confirmation',
+    priority: 10,
+    surfaces: ['web', 'pdf', 'email_summary', 'markdown'],
+    default_limit: null,
+    required_data: [
+      'repeat_ticket_count',
+      'non_repeat_ticket_count',
+      'generated_question_count',
+      'assisted_contact_cost',
+      'estimated_support_cost',
+      'source_date_window',
+      'drafted_answer_count',
+      'no_proven_answer_count',
+      'ticket_source_count',
+    ],
+    data: {
+      repeat_ticket_count: 7,
+      non_repeat_ticket_count: 3,
+      generated_question_count: 4,
+      assisted_contact_cost: 13.5,
+      estimated_support_cost: 94.5,
+      annualized_support_cost: 2299.5,
+      source_date_window: {
+        source_date_start: '2026-05-01',
+        source_date_end: '2026-05-15',
+        source_window_days: 15,
+      },
+      drafted_answer_count: 2,
+      no_proven_answer_count: 1,
+      ticket_source_count: 10,
+      ...dataOverrides,
+    },
+  };
+}
+
+function exportOnlySection(overrides = {}) {
+  return {
+    id: 'complete_evidence',
+    title: 'Complete Evidence',
+    priority: 90,
+    surfaces: ['export'],
+    default_limit: null,
+    required_data: ['evidence_row_count'],
+    data: { evidence_row_count: 42 },
+    ...overrides,
+  };
+}
+
 function minimalModel(overrides = {}) {
   return {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [
-      {
-        id: 'support_tax',
-        title: 'Support Tax Confirmation',
-        priority: 10,
-        surfaces: ['web', 'pdf', 'email_summary', 'markdown'],
-        default_limit: null,
-        required_data: ['repeat_ticket_count'],
-        data: { repeat_ticket_count: 7 },
-      },
-      {
-        id: 'complete_evidence',
-        title: 'Complete Evidence',
-        priority: 90,
-        surfaces: ['export'],
-        default_limit: null,
-        required_data: ['evidence_row_count'],
-        data: { evidence_row_count: 42 },
-      },
-    ],
+    sections: [supportTaxSection()],
     ...overrides,
   };
 }
@@ -237,6 +269,28 @@ try {
     reason: 'error',
   });
 
+  resetCalls();
+  fetchPayload = minimalModel({ sections: [supportTaxSection({ repeat_ticket_count: '7' })] });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      exportOnlySection({
+        required_data: ['evidence_row_count', 'source_id_count'],
+        data: { evidence_row_count: 42 },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: minimalModel(),
+  });
+
   resetEnv({});
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
@@ -270,9 +324,14 @@ try {
   const modelPageSource = await readFile(modelPageUrl, 'utf8');
   assert.ok(modelPageSource.includes("section.surfaces.includes('web')"), 'model page filters to web sections');
   assert.ok(
-    modelPageSource.includes('const diagnostics = allDiagnostics.slice(0, limit)'),
-    'outcome diagnostics are capped before rendering',
+    modelPageSource.includes('const limit = Math.min(OUTCOME_DIAGNOSTIC_LIMIT, requestedLimit)'),
+    'outcome diagnostics clamp upstream limits to the local cap',
   );
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(SEO_TARGET_LIMIT, requestedLimit)'),
+    'SEO targets clamp upstream limits to the local cap',
+  );
+  assert.ok(modelPageSource.includes('const diagnostics = allDiagnostics.slice(0, limit)'), 'outcome diagnostics are capped before rendering');
   assert.ok(modelPageSource.includes('Diagnostics capped at'), 'diagnostic cap copy points to the export');
   assert.ok(modelPageSource.includes('complete evidence export'), 'model page points to the complete evidence export');
   assert.equal(modelPageSource.includes('evidence_quotes'), false, 'model page must not read raw evidence quotes');

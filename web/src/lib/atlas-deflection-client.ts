@@ -622,6 +622,122 @@ function parseStringList(value: unknown): string[] | null {
   return value;
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isNonNegativeFiniteNumber(value: unknown): value is number {
+  return isFiniteNumber(value) && value >= 0;
+}
+
+function requireNonNegativeNumbers(
+  data: Record<string, unknown>,
+  keys: string[],
+): boolean {
+  return keys.every((key) => isNonNegativeFiniteNumber(data[key]));
+}
+
+function isOptionalSourceWindow(value: unknown): boolean {
+  if (value === null) return true;
+  if (!isPlainRecord(value)) return false;
+  return (
+    typeof value.source_date_start === 'string' &&
+    typeof value.source_date_end === 'string' &&
+    isNonNegativeFiniteNumber(value.source_window_days)
+  );
+}
+
+function isStringRows(value: unknown, keys: string[]): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.every((row) => (
+    isPlainRecord(row) &&
+    keys.every((key) => typeof row[key] === 'string')
+  ));
+}
+
+function isRankedQuestionRows(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.every((row) => (
+    isPlainRecord(row) &&
+    isFiniteNumber(row.rank) &&
+    typeof row.question === 'string' &&
+    isNonNegativeFiniteNumber(row.ticket_count) &&
+    isNonNegativeFiniteNumber(row.estimated_support_cost) &&
+    isFiniteNumber(row.opportunity_score) &&
+    typeof row.answer_status === 'string'
+  ));
+}
+
+function isQuestionDetailRows(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.every((row) => (
+    isPlainRecord(row) &&
+    isFiniteNumber(row.rank) &&
+    typeof row.question === 'string' &&
+    isNonNegativeFiniteNumber(row.ticket_count) &&
+    typeof row.answer_status === 'string' &&
+    typeof row.answer_linkage === 'string' &&
+    typeof row.answer === 'string' &&
+    parseStringList(row.steps) !== null &&
+    parseStringList(row.source_ids) !== null
+  ));
+}
+
+function validateWebReportSection(section: DeflectionReportSection): boolean {
+  const data = section.data;
+  if (section.id === 'support_tax') {
+    return (
+      requireNonNegativeNumbers(data, [
+        'repeat_ticket_count',
+        'non_repeat_ticket_count',
+        'generated_question_count',
+        'assisted_contact_cost',
+        'estimated_support_cost',
+        'drafted_answer_count',
+        'no_proven_answer_count',
+        'ticket_source_count',
+      ]) &&
+      (
+        isNonNegativeFiniteNumber(data.annualized_support_cost) ||
+        isNonNegativeFiniteNumber(data.annualized_run_rate_support_cost)
+      ) &&
+      isOptionalSourceWindow(data.source_date_window)
+    );
+  }
+  if (section.id === 'source_file') {
+    return typeof data.source_label === 'string';
+  }
+  if (section.id === 'seo_targets') {
+    return (
+      parseStringList(data.phrases) !== null &&
+      requireNonNegativeNumbers(data, [
+        'total_phrase_count',
+        'displayed_phrase_count',
+        'omitted_phrase_count',
+        'limit',
+      ])
+    );
+  }
+  if (section.id === 'ranked_questions') {
+    return isRankedQuestionRows(data.rows);
+  }
+  if (section.id === 'outcome_diagnostics') {
+    return (
+      requireNonNegativeNumbers(data, [
+        'outcome_diagnostic_ticket_count',
+        'outcome_risk_ticket_count',
+        'reopened_ticket_count',
+        'negative_csat_ticket_count',
+      ]) &&
+      isStringRows(data.rows, ['question', 'status_mix', 'guidance'])
+    );
+  }
+  if (section.id === 'question_details') {
+    return isQuestionDetailRows(data.rows);
+  }
+  return true;
+}
+
 function parseReportSection(value: unknown): DeflectionReportSection | null {
   if (!isPlainRecord(value)) return null;
   const surfaces = parseStringList(value.surfaces);
@@ -634,7 +750,7 @@ function parseReportSection(value: unknown): DeflectionReportSection | null {
     !Number.isFinite(value.priority) ||
     !surfaces ||
     !requiredData ||
-    !(value.default_limit === null || typeof value.default_limit === 'number') ||
+    !(value.default_limit === null || isNonNegativeFiniteNumber(value.default_limit)) ||
     !isPlainRecord(data)
   ) {
     return null;
@@ -665,10 +781,18 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
   }
   const sections: DeflectionReportSection[] = [];
   for (const section of value.sections) {
+    const surfaces = isPlainRecord(section) ? parseStringList(section.surfaces) : null;
+    const isWebSection = surfaces?.includes('web') === true;
     const parsed = parseReportSection(section);
-    if (!parsed) return null;
+    if (!parsed) {
+      if (surfaces && !isWebSection) continue;
+      return null;
+    }
+    if (!parsed.surfaces.includes('web')) continue;
+    if (!validateWebReportSection(parsed)) return null;
     sections.push(parsed);
   }
+  if (!sections.some((section) => section.id === 'support_tax')) return null;
   return {
     schema_version: 'deflection.v1',
     title: value.title,
