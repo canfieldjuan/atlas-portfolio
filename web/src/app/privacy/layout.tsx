@@ -3,7 +3,7 @@ import { generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Privacy and Data Handling",
   description:
-    "Plain-language privacy and data handling information for audit requests, AI systems roadmap work, custom AI development, third-party processing, and client-owned deliverables.",
+    "How audit requests and AI systems work handle your data: third-party processing, retention, and client-owned deliverables, in plain language.",
   path: "/privacy",
   keywords: [
     "AI consultant privacy",

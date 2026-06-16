@@ -3,7 +3,7 @@ import { generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Capabilities — What I Build",
   description:
-    "Custom AI development capabilities for GTM automation, GraphRAG knowledge engines, agentic workflow orchestration, data pipelines, monitoring dashboards, edge AI, and voice systems.",
+    "Custom AI development: GTM automation, GraphRAG knowledge engines, agentic workflow orchestration, data pipelines, dashboards, edge AI, and voice systems.",
   path: "/capabilities",
   keywords: [
     "custom AI development services",
