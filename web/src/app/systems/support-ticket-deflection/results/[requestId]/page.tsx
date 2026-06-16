@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { DeflectionReportArtifactPage } from '@/components/landing/DeflectionReportArtifactPage';
+import { DeflectionReportModelPage } from '@/components/landing/DeflectionReportModelPage';
 import { DeflectionResultsPage } from '@/components/landing/DeflectionResultsPage';
 import { DeflectionResultsUnavailablePage } from '@/components/landing/DeflectionResultsUnavailablePage';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
 import {
   fetchDeflectionSnapshot,
   fetchDeflectionArtifact,
+  fetchDeflectionReportModel,
+  type ReportModelFetchResult,
 } from '@/lib/atlas-deflection-client';
 import {
   resolveDeflectionSnapshotRouteState,
@@ -48,10 +51,13 @@ async function getSnapshotState(requestId: string): Promise<DeflectionSnapshotRo
   return resolveDeflectionSnapshotRouteState(result);
 }
 
-// Fetch the paid-gated full report before the snapshot:
-//   200 (ok)        -> render DeflectionReportArtifactPage (unlocked)
-//   403 (locked)    -> null -> fall through to the snapshot + unlock CTA
-//   404 / error / not_configured -> null -> snapshot (graceful; logged server-side)
+// Prefer the paid structured model. Only legacy no-model rows fall back to the
+// full artifact path; locked/error states proceed to the snapshot/unlock view.
+async function getReportModel(requestId: string): Promise<ReportModelFetchResult> {
+  return fetchDeflectionReportModel(requestId);
+}
+
+// Legacy fallback for paid reports generated before the structured model route.
 async function getArtifact(requestId: string): Promise<FAQDeflectionReportArtifact | null> {
   const result = await fetchDeflectionArtifact(requestId);
   return result.ok ? result.artifact : null;
@@ -112,7 +118,10 @@ async function getResultsAnalyticsContext(
 
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
-  const artifact = await getArtifact(requestId);
+  const modelResult = await getReportModel(requestId);
+  if (modelResult.ok) return <DeflectionReportModelPage model={modelResult.model} />;
+
+  const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
   if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
 
   const snapshotState = await getSnapshotState(requestId);

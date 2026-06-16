@@ -84,6 +84,27 @@ export type FAQDeflectionReportArtifact = {
   faq_result: TicketFAQMarkdownResult;
 };
 
+export type DeflectionReportSection = {
+  id: string;
+  title: string;
+  priority: number;
+  surfaces: string[];
+  default_limit: number | null;
+  required_data: string[];
+  data: Record<string, unknown>;
+};
+
+export type DeflectionStructuredReport = {
+  schema_version: 'deflection.v1';
+  title: string;
+  summary: Record<string, unknown>;
+  sections: DeflectionReportSection[];
+};
+
 export function deflectionArtifactPath(requestId: string): string {
   return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/artifact`;
+}
+
+export function deflectionReportModelPath(requestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/report-model`;
 }

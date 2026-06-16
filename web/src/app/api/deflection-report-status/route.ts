@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { fetchDeflectionArtifact } from '@/lib/atlas-deflection-client';
+import {
+  fetchDeflectionArtifact,
+  fetchDeflectionReportModel,
+} from '@/lib/atlas-deflection-client';
 import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
@@ -26,6 +29,13 @@ export async function GET(request: Request) {
         headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
       },
     );
+  }
+
+  const modelResult = await fetchDeflectionReportModel(requestId);
+  if (modelResult.ok) return NextResponse.json({ status: 'unlocked' });
+  if (modelResult.reason === 'locked') return NextResponse.json({ status: 'locked' });
+  if (modelResult.reason !== 'not_found') {
+    return NextResponse.json({ error: 'Report status unavailable.' }, { status: 503 });
   }
 
   const result = await fetchDeflectionArtifact(requestId);

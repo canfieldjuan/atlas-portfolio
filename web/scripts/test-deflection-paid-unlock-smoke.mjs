@@ -17,6 +17,16 @@ const PAID_HTML = [
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const MODEL_PAID_HTML = [
+  '<main>',
+  '<span>MODEL-BACKED REPORT</span>',
+  '<h1>Your Support Tax report is ready.</h1>',
+  '<div>Paid report dashboard</div>',
+  '<strong>Help-desk SEO targeting list</strong>',
+  '<strong>Ranked question opportunities</strong>',
+  '<div>Top publishable answers and gaps</div>',
+  '</main>',
+].join('');
 const reportPageSourceUrl = new URL('../src/components/landing/DeflectionReportArtifactPage.tsx', import.meta.url);
 
 function assertIncludes(haystack, needle, context) {
@@ -110,6 +120,18 @@ function run(options, responses, deps = {}) {
   assert.equal(result.initialStatus, 'unlocked');
   assert.equal(result.requireUnlocked, true);
   assert.equal(result.checkoutUrl, undefined);
+  assert.equal(fetchImpl.calls.length, 2);
+}
+
+{
+  const { result, fetchImpl } = await run({ requireUnlocked: true }, [
+    { status: 200, body: { status: 'unlocked' } },
+    { status: 200, kind: 'html', body: MODEL_PAID_HTML },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.initialStatus, 'unlocked');
+  assert.equal(result.requireUnlocked, true);
+  assert.equal(result.markers.paidReportBadge, true);
   assert.equal(fetchImpl.calls.length, 2);
 }
 
@@ -261,7 +283,7 @@ function run(options, responses, deps = {}) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.equal(result.error, 'Paid results page did not render the unlocked report.');
-  assert.deepEqual(result.missing, ['fullReportBadge']);
+  assert.deepEqual(result.missing, ['paidReportBadge']);
 }
 
 {

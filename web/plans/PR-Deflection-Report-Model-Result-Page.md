@@ -1,0 +1,156 @@
+# PR-Deflection-Report-Model-Result-Page
+
+## Why this slice exists
+
+Atlas epic #1588 has moved the paid deflection report into a persisted
+`deflection.v1` model and the ATLAS repo now exposes that model through a paid
+`/report-model` route. The portfolio hosted result page still fetches the full
+paid artifact, validates `markdown`, and renders the buyer page from the
+monolithic artifact shape.
+
+Root cause: the web result-page consumer has not been migrated to the new model
+contract. As long as it depends on `/artifact` and `artifact.markdown`, the
+hosted page remains coupled to the old complete-report blob and cannot evolve
+per-surface from structured sections.
+
+This exceeds the 400 LOC soft cap because the first hosted consumer needs the
+contract types, paid model fetcher, route handoff, model-backed renderer,
+legacy fallback, and CI-enrolled contract test in one vertical slice. Splitting
+the renderer or parser into a separate PR would leave the paid result page
+unable to prove the new `/report-model` path end to end.
+
+## Scope (this PR)
+
+Slice phase: Vertical slice
+
+1. Add local TypeScript types and a path helper for the ATLAS
+   `GET /deflection-reports/{request_id}/report-model` contract.
+2. Add a server-side portfolio fetch/parse path for the paid report model.
+3. Make the paid results route prefer the structured model page when the model
+   route returns a supported `deflection.v1` payload.
+4. Keep legacy `/artifact` fallback for older paid reports whose model route
+   returns 404, and keep locked/error behavior falling through to the existing
+   snapshot/unlock state.
+5. Add a structured model renderer for the hosted result page that renders the
+   current customer-facing surfaces from section `data`, not Markdown.
+6. Teach the paid status poller that a successful report model is unlocked, so
+   model-only paid reports do not leave Checkout buyers polling forever.
+7. Cap outcome diagnostics on the hosted page and keep complete diagnostics in
+   the evidence export.
+8. Update the paid-unlock smoke to accept either the legacy artifact page or the
+   new model-backed page as an unlocked paid render.
+9. Validate known web section data types before treating a model as supported,
+   while skipping malformed non-web/export-only sections for the hosted web
+   consumer.
+10. Add focused Node tests for route preference, parser fail-closed behavior,
+   evidence exclusion, legacy fallback, model-only status unlock, paid-smoke
+   marker compatibility, web-section type guards, export-only drift, and CI
+   enrollment.
+
+### Files touched
+
+- `web/src/lib/deflection-report-contract.ts`
+- `web/src/lib/atlas-deflection-client.ts`
+- `web/src/app/api/deflection-report-status/route.ts`
+- `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
+- `web/src/components/landing/DeflectionReportModelPage.tsx`
+- `web/scripts/smoke-deflection-paid-unlock.mjs`
+- `web/scripts/test-deflection-paid-unlock-smoke.mjs`
+- `web/scripts/test-deflection-report-model-result-page.mjs`
+- `web/scripts/test-deflection-intake-atlas-submit.mjs`
+- `web/package.json`
+- `.github/workflows/pre_push_audit.yml`
+- `web/plans/PR-Deflection-Report-Model-Result-Page.md`
+
+## Mechanism
+
+Extend the local contract module with `DeflectionStructuredReport`,
+`DeflectionReportSection`, and `deflectionReportModelPath(...)`, mirroring the
+ATLAS frontend contract. `atlas-deflection-client.ts` gets
+`fetchDeflectionReportModel(...)`, using the same service-account config,
+request-id guard, timeout discipline, and paid-state result shape as
+`fetchDeflectionArtifact(...)`.
+
+The results route changes from:
+
+1. fetch `/artifact`;
+2. render `DeflectionReportArtifactPage`;
+3. otherwise fetch snapshot.
+
+to:
+
+1. fetch `/report-model`;
+2. render `DeflectionReportModelPage` on a supported model;
+3. fetch `/artifact` only for legacy 404/no-model fallback;
+4. otherwise fetch snapshot as today.
+
+The `/api/deflection-report-status` poller mirrors that paid-state contract for
+Checkout returns: model success returns `{status:"unlocked"}`, model locked
+returns `{status:"locked"}`, and only model 404/no-model falls back to the
+legacy artifact route.
+
+The new renderer sorts sections by priority, renders only `web` sections, skips
+unknown/export-only sections, and renders the known section data for
+`support_tax`, `source_file`, `seo_targets`, `ranked_questions`,
+`outcome_diagnostics`, and `question_details`. It uses counts and pointers to
+the complete evidence export, not `evidence_quotes` or raw source IDs, so the
+hosted result page remains a concise dashboard rather than a complete archive.
+The model parser validates the typed fields those web sections render, so a
+malformed count/cost/list fails closed instead of showing `0` or `$0`.
+Non-web/export-only sections are not required for this surface and are skipped
+if they drift. SEO targets and outcome diagnostics are capped by local maxima
+even if the upstream model carries a larger `limit` or `default_limit`, with
+the evidence export as the uncapped surface.
+
+## Intentional
+
+- No ATLAS backend changes. #1603 already shipped the paid model route.
+- No removal of `DeflectionReportArtifactPage`. It remains the compatibility
+  renderer for historical paid artifacts without a supported model.
+- No client-side fetch. The results route remains a Server Component path that
+  keeps service credentials server-side.
+- No PDF/email changes. #1605 moved the PDF consumer; this slice is only the
+  hosted web surface.
+- No broad visual redesign beyond replacing Markdown-backed content with
+  structured model-backed content; the goal is consumer migration, not a new
+  art direction.
+
+## Deferred
+
+- Later #1588 slice: richer web layout polish once real customer feedback shows
+  which sections deserve more/less prominence.
+- Later #1588 slice: direct download affordances for PDF/evidence export if the
+  existing paid artifact links are not sufficient from this page state.
+- Later #1588 slice: optional clickable PDF navigation remains PDF-specific and
+  outside the hosted page.
+
+Parked hardening: none.
+
+## Verification
+
+- `npm --prefix web run test:deflection-report-model-result-page` -- passed.
+- `npm --prefix web run test:deflection-paid-unlock-smoke` -- passed.
+- `npm --prefix web run test:deflection-intake-atlas-submit` -- passed.
+- `npm --prefix web run lint` -- passed.
+- `node web/scripts/audit-test-enrollment.mjs` -- passed; all 29 `test:*`
+  scripts are enrolled in `.github/workflows/pre_push_audit.yml`.
+- `npm --prefix web run build` -- passed.
+- `bash scripts/local_pr_review.sh` -- passed.
+
+## Estimated diff size
+
+| File | LOC |
+|---|---:|
+| `.github/workflows/pre_push_audit.yml` | ~3 |
+| `web/package.json` | ~1 |
+| `web/plans/PR-Deflection-Report-Model-Result-Page.md` | ~156 |
+| `web/scripts/test-deflection-intake-atlas-submit.mjs` | ~6 |
+| `web/scripts/test-deflection-paid-unlock-smoke.mjs` | ~24 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~379 |
+| `web/scripts/smoke-deflection-paid-unlock.mjs` | ~17 |
+| `web/src/app/api/deflection-report-status/route.ts` | ~12 |
+| `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | ~19 |
+| `web/src/components/landing/DeflectionReportModelPage.tsx` | ~297 |
+| `web/src/lib/atlas-deflection-client.ts` | ~235 |
+| `web/src/lib/deflection-report-contract.ts` | ~21 |
+| Total | ~1,170 |

@@ -148,7 +148,11 @@ try {
   );
   await writeFile(
     join(libStubDir, 'deflection-report-contract.js'),
-    "exports.deflectionArtifactPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/artifact`;\n",
+    [
+      "exports.deflectionArtifactPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/artifact`;",
+      "exports.deflectionReportModelPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/report-model`;",
+      '',
+    ].join('\n'),
   );
   await writeFile(
     join(libStubDir, 'gap-report-intake.js'),
