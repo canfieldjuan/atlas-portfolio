@@ -96,6 +96,9 @@ jobs:
       - name: Deflection hosted results smoke tests
         run: npm --prefix web run test:deflection-hosted-results-smoke
 
+      - name: Deflection report model result-page tests
+        run: npm --prefix web run test:deflection-report-model-result-page
+
       - name: Deflection intake ATLAS submit tests
         run: npm --prefix web run test:deflection-intake-atlas-submit
 

@@ -10,6 +10,9 @@ import {
 } from '@/lib/deflection-snapshot';
 import {
   deflectionArtifactPath,
+  deflectionReportModelPath,
+  type DeflectionReportSection,
+  type DeflectionStructuredReport,
   type FAQDeflectionReportArtifact,
 } from '@/lib/deflection-report-contract';
 import { get } from '@vercel/blob';
@@ -304,6 +307,10 @@ export async function fetchDeflectionSnapshot(
 
 export type ArtifactFetchResult =
   | { ok: true; artifact: FAQDeflectionReportArtifact }
+  | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
+
+export type ReportModelFetchResult =
+  | { ok: true; model: DeflectionStructuredReport }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
 
 export type DeflectionCheckoutAuthorization = {
@@ -602,6 +609,110 @@ function parseArtifact(v: unknown): FAQDeflectionReportArtifact | null {
   }
 
   return v as FAQDeflectionReportArtifact;
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseStringList(value: unknown): string[] | null {
+  if (!Array.isArray(value) || !value.every((item) => typeof item === 'string')) {
+    return null;
+  }
+  return value;
+}
+
+function parseReportSection(value: unknown): DeflectionReportSection | null {
+  if (!isPlainRecord(value)) return null;
+  const surfaces = parseStringList(value.surfaces);
+  const requiredData = parseStringList(value.required_data);
+  const data = value.data;
+  if (
+    typeof value.id !== 'string' ||
+    typeof value.title !== 'string' ||
+    typeof value.priority !== 'number' ||
+    !Number.isFinite(value.priority) ||
+    !surfaces ||
+    !requiredData ||
+    !(value.default_limit === null || typeof value.default_limit === 'number') ||
+    !isPlainRecord(data)
+  ) {
+    return null;
+  }
+  if (requiredData.some((key) => !(key in data))) {
+    return null;
+  }
+  return {
+    id: value.id,
+    title: value.title,
+    priority: value.priority,
+    surfaces,
+    default_limit: value.default_limit,
+    required_data: requiredData,
+    data,
+  };
+}
+
+function parseReportModel(value: unknown): DeflectionStructuredReport | null {
+  if (!isPlainRecord(value)) return null;
+  if (
+    value.schema_version !== 'deflection.v1' ||
+    typeof value.title !== 'string' ||
+    !isPlainRecord(value.summary) ||
+    !Array.isArray(value.sections)
+  ) {
+    return null;
+  }
+  const sections: DeflectionReportSection[] = [];
+  for (const section of value.sections) {
+    const parsed = parseReportSection(section);
+    if (!parsed) return null;
+    sections.push(parsed);
+  }
+  return {
+    schema_version: 'deflection.v1',
+    title: value.title,
+    summary: value.summary,
+    sections,
+  };
+}
+
+export async function fetchDeflectionReportModel(
+  requestId: string,
+): Promise<ReportModelFetchResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+  if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${deflectionReportModelPath(requestId)}`, {
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 403) return { ok: false, reason: 'locked' };
+    if (res.status === 404) return { ok: false, reason: 'not_found' };
+    if (!res.ok) {
+      console.error(`deflection report model fetch failed: HTTP ${res.status}`);
+      return { ok: false, reason: 'error' };
+    }
+    const model = parseReportModel(await res.json());
+    if (!model) {
+      console.error('deflection report model fetch: upstream shape rejected');
+      return { ok: false, reason: 'error' };
+    }
+    return { ok: true, model };
+  } catch (err) {
+    console.error('deflection report model fetch error:', err instanceof Error ? err.message : err);
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // Fetch the paid-gated full report. 200 → unlocked artifact; 403 → locked
