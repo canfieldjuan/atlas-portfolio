@@ -15,12 +15,15 @@ const DEFAULT_MAX_WAIT_MS = 120_000;
 const DEFAULT_POLL_MS = 5_000;
 const VERCEL_CURL_STATUS_MARKER = '__ATLAS_HTTP_STATUS__:';
 const REQUIRED_PAID_MARKERS = [
-  { key: 'fullReportBadge', label: 'FULL BACKLOG REPORT' },
-  { key: 'paidHeadline', label: 'Your complete Support Tax report is ready.' },
-  { key: 'reportContents', label: 'Paid report contents' },
-  { key: 'seoTargeting', label: 'Your Help-Desk SEO Targeting List' },
-  { key: 'publishableCopy', label: 'Publishable Help-Center Copy' },
-  { key: 'reviewerGuidance', label: 'Reviewer guidance' },
+  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'MODEL-BACKED REPORT'] },
+  {
+    key: 'paidHeadline',
+    labels: ['Your complete Support Tax report is ready.', 'Your Support Tax report is ready.'],
+  },
+  { key: 'reportContents', labels: ['Paid report contents', 'Paid report dashboard'] },
+  { key: 'seoTargeting', labels: ['Your Help-Desk SEO Targeting List', 'Help-desk SEO targeting list'] },
+  { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
+  { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
 ];
 const LOCKED_MARKERS = ['Unlock your full Backlog Report'];
 
@@ -242,7 +245,7 @@ async function waitForUnlock({
 }
 
 function missingPaidMarkers(html) {
-  return REQUIRED_PAID_MARKERS.filter((marker) => !html.includes(marker.label)).map(
+  return REQUIRED_PAID_MARKERS.filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
     (marker) => marker.key,
   );
 }

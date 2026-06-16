@@ -11,10 +11,13 @@ const routeUrl = new URL(
   '../src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx',
   import.meta.url,
 );
+const statusRouteUrl = new URL('../src/app/api/deflection-report-status/route.ts', import.meta.url);
 const modelPageUrl = new URL('../src/components/landing/DeflectionReportModelPage.tsx', import.meta.url);
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
+const statusRouteCompiledPath = join(testDir, 'deflection-report-status-route.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
+const nextStubDir = join(testDir, 'node_modules', 'next');
 const ENV_KEYS = ['ATLAS_API_BASE_URL', 'ATLAS_B2B_SERVICE_TOKEN'];
 const originalEnv = Object.fromEntries(ENV_KEYS.map((key) => [key, process.env[key]]));
 const originalFetch = globalThis.fetch;
@@ -24,6 +27,20 @@ let fetchCalls = [];
 let fetchPayload = minimalModel();
 let fetchStatus = 200;
 let consoleErrors = [];
+
+function resetStatusRoute({
+  modelResult = { ok: false, reason: 'not_found' },
+  artifactResult = { ok: false, reason: 'not_found' },
+  rateLimit = { ok: true },
+} = {}) {
+  globalThis.__atlasDeflectionStatusRoute = {
+    modelResult,
+    artifactResult,
+    rateLimit,
+    calls: [],
+  };
+  return globalThis.__atlasDeflectionStatusRoute;
+}
 
 function resetEnv(values = {}) {
   for (const key of ENV_KEYS) delete process.env[key];
@@ -88,6 +105,7 @@ console.error = (...args) => {
 try {
   await mkdir(libStubDir, { recursive: true });
   await mkdir(blobStubDir, { recursive: true });
+  await mkdir(nextStubDir, { recursive: true });
   await writeFile(
     join(libStubDir, 'deflection-snapshot.js'),
     "exports.deflectionSnapshotPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/snapshot`;\n",
@@ -104,6 +122,37 @@ try {
     join(libStubDir, 'gap-report-intake.js'),
     "exports.gapReportBlobToken = () => 'vercel_blob_rw_unit'; exports.gapReportBlobTokens = () => ['vercel_blob_rw_unit'];\n",
   );
+  await writeFile(
+    join(libStubDir, 'atlas-deflection-client.js'),
+    [
+      "exports.fetchDeflectionReportModel = async (id) => {",
+      "  const state = globalThis.__atlasDeflectionStatusRoute;",
+      "  state.calls.push({ kind: 'model', id });",
+      "  return state.modelResult;",
+      '};',
+      "exports.fetchDeflectionArtifact = async (id) => {",
+      "  const state = globalThis.__atlasDeflectionStatusRoute;",
+      "  state.calls.push({ kind: 'artifact', id });",
+      "  return state.artifactResult;",
+      '};',
+      '',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(libStubDir, 'deflection-rate-limit.js'),
+    [
+      "exports.consumeDeflectionRateLimit = (headers, requestId, config) => {",
+      "  const state = globalThis.__atlasDeflectionStatusRoute;",
+      "  state.calls.push({ kind: 'rateLimit', requestId, scope: config.scope });",
+      "  return state.rateLimit;",
+      '};',
+      '',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(nextStubDir, 'server.js'),
+    "exports.NextResponse = { json: (body, init) => Response.json(body, init) };\n",
+  );
   await writeFile(join(blobStubDir, 'index.js'), "exports.get = async () => ({ statusCode: 404 });\n");
 
   const source = await readFile(sourceUrl, 'utf8');
@@ -114,9 +163,18 @@ try {
     },
   });
   await writeFile(compiledPath, compiled.outputText);
+  const statusRouteSource = await readFile(statusRouteUrl, 'utf8');
+  const compiledStatusRoute = ts.transpileModule(statusRouteSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(statusRouteCompiledPath, compiledStatusRoute.outputText);
 
   const require = createRequire(compiledPath);
   const { fetchDeflectionReportModel } = require(compiledPath);
+  const { GET: reportStatusGET } = require(statusRouteCompiledPath);
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
@@ -211,14 +269,52 @@ try {
 
   const modelPageSource = await readFile(modelPageUrl, 'utf8');
   assert.ok(modelPageSource.includes("section.surfaces.includes('web')"), 'model page filters to web sections');
+  assert.ok(
+    modelPageSource.includes('const diagnostics = allDiagnostics.slice(0, limit)'),
+    'outcome diagnostics are capped before rendering',
+  );
+  assert.ok(modelPageSource.includes('Diagnostics capped at'), 'diagnostic cap copy points to the export');
   assert.ok(modelPageSource.includes('complete evidence export'), 'model page points to the complete evidence export');
   assert.equal(modelPageSource.includes('evidence_quotes'), false, 'model page must not read raw evidence quotes');
   assert.equal(modelPageSource.includes('source_ids.map'), false, 'model page must not render raw source IDs');
+
+  async function readReportStatus(requestId = 'content-ops-unit-123') {
+    const response = await reportStatusGET(
+      new Request(`https://portfolio.example.com/api/deflection-report-status?requestId=${encodeURIComponent(requestId)}`),
+    );
+    return {
+      status: response.status,
+      body: await response.json(),
+    };
+  }
+
+  let statusState = resetStatusRoute({ modelResult: { ok: true, model: minimalModel() } });
+  assert.deepEqual(await readReportStatus(), { status: 200, body: { status: 'unlocked' } });
+  assert.deepEqual(statusState.calls.map((call) => call.kind), ['rateLimit', 'model']);
+
+  statusState = resetStatusRoute({
+    modelResult: { ok: false, reason: 'not_found' },
+    artifactResult: { ok: true, artifact: { markdown: '# legacy' } },
+  });
+  assert.deepEqual(await readReportStatus(), { status: 200, body: { status: 'unlocked' } });
+  assert.deepEqual(statusState.calls.map((call) => call.kind), ['rateLimit', 'model', 'artifact']);
+
+  statusState = resetStatusRoute({ modelResult: { ok: false, reason: 'locked' } });
+  assert.deepEqual(await readReportStatus(), { status: 200, body: { status: 'locked' } });
+  assert.deepEqual(statusState.calls.map((call) => call.kind), ['rateLimit', 'model']);
+
+  statusState = resetStatusRoute({ modelResult: { ok: false, reason: 'error' } });
+  assert.deepEqual(await readReportStatus(), {
+    status: 503,
+    body: { error: 'Report status unavailable.' },
+  });
+  assert.deepEqual(statusState.calls.map((call) => call.kind), ['rateLimit', 'model']);
 
   console.log('Deflection report-model result page tests passed.');
 } finally {
   globalThis.fetch = originalFetch;
   console.error = originalConsoleError;
   restoreEnv();
+  delete globalThis.__atlasDeflectionStatusRoute;
   await rm(testDir, { recursive: true, force: true });
 }

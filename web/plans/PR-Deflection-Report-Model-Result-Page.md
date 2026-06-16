@@ -33,15 +33,25 @@ Slice phase: Vertical slice
    snapshot/unlock state.
 5. Add a structured model renderer for the hosted result page that renders the
    current customer-facing surfaces from section `data`, not Markdown.
-6. Add a focused Node test for route preference, parser fail-closed behavior,
-   evidence exclusion, legacy fallback, and CI enrollment.
+6. Teach the paid status poller that a successful report model is unlocked, so
+   model-only paid reports do not leave Checkout buyers polling forever.
+7. Cap outcome diagnostics on the hosted page and keep complete diagnostics in
+   the evidence export.
+8. Update the paid-unlock smoke to accept either the legacy artifact page or the
+   new model-backed page as an unlocked paid render.
+9. Add focused Node tests for route preference, parser fail-closed behavior,
+   evidence exclusion, legacy fallback, model-only status unlock, paid-smoke
+   marker compatibility, and CI enrollment.
 
 ### Files touched
 
 - `web/src/lib/deflection-report-contract.ts`
 - `web/src/lib/atlas-deflection-client.ts`
+- `web/src/app/api/deflection-report-status/route.ts`
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx`
 - `web/src/components/landing/DeflectionReportModelPage.tsx`
+- `web/scripts/smoke-deflection-paid-unlock.mjs`
+- `web/scripts/test-deflection-paid-unlock-smoke.mjs`
 - `web/scripts/test-deflection-report-model-result-page.mjs`
 - `web/scripts/test-deflection-intake-atlas-submit.mjs`
 - `web/package.json`
@@ -70,12 +80,19 @@ to:
 3. fetch `/artifact` only for legacy 404/no-model fallback;
 4. otherwise fetch snapshot as today.
 
+The `/api/deflection-report-status` poller mirrors that paid-state contract for
+Checkout returns: model success returns `{status:"unlocked"}`, model locked
+returns `{status:"locked"}`, and only model 404/no-model falls back to the
+legacy artifact route.
+
 The new renderer sorts sections by priority, renders only `web` sections, skips
 unknown/export-only sections, and renders the known section data for
 `support_tax`, `source_file`, `seo_targets`, `ranked_questions`,
 `outcome_diagnostics`, and `question_details`. It uses counts and pointers to
 the complete evidence export, not `evidence_quotes` or raw source IDs, so the
 hosted result page remains a concise dashboard rather than a complete archive.
+Outcome diagnostics are capped like the ranked/detail sections, with the
+evidence export as the uncapped surface.
 
 ## Intentional
 
@@ -104,12 +121,13 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-report-model-result-page` -- passed.
+- `npm --prefix web run test:deflection-paid-unlock-smoke` -- passed.
 - `npm --prefix web run test:deflection-intake-atlas-submit` -- passed.
 - `npm --prefix web run lint` -- passed.
 - `node web/scripts/audit-test-enrollment.mjs` -- passed; all 29 `test:*`
   scripts are enrolled in `.github/workflows/pre_push_audit.yml`.
 - `npm --prefix web run build` -- passed.
-- Pending before push: `bash scripts/local_pr_review.sh`.
+- `bash scripts/local_pr_review.sh` -- passed.
 
 ## Estimated diff size
 
@@ -117,11 +135,14 @@ Parked hardening: none.
 |---|---:|
 | `.github/workflows/pre_push_audit.yml` | ~3 |
 | `web/package.json` | ~1 |
-| `web/plans/PR-Deflection-Report-Model-Result-Page.md` | ~127 |
+| `web/plans/PR-Deflection-Report-Model-Result-Page.md` | ~162 |
 | `web/scripts/test-deflection-intake-atlas-submit.mjs` | ~6 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | ~224 |
+| `web/scripts/test-deflection-paid-unlock-smoke.mjs` | ~24 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~320 |
+| `web/scripts/smoke-deflection-paid-unlock.mjs` | ~17 |
+| `web/src/app/api/deflection-report-status/route.ts` | ~12 |
 | `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` | ~19 |
-| `web/src/components/landing/DeflectionReportModelPage.tsx` | ~287 |
+| `web/src/components/landing/DeflectionReportModelPage.tsx` | ~295 |
 | `web/src/lib/atlas-deflection-client.ts` | ~111 |
 | `web/src/lib/deflection-report-contract.ts` | ~21 |
-| Total | ~799 |
+| Total | ~991 |

@@ -2,6 +2,7 @@ import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
 
 const RANKED_ROW_LIMIT = 25;
+const OUTCOME_DIAGNOSTIC_LIMIT = 25;
 const QUESTION_DETAIL_LIMIT = 10;
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -156,7 +157,9 @@ function RankedQuestions({ section }: { section?: DeflectionReportSection }) {
 
 function OutcomeDiagnostics({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
-  const diagnostics = rows(data.rows);
+  const allDiagnostics = rows(data.rows);
+  const limit = int(section?.default_limit) || OUTCOME_DIAGNOSTIC_LIMIT;
+  const diagnostics = allDiagnostics.slice(0, limit);
   if (diagnostics.length === 0) return null;
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
@@ -173,6 +176,9 @@ function OutcomeDiagnostics({ section }: { section?: DeflectionReportSection }) 
           </article>
         ))}
       </div>
+      <p className="mt-3 text-xs leading-relaxed text-foreground/50">
+        Diagnostics capped at {limit.toLocaleString()} rows here; download the complete evidence export for the full audit trail.
+      </p>
     </section>
   );
 }
