@@ -35,6 +35,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_CSV_MB = 50;
 const CSV_UPLOAD_CONTENT_TYPES = new Set(['text/csv', 'application/csv', 'application/vnd.ms-excel']);
 const PROCESSING_REDIRECT_DELAY_MS = 3200;
+const SCRUBBED_CSV_FILENAME = 'support-ticket-export.csv';
 const SNAPSHOT_PROCESSING_STEPS = [
   {
     title: 'Reading the ticket export',
@@ -68,6 +69,51 @@ export type SupportTicketCsvIntakeCopy = {
   priceVariantId?: DeflectionPriceVariantId;
   partnerAccessToken?: string;
 };
+
+function scrubPii(text: string): string {
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const internationalPhoneRegex = /\+\d[\d\s().-]{6,}\d/g;
+  const separatedPhoneRegex = /\b(?:\(?\d{2,4}\)?[-.\s]){1,3}\d{4}\b/g;
+  const ipv4Regex = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g;
+  const ipv6Regex =
+    /\b(?:[0-9a-fA-F]{1,4}:){2,7}[0-9a-fA-F]{0,4}\b|\b[0-9a-fA-F]{1,4}::[0-9a-fA-F:]*[0-9a-fA-F]\b/g;
+
+  return text
+    .replace(emailRegex, '[EMAIL]')
+    .replace(internationalPhoneRegex, '[PHONE]')
+    .replace(separatedPhoneRegex, '[PHONE]')
+    .replace(ipv4Regex, '[IP_ADDRESS]')
+    .replace(ipv6Regex, '[IP_ADDRESS]');
+}
+
+function looksLikeUtf16(bytes: Uint8Array): boolean {
+  if (bytes.length >= 2) {
+    const hasUtf16Bom =
+      (bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0xfe && bytes[1] === 0xff);
+    if (hasUtf16Bom) return true;
+  }
+
+  const sampleLength = Math.min(bytes.length, 4096);
+  if (sampleLength === 0) return false;
+
+  let nulBytes = 0;
+  for (let index = 0; index < sampleLength; index += 1) {
+    if (bytes[index] === 0) nulBytes += 1;
+  }
+  return nulBytes / sampleLength > 0.1;
+}
+
+async function scrubCsvForUpload(file: File, contentType: string): Promise<File> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (looksLikeUtf16(bytes)) {
+    throw new Error('Export the CSV as UTF-8 before uploading.');
+  }
+
+  const rawText = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  const scrubbedText = scrubPii(rawText);
+  const scrubbedBlob = new Blob([scrubbedText], { type: contentType });
+  return new File([scrubbedBlob], SCRUBBED_CSV_FILENAME, { type: contentType });
+}
 
 export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvIntakeCopy }) {
   const [name, setName] = useState('');
@@ -135,13 +181,30 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
 
     setSubmission({ phase: 'submitting' });
 
+    const fileContentType = file.type.toLowerCase();
+    const contentType = CSV_UPLOAD_CONTENT_TYPES.has(fileContentType) ? fileContentType : 'text/csv';
+
+    let fileToUpload: File;
+    try {
+      fileToUpload = await scrubCsvForUpload(file, contentType);
+    } catch (err) {
+      setSubmission({
+        phase: 'error',
+        message:
+          err instanceof Error
+            ? `Upload stopped before any file was sent: ${err.message}`
+            : 'Upload stopped before any file was sent. Export a UTF-8 CSV and try again.',
+      });
+      return;
+    }
+
     const metadata = {
       name: name.trim(),
       email: email.trim(),
       companyName: companyName.trim(),
       supportPlatform,
-      csvFilename: file.name,
-      csvSizeBytes: file.size,
+      csvFilename: fileToUpload.name,
+      csvSizeBytes: fileToUpload.size,
       sourcePage: copy.sourcePage,
       sourceOffer: copy.sourceOffer,
       priceVariant: copy.priceVariantId,
@@ -159,12 +222,10 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)/g, '')
           .slice(0, 40) || 'unknown';
-      const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
-      const fileContentType = file.type.toLowerCase();
-      const contentType = CSV_UPLOAD_CONTENT_TYPES.has(fileContentType) ? fileContentType : 'text/csv';
+      const safeFilename = fileToUpload.name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
       const blob = await upload(
         `gap-report-csvs/${Date.now()}-${companySlug}/${safeFilename}`,
-        file,
+        fileToUpload,
         {
           access: 'private',
           contentType,
@@ -662,16 +723,29 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             )}
             <p id="csv-hint" className="mt-2 text-xs text-foreground/50 leading-relaxed">
               Subject lines and ticket bodies are enough. A few hundred closed tickets can
-              work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Strip PII before
-              uploading if your export tool can, we recommend it; we don&apos;t need names or
-              emails to find your repeat questions. Files are deleted after 30 days.
+              work if repeat questions show up clearly. Max {MAX_CSV_MB} MB. Before upload, the
+              browser applies best-effort local scrubbing for common contact identifiers in the
+              CSV body. Files are deleted after 30 days.{' '}
+              <Link href="/security" className="text-primary hover:underline font-medium">
+                Read our security policy
+              </Link>.
             </p>
-            <div className="mt-4 rounded-lg border border-primary/35 bg-primary/[0.08] p-4">
-              <p className="text-sm font-semibold text-primary">100% Deterministic Engine</p>
-              <p className="mt-1 text-xs leading-relaxed text-foreground/75">
-                This intake does not use LLMs or generative AI to analyze your ticket
-                logs. We use deterministic clustering to sort repeated questions.
-              </p>
+            <div className="mt-4 rounded-lg border border-primary/35 bg-primary/[0.08] p-4 space-y-3">
+              <div>
+                <p className="text-sm font-semibold text-primary">100% Deterministic Engine</p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground/75">
+                  This intake does not use LLMs or generative AI to analyze your ticket
+                  logs. We use deterministic clustering to sort repeated questions.
+                </p>
+              </div>
+              <div className="border-t border-primary/20 pt-3">
+                <p className="text-sm font-semibold text-primary">Local PII Scrubbing</p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground/75">
+                  Your browser scrubs common emails, formatted phone numbers, and IP addresses
+                  from the CSV body before upload. It is a best-effort layer, not a guarantee that
+                  every name, account number, or free-text identifier is removed.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -695,7 +769,10 @@ export function SupportTicketCsvIntakePage({ copy }: { copy: SupportTicketCsvInt
             </button>
             <p className="mt-4 text-xs text-foreground/45 leading-relaxed">
               Privacy: we delete your CSV after 30 days. No model training, no third-party
-              sharing, no fine-tuning.
+              sharing, no fine-tuning.{' '}
+              <Link href="/security" className="text-primary hover:underline font-medium">
+                Read our security policy
+              </Link>.
             </p>
           </div>
         </form>

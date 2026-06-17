@@ -204,6 +204,70 @@ export default function SecurityPage() {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.28 }}
+          className="glass rounded-xl p-8 border border-border mb-12"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <ShieldCheck className="w-5 h-5 text-primary" />
+            <h2 className="text-2xl font-semibold text-foreground">Deflection Report CSV Data Safety</h2>
+          </div>
+          <p className="text-sm text-foreground/65 mb-6 leading-relaxed">
+            When you upload ticket logs for a Support Deflection gap analysis, we keep the flow
+            narrow: direct private storage, deterministic processing, best-effort CSV minimization,
+            and bounded cleanup for uploaded files.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">1. Private Direct Storage</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Your CSV is uploaded directly from your browser to Vercel Blob private storage. The file does not reside on public routes or transient app servers, and only our authenticated backend can read it using secure signed tokens.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">2. Bounded 30-Day Retention</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Uploaded CSV ticket exports and local submission records are deleted after 30 days
+                by the portfolio cleanup path. Generated report data is handled by the downstream
+                report-processing system rather than by the cleanup job on this page.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">3. Deterministic Clustering</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                The report path uses deterministic parsing to analyze repeating themes. Raw ticket
+                logs, subject lines, and description fields are not used for model training,
+                fine-tuning, or third-party LLM clustering.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">4. Client-Side PII Scrubbing</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Before upload, the intake interface runs best-effort local filters against common
+                contact identifiers in the CSV body, including emails, formatted phone numbers, and
+                IP addresses. This does not guarantee removal of every name, account number, or
+                free-text identifier, and upload stops if the CSV cannot be safely decoded.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">5. Baseline Encryption</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Traffic runs over HTTPS, and stored blobs and relational database records rely on
+                the managed encryption controls provided by the underlying Vercel Blob and database
+                services.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">6. Stateless Compute</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Intake parsing and API handling run on stateless serverless functions. There are no long-running virtual machines with persistent local disks that could orphan or leak uploaded files.
+              </p>
+            </div>
+          </div>
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="glass rounded-xl p-8 border border-border mb-12"
         >

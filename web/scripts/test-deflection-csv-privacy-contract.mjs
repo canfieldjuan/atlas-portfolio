@@ -32,12 +32,21 @@ const intakeLib = await source('src/lib/gap-report-intake.ts');
 const adminCsvRoute = await source('src/app/admin/intake/gap-report/[requestId]/csv/route.ts');
 const cleanupLib = await source('src/lib/gap-report-cleanup.ts');
 const landingConfig = await source('src/app/systems/support-ticket-deflection/landingConfig.tsx');
+const securityPage = await source('src/app/security/page.tsx');
 
 assertIncludes(intakePage, "access: 'private'", 'CSV client upload');
 assertIncludes(intakePage, 'contentType,', 'CSV client upload content type');
 assertIncludes(intakePage, 'CSV_UPLOAD_CONTENT_TYPES', 'CSV client upload content type allow-list');
 assertNotIncludes(intakePage, "access: 'public'", 'CSV client upload');
 assertIncludes(intakePage, 'Privacy: we delete your CSV after 30 days', 'CSV intake confirmation copy');
+assertIncludes(intakePage, 'SCRUBBED_CSV_FILENAME', 'CSV scrubbed generic filename');
+assertIncludes(intakePage, 'new TextDecoder(\'utf-8\', { fatal: true })', 'CSV scrub UTF-8 gate');
+assertIncludes(intakePage, 'looksLikeUtf16(bytes)', 'CSV scrub UTF-16 rejection');
+assertIncludes(intakePage, 'Upload stopped before any file was sent', 'CSV scrub fail-closed copy');
+assertIncludes(intakePage, 'best-effort local scrubbing', 'CSV scrub scoped public copy');
+assertNotIncludes(intakePage, 'using raw file', 'CSV scrub fail-closed upload path');
+assertNotIncludes(intakePage, 'let fileToUpload: File = file', 'CSV scrub fail-closed upload path');
+assertNotIncludes(intakePage, 'never leave your device', 'CSV scrub scoped public copy');
 
 assertIncludes(uploadRoute, "pathname.startsWith('gap-report-csvs/')", 'CSV upload token scope');
 assertIncludes(uploadRoute, 'allowedContentTypes: CSV_CONTENT_TYPES', 'CSV upload content type gate');
@@ -99,6 +108,27 @@ assertIncludes(
 );
 assertIncludes(landingConfig, 'We do not need PII to find repeat questions', 'CSV public PII guidance');
 assertNotIncludes(landingConfig, 'we drop PII in our intake step', 'CSV public PII guidance');
+
+assertIncludes(securityPage, 'best-effort CSV minimization', 'security page CSV data safety copy');
+assertIncludes(
+  securityPage,
+  'Uploaded CSV ticket exports and local submission records are deleted after 30 days',
+  'security page retention scope',
+);
+assertIncludes(
+  securityPage,
+  'Generated report data is handled by the downstream',
+  'security page report-data retention scope',
+);
+assertIncludes(
+  securityPage,
+  'This does not guarantee removal of every name, account number, or',
+  'security page scoped PII claim',
+);
+assertNotIncludes(securityPage, 'No PII ever leaves your browser', 'security page scoped PII claim');
+assertNotIncludes(securityPage, 'automatically and completely deleted', 'security page retention scope');
+assertNotIncludes(securityPage, 'AES-256', 'security page encryption scope');
+assertNotIncludes(securityPage, 'zero training data leaks', 'security page deterministic processing copy');
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-csv-privacy-'));
 try {
