@@ -14,7 +14,6 @@ import { type ReactNode, useState } from 'react';
 import {
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
-  DeflectionTopBlindSpotRows,
 } from './DeflectionSnapshotRows';
 import {
   DeflectionTeaserAnswer,
@@ -31,7 +30,6 @@ import {
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
-import { SupportTicketCsvIntakeForm } from './SupportTicketCsvIntakeForm';
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
 const CTA_LABEL = 'Get my free Deflection Snapshot';
@@ -144,7 +142,131 @@ function CostProofBand({
   );
 }
 
+function HeroProofPanel({
+  snapshot,
+  assistedContactCost,
+}: {
+  snapshot: DeflectionSnapshot;
+  assistedContactCost: number;
+}) {
+  const answer = snapshot.teaser.full_answer;
+  const sourceQuestion = answer
+    ? snapshot.top_questions.find((question) => question.rank === answer.rank)
+    : undefined;
+  const customerPhrase = sourceQuestion?.customer_wording ?? answer?.question ?? '';
+  const previewCount = snapshot.teaser.previews.length;
+  const heroCostProof = snapshotCostProof(snapshot, assistedContactCost);
+  const supportTaxEstimate = formatDeflectionWholeUsd(
+    heroCostProof.uploadedWindowCost,
+  );
 
+  if (!answer) {
+    return (
+      <SnapshotArtifact
+        snapshot={snapshot}
+        assistedContactCost={assistedContactCost}
+      />
+    );
+  }
+
+  return (
+    <section
+      aria-label="Deflection Snapshot audit findings"
+      className="rounded-md border border-border bg-surface p-5 shadow-[var(--card-shadow)]"
+    >
+      <div className="mb-5 flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="font-mono text-xs text-primary">WHAT THE AUDIT FINDS</p>
+          <h2 className="mt-2 text-2xl font-semibold leading-tight text-foreground">
+            The Snapshot shows what repeats, what it costs, and one answer.
+          </h2>
+        </div>
+        <span className="w-fit max-w-[16rem] rounded-md border border-primary/25 px-2 py-1 text-xs font-mono leading-snug text-primary">
+          Representative synthetic example
+        </span>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="min-w-0">
+          <div className="border-b border-border pb-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-foreground/45">
+              <FileText className="h-4 w-4" />
+              Customer wording found
+            </div>
+            <p className="text-lg font-medium leading-snug text-foreground">
+              Customer asked: &ldquo;{customerPhrase}&rdquo;
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/58">
+              The Snapshot finds the repeat wording across closed tickets,
+              estimates the assisted-contact Support Tax, then checks whether
+              resolved replies contain enough scoped evidence to draft an answer.
+            </p>
+          </div>
+
+          <div className="pt-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wide text-primary">
+              <CheckCircle2 className="h-4 w-4" />
+              One sourced draft answer
+            </div>
+            <h3 className="text-lg font-semibold leading-snug text-foreground">
+              {answer.question}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/72">
+              {answer.answer}
+            </p>
+          </div>
+        </div>
+
+        <aside className="border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+          <div className="grid gap-2 text-sm">
+            <div className="flex items-center gap-2 text-foreground/72">
+              <Search className="h-4 w-4 shrink-0 text-primary" />
+              <span>
+                {formatInteger(heroCostProof.repeatTicketCount)} repeat-ticket
+                hits
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-foreground/72">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              <span>Support Tax estimate: {supportTaxEstimate}</span>
+            </div>
+            <div className="flex items-center gap-2 text-foreground/72">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-primary" />
+              <span>{answer.source_count} source tickets</span>
+            </div>
+            <div className="flex items-center gap-2 text-foreground/72">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              <span>Review-ready draft</span>
+            </div>
+            {previewCount > 0 && (
+              <div className="flex items-center gap-2 text-foreground/72">
+                <Lock className="h-4 w-4 shrink-0 text-foreground/38" />
+                <span>{previewCount} more previews stay gated</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="text-xs font-mono uppercase tracking-wide text-primary">
+              Snapshot preview
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-foreground/62">
+              Ranked repeats, customer wording (your long-tail SEO target
+              list), Support Tax estimate, one sourced draft answer.
+            </p>
+            <p className="mt-4 text-xs font-mono uppercase tracking-wide text-foreground/45">
+              Optional full report
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-foreground/62">
+              Complete backlog, drafts, source trail, and write-next list when
+              repeat demand is clear.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
 
 function SnapshotArtifact({
   snapshot,
@@ -155,7 +277,7 @@ function SnapshotArtifact({
   assistedContactCost: number;
   showTeaser?: boolean;
 }) {
-  const { summary, top_questions, top_blind_spots, locked_questions, teaser } = snapshot;
+  const { summary, top_questions, locked_questions, teaser } = snapshot;
   const artifactCostProof = snapshotCostProof(snapshot, assistedContactCost);
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
@@ -209,7 +331,7 @@ function SnapshotArtifact({
         <div>
           <p className="font-mono text-xs text-primary">REPRESENTATIVE SNAPSHOT</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">
-            What the free Resolution Report hands you.
+            What the free Snapshot hands you.
           </h2>
         </div>
         <div className="grid gap-2 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -232,29 +354,12 @@ function SnapshotArtifact({
         </div>
       </div>
 
-      <div className="mt-8 mb-2">
-        <h3 className="text-lg font-semibold text-foreground">Top Proven Resolutions</h3>
-        <p className="mt-1 text-sm text-foreground/60">Repeat tickets with consistent, extractable team answers.</p>
-      </div>
       <DeflectionTopQuestionRows
         questions={top_questions}
         assistedContactCost={assistedContactCost}
       />
 
-      {top_blind_spots && top_blind_spots.length > 0 && (
-        <>
-          <div className="mt-10 mb-2">
-            <h3 className="text-lg font-semibold text-red-500/90">Top Unresolved Blind Spots</h3>
-            <p className="mt-1 text-sm text-foreground/60">High-volume repeat issues lacking a clear, proven resolution in your tickets.</p>
-          </div>
-          <DeflectionTopBlindSpotRows
-            questions={top_blind_spots}
-            assistedContactCost={assistedContactCost}
-          />
-        </>
-      )}
-
-      <div className="mt-6 grid gap-3 md:grid-cols-2">
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
           <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
             <Lock className="h-4 w-4 text-foreground/40" />
@@ -362,7 +467,59 @@ function ProofList() {
   );
 }
 
+function HeroUploadTrust() {
+  const items = [
+    {
+      icon: <Lock className="h-4 w-4" />,
+      title: 'Private CSV upload',
+      body: 'Your file is stored as a private upload, not a public download link.',
+    },
+    {
+      icon: <ShieldCheck className="h-4 w-4" />,
+      title: 'Server-side processing',
+      body:
+        'The report pipeline reads the private CSV server-side. Manual downloads require authenticated admin access.',
+    },
+    {
+      icon: <FileText className="h-4 w-4" />,
+      title: 'No model training or sharing',
+      body: 'No fine-tuning, no model training, and no third-party sharing.',
+    },
+    {
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      title: 'Deleted after 30 days',
+      body:
+        'Your CSV is deleted after 30 days. Strip names or emails first if your export tool makes that easy.',
+    },
+  ];
 
+  return (
+    <div
+      aria-label="Upload privacy and security"
+      className="rounded-md border border-border bg-surface/80 p-4 shadow-[var(--card-shadow)]"
+    >
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <ShieldCheck className="h-4 w-4 text-primary" />
+        How your upload is handled
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {items.map((item) => (
+          <div key={item.title} className="flex gap-3">
+            <div className="mt-0.5 text-primary">{item.icon}</div>
+            <div>
+              <p className="text-sm font-semibold leading-tight text-foreground">
+                {item.title}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground/68">
+                {item.body}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function DeflectionSnapshotLandingPage() {
   const [assistedContactCost, setAssistedContactCost] = useState(
@@ -375,26 +532,31 @@ export function DeflectionSnapshotLandingPage() {
         <div>
           <Eyebrow>
             <Upload className="h-3.5 w-3.5" />
-            Ticket Resolution Report
+            Free ticket analysis
           </Eyebrow>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl">
-            Deflect tickets by actually resolving them.
+            Find the repeat support questions costing your team time.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
-            Upload 30 days of closed tickets. The free Resolution Report shows which
-            issues repeat, the exact wording customers use, your team&apos;s blind spots, and one sourced draft your team can review.
+            Upload 30 days of closed tickets. The free Snapshot shows which
+            issues repeat, the exact wording customers use, what those repeats
+            cost to answer, and one sourced draft your team can review.
           </p>
+          <div className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <PrimarySnapshotCta />
+              <p className="max-w-sm text-sm leading-relaxed text-foreground/68">
+                No help-desk integration required. Start with a private CSV
+                upload.
+              </p>
+            </div>
+            <HeroUploadTrust />
+          </div>
         </div>
 
-        <SupportTicketCsvIntakeForm
-          copy={{
-            backHref: '/',
-            backLabel: 'Back to site',
-            sourcePage: '/systems/support-ticket-deflection/snapshot',
-            sourceOffer: 'hero_intake',
-            snapshotName: 'Resolution Report',
-            submitLabel: 'Get my free Resolution Report',
-          }}
+        <HeroProofPanel
+          snapshot={DEMO_DEFLECTION_SNAPSHOT}
+          assistedContactCost={assistedContactCost}
         />
       </section>
 

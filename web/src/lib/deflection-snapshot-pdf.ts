@@ -99,8 +99,8 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
     sourceWindowLabel(snapshot),
     '',
     `Repeat-ticket hits: ${count(snapshot.summary.repeat_ticket_count)}`,
-    `Drafted answers found: ${count(snapshot.summary.resolved_topic_count)}`,
-    `No proven answer yet: ${count(snapshot.summary.unresolved_topic_count)}`,
+    `Drafted answers found: ${count(snapshot.summary.drafted_answer_count)}`,
+    `No proven answer yet: ${count(snapshot.summary.no_proven_answer_count)}`,
   ];
 
   addWrapped(lines, costProjectionLine(snapshot));

@@ -256,13 +256,12 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
   return {
     summary: {
       generated: s.generated,
-      resolved_topic_count: s.drafted_answer_count,
-      unresolved_topic_count: s.no_proven_answer_count,
+      drafted_answer_count: s.drafted_answer_count,
+      no_proven_answer_count: s.no_proven_answer_count,
       repeat_ticket_count: s.repeat_ticket_count,
       ...(sourceWindow ?? {}),
     },
     top_questions: topQuestions,
-    top_blind_spots: [],
     locked_questions: lockedQuestions,
     teaser,
   };

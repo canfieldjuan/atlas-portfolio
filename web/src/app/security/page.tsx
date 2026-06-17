@@ -212,7 +212,9 @@ export default function SecurityPage() {
             <h2 className="text-2xl font-semibold text-foreground">Deflection Report CSV Data Safety</h2>
           </div>
           <p className="text-sm text-foreground/65 mb-6 leading-relaxed">
-            When you upload your ticket logs for a Support Deflection gap analysis, we process your data using a strict security framework. We prioritize data minimization, direct client-to-storage isolation, and automated data purging.
+            When you upload ticket logs for a Support Deflection gap analysis, we keep the flow
+            narrow: direct private storage, deterministic processing, best-effort CSV minimization,
+            and bounded cleanup for uploaded files.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-lg border border-border bg-surface p-5">
@@ -224,25 +226,34 @@ export default function SecurityPage() {
             <div className="rounded-lg border border-border bg-surface p-5">
               <h3 className="text-base font-semibold text-foreground mb-2">2. Bounded 30-Day Retention</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                All uploaded CSV ticket exports and matching report data are automatically and completely deleted from our storage systems after 30 days. No long-term data footprint is kept.
+                Uploaded CSV ticket exports and local submission records are deleted after 30 days
+                by the portfolio cleanup path. Generated report data is handled by the downstream
+                report-processing system rather than by the cleanup job on this page.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">
               <h3 className="text-base font-semibold text-foreground mb-2">3. Deterministic Clustering</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                We use deterministic parsing algorithms to analyze repeating themes. We never feed your raw ticket logs, subject lines, or description fields to third-party LLMs, ensuring zero training data leaks.
+                The report path uses deterministic parsing to analyze repeating themes. Raw ticket
+                logs, subject lines, and description fields are not used for model training,
+                fine-tuning, or third-party LLM clustering.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">
               <h3 className="text-base font-semibold text-foreground mb-2">4. Client-Side PII Scrubbing</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                Before uploading, the intake interface automatically runs local client-side regex filters to scrub email addresses, phone numbers, and IP addresses. No PII ever leaves your browser.
+                Before upload, the intake interface runs best-effort local filters against common
+                contact identifiers in the CSV body, including emails, formatted phone numbers, and
+                IP addresses. This does not guarantee removal of every name, account number, or
+                free-text identifier, and upload stops if the CSV cannot be safely decoded.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">
               <h3 className="text-base font-semibold text-foreground mb-2">5. Baseline Encryption</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                All traffic is strictly enforced over TLS 1.2+ for data in transit. At rest, uploaded CSV blobs and relational database records are encrypted using industry-standard AES-256.
+                Traffic runs over HTTPS, and stored blobs and relational database records rely on
+                the managed encryption controls provided by the underlying Vercel Blob and database
+                services.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">

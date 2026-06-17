@@ -22,7 +22,6 @@ import {
 import {
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
-  DeflectionTopBlindSpotRows,
 } from './DeflectionSnapshotRows';
 import {
   DeflectionTeaserAnswer,
@@ -60,7 +59,7 @@ export function DeflectionResultsPage({
   priceVariant?: DeflectionPriceVariant;
   analyticsContext?: FaqReportResultsAnalyticsContext;
 }) {
-  const { summary, top_questions, top_blind_spots, locked_questions, teaser } = snapshot;
+  const { summary, top_questions, locked_questions, teaser } = snapshot;
   const fullReportPriceLabel = priceVariant.priceLabel;
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
@@ -79,7 +78,7 @@ export function DeflectionResultsPage({
         }
       : undefined;
   const remainingDraftCount = Math.max(
-    summary.resolved_topic_count - (fullTeaser ? 1 : 0),
+    summary.drafted_answer_count - (fullTeaser ? 1 : 0),
     0,
   );
 
@@ -104,7 +103,7 @@ export function DeflectionResultsPage({
         priceVariant: priceVariant.id,
         checkoutStatus: checkoutStatus ?? 'none',
         generatedQuestionCount: summary.generated,
-        draftedAnswerCount: summary.resolved_topic_count,
+        draftedAnswerCount: summary.drafted_answer_count,
         lockedQuestionCount: locked_questions.length,
       }) satisfies FaqReportResultsAnalyticsContext,
     [
@@ -112,7 +111,7 @@ export function DeflectionResultsPage({
       checkoutStatus,
       locked_questions.length,
       priceVariant.id,
-      summary.resolved_topic_count,
+      summary.drafted_answer_count,
       summary.generated,
     ],
   );
@@ -204,8 +203,8 @@ export function DeflectionResultsPage({
     }
   }
 
-  const totalQuestions = summary.resolved_topic_count + summary.unresolved_topic_count || 1;
-  const draftedPercent = Math.round((summary.resolved_topic_count / totalQuestions) * 100);
+  const totalQuestions = summary.drafted_answer_count + summary.no_proven_answer_count || 1;
+  const draftedPercent = Math.round((summary.drafted_answer_count / totalQuestions) * 100);
   const unprovenPercent = 100 - draftedPercent;
   const annualSupportTaxEstimate =
     summary.repeat_ticket_count > 0
@@ -229,10 +228,10 @@ export function DeflectionResultsPage({
           questions hiding in your queue.
         </h1>
         <p className="text-lg text-foreground/65 leading-relaxed mb-6">
-          <strong className="text-foreground">{summary.resolved_topic_count}</strong>{' '}
+          <strong className="text-foreground">{summary.drafted_answer_count}</strong>{' '}
           of them already have a publishable answer drafted from your own team&apos;s
           resolved replies, nothing invented.{' '}
-          <strong className="text-foreground">{summary.unresolved_topic_count}</strong>{' '}
+          <strong className="text-foreground">{summary.no_proven_answer_count}</strong>{' '}
           have no proven answer yet (the questions you have never cracked).
         </p>
 
@@ -243,22 +242,22 @@ export function DeflectionResultsPage({
             <span>{summary.generated} Total Recurring Questions</span>
           </div>
           <div className="flex h-6 w-full overflow-hidden rounded-full bg-border">
-            {summary.resolved_topic_count > 0 && (
+            {summary.drafted_answer_count > 0 && (
               <div
                 className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center text-[10px] font-bold text-white transition-all duration-500"
                 style={{ width: `${draftedPercent}%` }}
-                title={`${summary.resolved_topic_count} questions with drafted answers`}
+                title={`${summary.drafted_answer_count} questions with drafted answers`}
               >
                 {draftedPercent > 10 && (
                   <span className="hidden sm:inline">{draftedPercent}% Drafted</span>
                 )}
               </div>
             )}
-            {summary.unresolved_topic_count > 0 && (
+            {summary.no_proven_answer_count > 0 && (
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center text-[10px] font-bold text-white transition-all duration-500"
                 style={{ width: `${unprovenPercent}%` }}
-                title={`${summary.unresolved_topic_count} unresolved questions`}
+                title={`${summary.no_proven_answer_count} unresolved questions`}
               >
                 {unprovenPercent > 10 && (
                   <span className="hidden sm:inline">{unprovenPercent}% Unresolved</span>
@@ -270,14 +269,14 @@ export function DeflectionResultsPage({
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-emerald-500" />
               <span className="text-foreground/70">
-                <strong className="text-foreground">{summary.resolved_topic_count}</strong>{' '}
+                <strong className="text-foreground">{summary.drafted_answer_count}</strong>{' '}
                 drafted and ready to review
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-amber-500" />
               <span className="text-foreground/70">
-                <strong className="text-foreground">{summary.unresolved_topic_count}</strong>{' '}
+                <strong className="text-foreground">{summary.no_proven_answer_count}</strong>{' '}
                 no proven answer yet
               </span>
             </div>
@@ -321,19 +320,6 @@ export function DeflectionResultsPage({
             questions={top_questions}
             assistedContactCost={assistedContactCost}
           />
-
-          {top_blind_spots && top_blind_spots.length > 0 && (
-            <>
-              <div className="mt-8 mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-red-500/80">
-                <Search className="h-3.5 w-3.5" />
-                <span>Top Unresolved Blind Spots</span>
-              </div>
-              <DeflectionTopBlindSpotRows
-                questions={top_blind_spots}
-                assistedContactCost={assistedContactCost}
-              />
-            </>
-          )}
         </section>
 
         {locked_questions.length > 0 && (
@@ -404,7 +390,7 @@ export function DeflectionResultsPage({
                 <strong className="text-foreground">
                   {fullTeaser
                     ? `${remainingDraftCount} more drafted answers`
-                    : `${summary.resolved_topic_count} drafted answers`}
+                    : `${summary.drafted_answer_count} drafted answers`}
                 </strong>{' '}
                 {fullTeaser
                   ? 'like the sample above'
@@ -416,7 +402,7 @@ export function DeflectionResultsPage({
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
               <span>
                 <strong className="text-foreground">
-                  {summary.unresolved_topic_count} no-proven-answer questions
+                  {summary.no_proven_answer_count} no-proven-answer questions
                 </strong>{' '}
                 separated from the drafts, so your team knows exactly what to
                 resolve next before writing public guidance.
@@ -453,7 +439,7 @@ export function DeflectionResultsPage({
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                   <span>
-                    <strong>{summary.resolved_topic_count} drafted answers</strong> ready for review.
+                    <strong>{summary.drafted_answer_count} drafted answers</strong> ready for review.
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
