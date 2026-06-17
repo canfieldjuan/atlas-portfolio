@@ -2,6 +2,7 @@
 
 import { Lock } from 'lucide-react';
 import type {
+  DeflectionSnapshotBlindSpot,
   DeflectionSnapshotLockedQuestion,
   DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
@@ -148,5 +149,62 @@ export function DeflectionLockedQuestionRows({
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 rounded-b-xl border-b border-border/10 bg-gradient-to-t from-background to-transparent" />
       )}
     </div>
+  );
+}
+
+export function DeflectionBlindSpotRows({
+  blindSpots,
+  assistedContactCost,
+}: {
+  blindSpots: DeflectionSnapshotBlindSpot[];
+  assistedContactCost: number;
+}) {
+  const maxTicketCount =
+    blindSpots.reduce((max, blindSpot) => Math.max(max, blindSpot.ticket_count), 0) || 1;
+
+  return (
+    <ol className="mt-5 space-y-3">
+      {blindSpots.map((blindSpot) => (
+        <li
+          key={blindSpot.rank}
+          className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"
+        >
+          <div className="flex items-start gap-4">
+            <span className="mt-0.5 w-6 shrink-0 text-center font-mono text-sm font-bold text-amber-600">
+              #{blindSpot.rank}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold leading-snug text-foreground">
+                {blindSpot.question}
+              </p>
+              <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+                Appeared{' '}
+                <strong className="text-foreground/75">
+                  {count(blindSpot.ticket_count)}
+                </strong>{' '}
+                times with no proven answer found yet, representing roughly{' '}
+                <strong className="text-foreground/75">
+                  {usd(blindSpot.ticket_count * assistedContactCost)}
+                </strong>{' '}
+                in assisted-contact work for this upload.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col items-end text-right">
+              <span className="rounded bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-700">
+                {count(blindSpot.ticket_count)}x
+              </span>
+              <div className="mt-2 h-1.5 w-20 overflow-hidden rounded-full bg-border">
+                <div
+                  className="h-full rounded-full bg-amber-500"
+                  style={{
+                    width: `${Math.round((blindSpot.ticket_count / maxTicketCount) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
