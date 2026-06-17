@@ -57,11 +57,12 @@ export type DeflectionSnapshotSourceWindow = {
 export type DeflectionSnapshot = {
   summary: {
     generated: number;
-    drafted_answer_count: number;
-    no_proven_answer_count: number;
+    resolved_topic_count: number;
+    unresolved_topic_count: number;
     repeat_ticket_count: number;
   } & Partial<DeflectionSnapshotSourceWindow>;
   top_questions: DeflectionSnapshotQuestion[];
+  top_blind_spots: DeflectionSnapshotQuestion[];
   locked_questions: DeflectionSnapshotLockedQuestion[];
   teaser: DeflectionSnapshotTeaser;
 };
@@ -80,8 +81,8 @@ export function deflectionSnapshotPath(requestId: string): string {
 export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
   summary: {
     generated: 12,
-    drafted_answer_count: 9,
-    no_proven_answer_count: 3,
+    resolved_topic_count: 9,
+    unresolved_topic_count: 3,
     repeat_ticket_count: 1700,
     source_date_start: '2026-05-01',
     source_date_end: '2026-05-30',
@@ -109,6 +110,8 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
       ticket_count: 190,
       weighted_frequency: 3010,
     },
+  ],
+  top_blind_spots: [
     {
       rank: 4,
       question: 'Can I export my data before downgrading?',
