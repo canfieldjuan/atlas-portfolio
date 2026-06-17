@@ -173,6 +173,11 @@ const intakePageSource = await readFile(
   new URL('../src/components/landing/SupportTicketCsvIntakePage.tsx', import.meta.url),
   'utf8',
 );
+const intakeFormSource = await readFile(
+  new URL('../src/components/landing/SupportTicketCsvIntakeForm.tsx', import.meta.url),
+  'utf8',
+);
+const intakeClientSource = `${intakePageSource}\n${intakeFormSource}`;
 const intakeRouteSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/intake/page.tsx', import.meta.url),
   'utf8',
@@ -210,23 +215,23 @@ const staleDeliverySources = [
 ];
 
 assert.ok(
-  intakePageSource.includes('Start a deterministic FAQ gap audit.'),
+  intakeClientSource.includes('Start a deterministic FAQ gap audit.'),
   'intake headline should frame deterministic FAQ analysis',
 );
 assert.ok(
-  intakePageSource.includes('100% Deterministic Engine'),
+  intakeClientSource.includes('100% Deterministic Engine'),
   'intake page should render the deterministic trust badge',
 );
 assert.ok(
-  intakePageSource.includes('We use deterministic clustering to sort repeated questions.'),
+  intakeClientSource.includes('We use deterministic clustering to sort repeated questions.'),
   'intake trust badge subtext should use deterministic clustering phrasing',
 );
 assert.ok(
-  !intakePageSource.includes('exact mathematical clustering'),
+  !intakeClientSource.includes('exact mathematical clustering'),
   'intake trust badge subtext should not use exact mathematical clustering wording',
 );
 assert.ok(
-  !intakePageSource.includes('24 hours'),
+  !intakeClientSource.includes('24 hours'),
   'intake visible copy should not retain 24-hour delivery language',
 );
 assert.ok(

@@ -22,6 +22,7 @@ Slice phase: Product polish
 - `web/scripts/smoke-deflection-snapshot-landing.mjs` - update required markers for the inline Snapshot form.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - update static source and smoke-fixture expectations.
 - `web/scripts/test-deflection-intake-atlas-submit.mjs` - update intake source-contract checks to inspect the extracted form.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` - update public intake source checks to inspect the extracted form.
 
 ## Mechanism
 
@@ -30,6 +31,7 @@ Slice phase: Product polish
 - `DeflectionSnapshotLandingPage` imports the shared form and passes copy with `sourceOffer: 'support-ticket-deflection-intake'`, `sourcePage: '/systems/support-ticket-deflection/snapshot'`, and the Snapshot CTA label. The existing artifact/proof sections remain below the hero rather than occupying the hero's right column.
 - The CSV privacy contract test reads both the dedicated route wrapper and the extracted form so it keeps guarding private upload, fail-closed scrubbing, generic filenames, and scoped public privacy copy after the refactor.
 - The ATLAS submit contract test reads both the dedicated route wrapper and the extracted form so it still guards the processing redirect and result URL helper after the refactor.
+- The public reachability source test also reads the extracted form so intake headline/trust-copy guards survive the component split.
 - The smoke script stops requiring the old `/intake` CTA href in the hero and instead checks for inline form markers, the deflection source offer, and the Resolution Report framing.
 
 ## Intentional
@@ -50,10 +52,11 @@ Parked hardening: none
 1. `npm --prefix web run test:deflection-snapshot-landing-smoke` - verify Snapshot landing source/smoke markers for the inline form.
 2. `npm --prefix web run test:deflection-csv-privacy` - verify the shared form preserves the CSV privacy/security contract.
 3. `npm --prefix web run test:deflection-intake-atlas-submit` - verify the extracted form still owns the result URL helper, processing redirect, and submit-state contract.
-4. `rg -n "sourceOffer: 'hero_intake'|top_blind_spots|unresolved_topic_count|resolved_topic_count" web/src web/scripts web/plans/PR-Snapshot-Inline-Intake.md` - confirm the rejected source offer and deferred schema migration are absent from runtime source; remaining hits are the smoke-test negative assertion and this plan's deferred/verification text.
-5. `npm --prefix web run lint` - verify no eslint errors.
-6. `npm --prefix web run build` - verify successful Next compilation.
-7. `bash scripts/local_pr_review.sh` - run full PR review suite.
+4. `npm --prefix web run test:deflection-public-reachability-smoke` - verify the public intake source guards follow the extracted form.
+5. `rg -n "sourceOffer: 'hero_intake'|top_blind_spots|unresolved_topic_count|resolved_topic_count" web/src web/scripts web/plans/PR-Snapshot-Inline-Intake.md` - confirm the rejected source offer and deferred schema migration are absent from runtime source; remaining hits are the smoke-test negative assertion and this plan's deferred/verification text.
+6. `npm --prefix web run lint` - verify no eslint errors.
+7. `npm --prefix web run build` - verify successful Next compilation.
+8. `bash scripts/local_pr_review.sh` - run full PR review suite.
 
 ## Estimated diff size
 
@@ -65,5 +68,6 @@ Parked hardening: none
 | Snapshot landing inline form/copy | ~217 |
 | CSV privacy test source update | ~29 |
 | ATLAS submit test source update | ~17 |
+| Public reachability test source update | ~12 |
 | Snapshot smoke/test marker updates | ~57 |
-| Total | ~1,794 |
+| Total | ~1,806 |

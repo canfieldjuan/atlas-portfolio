@@ -591,6 +591,16 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div>
+              <p className="text-xs font-semibold text-primary">100% Deterministic Engine</p>
+              <p className="text-[11px] leading-relaxed text-foreground/75">
+                This intake does not use LLMs or generative AI to analyze your ticket logs.
+                We use deterministic clustering to sort repeated questions.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2 border-t border-primary/20 pt-3">
+            <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <div>
               <p className="text-xs font-semibold text-primary">Private Direct Storage</p>
               <p className="text-[11px] leading-relaxed text-foreground/75">
                 Uploaded directly to private storage. Uploaded CSVs and local submission records
