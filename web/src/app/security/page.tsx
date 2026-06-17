@@ -204,6 +204,59 @@ export default function SecurityPage() {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.28 }}
+          className="glass rounded-xl p-8 border border-border mb-12"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <ShieldCheck className="w-5 h-5 text-primary" />
+            <h2 className="text-2xl font-semibold text-foreground">Deflection Report CSV Data Safety</h2>
+          </div>
+          <p className="text-sm text-foreground/65 mb-6 leading-relaxed">
+            When you upload your ticket logs for a Support Deflection gap analysis, we process your data using a strict security framework. We prioritize data minimization, direct client-to-storage isolation, and automated data purging.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">1. Private Direct Storage</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Your CSV is uploaded directly from your browser to Vercel Blob private storage. The file does not reside on public routes or transient app servers, and only our authenticated backend can read it using secure signed tokens.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">2. Bounded 30-Day Retention</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                All uploaded CSV ticket exports and matching report data are automatically and completely deleted from our storage systems after 30 days. No long-term data footprint is kept.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">3. Deterministic Clustering</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                We use deterministic parsing algorithms to analyze repeating themes. We never feed your raw ticket logs, subject lines, or description fields to third-party LLMs, ensuring zero training data leaks.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">4. Client-Side PII Scrubbing</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Before uploading, the intake interface automatically runs local client-side regex filters to scrub email addresses, phone numbers, and IP addresses. No PII ever leaves your browser.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">5. Baseline Encryption</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                All traffic is strictly enforced over TLS 1.2+ for data in transit. At rest, uploaded CSV blobs and relational database records are encrypted using industry-standard AES-256.
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">6. Stateless Compute</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Intake parsing and API handling run on stateless serverless functions. There are no long-running virtual machines with persistent local disks that could orphan or leak uploaded files.
+              </p>
+            </div>
+          </div>
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="glass rounded-xl p-8 border border-border mb-12"
         >
