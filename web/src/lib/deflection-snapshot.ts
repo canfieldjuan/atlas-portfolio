@@ -21,6 +21,12 @@ export type DeflectionSnapshotLockedQuestion = {
   ticket_count: number;
 };
 
+export type DeflectionSnapshotBlindSpot = {
+  rank: number;
+  question: string;
+  ticket_count: number;
+};
+
 export type DeflectionSnapshotFullAnswer = {
   rank: number;
   question: string;
@@ -63,6 +69,7 @@ export type DeflectionSnapshot = {
   } & Partial<DeflectionSnapshotSourceWindow>;
   top_questions: DeflectionSnapshotQuestion[];
   locked_questions: DeflectionSnapshotLockedQuestion[];
+  top_blind_spots?: DeflectionSnapshotBlindSpot[];
   teaser: DeflectionSnapshotTeaser;
 };
 
@@ -132,6 +139,23 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
     { rank: 10, ticket_count: 70 },
     { rank: 11, ticket_count: 60 },
     { rank: 12, ticket_count: 50 },
+  ],
+  top_blind_spots: [
+    {
+      rank: 1,
+      question: 'How do customers pause billing without losing workspace access?',
+      ticket_count: 72,
+    },
+    {
+      rank: 2,
+      question: 'What should customers do when SSO provisioning gets stuck?',
+      ticket_count: 54,
+    },
+    {
+      rank: 3,
+      question: 'How are annual renewal credits applied after a plan change?',
+      ticket_count: 38,
+    },
   ],
   teaser: {
     full_answer: {

@@ -20,6 +20,7 @@ import {
   type FaqReportResultsAnalyticsContext,
 } from '@/lib/analytics';
 import {
+  DeflectionBlindSpotRows,
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
 } from './DeflectionSnapshotRows';
@@ -59,7 +60,7 @@ export function DeflectionResultsPage({
   priceVariant?: DeflectionPriceVariant;
   analyticsContext?: FaqReportResultsAnalyticsContext;
 }) {
-  const { summary, top_questions, locked_questions, teaser } = snapshot;
+  const { summary, top_questions, locked_questions, teaser, top_blind_spots = [] } = snapshot;
   const fullReportPriceLabel = priceVariant.priceLabel;
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
@@ -332,6 +333,27 @@ export function DeflectionResultsPage({
               questions={locked_questions}
               assistedContactCost={assistedContactCost}
               showFade
+            />
+          </section>
+        )}
+
+        {top_blind_spots.length > 0 && (
+          <section className="mb-10" aria-labelledby="blind-spot-heading">
+            <div className="mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-amber-700/80">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>No-proven-answer gaps</span>
+            </div>
+            <h2 id="blind-spot-heading" className="text-2xl font-semibold tracking-tight text-foreground">
+              Top blind spots your team still has to resolve.
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/65">
+              These rows appear only when ATLAS can identify repeated questions
+              with no proven resolved-answer evidence. They are not drafted
+              recommendations; they are the support gaps to close next.
+            </p>
+            <DeflectionBlindSpotRows
+              blindSpots={top_blind_spots}
+              assistedContactCost={assistedContactCost}
             />
           </section>
         )}

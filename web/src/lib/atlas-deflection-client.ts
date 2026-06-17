@@ -2,6 +2,7 @@ import {
   deflectionSnapshotPath,
   type DeflectionSnapshot,
   type DeflectionSnapshotAnswerPreview,
+  type DeflectionSnapshotBlindSpot,
   type DeflectionSnapshotFullAnswer,
   type DeflectionSnapshotLockedQuestion,
   type DeflectionSnapshotQuestion,
@@ -136,6 +137,24 @@ function parseLockedQuestion(v: unknown): DeflectionSnapshotLockedQuestion | nul
   return null;
 }
 
+function parseBlindSpot(v: unknown): DeflectionSnapshotBlindSpot | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const q = v as Record<string, unknown>;
+  if (
+    typeof q.rank === 'number' &&
+    typeof q.question === 'string' &&
+    q.question.trim().length > 0 &&
+    isNonNegativeNumber(q.ticket_count)
+  ) {
+    return {
+      rank: q.rank,
+      question: q.question,
+      ticket_count: q.ticket_count,
+    };
+  }
+  return null;
+}
+
 function parseFullTeaserAnswer(value: unknown): DeflectionSnapshotFullAnswer | null {
   if (typeof value !== 'object' || value === null) return null;
   const answer = value as Record<string, unknown>;
@@ -250,6 +269,17 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
     if (!parsedQuestion) return null;
     lockedQuestions.push(parsedQuestion);
   }
+  const blindSpots: DeflectionSnapshotBlindSpot[] = [];
+  if (o.top_blind_spots !== undefined) {
+    if (!Array.isArray(o.top_blind_spots)) {
+      return null;
+    }
+    for (const blindSpot of o.top_blind_spots) {
+      const parsedBlindSpot = parseBlindSpot(blindSpot);
+      if (!parsedBlindSpot) return null;
+      blindSpots.push(parsedBlindSpot);
+    }
+  }
   const teaser = parseTeaser(o.teaser);
   if (!teaser) return null;
   const sourceWindow = parseDeflectionSnapshotSourceWindow(s);
@@ -263,6 +293,7 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
     },
     top_questions: topQuestions,
     locked_questions: lockedQuestions,
+    ...(o.top_blind_spots === undefined ? {} : { top_blind_spots: blindSpots }),
     teaser,
   };
 }

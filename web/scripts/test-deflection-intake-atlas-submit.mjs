@@ -289,6 +289,17 @@ try {
         markdown: '# locked markdown',
       },
     ],
+    top_blind_spots: [
+      {
+        rank: 1,
+        question: 'Can I schedule exports?',
+        ticket_count: 2,
+        customer_wording: 'schedule exports',
+        source_ids: ['ticket-private-blind'],
+        evidence_quotes: ['private blind evidence'],
+        markdown: '# blind markdown',
+      },
+    ],
     teaser: {
       full_answer: {
         rank: 1,
@@ -347,6 +358,13 @@ try {
       ticket_count: 2,
     },
   ]);
+  assert.deepEqual(snapshotResult.snapshot.top_blind_spots, [
+    {
+      rank: 1,
+      question: 'Can I schedule exports?',
+      ticket_count: 2,
+    },
+  ]);
   assert.deepEqual(snapshotResult.snapshot.teaser.full_answer, {
     rank: 1,
     question: 'How do I export reports?',
@@ -376,6 +394,9 @@ try {
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private locked evidence'), false);
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('locked markdown'), false);
   assert.equal(JSON.stringify(snapshotResult.snapshot).includes('Locked private billing question'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('private blind evidence'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('blind markdown'), false);
+  assert.equal(JSON.stringify(snapshotResult.snapshot).includes('ticket-private-blind'), false);
   assert.equal(
     JSON.stringify(snapshotResult.snapshot).includes('Preview answer must not cross'),
     false,
@@ -483,6 +504,58 @@ try {
       },
     ],
     locked_questions: [],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+      repeat_ticket_count: 2,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        ticket_count: 1,
+        weighted_frequency: 1,
+      },
+    ],
+    locked_questions: [],
+    top_blind_spots: [{ rank: 1, question: '', ticket_count: 1 }],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: {
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+      repeat_ticket_count: 2,
+    },
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        ticket_count: 1,
+        weighted_frequency: 1,
+      },
+    ],
+    locked_questions: [],
+    top_blind_spots: 'not-an-array',
     teaser: { full_answer: null, previews: [] },
   };
   assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {

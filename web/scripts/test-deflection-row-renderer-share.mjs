@@ -27,6 +27,11 @@ assert.match(
 );
 assert.match(
   rowSource,
+  /export function DeflectionBlindSpotRows/,
+  'Shared row component should export the blind-spot row renderer.',
+);
+assert.match(
+  rowSource,
   /target phrase from your tickets/,
   'Shared top-question rows should keep the production target-phrase label.',
 );
@@ -44,6 +49,11 @@ assert.match(
   rowSource,
   /Question text withheld/,
   'Shared locked-question rows should keep the production withheld-text label.',
+);
+assert.match(
+  rowSource,
+  /no proven answer found yet/,
+  'Shared blind-spot rows should frame rows as unresolved support gaps.',
 );
 assert.match(
   rowSource,
@@ -70,6 +80,16 @@ assert.match(
   resultsSource,
   /<DeflectionLockedQuestionRows\s+questions=\{locked_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+showFade/,
   'Results page should render locked questions through the shared row component.',
+);
+assert.match(
+  resultsSource,
+  /<DeflectionBlindSpotRows\s+blindSpots=\{top_blind_spots\}\s+assistedContactCost=\{assistedContactCost\}/,
+  'Results page should render blind spots through the shared row component.',
+);
+assert.match(
+  resultsSource,
+  /top_blind_spots = \[\]/,
+  'Results page should keep snapshots without optional blind-spot rows compatible.',
 );
 assert.match(
   landingSource,
