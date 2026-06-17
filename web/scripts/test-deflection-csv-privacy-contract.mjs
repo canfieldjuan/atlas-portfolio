@@ -26,6 +26,7 @@ function sourceSlice(haystack, startNeedle, endNeedle, context) {
 }
 
 const intakePage = await source('src/components/landing/SupportTicketCsvIntakePage.tsx');
+const intakeForm = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
 const uploadRoute = await source('src/app/api/gap-report-intake/upload/route.ts');
 const recordRoute = await source('src/app/api/gap-report-intake/record/route.ts');
 const intakeLib = await source('src/lib/gap-report-intake.ts');
@@ -34,19 +35,21 @@ const cleanupLib = await source('src/lib/gap-report-cleanup.ts');
 const landingConfig = await source('src/app/systems/support-ticket-deflection/landingConfig.tsx');
 const securityPage = await source('src/app/security/page.tsx');
 
-assertIncludes(intakePage, "access: 'private'", 'CSV client upload');
-assertIncludes(intakePage, 'contentType,', 'CSV client upload content type');
-assertIncludes(intakePage, 'CSV_UPLOAD_CONTENT_TYPES', 'CSV client upload content type allow-list');
-assertNotIncludes(intakePage, "access: 'public'", 'CSV client upload');
-assertIncludes(intakePage, 'Privacy: we delete your CSV after 30 days', 'CSV intake confirmation copy');
-assertIncludes(intakePage, 'SCRUBBED_CSV_FILENAME', 'CSV scrubbed generic filename');
-assertIncludes(intakePage, 'new TextDecoder(\'utf-8\', { fatal: true })', 'CSV scrub UTF-8 gate');
-assertIncludes(intakePage, 'looksLikeUtf16(bytes)', 'CSV scrub UTF-16 rejection');
-assertIncludes(intakePage, 'Upload stopped before any file was sent', 'CSV scrub fail-closed copy');
-assertIncludes(intakePage, 'best-effort local scrubbing', 'CSV scrub scoped public copy');
-assertNotIncludes(intakePage, 'using raw file', 'CSV scrub fail-closed upload path');
-assertNotIncludes(intakePage, 'let fileToUpload: File = file', 'CSV scrub fail-closed upload path');
-assertNotIncludes(intakePage, 'never leave your device', 'CSV scrub scoped public copy');
+const intakeClientSource = `${intakePage}\n${intakeForm}`;
+
+assertIncludes(intakeClientSource, "access: 'private'", 'CSV client upload');
+assertIncludes(intakeClientSource, 'contentType,', 'CSV client upload content type');
+assertIncludes(intakeClientSource, 'CSV_UPLOAD_CONTENT_TYPES', 'CSV client upload content type allow-list');
+assertNotIncludes(intakeClientSource, "access: 'public'", 'CSV client upload');
+assertIncludes(intakeClientSource, 'deleted after 30 days', 'CSV intake confirmation copy');
+assertIncludes(intakeClientSource, 'SCRUBBED_CSV_FILENAME', 'CSV scrubbed generic filename');
+assertIncludes(intakeClientSource, 'new TextDecoder(\'utf-8\', { fatal: true })', 'CSV scrub UTF-8 gate');
+assertIncludes(intakeClientSource, 'looksLikeUtf16(bytes)', 'CSV scrub UTF-16 rejection');
+assertIncludes(intakeClientSource, 'Upload stopped before any file was sent', 'CSV scrub fail-closed copy');
+assertIncludes(intakeClientSource, 'best-effort local scrubbing', 'CSV scrub scoped public copy');
+assertNotIncludes(intakeClientSource, 'using raw file', 'CSV scrub fail-closed upload path');
+assertNotIncludes(intakeClientSource, 'let fileToUpload: File = file', 'CSV scrub fail-closed upload path');
+assertNotIncludes(intakeClientSource, 'never leave your device', 'CSV scrub scoped public copy');
 
 assertIncludes(uploadRoute, "pathname.startsWith('gap-report-csvs/')", 'CSV upload token scope');
 assertIncludes(uploadRoute, 'allowedContentTypes: CSV_CONTENT_TYPES', 'CSV upload content type gate');
