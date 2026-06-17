@@ -16,6 +16,10 @@ const intakePageUrl = new URL(
   '../src/components/landing/SupportTicketCsvIntakePage.tsx',
   import.meta.url,
 );
+const intakeFormUrl = new URL(
+  '../src/components/landing/SupportTicketCsvIntakeForm.tsx',
+  import.meta.url,
+);
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
@@ -611,37 +615,39 @@ try {
   );
 
   const intakePage = await readFile(intakePageUrl, 'utf8');
+  const intakeForm = await readFile(intakeFormUrl, 'utf8');
+  const intakeSource = `${intakePage}\n${intakeForm}`;
   assert.ok(
-    intakePage.includes('deflectionResultsPath'),
+    intakeSource.includes('deflectionResultsPath'),
     'intake delegates results URL validation to the shared helper',
   );
   assert.ok(
-    intakePage.includes("phase: 'processing'"),
+    intakeSource.includes("phase: 'processing'"),
     'successful ATLAS submit enters the processing transition state',
   );
   assert.ok(
-    intakePage.includes('window.setTimeout') &&
-      intakePage.includes('window.location.assign(submission.resultsHref)'),
+    intakeSource.includes('window.setTimeout') &&
+      intakeSource.includes('window.location.assign(submission.resultsHref)'),
     'processing transition redirects to the validated results route after a delay',
   );
   assert.ok(
-    intakePage.includes('disabled={isSubmitting}') && intakePage.includes('aria-busy={isSubmitting}'),
+    intakeSource.includes('disabled={isSubmitting}') && intakeSource.includes('aria-busy={isSubmitting}'),
     'intake submit button is disabled while upload/record submission is in flight',
   );
   assert.ok(
-    intakePage.includes('Snapshot processing steps') &&
-      intakePage.includes('Reading the ticket export') &&
-      intakePage.includes('Pulling customer wording from tickets'),
+    intakeSource.includes('Snapshot processing steps') &&
+      intakeSource.includes('Reading the ticket export') &&
+      intakeSource.includes('Pulling customer wording from tickets'),
     'processing screen shows bounded Snapshot preparation steps',
   );
   assert.ok(
-    intakePage.includes('processingHeadingRef') &&
-      intakePage.includes('processingHeadingRef.current?.focus()') &&
-      intakePage.includes('tabIndex={-1}'),
+    intakeSource.includes('processingHeadingRef') &&
+      intakeSource.includes('processingHeadingRef.current?.focus()') &&
+      intakeSource.includes('tabIndex={-1}'),
     'processing screen moves focus to the new heading after the form mode switch',
   );
   assert.ok(
-    intakePage.includes('Open Snapshot now'),
+    intakeSource.includes('Open Snapshot now'),
     'processing screen has a manual Snapshot link while redirect is pending',
   );
 
