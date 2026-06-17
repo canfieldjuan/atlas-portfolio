@@ -7,20 +7,23 @@ const SNAPSHOT_URL = 'https://portfolio.example.com/systems/support-ticket-defle
 const MARKER_KEYS = [
   'snapshotBadge',
   'promiseHeadline',
-  'auditFinds',
+  'inlineForm',
+  'supportPlatformField',
+  'resolutionReportCta',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
   'snapshotFirst',
   'finalSnapshotAsk',
   'ctaLabel',
-  'intakeHref',
 ];
 const GOOD_HTML = [
   '<main>',
-  '<span>Free ticket analysis</span>',
-  '<h1>Find the repeat support questions costing your team time.</h1>',
-  '<p>WHAT THE AUDIT FINDS</p>',
+  '<span>Ticket Resolution Report</span>',
+  '<h1>Deflect tickets by actually resolving them.</h1>',
+  '<h2>Start a deterministic FAQ gap audit.</h2>',
+  '<label>Support platform</label>',
+  '<button>Get my free Resolution Report</button>',
   '<p>Support Tax projection</p>',
   '<label>Assisted-contact cost</label>',
   '<p>one-time cost against that recurring bill</p>',
@@ -84,8 +87,21 @@ const snapshotLandingSource = await source('src/components/landing/DeflectionSna
 const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 
 assert.ok(
-  snapshotLandingSource.includes('Customer wording found'),
-  'Snapshot card eyebrow should stay discovery-first.',
+  snapshotLandingSource.includes('Top Proven Resolutions'),
+  'Snapshot artifact should still show the proven-resolution rows below the inline form.',
+);
+assert.ok(
+  snapshotLandingSource.includes("sourceOffer: 'support-ticket-deflection-intake'"),
+  'Inline Snapshot form should preserve the deflection source offer that triggers report generation.',
+);
+assert.equal(
+  snapshotLandingSource.includes("sourceOffer: 'hero_intake'"),
+  false,
+  'Inline Snapshot form should not use the non-reporting hero_intake source offer.',
+);
+assert.ok(
+  snapshotLandingSource.includes('Get my free Resolution Report'),
+  'Snapshot hero form should use the Resolution Report submit label.',
 );
 assert.ok(
   snapshotLandingSource.includes('Customer wording &rarr; your long-tail SEO target list'),
@@ -100,8 +116,8 @@ assert.ok(
   'Customer wording subsection should render actual wording examples when present.',
 );
 assert.ok(
-  snapshotLandingSource.includes('customer wording (your long-tail SEO target'),
-  'Snapshot preview bullet should parenthetically frame customer wording as SEO value.',
+  snapshotLandingSource.includes('What the free Resolution Report hands you.'),
+  'Snapshot artifact should use the Resolution Report frame after the hero form.',
 );
 assert.ok(
   snapshotLandingSource.includes('When the upload includes customer phrasing'),
@@ -159,20 +175,20 @@ const failureCases = [
     error: 'Snapshot landing page fetch failed before an HTTP response.',
     apiCalls: true,
   }],
-  ['missing audit marker', { response: { body: GOOD_HTML.replace('WHAT THE AUDIT FINDS', '') } }, undefined, {
+  ['missing inline form marker', { response: { body: GOOD_HTML.replace('Start a deterministic FAQ gap audit.', '') } }, undefined, {
     ok: false,
     stage: 'render',
     error: 'Snapshot landing page is missing required render markers.',
-    missing: ['auditFinds'],
+    missing: ['inlineForm'],
     forbidden: [],
   }],
-  ['missing intake target', {
-    response: { body: GOOD_HTML.replace('href="/systems/support-ticket-deflection/intake"', '') },
+  ['missing support platform marker', {
+    response: { body: GOOD_HTML.replace('<label>Support platform</label>', '') },
   }, undefined, {
     ok: false,
     stage: 'render',
     error: 'Snapshot landing page is missing required render markers.',
-    missing: ['intakeHref'],
+    missing: ['supportPlatformField'],
     forbidden: [],
   }],
   ['paid-report-first copy', { response: { body: `${GOOD_HTML}<p>Full report unlock</p>` } }, undefined, {

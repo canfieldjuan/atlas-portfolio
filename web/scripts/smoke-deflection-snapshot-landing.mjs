@@ -3,13 +3,13 @@ import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli
 
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const SNAPSHOT_PATH = '/systems/support-ticket-deflection/snapshot';
-const INTAKE_PATH = '/systems/support-ticket-deflection/intake';
-const INTAKE_HREF = `href="${INTAKE_PATH}"`;
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 const REQUIRED_MARKERS = [
-  ['snapshotBadge', 'Free ticket analysis'],
-  ['promiseHeadline', 'Find the repeat support questions costing your team time.'],
-  ['auditFinds', 'WHAT THE AUDIT FINDS'],
+  ['snapshotBadge', 'Ticket Resolution Report'],
+  ['promiseHeadline', 'Deflect tickets by actually resolving them.'],
+  ['inlineForm', 'Start a deterministic FAQ gap audit.'],
+  ['supportPlatformField', 'Support platform'],
+  ['resolutionReportCta', 'Get my free Resolution Report'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
   ['valueAnchor', 'one-time cost against that recurring bill'],
@@ -53,14 +53,13 @@ function normalizeBaseUrl(value) {
 
 function validateSnapshotLandingHtml(html, url) {
   const missing = REQUIRED_MARKERS.filter(([, label]) => !html.includes(label)).map(([key]) => key);
-  if (!html.includes(INTAKE_HREF)) missing.push('intakeHref');
 
   const forbidden = FORBIDDEN_MARKERS.filter(([, label]) => html.includes(label)).map(([key]) => key);
 
   if (missing.length === 0 && forbidden.length === 0) {
     return {
       ok: true,
-      markers: Object.fromEntries([...REQUIRED_MARKERS.map(([key]) => [key, true]), ['intakeHref', true]]),
+      markers: Object.fromEntries(REQUIRED_MARKERS.map(([key]) => [key, true])),
     };
   }
 
