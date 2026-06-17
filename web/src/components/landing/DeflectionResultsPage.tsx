@@ -65,8 +65,13 @@ export function DeflectionResultsPage({
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   );
-  const firstLockedRank = top_questions.length + 1;
-  const lastLockedRank = locked_questions.at(-1)?.rank ?? summary.generated;
+  const lockedRanks = locked_questions.map((question) => question.rank);
+  const firstLockedRank =
+    lockedRanks.length > 0
+      ? Math.min(...lockedRanks)
+      : Math.max(0, ...top_questions.map((question) => question.rank)) + 1;
+  const lastLockedRank =
+    lockedRanks.length > 0 ? Math.max(...lockedRanks) : summary.generated;
   const hasMoreQuestions = locked_questions.length > 0 || summary.generated > top_questions.length;
   const fullTeaser = teaser.full_answer;
   const teaserPreviews = teaser.previews;
