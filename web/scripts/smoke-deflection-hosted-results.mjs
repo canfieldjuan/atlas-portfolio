@@ -4,7 +4,9 @@ import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
-const REQUIRED_MARKERS = [
+const EXPECTED_RENDER_STATES = new Set(['snapshot', 'full-report']);
+const DEFAULT_EXPECTED_STATE = 'snapshot';
+const REQUIRED_SNAPSHOT_MARKERS = [
   { key: 'snapshotBadge', label: 'YOUR DEFLECTION SNAPSHOT' },
   { key: 'headline', label: 'We found' },
   { key: 'supportTax', label: 'Support Tax projection' },
@@ -12,6 +14,18 @@ const REQUIRED_MARKERS = [
   { key: 'runRateComparison', label: 'This backlog at current pace' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
+const REQUIRED_FULL_REPORT_MARKERS = [
+  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'MODEL-BACKED REPORT'] },
+  {
+    key: 'paidHeadline',
+    labels: ['Your complete Support Tax report is ready.', 'Your Support Tax report is ready.'],
+  },
+  { key: 'reportContents', labels: ['Paid report contents', 'Paid report dashboard'] },
+  { key: 'seoTargeting', labels: ['Your Help-Desk SEO Targeting List', 'Help-desk SEO targeting list'] },
+  { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
+  { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
+];
+const LOCKED_FULL_REPORT_MARKERS = ['Unlock your full Backlog Report'];
 const TEASER_ANSWER_LABEL = 'One drafted answer you can inspect before paying';
 const ZERO_DRAFTED_SUMMARY_RE =
   /(?:^|[>\s])0(?:\s|<[^>]*>|<!--.*?-->)*of them already have a publishable answer drafted/;
@@ -32,6 +46,7 @@ Usage:
 
 Options:
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
+  --expect <state>   Expected render state: snapshot or full-report (default: snapshot)
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
 
@@ -63,8 +78,15 @@ function resultUrl(baseUrl, requestId) {
   return `${baseUrl}${RESULTS_PATH}/${encodeURIComponent(requestId)}`;
 }
 
-function missingMarkers(html) {
-  const missing = REQUIRED_MARKERS.filter((marker) => !html.includes(marker.label)).map((marker) => marker.key);
+function normalizeExpectedState(value) {
+  const state = String(value || DEFAULT_EXPECTED_STATE).trim();
+  return EXPECTED_RENDER_STATES.has(state) ? state : null;
+}
+
+function missingSnapshotMarkers(html) {
+  const missing = REQUIRED_SNAPSHOT_MARKERS.filter((marker) => !html.includes(marker.label)).map(
+    (marker) => marker.key,
+  );
   if (!hasSnapshotAnswerState(html)) {
     missing.push('snapshotAnswerState');
   }
@@ -74,6 +96,26 @@ function missingMarkers(html) {
 function hasSnapshotAnswerState(html) {
   if (html.includes(TEASER_ANSWER_LABEL)) return true;
   return ZERO_DRAFTED_SUMMARY_RE.test(html) && html.includes(NO_DRAFTED_REPORT_COPY);
+}
+
+function missingFullReportMarkers(html) {
+  return REQUIRED_FULL_REPORT_MARKERS.filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
+    (marker) => marker.key,
+  );
+}
+
+function lockedFullReportMarkers(html) {
+  return LOCKED_FULL_REPORT_MARKERS.filter((marker) => html.includes(marker));
+}
+
+function markerResult(expectedState) {
+  if (expectedState === 'full-report') {
+    return Object.fromEntries(REQUIRED_FULL_REPORT_MARKERS.map((marker) => [marker.key, true]));
+  }
+  return {
+    ...Object.fromEntries(REQUIRED_SNAPSHOT_MARKERS.map((marker) => [marker.key, true])),
+    snapshotAnswerState: true,
+  };
 }
 
 function renderedErrorMarker(html, missing) {
@@ -88,11 +130,20 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
   const now = deps.now || (() => new Date().toISOString());
   const requestId = String(options.requestId || '').trim();
   const baseUrl = normalizeBaseUrl(options.baseUrl);
+  const expectedState = normalizeExpectedState(options.expect || options.expectedState);
 
   if (!REQUEST_ID_RE.test(requestId)) {
     return {
       ok: false,
       error: 'Hosted results smoke request id is invalid.',
+      apiCalls: false,
+      requestId,
+    };
+  }
+  if (!expectedState) {
+    return {
+      ok: false,
+      error: 'Hosted results smoke expected state is invalid.',
       apiCalls: false,
       requestId,
     };
@@ -133,7 +184,8 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
   }
 
   const html = await response.text();
-  const missing = missingMarkers(html);
+  const missing = expectedState === 'full-report' ? missingFullReportMarkers(html) : missingSnapshotMarkers(html);
+  const lockedMarkers = expectedState === 'full-report' ? lockedFullReportMarkers(html) : [];
   if (missing.length > 0) {
     const errorMarker = renderedErrorMarker(html, missing);
     return {
@@ -145,21 +197,33 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
       apiCalls: true,
       requestId,
       url,
+      expectedState,
       missing,
+    };
+  }
+  if (lockedMarkers.length > 0) {
+    return {
+      ok: false,
+      error: 'Hosted results page rendered the locked snapshot instead of the full report.',
+      stage: 'render',
+      apiCalls: true,
+      requestId,
+      url,
+      expectedState,
+      missing,
+      lockedMarkers,
     };
   }
 
   return {
     ok: true,
     mode: 'DEFLECTION_HOSTED_RESULTS_SMOKE',
+    expectedState,
     apiCalls: true,
     checkedAt: now(),
     requestId,
     url,
-    markers: {
-      ...Object.fromEntries(REQUIRED_MARKERS.map((marker) => [marker.key, true])),
-      snapshotAnswerState: true,
-    },
+    markers: markerResult(expectedState),
   };
 }
 
@@ -180,10 +244,16 @@ async function main() {
       apiCalls: false,
     });
   }
+  if (isBareFlag(parsed, '--expect')) {
+    fail('Refusing to continue without --expect <state>.', outputJson, {
+      apiCalls: false,
+    });
+  }
 
   const result = await runDeflectionHostedResultsSmoke({
     requestId: parsed.values.get('--request-id'),
     baseUrl: parsed.values.get('--base-url') || DEFAULT_BASE_URL,
+    expect: parsed.values.get('--expect') || DEFAULT_EXPECTED_STATE,
   });
   const artifactPath = outputPath
     ? await writeJsonArtifact(outputPath, result, { includeOutputPath: false })
