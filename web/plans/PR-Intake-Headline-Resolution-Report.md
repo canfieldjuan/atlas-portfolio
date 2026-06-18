@@ -12,11 +12,13 @@ vaguer "100% Deterministic Engine" label.
 
 ## Scope
 
+Slice phase: Product polish
+
 Copy-only change to the shared intake form heading and the first trust-badge
 card, plus the smoke markers that pin those strings. The form is shared by the
-Snapshot landing hero and
-the dedicated `/intake` route, so the new headline lands on both surfaces from
-a single component change. No data contract, route, or form-behavior changes.
+Snapshot landing hero and the dedicated `/intake` route, so the new copy lands
+on both surfaces from a single component change. No data contract, route, or
+form-behavior changes.
 
 ### Files touched
 
@@ -50,14 +52,30 @@ unit-test fixtures/assertions are updated to the new strings in lockstep.
 - Hero `<h1>` ("Deflect tickets by actually resolving them.") and supporting
   subcopy are unchanged.
 - The `/intake` route metadata description is unchanged.
+- Smoke suites assert on literal rendered copy (a pre-existing pattern across
+  ~15 markers); refactoring them to stable identifiers is tracked in #323.
+
+Parked hardening: none
 
 ## Verification
 
-- `node scripts/test-deflection-snapshot-landing-smoke.mjs` -- passed.
-- `node scripts/test-deflection-public-reachability-smoke.mjs` -- passed.
+Commands run from the repo root:
+
+- `node web/scripts/test-deflection-snapshot-landing-smoke.mjs` -- passed.
+- `node web/scripts/test-deflection-public-reachability-smoke.mjs` -- passed.
+- `npm --prefix web ci` then `bash scripts/local_pr_review.sh` -- passed
+  (plan-doc audits, ESLint, Next build, `git diff --check`).
+- Stale-copy guard for the changed recurring strings:
+  `grep -rn "Start a deterministic FAQ gap audit\." web/src web/scripts`,
+  `grep -rn "100% Deterministic Engine" web/src web/scripts`, and
+  `grep -rn "This intake does not use" web/src web/scripts` -- no matches in
+  active code. The only remaining hits are historical plan docs
+  (`web/plans/PR-Deflection-CSV-Security.md`,
+  `web/plans/PR-Deflection-Intake-Deterministic-Badge-1367.md`) recording prior
+  slices, plus this plan quoting the old strings to describe the change.
 
 ## Estimated diff size
 
 | Section | Size |
 |---|---|
-| Total | ~90 LOC |
+| Total | ~105 LOC |
