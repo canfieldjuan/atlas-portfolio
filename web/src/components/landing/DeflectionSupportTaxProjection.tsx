@@ -286,7 +286,7 @@ export function DeflectionSupportTaxProjection({
       </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
         {sourceWindow
-          ? 'Estimate only. These run-rate rows normalize from the verified source window in your Snapshot; they are not savings guarantees.'
+          ? 'Estimates only. They are not savings guarantees.'
           : 'Estimate only. This sizes the repeat work visible in your uploaded data; it is not a savings guarantee and should be adjusted to your actual reporting window.'}
       </p>
     </section>

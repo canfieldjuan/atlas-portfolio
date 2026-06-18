@@ -12,9 +12,9 @@ const REQUIRED_MARKERS = [
   ['resolutionReportCta', 'Get my free Resolution Report'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
-  ['valueAnchor', 'one-time cost against that recurring bill'],
+  ['valueAnchor', 'answering the same repeat questions by hand'],
   ['snapshotFirst', 'Optional full report'],
-  ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
+  ['finalSnapshotAsk', 'decide if a full report is valuable to you'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],
 ];
 const FORBIDDEN_MARKERS = [

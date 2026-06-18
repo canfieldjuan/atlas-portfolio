@@ -26,7 +26,6 @@ import {
 } from '@/lib/deflection-snapshot';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  DEFLECTION_FULL_REPORT_PRICE_LABEL,
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
@@ -87,7 +86,7 @@ function snapshotValueAnchor(snapshot: DeflectionSnapshot, assistedContactCost: 
     `${snapshotCostBasisLabel(assistedContactCost)}, a queue this size runs about ${formatDeflectionWholeUsd(
       annualPace,
     )} a year, ${formatDeflectionWholeUsd(annualPace * 3)} over three years, answering the same repeat questions by hand.`,
-    `Same questions, again and again. The ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report is a one-time cost against that recurring bill, not the price of one ticket.`,
+    `Same questions, again and again.`,
   ].join(' ');
 }
 
@@ -206,9 +205,9 @@ function SnapshotArtifact({
     >
       <div className="mb-5 flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="font-mono text-xs text-primary">REPRESENTATIVE SNAPSHOT</p>
+          <p className="font-mono text-xs text-primary">EXAMPLE RESOLUTION SNAPSHOT</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">
-            What the free Resolution Report hands you.
+            What it gives you.
           </h2>
         </div>
         <div className="grid gap-2 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -319,7 +318,7 @@ function ProofList() {
       icon: <ShieldCheck className="h-5 w-5" />,
       title: 'Grounded in resolved tickets',
       body:
-        'Drafted answers are built only when the ticket history contains scoped resolution evidence.',
+        'Drafted resolutions are added only when the ticket history contains a resolution.',
     },
     {
       icon: <FileText className="h-5 w-5" />,
@@ -329,9 +328,9 @@ function ProofList() {
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
-      title: 'No bot touches your customers',
+      title: 'No LLM or Model touches your data.',
       body:
-        'The output is a review queue for your team. Nothing auto-publishes and nothing replies on your behalf.',
+        'The output is a resolution queue for your team. Nothing auto-publishes and nothing replies on your behalf.',
     },
   ];
 
@@ -388,14 +387,15 @@ export function DeflectionSnapshotLandingPage() {
       <section className="section-band">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 max-w-3xl">
-            <Eyebrow>Artifact</Eyebrow>
+            <Eyebrow>Your Resolution Snapshot</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Read the Snapshot, then decide what to fix.
+              Read your Snapshot and take action to deflect tickets with real resolutions.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The example below shows what you get: ranked repeat questions,
-              customer wording, a cost projection, one sourced draft answer, and
-              a preview of the remaining questions the full report unlocks.
+              customer wording, a cost projection, one sourced drafted resolution
+              for your #1 repeat, and a preview of the remaining questions and
+              resolutions the full report unlocks.
             </p>
           </div>
           <SnapshotArtifact
@@ -416,12 +416,12 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Built for one narrow decision: what to fix first.
+              Built for you to take action today: Fix the most unresolved tickets now.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The Snapshot has one job: read the queue, show the repeat pattern,
-              and keep every publishable answer grounded in resolved support
-              history.
+              The Snapshot has one job: read the queue, show the repeat unresolved
+              tickets, and keep every publishable resolution grounded in your
+              support history.
             </p>
           </div>
           <ProofList />
@@ -431,13 +431,13 @@ export function DeflectionSnapshotLandingPage() {
       <section className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8">
         <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Every month, the same repeat questions bill you again.
+          Every month, the same unresolved questions bill you again.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          The only ask on this page is the CSV upload, and seeing what those
-          repeats cost is free. If the repeat pattern is weak, the Snapshot will
-          show that. If it is strong, you will have a ranked starting point and one
-          answer draft to review before any next step.
+          Upload your CSV to see the questions you haven&apos;t resolved yet.
+          Those repeats cost you and your team. We give you a ranked starting
+          point and one drafted resolution to review, and decide if a full report
+          is valuable to you or not.
         </p>
         <div className="mt-6">
           <PrimarySnapshotCta />

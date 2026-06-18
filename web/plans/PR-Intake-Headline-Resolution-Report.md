@@ -2,58 +2,83 @@
 
 ## Why this slice exists
 
-The Support Ticket CSV intake form led with "Start a deterministic FAQ gap
-audit." That heading describes the engine, not the outcome the visitor came
-for. This slice swaps it for outcome-first copy so the form headline matches
-the Ticket Resolution Report framing already used in the eyebrow, CTA, and
-snapshot name. The same pass clarifies the trust-badge copy under the upload
-area so it leads with the "no LLM / generative models" guarantee instead of a
-vaguer "100% Deterministic Engine" label.
+The support-ticket-deflection intake and Snapshot landing copy described the
+*engine* ("deterministic FAQ gap audit", "100% Deterministic Engine",
+"Representative Snapshot", "decide what to fix", "no bot touches your
+customers") rather than the *outcome* a visitor came for. This slice rewrites
+that copy around the Ticket Resolution Report framing and an action-first
+message: read your Snapshot, then resolve the most expensive unresolved
+tickets. It also trims the cost-band value anchor and shortens the
+verified-window estimates disclaimer.
 
 ## Scope
 
 Slice phase: Product polish
 
-Copy-only change to the shared intake form heading and the first trust-badge
-card, plus the smoke markers that pin those strings. The form is shared by the
-Snapshot landing hero and the dedicated `/intake` route, so the new copy lands
-on both surfaces from a single component change. No data contract, route, or
-form-behavior changes.
+Copy-only pass over the intake form and the Snapshot landing page (both the
+inline hero form and the dedicated `/intake` route share one form component),
+plus the smoke markers / unit-test fixtures that pin the changed strings. No
+data contract, route, or form-behavior changes. The only non-copy edit is
+removing the now-unused `DEFLECTION_FULL_REPORT_PRICE_LABEL` import after its
+sole use was deleted from the value anchor.
 
 ### Files touched
 
-- `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` -- new heading copy.
-- `web/scripts/smoke-deflection-snapshot-landing.mjs` -- live smoke marker.
-- `web/scripts/smoke-deflection-public-reachability.mjs` -- live smoke marker.
-- `web/scripts/test-deflection-snapshot-landing-smoke.mjs` -- unit fixture/marker.
-- `web/scripts/test-deflection-public-reachability-smoke.mjs` -- unit fixture/assertion.
+- `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` -- intake headline + trust-badge copy.
+- `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` -- Snapshot landing copy + dropped price-label import.
+- `web/src/components/landing/DeflectionSupportTaxProjection.tsx` -- estimates disclaimer copy.
+- `web/scripts/smoke-deflection-snapshot-landing.mjs` -- live smoke markers (inline form, value anchor, final ask).
+- `web/scripts/smoke-deflection-public-reachability.mjs` -- live smoke markers (headline, trust badge).
+- `web/scripts/test-deflection-snapshot-landing-smoke.mjs` -- unit fixtures/markers + artifact heading assertion.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` -- unit fixtures/assertions.
+- `web/scripts/test-deflection-cost-projection-share.mjs` -- value-anchor bridge assertion.
 - `web/plans/PR-Intake-Headline-Resolution-Report.md` -- this plan doc.
 
 ## Mechanism
 
-Replace the `<h2>` text in `SupportTicketCsvIntakeForm` with "Get your ticket
-resolution report and start taking actionable steps to resolve tickets today."
-In the same component, retitle the first trust-badge card from "100%
-Deterministic Engine" to "No LLM or Generative models." and reword its body
-from "This intake does not use..." to "Our engine does not use...". The
-deflection landing and public-reachability smokes assert on the rendered
-heading and badge strings as required markers, so their marker tables and the
-unit-test fixtures/assertions are updated to the new strings in lockstep.
+All visible strings are edited in place. The intake form heading becomes "Get
+your ticket resolution report and start taking actionable steps to resolve
+tickets today."; the first trust-badge card becomes "No LLM or Generative
+models." / "Our engine does not use...". On the Snapshot landing page the
+reworded regions are: the artifact eyebrow/heading/intro, the snapshot label
+and lead-in heading, the proof section heading + body, the first proof-list item
+("Grounded in resolved tickets"), the third proof-list item ("No LLM or Model
+touches your data" / "resolution queue"), and the final CTA band heading +
+paragraph. The cost-band value anchor drops its closing full-report-price
+sentence (removing the only `DEFLECTION_FULL_REPORT_PRICE_LABEL` use), and the
+verified-window estimates disclaimer is shortened.
+
+The deflection smokes assert on rendered copy as required markers, so every
+changed marker string is updated in lockstep: the live-smoke marker tables
+(including `valueAnchor` and `finalSnapshotAsk`, re-pointed to surviving copy),
+the unit-smoke `GOOD_HTML`/`GOOD_INTAKE` fixtures and their
+`replace()`/`includes()` assertions, and the cost-projection-share bridge
+assertion (which previously required the full-report-price phrase).
 
 ## Intentional
 
-- Outcome-first heading that matches the Ticket Resolution Report framing.
-- Trust-badge copy leads with the explicit "no LLM / generative models"
-  guarantee instead of the vaguer "deterministic engine" label.
-- Smoke markers track the shipped copy so the suites stay meaningful.
+- Action/resolution framing over engine-describing copy across both surfaces.
+- Trust badges lead with the explicit "no LLM / generative models" guarantee.
+- Value anchor no longer references the full-report price; the cost band ends on
+  the recurring-cost message only (operator-requested).
+- Corrected obvious autocorrect/leftover slips in requested copy ("desolation"
+  -> "resolution"; "one answer drafted resolution" -> "one drafted resolution";
+  singular -> plural "questions" in the CTA paragraph).
+- Smoke markers/assertions re-pointed to surviving copy so the suites stay
+  meaningful rather than disabled.
 
 ## Deferred
 
-- Hero `<h1>` ("Deflect tickets by actually resolving them.") and supporting
-  subcopy are unchanged.
+- Hero `<h1>` ("Deflect tickets by actually resolving them.") is unchanged.
 - The `/intake` route metadata description is unchanged.
+- The no-verified-window branch of the estimates disclaimer keeps its longer
+  wording (only the verified-window branch was shortened this pass).
+- The "EXAMPLE RESOLUTION SNAPSHOT" eyebrow is set uppercase to match the
+  existing monospace eyebrow styling; revisit if sentence case is preferred.
 - Smoke suites assert on literal rendered copy (a pre-existing pattern across
   ~15 markers); refactoring them to stable identifiers is tracked in #323.
+- Surfacing high-cost-but-unresolved repeat questions (vs. dropping them) is
+  tracked in #324.
 
 Parked hardening: none
 
@@ -63,19 +88,16 @@ Commands run from the repo root:
 
 - `node web/scripts/test-deflection-snapshot-landing-smoke.mjs` -- passed.
 - `node web/scripts/test-deflection-public-reachability-smoke.mjs` -- passed.
+- `node web/scripts/test-deflection-cost-projection-share.mjs` -- passed.
 - `npm --prefix web ci` then `bash scripts/local_pr_review.sh` -- passed
   (plan-doc audits, ESLint, Next build, `git diff --check`).
 - Stale-copy guard for the changed recurring strings:
-  `grep -rn "Start a deterministic FAQ gap audit\." web/src web/scripts`,
-  `grep -rn "100% Deterministic Engine" web/src web/scripts`, and
-  `grep -rn "This intake does not use" web/src web/scripts` -- no matches in
-  active code. The only remaining hits are historical plan docs
-  (`web/plans/PR-Deflection-CSV-Security.md`,
-  `web/plans/PR-Deflection-Intake-Deterministic-Badge-1367.md`) recording prior
-  slices, plus this plan quoting the old strings to describe the change.
+  `grep -rn "Start a deterministic FAQ gap audit\.\|100% Deterministic Engine\|This intake does not use\|What the free Resolution Report hands you\.\|REPRESENTATIVE SNAPSHOT\|one-time cost against that recurring bill\|Read the Snapshot, then decide what to fix\|Built for one narrow decision\|No bot touches your customers\|The only ask on this page is the CSV upload" web/src web/scripts`
+  -- no matches in active code. Remaining hits are historical plan docs
+  recording prior slices, plus this plan quoting the old strings.
 
 ## Estimated diff size
 
 | Section | Size |
 |---|---|
-| Total | ~105 LOC |
+| Total | ~190 LOC |

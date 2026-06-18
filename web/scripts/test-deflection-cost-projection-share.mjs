@@ -56,14 +56,13 @@ assert(
   'Snapshot landing preview should share one assisted-contact cost state with the projection.',
 );
 assert(
-  landingSource.includes('DEFLECTION_FULL_REPORT_PRICE_LABEL') &&
-    landingSource.includes('function snapshotCostBasisLabel') &&
+  landingSource.includes('function snapshotCostBasisLabel') &&
     landingSource.includes("'At the Gartner benchmark'") &&
     landingSource.includes('At your selected ${formatAssistedContactCost(assistedContactCost)} per assisted contact') &&
     landingSource.includes('valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}') &&
     landingSource.includes('a queue this size runs about') &&
-    landingSource.includes('one-time cost against that recurring bill'),
-  'Snapshot landing page should bridge the higher-volume representative sample to the full-report value frame without mislabeling slider-adjusted costs as the Gartner benchmark.',
+    landingSource.includes('answering the same repeat questions by hand'),
+  'Snapshot landing page should bridge the higher-volume representative sample to the cost value frame without mislabeling slider-adjusted costs as the Gartner benchmark.',
 );
 assert(
   snapshotSource.includes('repeat_ticket_count: 1700') &&

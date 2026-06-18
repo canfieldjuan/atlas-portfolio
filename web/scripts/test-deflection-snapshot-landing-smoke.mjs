@@ -26,9 +26,9 @@ const GOOD_HTML = [
   '<button>Get my free Resolution Report</button>',
   '<p>Support Tax projection</p>',
   '<label>Assisted-contact cost</label>',
-  '<p>one-time cost against that recurring bill</p>',
+  '<p>answering the same repeat questions by hand</p>',
   '<p>Optional full report</p>',
-  '<p>The only ask on this page is the CSV upload</p>',
+  '<p>decide if a full report is valuable to you</p>',
   '<a href="/systems/support-ticket-deflection/intake">Get my free Deflection Snapshot</a>',
   '</main>',
 ].join('');
@@ -116,8 +116,8 @@ assert.ok(
   'Customer wording subsection should render actual wording examples when present.',
 );
 assert.ok(
-  snapshotLandingSource.includes('What the free Resolution Report hands you.'),
-  'Snapshot artifact should use the Resolution Report frame after the hero form.',
+  snapshotLandingSource.includes('What it gives you.'),
+  'Snapshot artifact should keep its lead-in heading after the hero form.',
 );
 assert.ok(
   snapshotLandingSource.includes('When the upload includes customer phrasing'),
