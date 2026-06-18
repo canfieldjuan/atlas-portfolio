@@ -46,7 +46,8 @@ and lead-in heading, the proof section heading + body, the first proof-list item
 touches your data" / "resolution queue"), and the final CTA band heading +
 paragraph. The cost-band value anchor drops its closing full-report-price
 sentence (removing the only `DEFLECTION_FULL_REPORT_PRICE_LABEL` use), and the
-verified-window estimates disclaimer is shortened.
+both estimates-disclaimer branches are matched to "Estimates only. They are
+not savings guarantees." (collapsing the source-window ternary for that line).
 
 The deflection smokes assert on rendered copy as required markers, so every
 changed marker string is updated in lockstep: the live-smoke marker tables
@@ -71,8 +72,6 @@ assertion (which previously required the full-report-price phrase).
 
 - Hero `<h1>` ("Deflect tickets by actually resolving them.") is unchanged.
 - The `/intake` route metadata description is unchanged.
-- The no-verified-window branch of the estimates disclaimer keeps its longer
-  wording (only the verified-window branch was shortened this pass).
 - The intake PII card keeps its "best-effort local scrubbing" wording; the
   stronger "never make it into the report" claim is deferred until the scrubbing
   implementation backs it and the CSV-privacy contract is updated deliberately

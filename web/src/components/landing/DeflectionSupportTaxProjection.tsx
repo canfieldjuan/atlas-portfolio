@@ -285,9 +285,7 @@ export function DeflectionSupportTaxProjection({
         )}
       </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/45">
-        {sourceWindow
-          ? 'Estimates only. They are not savings guarantees.'
-          : 'Estimate only. This sizes the repeat work visible in your uploaded data; it is not a savings guarantee and should be adjusted to your actual reporting window.'}
+        Estimates only. They are not savings guarantees.
       </p>
     </section>
   );
