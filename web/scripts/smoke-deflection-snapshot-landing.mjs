@@ -7,14 +7,14 @@ const ERROR_MARKERS = ['Application error', 'This page could not be found', '404
 const REQUIRED_MARKERS = [
   ['snapshotBadge', 'Ticket Resolution Report'],
   ['promiseHeadline', 'Deflect tickets by actually resolving them.'],
-  ['inlineForm', 'Start a deterministic FAQ gap audit.'],
+  ['inlineForm', 'Get your ticket resolution report and start taking actionable steps to resolve tickets today.'],
   ['supportPlatformField', 'Support platform'],
   ['resolutionReportCta', 'Get my free Resolution Report'],
   ['supportTaxProjection', 'Support Tax projection'],
   ['assistedContactCost', 'Assisted-contact cost'],
-  ['valueAnchor', 'one-time cost against that recurring bill'],
+  ['valueAnchor', 'answering the same repeat questions by hand'],
   ['snapshotFirst', 'Optional full report'],
-  ['finalSnapshotAsk', 'The only ask on this page is the CSV upload'],
+  ['finalSnapshotAsk', 'decide if a full report is valuable to you'],
   ['ctaLabel', 'Get my free Deflection Snapshot'],
 ];
 const FORBIDDEN_MARKERS = [

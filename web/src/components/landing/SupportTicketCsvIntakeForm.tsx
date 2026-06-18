@@ -454,7 +454,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
     <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm">
       <div className="mb-8">
         <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
-          Start a deterministic FAQ gap audit.
+          Get your ticket resolution report and start taking actionable steps to resolve tickets today.
         </h2>
         <p className="text-foreground/65 text-sm leading-relaxed">
           Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares
@@ -591,9 +591,9 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-primary">100% Deterministic Engine</p>
+              <p className="text-xs font-semibold text-primary">No LLM or Generative models.</p>
               <p className="text-[11px] leading-relaxed text-foreground/75">
-                This intake does not use LLMs or generative AI to analyze your ticket logs.
+                Our engine does not use LLMs or generative AI to analyze your ticket logs.
                 We use deterministic clustering to sort repeated questions.
               </p>
             </div>
