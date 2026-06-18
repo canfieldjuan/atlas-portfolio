@@ -454,7 +454,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
     <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm">
       <div className="mb-8">
         <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
-          Start a deterministic FAQ gap audit.
+          Get your ticket resolution report and start taking actionable steps to resolve tickets today.
         </h2>
         <p className="text-foreground/65 text-sm leading-relaxed">
           Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares

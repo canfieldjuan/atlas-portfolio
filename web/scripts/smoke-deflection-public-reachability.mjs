@@ -13,7 +13,7 @@ const LANDING_MARKERS = [
 ];
 const INTAKE_MARKERS = [
   ['uploadEyebrow', 'FAQ DEFLECTION INTAKE'],
-  ['headline', 'Start a deterministic FAQ gap audit.'],
+  ['headline', 'Get your ticket resolution report and start taking actionable steps to resolve tickets today.'],
   ['workEmail', 'Work email'],
   ['deterministicBadge', '100% Deterministic Engine'],
   ['submitCta', 'Upload my CSV, get my free Deflection Snapshot'],

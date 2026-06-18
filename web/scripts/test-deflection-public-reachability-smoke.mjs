@@ -12,7 +12,7 @@ const GOOD_LANDING = [
 ].join('');
 const GOOD_INTAKE = [
   'FAQ DEFLECTION INTAKE',
-  'Start a deterministic FAQ gap audit.',
+  'Get your ticket resolution report and start taking actionable steps to resolve tickets today.',
   'Work email',
   '100% Deterministic Engine',
   'Upload my CSV, get my free Deflection Snapshot',
@@ -215,8 +215,8 @@ const staleDeliverySources = [
 ];
 
 assert.ok(
-  intakeClientSource.includes('Start a deterministic FAQ gap audit.'),
-  'intake headline should frame deterministic FAQ analysis',
+  intakeClientSource.includes('Get your ticket resolution report and start taking actionable steps to resolve tickets today.'),
+  'intake headline should frame the ticket resolution report and next steps',
 );
 assert.ok(
   intakeClientSource.includes('100% Deterministic Engine'),

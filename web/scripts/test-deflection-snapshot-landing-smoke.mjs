@@ -21,7 +21,7 @@ const GOOD_HTML = [
   '<main>',
   '<span>Ticket Resolution Report</span>',
   '<h1>Deflect tickets by actually resolving them.</h1>',
-  '<h2>Start a deterministic FAQ gap audit.</h2>',
+  '<h2>Get your ticket resolution report and start taking actionable steps to resolve tickets today.</h2>',
   '<label>Support platform</label>',
   '<button>Get my free Resolution Report</button>',
   '<p>Support Tax projection</p>',
@@ -175,7 +175,7 @@ const failureCases = [
     error: 'Snapshot landing page fetch failed before an HTTP response.',
     apiCalls: true,
   }],
-  ['missing inline form marker', { response: { body: GOOD_HTML.replace('Start a deterministic FAQ gap audit.', '') } }, undefined, {
+  ['missing inline form marker', { response: { body: GOOD_HTML.replace('Get your ticket resolution report and start taking actionable steps to resolve tickets today.', '') } }, undefined, {
     ok: false,
     stage: 'render',
     error: 'Snapshot landing page is missing required render markers.',
