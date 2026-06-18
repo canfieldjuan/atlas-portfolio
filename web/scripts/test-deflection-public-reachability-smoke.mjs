@@ -14,7 +14,7 @@ const GOOD_INTAKE = [
   'FAQ DEFLECTION INTAKE',
   'Get your ticket resolution report and start taking actionable steps to resolve tickets today.',
   'Work email',
-  '100% Deterministic Engine',
+  'No LLM or Generative models.',
   'Upload my CSV, get my free Deflection Snapshot',
 ].join('');
 
@@ -219,7 +219,7 @@ assert.ok(
   'intake headline should frame the ticket resolution report and next steps',
 );
 assert.ok(
-  intakeClientSource.includes('100% Deterministic Engine'),
+  intakeClientSource.includes('No LLM or Generative models.'),
   'intake page should render the deterministic trust badge',
 );
 assert.ok(

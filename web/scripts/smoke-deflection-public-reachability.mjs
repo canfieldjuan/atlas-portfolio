@@ -15,7 +15,7 @@ const INTAKE_MARKERS = [
   ['uploadEyebrow', 'FAQ DEFLECTION INTAKE'],
   ['headline', 'Get your ticket resolution report and start taking actionable steps to resolve tickets today.'],
   ['workEmail', 'Work email'],
-  ['deterministicBadge', '100% Deterministic Engine'],
+  ['deterministicBadge', 'No LLM or Generative models.'],
   ['submitCta', 'Upload my CSV, get my free Deflection Snapshot'],
 ];
 
