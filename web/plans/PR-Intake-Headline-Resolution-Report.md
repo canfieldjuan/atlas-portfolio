@@ -65,6 +65,11 @@ assertion (which previously required the full-report-price phrase).
 - Corrected obvious autocorrect/leftover slips in requested copy ("desolation"
   -> "resolution"; "one answer drafted resolution" -> "one drafted resolution";
   singular -> plural "questions" in the CTA paragraph).
+- Incorporated reviewer accuracy fixes: "unresolved tickets" -> "unresolved
+  questions" (the upload ingests closed tickets, so "tickets" misread as open),
+  restored the "scoped resolution" qualifier the draft gate actually requires,
+  and applied minor grammar/punctuation fixes (sourced/drafted, dangling
+  clause, proof-title period).
 - Smoke markers/assertions re-pointed to surviving copy so the suites stay
   meaningful rather than disabled.
 

@@ -318,7 +318,7 @@ function ProofList() {
       icon: <ShieldCheck className="h-5 w-5" />,
       title: 'Grounded in resolved tickets',
       body:
-        'Drafted resolutions are added only when the ticket history contains a resolution.',
+        'Drafted resolutions are added only when the ticket history contains a scoped resolution.',
     },
     {
       icon: <FileText className="h-5 w-5" />,
@@ -328,7 +328,7 @@ function ProofList() {
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
-      title: 'No LLM or Model touches your data.',
+      title: 'No LLM or Model touches your data',
       body:
         'The output is a resolution queue for your team. Nothing auto-publishes and nothing replies on your behalf.',
     },
@@ -393,7 +393,7 @@ export function DeflectionSnapshotLandingPage() {
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The example below shows what you get: ranked repeat questions,
-              customer wording, a cost projection, one sourced drafted resolution
+              customer wording, a cost projection, one sourced, drafted resolution
               for your #1 repeat, and a preview of the remaining questions and
               resolutions the full report unlocks.
             </p>
@@ -416,11 +416,11 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Built for you to take action today: Fix the most unresolved tickets now.
+              Built for you to take action today: Fix the most unresolved questions now.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
               The Snapshot has one job: read the queue, show the repeat unresolved
-              tickets, and keep every publishable resolution grounded in your
+              questions, and keep every publishable resolution grounded in your
               support history.
             </p>
           </div>
@@ -436,8 +436,8 @@ export function DeflectionSnapshotLandingPage() {
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
           Upload your CSV to see the questions you haven&apos;t resolved yet.
           Those repeats cost you and your team. We give you a ranked starting
-          point and one drafted resolution to review, and decide if a full report
-          is valuable to you or not.
+          point and one drafted resolution to review,
+          so you can decide if a full report is valuable to you or not.
         </p>
         <div className="mt-6">
           <PrimarySnapshotCta />
