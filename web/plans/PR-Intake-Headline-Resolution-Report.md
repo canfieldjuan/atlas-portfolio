@@ -73,6 +73,10 @@ assertion (which previously required the full-report-price phrase).
 - The `/intake` route metadata description is unchanged.
 - The no-verified-window branch of the estimates disclaimer keeps its longer
   wording (only the verified-window branch was shortened this pass).
+- The intake PII card keeps its "best-effort local scrubbing" wording; the
+  stronger "never make it into the report" claim is deferred until the scrubbing
+  implementation backs it and the CSV-privacy contract is updated deliberately
+  (tracked in #325). The CSV-privacy contract test forbids the absolute claim.
 - The "EXAMPLE RESOLUTION SNAPSHOT" eyebrow is set uppercase to match the
   existing monospace eyebrow styling; revisit if sentence case is preferred.
 - Smoke suites assert on literal rendered copy (a pre-existing pattern across

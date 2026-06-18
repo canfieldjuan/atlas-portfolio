@@ -613,8 +613,8 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
             <div>
               <p className="text-xs font-semibold text-primary">Local PII Scrubbing</p>
               <p className="text-[11px] leading-relaxed text-foreground/75">
-                We scrub your CSV for PII (common contact identifiers) before upload, so they
-                never make it into the report.
+                Your browser applies best-effort local scrubbing for common contact identifiers
+                in the CSV body before upload.
               </p>
             </div>
           </div>
