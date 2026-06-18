@@ -112,6 +112,11 @@ assert.equal(
   'Results page should not assume visible row count equals the first locked rank.',
 );
 assert.match(
+  resultsSource,
+  /firstLockedRank <= lastLockedRank/,
+  'Results page should gate the locked-rank range so a sparse no-locked fallback cannot render a backwards range.',
+);
+assert.match(
   landingSource,
   /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+\/>/,
   'Snapshot landing page should render all fixture top questions through the shared row component and shared cost state.',
@@ -135,6 +140,12 @@ assert.equal(
   landingSource.includes('priority score'),
   false,
   'Snapshot landing page should not reintroduce priority-score copy.',
+);
+
+assert.match(
+  landingSource,
+  /firstLockedRank <= lastLockedRank/,
+  'Snapshot landing page should keep gating the locked-rank range against a backwards sparse fallback.',
 );
 
 console.log('Deflection row renderer sharing guard passed.');

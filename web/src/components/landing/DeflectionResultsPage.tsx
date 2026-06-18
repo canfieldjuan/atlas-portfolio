@@ -72,6 +72,10 @@ export function DeflectionResultsPage({
       : Math.max(0, ...top_questions.map((question) => question.rank)) + 1;
   const lastLockedRank =
     lockedRanks.length > 0 ? Math.max(...lockedRanks) : summary.generated;
+  // Guard the sparse fallback: with no locked rows and non-contiguous visible
+  // ranks, firstLockedRank (max visible rank + 1) can exceed lastLockedRank
+  // (summary.generated), which would otherwise render a backwards range.
+  const showLockedRankRange = firstLockedRank <= lastLockedRank;
   const hasMoreQuestions = locked_questions.length > 0 || summary.generated > top_questions.length;
   const fullTeaser = teaser.full_answer;
   const teaserPreviews = teaser.previews;
@@ -393,11 +397,14 @@ export function DeflectionResultsPage({
               <li className="flex items-start gap-3">
                 <Lock className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
                 <span>
-                  <strong className="text-foreground">
-                    #{firstLockedRank}–#{lastLockedRank}
-                  </strong>
-                  {' '}complete ranked backlog, locked question text plus the
-                  rest of your recurring questions, ordered by support volume.
+                  {showLockedRankRange && (
+                    <strong className="text-foreground">
+                      #{firstLockedRank}–#{lastLockedRank}{' '}
+                    </strong>
+                  )}
+                  {showLockedRankRange ? 'complete' : 'Complete'} ranked backlog,
+                  locked question text plus the rest of your recurring questions,
+                  ordered by support volume.
                 </span>
               </li>
             )}

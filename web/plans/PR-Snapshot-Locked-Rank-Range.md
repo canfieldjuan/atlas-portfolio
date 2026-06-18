@@ -18,6 +18,9 @@ Slice phase: Product polish
    using the max visible top-question rank plus one and `summary.generated`.
 3. Add a focused source guard so the results page cannot silently regress to
    `top_questions.length + 1`.
+4. Gate the rendered range on `firstLockedRank <= lastLockedRank` so the sparse
+   no-locked fallback (non-contiguous visible ranks) cannot render a backwards
+   range like `#7-#6`; fall back to a non-range "Complete ranked backlog" lead.
 
 ### Files touched
 
@@ -32,7 +35,9 @@ Slice phase: Product polish
 uses `Math.min(...lockedRanks)` and `Math.max(...lockedRanks)` for the range
 shown in the full-report teaser. When no locked rows exist, it falls back to the
 next rank after the max visible `top_questions[].rank` and the existing
-`summary.generated` endpoint.
+`summary.generated` endpoint. The teaser renders the bold `#first-#last` range
+only when `firstLockedRank <= lastLockedRank`; otherwise it drops the range and
+leads with "Complete ranked backlog", matching the Snapshot landing page guard.
 
 ## Intentional
 
@@ -64,7 +69,7 @@ Parked hardening: none
 
 | Section | Size |
 |---|---|
-| Plan doc | ~70 |
-| Results page rank math | ~9 |
-| Source guard | ~20 |
-| Total | ~99 |
+| Plan doc | ~80 |
+| Results page rank math + inverted-range guard | ~20 |
+| Source guard (regression asserts, both pages) | ~25 |
+| Total | ~120 |
