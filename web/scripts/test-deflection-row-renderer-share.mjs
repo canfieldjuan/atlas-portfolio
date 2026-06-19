@@ -92,6 +92,31 @@ assert.match(
   'Results page should keep snapshots without optional blind-spot rows compatible.',
 );
 assert.match(
+  resultsSource,
+  /const lockedRanks = locked_questions\.map\(\(question\) => question\.rank\);/,
+  'Results page should derive locked-rank labels from actual locked question ranks.',
+);
+assert.match(
+  resultsSource,
+  /Math\.min\(\.\.\.lockedRanks\)/,
+  'Results page should use the first actual locked rank when locked rows exist.',
+);
+assert.match(
+  resultsSource,
+  /Math\.max\(\.\.\.lockedRanks\)/,
+  'Results page should use the last actual locked rank when locked rows exist.',
+);
+assert.equal(
+  resultsSource.includes('top_questions.length + 1'),
+  false,
+  'Results page should not assume visible row count equals the first locked rank.',
+);
+assert.match(
+  resultsSource,
+  /firstLockedRank <= lastLockedRank/,
+  'Results page should gate the locked-rank range so a sparse no-locked fallback cannot render a backwards range.',
+);
+assert.match(
   landingSource,
   /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+\/>/,
   'Snapshot landing page should render all fixture top questions through the shared row component and shared cost state.',
@@ -115,6 +140,12 @@ assert.equal(
   landingSource.includes('priority score'),
   false,
   'Snapshot landing page should not reintroduce priority-score copy.',
+);
+
+assert.match(
+  landingSource,
+  /firstLockedRank <= lastLockedRank/,
+  'Snapshot landing page should keep gating the locked-rank range against a backwards sparse fallback.',
 );
 
 console.log('Deflection row renderer sharing guard passed.');
