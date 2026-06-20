@@ -9,12 +9,15 @@ const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-uploaded-search-'
 const routeUrl = new URL('../src/app/api/demo/deflection-search/route.ts', import.meta.url);
 const helperUrl = new URL('../src/lib/deflection-demo.ts', import.meta.url);
 const atlasClientUrl = new URL('../src/lib/atlas-deflection-client.ts', import.meta.url);
+const uploadedSearchConfigUrl = new URL('../src/lib/deflection-uploaded-search-config.ts', import.meta.url);
 const demoComponentUrl = new URL('../src/components/deflection-demo/DeflectionDemo.tsx', import.meta.url);
 const resultsPageUrl = new URL('../src/components/landing/DeflectionResultsPage.tsx', import.meta.url);
 const routeCompiledPath = join(testDir, 'route.cjs');
 const nextStubDir = join(testDir, 'node_modules', 'next');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const originalUploadedSearchEnabled = process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
+const originalAtlasApiBaseUrl = process.env.ATLAS_API_BASE_URL;
+const originalAtlasServiceToken = process.env.ATLAS_B2B_SERVICE_TOKEN;
 
 const localMatch = { topic: 'local sample' };
 const atlasMatch = { topic: 'uploaded report' };
@@ -91,6 +94,19 @@ try {
       '',
     ].join('\n'),
   );
+  await writeFile(
+    join(libStubDir, 'deflection-uploaded-search-config.js'),
+    [
+      'function clean(value) { return value?.trim() ?? ""; }',
+      'exports.uploadedDeflectionSearchEnabled = (env = process.env) => {',
+      '  const flag = clean(env.DEFLECTION_UPLOADED_SEARCH_ENABLED).toLowerCase();',
+      '  if (flag === "false") return false;',
+      '  if (flag === "true") return true;',
+      '  return Boolean(clean(env.ATLAS_API_BASE_URL) && clean(env.ATLAS_B2B_SERVICE_TOKEN));',
+      '};',
+      '',
+    ].join('\n'),
+  );
 
   globalThis.__uploadedSearchLocalMatch = localMatch;
   globalThis.__uploadedSearchLocalCalls = localCalls;
@@ -133,7 +149,17 @@ try {
   assert.deepEqual(atlasCalls, []);
   assert.deepEqual(rateLimitCalls, []);
 
-  process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = 'true';
+  process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = 'false';
+  process.env.ATLAS_API_BASE_URL = 'https://atlas.example.test/api/v1';
+  process.env.ATLAS_B2B_SERVICE_TOKEN = 'service-token';
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 404);
+  assert.equal(response.body.error, 'Uploaded report search is not enabled.');
+  assert.deepEqual(modelCalls, []);
+  assert.deepEqual(atlasCalls, []);
+  assert.deepEqual(rateLimitCalls, []);
+
+  delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
 
   localCalls = [];
   atlasCalls = [];
@@ -160,6 +186,20 @@ try {
   assert.equal(atlasCalls.length, 1);
   assert.equal(atlasCalls[0].requestId, 'content-ops-unit');
   assert.equal(atlasCalls[0].query.length, 256);
+
+  delete process.env.ATLAS_API_BASE_URL;
+  delete process.env.ATLAS_B2B_SERVICE_TOKEN;
+  process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = 'true';
+  atlasCalls = [];
+  modelCalls = [];
+  rateLimitCalls = [];
+  globalThis.__uploadedSearchAtlasCalls = atlasCalls;
+  globalThis.__uploadedSearchModelCalls = modelCalls;
+  globalThis.__uploadedSearchRateLimitCalls = rateLimitCalls;
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(modelCalls, ['content-ops-unit']);
+  assert.equal(atlasCalls.length, 1);
 
   atlasCalls = [];
   globalThis.__uploadedSearchAtlasCalls = atlasCalls;
@@ -221,6 +261,13 @@ try {
   assert.match(atlasClientSource, /value\.results\.length === 0/);
   assert.match(atlasClientSource, /value\.item \?\? value\.faq_item/);
 
+  const uploadedSearchConfigSource = await readFile(uploadedSearchConfigUrl, 'utf8');
+  assert.match(uploadedSearchConfigSource, /DEFLECTION_UPLOADED_SEARCH_ENABLED/);
+  assert.match(uploadedSearchConfigSource, /flag === 'false'/);
+  assert.match(uploadedSearchConfigSource, /flag === 'true'/);
+  assert.match(uploadedSearchConfigSource, /ATLAS_API_BASE_URL/);
+  assert.match(uploadedSearchConfigSource, /ATLAS_B2B_SERVICE_TOKEN/);
+
   const resultsPageSource = await readFile(resultsPageUrl, 'utf8');
   assert.doesNotMatch(resultsPageSource, /requestId=\{requestId\}/);
   const modelPageSource = await readFile(
@@ -229,12 +276,22 @@ try {
   );
   assert.match(modelPageSource, /Search the FAQ drafts built from this CSV/);
   assert.match(modelPageSource, /requestId=\{requestId\}/);
-  assert.match(modelPageSource, /DEFLECTION_UPLOADED_SEARCH_ENABLED/);
+  assert.match(modelPageSource, /uploadedDeflectionSearchEnabled\(\)/);
 } finally {
   if (originalUploadedSearchEnabled === undefined) {
     delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
   } else {
     process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = originalUploadedSearchEnabled;
+  }
+  if (originalAtlasApiBaseUrl === undefined) {
+    delete process.env.ATLAS_API_BASE_URL;
+  } else {
+    process.env.ATLAS_API_BASE_URL = originalAtlasApiBaseUrl;
+  }
+  if (originalAtlasServiceToken === undefined) {
+    delete process.env.ATLAS_B2B_SERVICE_TOKEN;
+  } else {
+    process.env.ATLAS_B2B_SERVICE_TOKEN = originalAtlasServiceToken;
   }
   await rm(testDir, { recursive: true, force: true });
 }
