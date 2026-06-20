@@ -141,7 +141,11 @@ try {
   assert.deepEqual(localCalls, []);
   assert.deepEqual(modelCalls, ['content-ops-unit']);
   assert.deepEqual(artifactCalls, []);
-  assert.equal(rateLimitCalls.length, 1);
+  assert.equal(rateLimitCalls.length, 2);
+  assert.equal(rateLimitCalls[0].requestId, 'all');
+  assert.equal(rateLimitCalls[0].config.scope, 'deflection-uploaded-search-client');
+  assert.equal(rateLimitCalls[1].requestId, 'content-ops-unit');
+  assert.equal(rateLimitCalls[1].config.scope, 'deflection-uploaded-search');
   assert.equal(atlasCalls.length, 1);
   assert.equal(atlasCalls[0].requestId, 'content-ops-unit');
   assert.equal(atlasCalls[0].query.length, 256);
@@ -174,9 +178,15 @@ try {
 
   globalThis.__uploadedSearchModelResult = { ok: true, model: {} };
   globalThis.__uploadedSearchRateLimitResult = { ok: false, retryAfterSeconds: 17 };
+  modelCalls = [];
+  atlasCalls = [];
+  globalThis.__uploadedSearchModelCalls = modelCalls;
+  globalThis.__uploadedSearchAtlasCalls = atlasCalls;
   response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
   assert.equal(response.status, 429);
   assert.equal(response.body.error, 'Too many searches. Please try again later.');
+  assert.deepEqual(modelCalls, []);
+  assert.deepEqual(atlasCalls, []);
 
   const helperSource = await readFile(helperUrl, 'utf8');
   assert.match(helperSource, /options: \{ requestId\?: string \}/);

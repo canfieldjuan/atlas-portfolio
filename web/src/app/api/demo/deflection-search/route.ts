@@ -34,6 +34,12 @@ const UPLOADED_SEARCH_RATE_LIMIT = {
   limit: 20,
   windowMs: 60 * 1000,
 } satisfies DeflectionRateLimitConfig;
+const UPLOADED_SEARCH_CLIENT_RATE_LIMIT = {
+  scope: 'deflection-uploaded-search-client',
+  limit: 40,
+  windowMs: 60 * 1000,
+} satisfies DeflectionRateLimitConfig;
+const UPLOADED_SEARCH_CLIENT_BUCKET = 'all';
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
 function uploadedSearchFailureResponse(reason: string) {
@@ -100,6 +106,13 @@ export async function POST(request: NextRequest) {
     if (!REQUEST_ID_RE.test(requestId)) {
       return NextResponse.json({ match: null, source: 'atlas', error: 'Invalid request.' }, { status: 400 });
     }
+    const clientRateLimit = consumeDeflectionRateLimit(
+      request.headers,
+      UPLOADED_SEARCH_CLIENT_BUCKET,
+      UPLOADED_SEARCH_CLIENT_RATE_LIMIT,
+    );
+    if (!clientRateLimit.ok) return rateLimitResponse(clientRateLimit.retryAfterSeconds);
+
     const rateLimit = consumeDeflectionRateLimit(
       request.headers,
       requestId,

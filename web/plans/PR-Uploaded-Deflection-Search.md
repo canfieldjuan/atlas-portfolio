@@ -21,9 +21,9 @@ Slice phase: Vertical slice
    uploaded-report search, while no `requestId` keeps the local demo behavior.
 3. Make the demo search component configurable and mount it on the unlocked
    report-model page with chips from that report.
-4. Keep uploaded customer searches out of URLs by using a POST body, rate-limit
-   the uploaded proxy, and require the report to be unlocked before returning
-   full `TicketFAQItem` data.
+4. Keep uploaded customer searches out of browser URLs by using a POST body,
+   rate-limit the uploaded proxy with both IP-wide and per-report buckets, and
+   require the report to be unlocked before returning full `TicketFAQItem` data.
 5. Add focused tests for local mode, uploaded mode, no-match, locked reports,
    rate limiting, upstream failure, query capping, and test enrollment.
 
@@ -46,10 +46,10 @@ The same-origin route keeps `GET /api/demo/deflection-search?q=...` for the
 public sample demo only. Uploaded report search uses `POST
 /api/demo/deflection-search` with `{ requestId, q }`, so customer phrases from a
 ticket export are not placed in browser history or URL logs. Before proxying to
-Atlas, the route rate-limits by client/request id and verifies the report is
-unlocked by probing the paid report model/artifact path. Only then does it call
-Atlas with the server-only `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN`
-credentials:
+Atlas, the route first applies an IP-wide client bucket, then a per-report
+bucket, then verifies the report is unlocked by probing the paid report
+model/artifact path. Only then does it call Atlas with the server-only
+`ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN` credentials:
 
 `GET /api/v1/content-ops/deflection-reports/{request_id}/search?q=<query>&limit=5`
 
@@ -77,6 +77,9 @@ The portfolio does not adapt compact search rows into fake report items.
 
 - Atlas may still need the matching endpoint/indexing slice if
   `/deflection-reports/{request_id}/search` is not deployed yet.
+- The server-to-Atlas search leg still follows the not-yet-built Atlas contract
+  as a URL query; moving that leg to POST belongs with the Atlas companion
+  endpoint.
 - No changes to checkout, artifact unlock, or Snapshot generation.
 - No landing-page copy changes beyond reused configurable demo labels.
 
@@ -97,11 +100,11 @@ Parked hardening: none.
 |---|---:|
 | Plan doc | ~105 |
 | Atlas search client + parser | ~130 |
-| API route/helper wiring | ~95 |
+| API route/helper wiring | ~105 |
 | Demo component configurability | ~65 |
 | Unlocked report-page mount | ~45 |
-| Test + enrollment | ~205 |
-| Total | ~600 |
+| Test + enrollment | ~215 |
+| Total | ~620 |
 
 This is over the 400-LOC soft cap because the vertical slice needs route,
 server-only Atlas validation, reusable UI, and enrolled tests together. Splitting
