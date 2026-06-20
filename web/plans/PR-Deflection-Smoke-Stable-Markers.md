@@ -64,19 +64,22 @@ Parked hardening: none
 2. `npm --prefix web run test:deflection-public-reachability-smoke` - passed;
    verified the
    public reachability smoke uses stable markers and still catches missing
-   landing/intake structure.
+   landing/intake structure, including an exact-token boundary regression case.
 3. `rg -n "data-smoke|REQUIRED_MARKERS|LANDING_MARKERS|INTAKE_MARKERS|Ticket Resolution Report|Get your ticket resolution report" web/src web/scripts web/plans/PR-Deflection-Smoke-Stable-Markers.md` - passed; confirmed marker keys and intentional copy assertions are scoped to this slice.
 4. `npm --prefix web run lint` - passed with no eslint errors.
 5. `npm --prefix web run build` - passed; Next compiled successfully.
-6. `bash scripts/local_pr_review.sh` - passed; plan audits, drift advisory,
-   dead-code baseline, eslint, Next build, and whitespace all passed.
+6. Review fix: replaced punctuation-sensitive word-boundary smoke matching with
+   whitespace-token membership in both smoke scripts.
+7. `bash scripts/local_pr_review.sh` - passed after the review-fix commit;
+   plan audits, drift advisory, dead-code baseline, eslint, Next build, and
+   whitespace all passed.
 
 ## Estimated diff size
 
 | Section | Size |
 |---|---|
-| Plan doc | ~84 |
+| Plan doc | ~88 |
 | Runtime smoke markers | ~51 |
-| Smoke script marker helpers | ~77 |
-| Smoke unit fixtures/failures | ~48 |
-| Total | ~260 |
+| Smoke script marker helpers | ~89 |
+| Smoke unit fixtures/failures | ~59 |
+| Total | ~287 |

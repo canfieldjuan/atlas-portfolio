@@ -49,11 +49,13 @@ function normalizeBaseUrl(value) {
 function markerMap(markers) {
   return Object.fromEntries(markers.map((key) => [key, true]));
 }
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 function hasSmokeMarker(html, key) {
-  return new RegExp(`\\bdata-smoke=(["'])[^"']*\\b${escapeRegExp(key)}\\b[^"']*\\1`).test(html);
+  const markerAttributePattern = /\bdata-smoke=(["'])([^"']*)\1/g;
+  let match;
+  while ((match = markerAttributePattern.exec(html)) !== null) {
+    if (match[2].split(/\s+/).includes(key)) return true;
+  }
+  return false;
 }
 function htmlWithoutNonRenderedBlocks(html) {
   return String(html || '')

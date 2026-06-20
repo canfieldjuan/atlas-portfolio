@@ -109,6 +109,18 @@ const cases = [
     calls: 1,
   },
   {
+    name: 'landing marker requires exact token',
+    responses: routes({
+      landing: {
+        body: GOOD_LANDING.replace('data-smoke="pricing"', 'data-smoke="x-pricing"'),
+      },
+    }),
+    stage: 'landing',
+    error: 'Deflection public landing page is missing required render markers.',
+    missing: ['pricing'],
+    calls: 1,
+  },
+  {
     name: 'landing marker missing with dormant not-found payload',
     responses: routes({
       landing: {
