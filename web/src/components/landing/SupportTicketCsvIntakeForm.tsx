@@ -469,7 +469,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 md:items-start">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
               Your name <span className="text-primary">*</span>
@@ -514,7 +514,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 md:items-start">
           <div>
             <label htmlFor="companyName" className="block text-sm font-medium text-foreground mb-1.5">
               Company name <span className="text-primary">*</span>
