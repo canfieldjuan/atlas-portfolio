@@ -556,9 +556,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
                 }}
                 className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/60 disabled:opacity-50"
                 aria-invalid={Boolean(errors.supportPlatform)}
-                aria-describedby={
-                  errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
-                }
+                aria-describedby={errors.supportPlatform ? 'supportPlatform-error' : undefined}
               >
                 <option value="">Select your support platform</option>
                 {SUPPORT_PLATFORM_OPTIONS.map((opt) => (
@@ -572,9 +570,6 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
                   {errors.supportPlatform}
                 </p>
               )}
-              <p id="supportPlatform-hint" className="mt-2 text-xs text-foreground/50">
-                This keeps the report path compatible with your export format.
-              </p>
             </div>
           </div>
 
@@ -617,6 +612,10 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
               {copy.submitLabel}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
+            <p className="mt-3 flex items-center justify-center gap-2 text-center font-mono text-[11px] uppercase tracking-[0.16em] text-primary/85">
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+              Deterministic pipeline - private uploads - no generative AI
+            </p>
           </div>
         </form>
       </div>
