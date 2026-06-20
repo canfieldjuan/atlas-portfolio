@@ -363,15 +363,15 @@ export function DeflectionSnapshotLandingPage() {
 
   return (
     <main className="deflection-landing min-h-screen px-6 pb-20 pt-12 md:pt-16">
-      <section className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,0.82fr)_minmax(27rem,1fr)] md:items-start lg:gap-12">
-        <div className="md:pt-10">
+      <section className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[minmax(0,1.05fr)_minmax(26rem,0.9fr)] md:items-start lg:grid-cols-[minmax(0,1.18fr)_minmax(28rem,0.9fr)] lg:gap-14">
+        <div className="md:pt-8 lg:pt-10">
           <Eyebrow smoke="snapshotBadge">
             <Upload className="h-3.5 w-3.5" />
             Ticket Resolution Report
           </Eyebrow>
           <h1
             data-smoke="promiseHeadline"
-            className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl"
+            className="max-w-4xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl lg:text-7xl"
           >
             Deflect tickets by actually resolving them.
           </h1>
