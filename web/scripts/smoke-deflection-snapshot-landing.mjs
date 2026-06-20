@@ -16,6 +16,7 @@ const REQUIRED_MARKERS = [
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
+  'blindSpots',
   'snapshotFirst',
   'finalSnapshotAsk',
   'ctaLabel',
