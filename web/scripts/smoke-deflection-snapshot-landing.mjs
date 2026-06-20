@@ -12,6 +12,7 @@ const REQUIRED_MARKERS = [
   'supportPlatformField',
   'resolutionReportCta',
   'submitSecurityLine',
+  'deterministicBadge',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
