@@ -12,6 +12,7 @@ const MARKER_KEYS = [
   'supportPlatformField',
   'resolutionReportCta',
   'submitSecurityLine',
+  'deterministicBadge',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
@@ -28,6 +29,7 @@ const GOOD_HTML = [
   '<select data-smoke="supportPlatformField"></select>',
   '<button data-smoke="resolutionReportCta submitCta">Any submit</button>',
   '<p data-smoke="submitSecurityLine">Any submit reassurance</p>',
+  '<p data-smoke="deterministicBadge">Any trust badge</p>',
   '</section>',
   '<section data-smoke="supportTaxProjection assistedContactCost valueAnchor">Any value band</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
@@ -109,6 +111,10 @@ assert.ok(
 assert.ok(
   intakeFormSource.includes('data-smoke="submitSecurityLine"'),
   'Snapshot submit security line should keep a stable smoke marker.',
+);
+assert.ok(
+  intakeFormSource.includes('data-smoke="deterministicBadge"'),
+  'Snapshot intake trust panel should keep the deterministic badge smoke marker.',
 );
 assert.ok(
   snapshotLandingSource.includes('data-smoke="heroProofStrip"'),
