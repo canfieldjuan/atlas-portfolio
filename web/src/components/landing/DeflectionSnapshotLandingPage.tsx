@@ -114,6 +114,66 @@ function Eyebrow({ children, smoke }: { children: ReactNode; smoke?: string }) {
   );
 }
 
+function HeroProofStrip({
+  snapshot,
+  assistedContactCost,
+}: {
+  snapshot: DeflectionSnapshot;
+  assistedContactCost: number;
+}) {
+  const costProof = snapshotCostProof(snapshot, assistedContactCost);
+  const metrics = [
+    {
+      icon: <Search className="h-4 w-4" />,
+      label: 'Repeat-ticket hits',
+      value: formatInteger(costProof.repeatTicketCount),
+      detail: `${formatInteger(snapshot.summary.generated)} ranked groups`,
+    },
+    {
+      icon: <FileText className="h-4 w-4" />,
+      label: 'Support Tax estimate',
+      value: formatDeflectionWholeUsd(costProof.uploadedWindowCost),
+      detail: `${formatAssistedContactCost(assistedContactCost)} per assisted contact`,
+    },
+    {
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      label: 'Included draft',
+      value: snapshot.teaser.full_answer ? '1' : '0',
+      detail: snapshot.teaser.full_answer
+        ? `${formatInteger(snapshot.teaser.full_answer.source_count)} source tickets`
+        : 'No scoped draft in this sample',
+    },
+  ];
+
+  return (
+    <div
+      data-smoke="heroProofStrip"
+      aria-label="Example Snapshot metrics"
+      className="mt-7 grid max-w-3xl gap-3 sm:grid-cols-3"
+    >
+      {metrics.map((metric) => (
+        <div
+          key={metric.label}
+          className="rounded-md border border-border bg-surface/78 px-4 py-3 shadow-sm"
+        >
+          <div className="flex items-center gap-2 text-primary">
+            {metric.icon}
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
+              {metric.label}
+            </span>
+          </div>
+          <div className="mt-3 font-mono text-2xl leading-none text-foreground">
+            {metric.value}
+          </div>
+          <p className="mt-1 text-xs leading-snug text-foreground/55">
+            {metric.detail}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CostProofBand({
   snapshot,
   assistedContactCost,
@@ -380,6 +440,10 @@ export function DeflectionSnapshotLandingPage() {
             issues repeat, the exact wording customers use, what those repeats cost to
             answer, and one sourced draft your team can review.
           </p>
+          <HeroProofStrip
+            snapshot={DEMO_DEFLECTION_SNAPSHOT}
+            assistedContactCost={assistedContactCost}
+          />
         </div>
 
         <div className="md:w-full md:max-w-[34rem] md:justify-self-end">
