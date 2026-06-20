@@ -119,7 +119,9 @@ async function getResultsAnalyticsContext(
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const modelResult = await getReportModel(requestId);
-  if (modelResult.ok) return <DeflectionReportModelPage model={modelResult.model} />;
+  if (modelResult.ok) {
+    return <DeflectionReportModelPage model={modelResult.model} requestId={requestId} />;
+  }
 
   const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
   if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;

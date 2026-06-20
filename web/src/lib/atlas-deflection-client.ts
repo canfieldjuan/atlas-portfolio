@@ -15,6 +15,7 @@ import {
   type DeflectionReportSection,
   type DeflectionStructuredReport,
   type FAQDeflectionReportArtifact,
+  type TicketFAQItem,
 } from '@/lib/deflection-report-contract';
 import { get } from '@vercel/blob';
 import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@/lib/gap-report-intake';
@@ -368,6 +369,10 @@ export type DeflectionSubmitResult =
       reason: 'not_configured' | 'blob_not_found' | 'invalid_response' | 'rejected' | 'error';
     };
 
+export type UploadedDeflectionSearchResult =
+  | { ok: true; item: TicketFAQItem | null }
+  | { ok: false; reason: 'not_configured' | 'not_found' | 'invalid_response' | 'error' };
+
 export type DeflectionSubmitInput = {
   csvBlobUrl: string;
   csvFilename: string;
@@ -377,6 +382,7 @@ export type DeflectionSubmitInput = {
 };
 
 const DEFLECTION_SUBMIT_PATH = '/api/v1/content-ops/deflection-reports/submit';
+const DEFLECTION_REPORT_SEARCH_LIMIT = 5;
 const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
   zendesk: 'zendesk',
   intercom: 'intercom',
@@ -389,6 +395,10 @@ function deflectionCheckoutAuthorizationPath(requestId: string): string {
   return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/checkout-authorization`;
 }
 
+function deflectionReportSearchPath(requestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/search`;
+}
+
 function safeCsvFilename(filename: string) {
   const safe = filename.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120) || 'support-tickets.csv';
   return safe.toLowerCase().endsWith('.csv') ? safe : `${safe}.csv`;
@@ -398,6 +408,20 @@ function parseSubmitRequestId(v: unknown): string | null {
   if (typeof v !== 'object' || v === null) return null;
   const requestId = (v as Record<string, unknown>).request_id;
   return typeof requestId === 'string' && REQUEST_ID_RE.test(requestId) ? requestId : null;
+}
+
+function parseSearchResultItem(value: unknown): TicketFAQItem | null {
+  if (isRenderableItem(value)) return value as TicketFAQItem;
+  if (!isPlainRecord(value)) return null;
+  const nested = value.item ?? value.faq_item;
+  return isRenderableItem(nested) ? (nested as TicketFAQItem) : null;
+}
+
+function parseUploadedDeflectionSearchResponse(value: unknown): TicketFAQItem | null | undefined {
+  if (!isPlainRecord(value) || !Array.isArray(value.results)) return undefined;
+  if (value.results.length === 0) return null;
+  const item = parseSearchResultItem(value.results[0]);
+  return item ?? undefined;
 }
 
 async function getPrivateCsvBlob(url: string) {
@@ -473,6 +497,55 @@ export async function submitDeflectionReportCsv(
     return { ok: true, requestId };
   } catch (err) {
     console.error('deflection submit error:', err instanceof Error ? err.message : err);
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function searchUploadedDeflectionReport(input: {
+  requestId: string;
+  query: string;
+}): Promise<UploadedDeflectionSearchResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+  if (!REQUEST_ID_RE.test(input.requestId)) return { ok: false, reason: 'not_found' };
+  const query = input.query.trim();
+  if (!query) return { ok: true, item: null };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${deflectionReportSearchPath(input.requestId)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        q: query,
+        limit: DEFLECTION_REPORT_SEARCH_LIMIT,
+      }),
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 404) return { ok: false, reason: 'not_found' };
+    if (!res.ok) {
+      console.error(`deflection uploaded search failed: HTTP ${res.status}`);
+      return { ok: false, reason: 'error' };
+    }
+    const item = parseUploadedDeflectionSearchResponse(await res.json());
+    if (item === undefined) {
+      console.error('deflection uploaded search: upstream shape rejected');
+      return { ok: false, reason: 'invalid_response' };
+    }
+    return { ok: true, item };
+  } catch (err) {
+    console.error(
+      'deflection uploaded search error:',
+      err instanceof Error ? err.message : err,
+    );
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

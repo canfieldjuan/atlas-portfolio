@@ -117,6 +117,9 @@ jobs:
       - name: Deflection results state tests
         run: npm --prefix web run test:deflection-results-state
 
+      - name: Deflection uploaded search tests
+        run: npm --prefix web run test:deflection-uploaded-search
+
       - name: Deflection Snapshot landing smoke tests
         run: npm --prefix web run test:deflection-snapshot-landing-smoke
 
