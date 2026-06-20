@@ -375,7 +375,7 @@ export function DeflectionSnapshotLandingPage() {
           >
             Deflect tickets by actually resolving them.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68 lg:mt-6 lg:max-w-3xl lg:text-xl lg:leading-relaxed">
             Upload 30 days of closed tickets. The free Resolution Report shows which
             issues repeat, the exact wording customers use, what those repeats cost to
             answer, and one sourced draft your team can review.
