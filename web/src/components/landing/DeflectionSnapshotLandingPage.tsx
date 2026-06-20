@@ -316,7 +316,7 @@ function SnapshotArtifact({
       />
 
       {top_blind_spots.length > 0 && (
-        <div className="mt-6 rounded-md border border-amber-500/20 bg-amber-500/[0.04] p-4">
+        <div data-smoke="blindSpots" className="mt-6 rounded-md border border-amber-500/20 bg-amber-500/[0.04] p-4">
           <div className="mb-3">
             <p className="font-mono text-xs text-amber-700/80">
               NO-PROVEN-ANSWER GAPS

@@ -16,6 +16,7 @@ const MARKER_KEYS = [
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
+  'blindSpots',
   'snapshotFirst',
   'finalSnapshotAsk',
   'ctaLabel',
@@ -32,6 +33,7 @@ const GOOD_HTML = [
   '<p data-smoke="deterministicBadge">Any trust badge</p>',
   '</section>',
   '<section data-smoke="supportTaxProjection assistedContactCost valueAnchor">Any value band</section>',
+  '<section data-smoke="blindSpots">Any blind spots section</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
   '<a data-smoke="ctaLabel" href="/systems/support-ticket-deflection/intake">Any CTA</a>',
   '</main>',
@@ -119,6 +121,10 @@ assert.ok(
 assert.ok(
   snapshotLandingSource.includes('data-smoke="heroProofStrip"'),
   'Snapshot hero proof strip should keep a stable smoke marker.',
+);
+assert.ok(
+  snapshotLandingSource.includes('data-smoke="blindSpots"'),
+  'Snapshot landing blind-spots section should keep a stable smoke marker.',
 );
 assert.ok(
   snapshotLandingSource.includes('over ${costProof.sourceWindowDays} days'),
