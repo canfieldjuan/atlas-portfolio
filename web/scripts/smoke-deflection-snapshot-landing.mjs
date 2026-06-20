@@ -11,6 +11,7 @@ const REQUIRED_MARKERS = [
   'inlineForm',
   'supportPlatformField',
   'resolutionReportCta',
+  'submitSecurityLine',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',

@@ -11,6 +11,7 @@ const MARKER_KEYS = [
   'inlineForm',
   'supportPlatformField',
   'resolutionReportCta',
+  'submitSecurityLine',
   'supportTaxProjection',
   'assistedContactCost',
   'valueAnchor',
@@ -26,6 +27,7 @@ const GOOD_HTML = [
   '<section data-smoke="inlineForm uploadEyebrow">',
   '<select data-smoke="supportPlatformField"></select>',
   '<button data-smoke="resolutionReportCta submitCta">Any submit</button>',
+  '<p data-smoke="submitSecurityLine">Any submit reassurance</p>',
   '</section>',
   '<section data-smoke="supportTaxProjection assistedContactCost valueAnchor">Any value band</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
@@ -85,6 +87,7 @@ function assertResultFields(result, expected, name) {
 
 const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
+const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
 
 assert.ok(
   snapshotLandingSource.includes('Top Proven Resolutions'),
@@ -102,6 +105,10 @@ assert.equal(
 assert.ok(
   snapshotLandingSource.includes('Get my free Resolution Report'),
   'Snapshot hero form should use the Resolution Report submit label.',
+);
+assert.ok(
+  intakeFormSource.includes('data-smoke="submitSecurityLine"'),
+  'Snapshot submit security line should keep a stable smoke marker.',
 );
 assert.ok(
   snapshotLandingSource.includes('data-smoke="heroProofStrip"'),
