@@ -436,8 +436,18 @@ export async function searchDeflection(
   const q = query.trim();
   if (!q) return { match: null, source: 'local' };
 
+  if (options.requestId) {
+    const res = await fetch('/api/demo/deflection-search', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId: options.requestId, q }),
+    });
+    if (!res.ok) throw new Error(`deflection search failed: ${res.status}`);
+
+    return (await res.json()) as DeflectionSearchResponse;
+  }
+
   const params = new URLSearchParams({ q });
-  if (options.requestId) params.set('requestId', options.requestId);
   const res = await fetch(`/api/demo/deflection-search?${params}`, {
     headers: { Accept: 'application/json' },
   });

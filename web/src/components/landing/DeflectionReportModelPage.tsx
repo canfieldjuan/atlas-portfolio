@@ -1,5 +1,6 @@
 import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
+import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 
 const RANKED_ROW_LIMIT = 25;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
@@ -45,6 +46,14 @@ function sortedWebSections(model: DeflectionStructuredReport): DeflectionReportS
 
 function sectionById(model: DeflectionStructuredReport, id: string): DeflectionReportSection | undefined {
   return sortedWebSections(model).find((section) => section.id === id);
+}
+
+function uploadedSearchChips(model: DeflectionStructuredReport): string[] {
+  const rankedQuestions = rows(asRecord(sectionById(model, 'ranked_questions')?.data).rows)
+    .map((row) => text(row.question))
+    .filter(Boolean);
+  const seoTargets = texts(asRecord(sectionById(model, 'seo_targets')?.data).phrases);
+  return Array.from(new Set([...rankedQuestions, ...seoTargets])).slice(0, 6);
 }
 
 function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
@@ -237,13 +246,16 @@ function QuestionDetails({ section }: { section?: DeflectionReportSection }) {
 
 export function DeflectionReportModelPage({
   model,
+  requestId,
   companyName,
 }: {
   model: DeflectionStructuredReport;
+  requestId: string;
   companyName?: string;
 }) {
   const sections = sortedWebSections(model);
   const supportTax = sectionById(model, 'support_tax');
+  const searchChips = uploadedSearchChips(model);
 
   return (
     <main className="min-h-screen px-6 pb-20 pt-16">
@@ -264,6 +276,27 @@ export function DeflectionReportModelPage({
 
         <div className="space-y-8">
           <SupportTaxSummary section={supportTax} />
+          {searchChips.length > 0 && (
+            <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
+              <h2 className="text-xl font-semibold text-foreground">
+                Search the FAQ drafts built from this CSV
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/60">
+                Try one of your ranked questions or search another customer phrase from
+                the same uploaded report.
+              </p>
+              <DeflectionDemo
+                requestId={requestId}
+                chips={searchChips}
+                className="mt-5"
+                label="Search this unlocked report"
+                idleCopy="Pick a question from your report or search another customer phrase from the uploaded CSV."
+                searchingCopy="Searching the uploaded report..."
+                noMatchCopy="No close match was found in this uploaded report."
+                errorCopy="Uploaded report search is temporarily unavailable. Try again in a moment."
+              />
+            </section>
+          )}
           {sections.map((section) => {
             if (section.id === 'support_tax') return null;
             if (section.id === 'source_file') {

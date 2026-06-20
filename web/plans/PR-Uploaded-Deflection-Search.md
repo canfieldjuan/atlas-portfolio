@@ -19,10 +19,13 @@ Slice phase: Vertical slice
    `/api/v1/content-ops/deflection-reports/{request_id}/search`.
 2. Extend the existing same-origin demo search route so `requestId` means
    uploaded-report search, while no `requestId` keeps the local demo behavior.
-3. Make the demo search component configurable and mount it on the Snapshot
-   results page with chips from the uploaded Snapshot's top questions.
-4. Add focused tests for local mode, uploaded mode, no-match, upstream failure,
-   query capping, and test enrollment.
+3. Make the demo search component configurable and mount it on the unlocked
+   report-model page with chips from that report.
+4. Keep uploaded customer searches out of URLs by using a POST body, rate-limit
+   the uploaded proxy, and require the report to be unlocked before returning
+   full `TicketFAQItem` data.
+5. Add focused tests for local mode, uploaded mode, no-match, locked reports,
+   rate limiting, upstream failure, query capping, and test enrollment.
 
 ### Files touched
 
@@ -30,26 +33,30 @@ Slice phase: Vertical slice
 - `web/src/lib/atlas-deflection-client.ts` — request-scoped uploaded report search client and shape validation.
 - `web/src/app/api/demo/deflection-search/route.ts` — route switch between local demo search and uploaded report search.
 - `web/src/lib/deflection-demo.ts` — optional request id in the client-side search helper.
-- `web/src/components/deflection-demo/DeflectionDemo.tsx` — configurable copy/chips/search scope for reused results-page workbench.
-- `web/src/components/landing/DeflectionResultsPage.tsx` — uploaded-report search panel on the Snapshot results page.
+- `web/src/components/deflection-demo/DeflectionDemo.tsx` — configurable copy/chips/search scope for reused report workbench.
+- `web/src/components/landing/DeflectionReportModelPage.tsx` — uploaded-report search panel on the unlocked report page.
+- `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` — pass `requestId` into the unlocked report page.
 - `web/scripts/test-deflection-uploaded-search.mjs` — focused route/client/source test.
 - `web/package.json` — test script registration.
 - `.github/workflows/pre_push_audit.yml` — CI enrollment for the new test.
 
 ## Mechanism
 
-The same-origin route remains `GET /api/demo/deflection-search?q=...`. When no
-`requestId` query param is supplied, it returns the current local
-`matchLocal(q)` response with `source: 'local'`. When `requestId` is supplied, it
-calls Atlas with the server-only `ATLAS_API_BASE_URL` and
-`ATLAS_B2B_SERVICE_TOKEN` credentials:
+The same-origin route keeps `GET /api/demo/deflection-search?q=...` for the
+public sample demo only. Uploaded report search uses `POST
+/api/demo/deflection-search` with `{ requestId, q }`, so customer phrases from a
+ticket export are not placed in browser history or URL logs. Before proxying to
+Atlas, the route rate-limits by client/request id and verifies the report is
+unlocked by probing the paid report model/artifact path. Only then does it call
+Atlas with the server-only `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN`
+credentials:
 
 `GET /api/v1/content-ops/deflection-reports/{request_id}/search?q=<query>&limit=5`
 
-The uploaded path never falls back to the local sample dataset. Empty Atlas
-results return `{ match: null, source: 'atlas' }`; upstream/config/shape failures
-return a generic non-OK response so the client renders a retryable unavailable
-state.
+The uploaded path never falls back to the local sample dataset. Locked reports
+return a generic 403, rate-limited calls return 429, empty Atlas results return
+`{ match: null, source: 'atlas' }`, and upstream/config/shape failures return a
+generic non-OK response so the client renders a retryable unavailable state.
 
 The Atlas response parser accepts an envelope with `results[]`. A non-empty
 result must contain a valid `TicketFAQItem` directly or under `item`/`faq_item`.
@@ -57,22 +64,20 @@ The portfolio does not adapt compact search rows into fake report items.
 
 ## Intentional
 
-- The public landing/demo search stays sample-backed until the visitor uploads a
-  CSV.
+- The public landing/demo search stays sample-backed until the visitor unlocks a
+  report.
 - Uploaded-report search has no local fallback because mixing sample answers
   into a real uploaded report would be misleading.
 - The new route assumes an Atlas request-scoped search endpoint. If Atlas returns
   only compact rows, the parser rejects the shape instead of fabricating fields.
-- The Snapshot remains bounded; this adds an interactive search affordance scoped
-  to Atlas-approved uploaded search output, not a hidden bypass around paid full
-  report gates.
+- The free Snapshot remains bounded. Full answer/evidence search is mounted only
+  on the unlocked report-model page, not on the free Snapshot page.
 
 ## Deferred
 
 - Atlas may still need the matching endpoint/indexing slice if
   `/deflection-reports/{request_id}/search` is not deployed yet.
-- No changes to checkout, report-model rendering, artifact unlock, or Snapshot
-  generation.
+- No changes to checkout, artifact unlock, or Snapshot generation.
 - No landing-page copy changes beyond reused configurable demo labels.
 
 Parked hardening: none.
@@ -90,13 +95,13 @@ Parked hardening: none.
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~90 |
+| Plan doc | ~105 |
 | Atlas search client + parser | ~130 |
-| API route/helper wiring | ~45 |
+| API route/helper wiring | ~95 |
 | Demo component configurability | ~65 |
-| Results-page mount | ~25 |
-| Test + enrollment | ~157 |
-| Total | ~475 |
+| Unlocked report-page mount | ~45 |
+| Test + enrollment | ~205 |
+| Total | ~600 |
 
 This is over the 400-LOC soft cap because the vertical slice needs route,
 server-only Atlas validation, reusable UI, and enrolled tests together. Splitting

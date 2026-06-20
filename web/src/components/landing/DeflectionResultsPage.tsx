@@ -29,7 +29,6 @@ import {
   DeflectionTeaserPreviewCard,
 } from './DeflectionSnapshotTeaser';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
-import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 
 const FINALIZING_ATTEMPTS = 10;
 const FINALIZING_INTERVAL_MS = 1500;
@@ -91,10 +90,6 @@ export function DeflectionResultsPage({
   const remainingDraftCount = Math.max(
     summary.drafted_answer_count - (fullTeaser ? 1 : 0),
     0,
-  );
-  const uploadedSearchChips = useMemo(
-    () => Array.from(new Set(top_questions.map((question) => question.question))).slice(0, 6),
-    [top_questions],
   );
 
   const [loading, setLoading] = useState(false);
@@ -336,35 +331,6 @@ export function DeflectionResultsPage({
             assistedContactCost={assistedContactCost}
           />
         </section>
-
-        {uploadedSearchChips.length > 0 && (
-          <section className="mb-10" aria-labelledby="uploaded-search-heading">
-            <div className="mb-4 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
-              <Search className="h-3.5 w-3.5" />
-              <span>Search this uploaded report</span>
-            </div>
-            <h2
-              id="uploaded-search-heading"
-              className="text-2xl font-semibold tracking-tight text-foreground"
-            >
-              Search the FAQ drafts built from this CSV.
-            </h2>
-            <p className="mt-3 mb-5 text-sm leading-relaxed text-foreground/65">
-              Try one of your ranked questions or search another customer phrase from
-              the same upload. These results come from the uploaded report, not the
-              public sample dataset.
-            </p>
-            <DeflectionDemo
-              requestId={requestId}
-              chips={uploadedSearchChips}
-              label="Search this uploaded ticket report"
-              idleCopy="Pick a question from your Snapshot or search another customer phrase from the uploaded CSV."
-              searchingCopy="Searching the uploaded report..."
-              noMatchCopy="No close match was found in this uploaded report."
-              errorCopy="Uploaded report search is temporarily unavailable. Try again in a moment."
-            />
-          </section>
-        )}
 
         {locked_questions.length > 0 && (
           <section className="mb-10" aria-labelledby="locked-question-heading">

@@ -18,10 +18,25 @@ const localMatch = { topic: 'local sample' };
 const atlasMatch = { topic: 'uploaded report' };
 let localCalls = [];
 let atlasCalls = [];
+let modelCalls = [];
+let artifactCalls = [];
+let rateLimitCalls = [];
 let atlasResult = { ok: true, item: atlasMatch };
+let modelResult = { ok: true, model: {} };
+let artifactResult = { ok: false, reason: 'not_found' };
+let rateLimitResult = { ok: true };
 
 function makeRequest(url) {
   return { nextUrl: new URL(url) };
+}
+
+function makePostRequest(body) {
+  return {
+    headers: new Headers({ 'x-forwarded-for': '203.0.113.10' }),
+    async json() {
+      return body;
+    },
+  };
 }
 
 try {
@@ -53,6 +68,24 @@ try {
       '  globalThis.__uploadedSearchAtlasCalls.push(input);',
       '  return globalThis.__uploadedSearchAtlasResult;',
       '};',
+      'exports.fetchDeflectionReportModel = async (requestId) => {',
+      '  globalThis.__uploadedSearchModelCalls.push(requestId);',
+      '  return globalThis.__uploadedSearchModelResult;',
+      '};',
+      'exports.fetchDeflectionArtifact = async (requestId) => {',
+      '  globalThis.__uploadedSearchArtifactCalls.push(requestId);',
+      '  return globalThis.__uploadedSearchArtifactResult;',
+      '};',
+      '',
+    ].join('\n'),
+  );
+  await writeFile(
+    join(libStubDir, 'deflection-rate-limit.js'),
+    [
+      'exports.consumeDeflectionRateLimit = (headers, requestId, config) => {',
+      '  globalThis.__uploadedSearchRateLimitCalls.push({ headers, requestId, config });',
+      '  return globalThis.__uploadedSearchRateLimitResult;',
+      '};',
       '',
     ].join('\n'),
   );
@@ -60,7 +93,13 @@ try {
   globalThis.__uploadedSearchLocalMatch = localMatch;
   globalThis.__uploadedSearchLocalCalls = localCalls;
   globalThis.__uploadedSearchAtlasCalls = atlasCalls;
+  globalThis.__uploadedSearchModelCalls = modelCalls;
+  globalThis.__uploadedSearchArtifactCalls = artifactCalls;
+  globalThis.__uploadedSearchRateLimitCalls = rateLimitCalls;
   globalThis.__uploadedSearchAtlasResult = atlasResult;
+  globalThis.__uploadedSearchModelResult = modelResult;
+  globalThis.__uploadedSearchArtifactResult = artifactResult;
+  globalThis.__uploadedSearchRateLimitResult = rateLimitResult;
 
   const source = await readFile(routeUrl, 'utf8');
   const compiled = ts.transpileModule(source, {
@@ -73,7 +112,7 @@ try {
   await writeFile(routeCompiledPath, compiled.outputText);
 
   const require = createRequire(routeCompiledPath);
-  const { GET } = require(routeCompiledPath);
+  const { GET, POST } = require(routeCompiledPath);
 
   localCalls = [];
   atlasCalls = [];
@@ -87,17 +126,22 @@ try {
 
   localCalls = [];
   atlasCalls = [];
+  modelCalls = [];
+  artifactCalls = [];
+  rateLimitCalls = [];
   globalThis.__uploadedSearchLocalCalls = localCalls;
   globalThis.__uploadedSearchAtlasCalls = atlasCalls;
+  globalThis.__uploadedSearchModelCalls = modelCalls;
+  globalThis.__uploadedSearchArtifactCalls = artifactCalls;
+  globalThis.__uploadedSearchRateLimitCalls = rateLimitCalls;
   const longQuery = `${'x'.repeat(300)}   `;
-  response = await GET(
-    makeRequest(
-      `https://portfolio.test/api/demo/deflection-search?requestId=content-ops-unit&q=${longQuery}`,
-    ),
-  );
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: longQuery }));
   assert.equal(response.status, 200);
   assert.deepEqual(response.body, { match: atlasMatch, source: 'atlas' });
   assert.deepEqual(localCalls, []);
+  assert.deepEqual(modelCalls, ['content-ops-unit']);
+  assert.deepEqual(artifactCalls, []);
+  assert.equal(rateLimitCalls.length, 1);
   assert.equal(atlasCalls.length, 1);
   assert.equal(atlasCalls[0].requestId, 'content-ops-unit');
   assert.equal(atlasCalls[0].query.length, 256);
@@ -105,17 +149,13 @@ try {
   atlasCalls = [];
   globalThis.__uploadedSearchAtlasCalls = atlasCalls;
   globalThis.__uploadedSearchAtlasResult = { ok: true, item: null };
-  response = await GET(
-    makeRequest('https://portfolio.test/api/demo/deflection-search?requestId=content-ops-unit&q=missing'),
-  );
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'missing' }));
   assert.equal(response.status, 200);
   assert.deepEqual(response.body, { match: null, source: 'atlas' });
   assert.deepEqual(localCalls, []);
 
   globalThis.__uploadedSearchAtlasResult = { ok: false, reason: 'error' };
-  response = await GET(
-    makeRequest('https://portfolio.test/api/demo/deflection-search?requestId=content-ops-unit&q=export'),
-  );
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
   assert.equal(response.status, 502);
   assert.equal(response.body.match, null);
   assert.equal(response.body.source, 'atlas');
@@ -125,15 +165,23 @@ try {
   );
   assert.deepEqual(localCalls, []);
 
-  globalThis.__uploadedSearchAtlasResult = { ok: false, reason: 'not_configured' };
-  response = await GET(
-    makeRequest('https://portfolio.test/api/demo/deflection-search?requestId=content-ops-unit&q=export'),
-  );
-  assert.equal(response.status, 503);
+  globalThis.__uploadedSearchModelResult = { ok: false, reason: 'locked' };
+  atlasCalls = [];
+  globalThis.__uploadedSearchAtlasCalls = atlasCalls;
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 403);
+  assert.deepEqual(atlasCalls, []);
+
+  globalThis.__uploadedSearchModelResult = { ok: true, model: {} };
+  globalThis.__uploadedSearchRateLimitResult = { ok: false, retryAfterSeconds: 17 };
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 429);
+  assert.equal(response.body.error, 'Too many searches. Please try again later.');
 
   const helperSource = await readFile(helperUrl, 'utf8');
   assert.match(helperSource, /options: \{ requestId\?: string \}/);
-  assert.match(helperSource, /params\.set\('requestId', options\.requestId\)/);
+  assert.match(helperSource, /method: 'POST'/);
+  assert.match(helperSource, /JSON\.stringify\(\{ requestId: options\.requestId, q \}\)/);
 
   const atlasClientSource = await readFile(atlasClientUrl, 'utf8');
   assert.match(
@@ -145,9 +193,13 @@ try {
   assert.match(atlasClientSource, /value\.item \?\? value\.faq_item/);
 
   const resultsPageSource = await readFile(resultsPageUrl, 'utf8');
-  assert.match(resultsPageSource, /Search this uploaded report/);
-  assert.match(resultsPageSource, /requestId=\{requestId\}/);
-  assert.match(resultsPageSource, /uploadedSearchChips/);
+  assert.doesNotMatch(resultsPageSource, /requestId=\{requestId\}/);
+  const modelPageSource = await readFile(
+    new URL('../src/components/landing/DeflectionReportModelPage.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(modelPageSource, /Search the FAQ drafts built from this CSV/);
+  assert.match(modelPageSource, /requestId=\{requestId\}/);
 } finally {
   await rm(testDir, { recursive: true, force: true });
 }
