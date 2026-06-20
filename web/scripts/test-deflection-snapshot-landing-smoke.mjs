@@ -19,17 +19,15 @@ const MARKER_KEYS = [
 ];
 const GOOD_HTML = [
   '<main>',
-  '<span>Ticket Resolution Report</span>',
-  '<h1>Deflect tickets by actually resolving them.</h1>',
-  '<h2>Get your ticket resolution report and start taking actionable steps to resolve tickets today.</h2>',
-  '<label>Support platform</label>',
-  '<button>Get my free Resolution Report</button>',
-  '<p>Support Tax projection</p>',
-  '<label>Assisted-contact cost</label>',
-  '<p>answering the same repeat questions by hand</p>',
-  '<p>Optional full report</p>',
-  '<p>decide if a full report is valuable to you</p>',
-  '<a href="/systems/support-ticket-deflection/intake">Get my free Deflection Snapshot</a>',
+  '<span data-smoke="snapshotBadge">Any badge</span>',
+  '<h1 data-smoke="promiseHeadline">Any promise</h1>',
+  '<section data-smoke="inlineForm uploadEyebrow">',
+  '<select data-smoke="supportPlatformField"></select>',
+  '<button data-smoke="resolutionReportCta submitCta">Any submit</button>',
+  '</section>',
+  '<section data-smoke="supportTaxProjection assistedContactCost valueAnchor">Any value band</section>',
+  '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
+  '<a data-smoke="ctaLabel" href="/systems/support-ticket-deflection/intake">Any CTA</a>',
   '</main>',
 ].join('');
 
@@ -175,7 +173,7 @@ const failureCases = [
     error: 'Snapshot landing page fetch failed before an HTTP response.',
     apiCalls: true,
   }],
-  ['missing inline form marker', { response: { body: GOOD_HTML.replace('Get your ticket resolution report and start taking actionable steps to resolve tickets today.', '') } }, undefined, {
+  ['missing inline form marker', { response: { body: GOOD_HTML.replace('data-smoke="inlineForm uploadEyebrow"', 'data-smoke="uploadEyebrow"') } }, undefined, {
     ok: false,
     stage: 'render',
     error: 'Snapshot landing page is missing required render markers.',
@@ -183,7 +181,7 @@ const failureCases = [
     forbidden: [],
   }],
   ['missing support platform marker', {
-    response: { body: GOOD_HTML.replace('<label>Support platform</label>', '') },
+    response: { body: GOOD_HTML.replace('data-smoke="supportPlatformField"', '') },
   }, undefined, {
     ok: false,
     stage: 'render',

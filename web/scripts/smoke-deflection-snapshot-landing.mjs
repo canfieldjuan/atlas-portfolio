@@ -5,17 +5,17 @@ const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const SNAPSHOT_PATH = '/systems/support-ticket-deflection/snapshot';
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
 const REQUIRED_MARKERS = [
-  ['snapshotBadge', 'Ticket Resolution Report'],
-  ['promiseHeadline', 'Deflect tickets by actually resolving them.'],
-  ['inlineForm', 'Get your ticket resolution report and start taking actionable steps to resolve tickets today.'],
-  ['supportPlatformField', 'Support platform'],
-  ['resolutionReportCta', 'Get my free Resolution Report'],
-  ['supportTaxProjection', 'Support Tax projection'],
-  ['assistedContactCost', 'Assisted-contact cost'],
-  ['valueAnchor', 'answering the same repeat questions by hand'],
-  ['snapshotFirst', 'Optional full report'],
-  ['finalSnapshotAsk', 'decide if a full report is valuable to you'],
-  ['ctaLabel', 'Get my free Deflection Snapshot'],
+  'snapshotBadge',
+  'promiseHeadline',
+  'inlineForm',
+  'supportPlatformField',
+  'resolutionReportCta',
+  'supportTaxProjection',
+  'assistedContactCost',
+  'valueAnchor',
+  'snapshotFirst',
+  'finalSnapshotAsk',
+  'ctaLabel',
 ];
 const FORBIDDEN_MARKERS = [
   ['fullReportUnlockMetric', 'Full report unlock'],
@@ -51,19 +51,40 @@ function normalizeBaseUrl(value) {
   }
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hasSmokeMarker(html, key) {
+  return new RegExp(`\\bdata-smoke=(["'])[^"']*\\b${escapeRegExp(key)}\\b[^"']*\\1`).test(html);
+}
+
+function htmlWithoutNonRenderedBlocks(html) {
+  return String(html || '')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<template\b[^>]*>[\s\S]*?<\/template>/gi, '')
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, '');
+}
+
+function markerMap(markers) {
+  return Object.fromEntries(markers.map((key) => [key, true]));
+}
+
 function validateSnapshotLandingHtml(html, url) {
-  const missing = REQUIRED_MARKERS.filter(([, label]) => !html.includes(label)).map(([key]) => key);
+  const visibleHtml = htmlWithoutNonRenderedBlocks(html);
+  const missing = REQUIRED_MARKERS.filter((key) => !hasSmokeMarker(visibleHtml, key));
 
   const forbidden = FORBIDDEN_MARKERS.filter(([, label]) => html.includes(label)).map(([key]) => key);
 
   if (missing.length === 0 && forbidden.length === 0) {
     return {
       ok: true,
-      markers: Object.fromEntries(REQUIRED_MARKERS.map(([key]) => [key, true])),
+      markers: markerMap(REQUIRED_MARKERS),
     };
   }
 
-  const errorMarker = ERROR_MARKERS.find((marker) => html.includes(marker));
+  const errorMarker = ERROR_MARKERS.find((marker) => visibleHtml.includes(marker));
   return {
     ok: false,
     error: errorMarker

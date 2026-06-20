@@ -137,7 +137,10 @@ export function DeflectionLandingPage({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-3">
+            <div
+              data-smoke="productEyebrow"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-3"
+            >
               {config.hero.eyebrowIcon}
               <span>{config.hero.eyebrow}</span>
             </div>
@@ -150,7 +153,7 @@ export function DeflectionLandingPage({
             <p className="text-base text-foreground/65 leading-relaxed mb-5">
               {config.hero.body}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div data-smoke="snapshotCta" className="flex flex-col sm:flex-row gap-3">
               <PrimaryCta cta={config.hero.cta} />
             </div>
           </motion.div>
@@ -296,7 +299,7 @@ export function DeflectionLandingPage({
         </section>
 
         {/* ── Pricing ───────────────────────────────────────────────── */}
-        <section id={config.pricing.id} className="section-band scroll-mt-24">
+        <section id={config.pricing.id} data-smoke="pricing" className="section-band scroll-mt-24">
           <div className="max-w-3xl mb-12">
             <SectionLabel>{config.pricing.label}</SectionLabel>
             <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">

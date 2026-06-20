@@ -5,17 +5,17 @@ import { runDeflectionPublicReachabilitySmoke } from './smoke-deflection-public-
 const LANDING_URL = 'https://portfolio.example.com/systems/support-ticket-deflection';
 const INTAKE_URL = `${LANDING_URL}/intake`;
 const GOOD_LANDING = [
-  'SUPPORT TICKET DEFLECTION',
-  '<a href="/systems/support-ticket-deflection/intake">',
-  'Get the free Snapshot first',
-  'PRICING',
+  '<span data-smoke="productEyebrow">Any product</span>',
+  '<a data-smoke="snapshotCta" href="/systems/support-ticket-deflection/intake">Any CTA</a>',
+  '<section data-smoke="pricing">Any pricing</section>',
 ].join('');
 const GOOD_INTAKE = [
-  'FAQ DEFLECTION INTAKE',
-  'Get your ticket resolution report and start taking actionable steps to resolve tickets today.',
-  'Work email',
-  'No LLM or Generative models.',
-  'Upload my CSV, get my free Deflection Snapshot',
+  '<section data-smoke="inlineForm uploadEyebrow">',
+  '<h2 data-smoke="headline">Any headline</h2>',
+  '<input data-smoke="workEmail" />',
+  '<p data-smoke="deterministicBadge">Any trust badge</p>',
+  '<button data-smoke="submitCta resolutionReportCta">Any submit</button>',
+  '</section>',
 ].join('');
 
 function routes({ landing = {}, intake = {} } = {}) {
@@ -102,7 +102,7 @@ const cases = [
   },
   {
     name: 'landing marker missing',
-    responses: routes({ landing: { body: GOOD_LANDING.replace('PRICING', '') } }),
+    responses: routes({ landing: { body: GOOD_LANDING.replace('data-smoke="pricing"', '') } }),
     stage: 'landing',
     error: 'Deflection public landing page is missing required render markers.',
     missing: ['pricing'],
@@ -113,7 +113,7 @@ const cases = [
     responses: routes({
       landing: {
         body: [
-          GOOD_LANDING.replace('PRICING', ''),
+          GOOD_LANDING.replace('data-smoke="pricing"', ''),
           '<script>self.__next_f.push(["This page could not be found"])</script>',
           '<template>This page could not be found</template>',
         ].join(''),
@@ -143,7 +143,7 @@ const cases = [
   },
   {
     name: 'intake marker missing',
-    responses: routes({ intake: { body: GOOD_INTAKE.replace('Work email', '') } }),
+    responses: routes({ intake: { body: GOOD_INTAKE.replace('data-smoke="workEmail"', '') } }),
     stage: 'intake',
     error: 'Deflection public intake page is missing required render markers.',
     missing: ['workEmail'],

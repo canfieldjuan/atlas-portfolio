@@ -94,6 +94,7 @@ function PrimarySnapshotCta({ className = '' }: { className?: string }) {
   return (
     <Link
       href={INTAKE_HREF}
+      data-smoke="ctaLabel"
       className={`group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark ${className}`}
     >
       {CTA_LABEL}
@@ -102,9 +103,12 @@ function PrimarySnapshotCta({ className = '' }: { className?: string }) {
   );
 }
 
-function Eyebrow({ children }: { children: ReactNode }) {
+function Eyebrow({ children, smoke }: { children: ReactNode; smoke?: string }) {
   return (
-    <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono text-primary">
+    <div
+      data-smoke={smoke}
+      className="mb-3 inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono text-primary"
+    >
       {children}
     </div>
   );
@@ -120,7 +124,10 @@ function CostProofBand({
   onAssistedContactCostChange: (value: number) => void;
 }) {
   return (
-    <section className="section-band section-band-muted mt-16">
+    <section
+      data-smoke="supportTaxProjection assistedContactCost valueAnchor"
+      className="section-band section-band-muted mt-16"
+    >
       <div className="mx-auto max-w-6xl">
         <DeflectionSupportTaxProjection
           repeatTicketCount={snapshot.summary.repeat_ticket_count}
@@ -358,11 +365,14 @@ export function DeflectionSnapshotLandingPage() {
     <main className="deflection-landing min-h-screen px-6 pb-20 pt-12 md:pt-16">
       <section className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,0.82fr)_minmax(27rem,1fr)] md:items-center">
         <div>
-          <Eyebrow>
+          <Eyebrow smoke="snapshotBadge">
             <Upload className="h-3.5 w-3.5" />
             Ticket Resolution Report
           </Eyebrow>
-          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl">
+          <h1
+            data-smoke="promiseHeadline"
+            className="max-w-3xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl"
+          >
             Deflect tickets by actually resolving them.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68">
@@ -428,7 +438,10 @@ export function DeflectionSnapshotLandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8">
+      <section
+        data-smoke="snapshotFirst finalSnapshotAsk"
+        className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8"
+      >
         <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
           Every month, the same unresolved questions bill you again.

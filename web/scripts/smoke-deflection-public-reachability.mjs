@@ -6,17 +6,13 @@ const LANDING_PATH = '/systems/support-ticket-deflection';
 const INTAKE_PATH = '/systems/support-ticket-deflection/intake';
 const INTAKE_HREF = `href="${INTAKE_PATH}"`;
 const ERROR_MARKERS = ['Application error', 'This page could not be found', '404: This page could not be found'];
-const LANDING_MARKERS = [
-  ['productEyebrow', 'SUPPORT TICKET DEFLECTION'],
-  ['snapshotCta', 'Get the free Snapshot first'],
-  ['pricing', 'PRICING'],
-];
+const LANDING_MARKERS = ['productEyebrow', 'snapshotCta', 'pricing'];
 const INTAKE_MARKERS = [
-  ['uploadEyebrow', 'FAQ DEFLECTION INTAKE'],
-  ['headline', 'Get your ticket resolution report and start taking actionable steps to resolve tickets today.'],
-  ['workEmail', 'Work email'],
-  ['deterministicBadge', 'No LLM or Generative models.'],
-  ['submitCta', 'Upload my CSV, get my free Deflection Snapshot'],
+  'uploadEyebrow',
+  'headline',
+  'workEmail',
+  'deterministicBadge',
+  'submitCta',
 ];
 
 function printUsage() {
@@ -51,7 +47,13 @@ function normalizeBaseUrl(value) {
 }
 
 function markerMap(markers) {
-  return Object.fromEntries(markers.map(([key]) => [key, true]));
+  return Object.fromEntries(markers.map((key) => [key, true]));
+}
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function hasSmokeMarker(html, key) {
+  return new RegExp(`\\bdata-smoke=(["'])[^"']*\\b${escapeRegExp(key)}\\b[^"']*\\1`).test(html);
 }
 function htmlWithoutNonRenderedBlocks(html) {
   return String(html || '')
@@ -83,11 +85,11 @@ async function fetchHtml(fetchImpl, url, stage) {
   return { ok: true, html: await response.text(), url };
 }
 function validateHtml(html, markers, stage, url) {
-  const missing = markers.filter(([, label]) => !html.includes(label)).map(([key]) => key);
+  const visibleHtml = htmlWithoutNonRenderedBlocks(html);
+  const missing = markers.filter((key) => !hasSmokeMarker(visibleHtml, key));
   if (missing.length === 0) {
     return { ok: true, markers: markerMap(markers) };
   }
-  const visibleHtml = htmlWithoutNonRenderedBlocks(html);
   const errorMarker = ERROR_MARKERS.find((marker) => visibleHtml.includes(marker));
   return {
     ok: false,

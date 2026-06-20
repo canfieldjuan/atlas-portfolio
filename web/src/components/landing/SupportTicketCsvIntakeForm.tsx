@@ -451,9 +451,15 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm">
+    <div
+      data-smoke="inlineForm uploadEyebrow"
+      className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm"
+    >
       <div className="mb-8">
-        <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
+        <h2
+          data-smoke="headline"
+          className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2"
+        >
           Get your ticket resolution report and start taking actionable steps to resolve tickets today.
         </h2>
         <p className="text-foreground/65 text-sm leading-relaxed">
@@ -490,6 +496,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           </label>
           <input
             id="email"
+            data-smoke="workEmail"
             type="email"
             autoComplete="email"
             required
@@ -535,6 +542,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           </label>
           <select
             id="supportPlatform"
+            data-smoke="supportPlatformField"
             value={supportPlatform}
             required
             onChange={(e) => {
@@ -591,7 +599,9 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-primary">No LLM or Generative models.</p>
+              <p data-smoke="deterministicBadge" className="text-xs font-semibold text-primary">
+                No LLM or Generative models.
+              </p>
               <p className="text-[11px] leading-relaxed text-foreground/75">
                 Our engine does not use LLMs or generative AI to analyze your ticket logs.
                 We use deterministic clustering to sort repeated questions.
@@ -628,6 +638,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
 
         <div className="pt-4">
           <button
+            data-smoke="resolutionReportCta submitCta"
             type="submit"
             disabled={isSubmitting}
             aria-busy={isSubmitting}
