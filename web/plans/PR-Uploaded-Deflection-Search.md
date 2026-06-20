@@ -16,7 +16,7 @@ keeps the public demo illustrative before upload, and uses Atlas only when a rea
 Slice phase: Vertical slice
 
 1. Add a request-scoped Atlas search client for
-   `/api/v1/content-ops/deflection-reports/{request_id}/search`.
+   `POST /api/v1/content-ops/deflection-reports/{request_id}/search`.
 2. Extend the existing same-origin demo search route so `requestId` means
    uploaded-report search, while no `requestId` keeps the local demo behavior.
 3. Make the demo search component configurable and mount it on the unlocked
@@ -51,7 +51,8 @@ bucket, then verifies the report is unlocked by probing the paid report
 model/artifact path. Only then does it call Atlas with the server-only
 `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN` credentials:
 
-`GET /api/v1/content-ops/deflection-reports/{request_id}/search?q=<query>&limit=5`
+`POST /api/v1/content-ops/deflection-reports/{request_id}/search`
+with JSON `{ q, limit }`.
 
 The uploaded path never falls back to the local sample dataset. Locked reports
 return a generic 403, rate-limited calls return 429, empty Atlas results return
@@ -75,11 +76,8 @@ The portfolio does not adapt compact search rows into fake report items.
 
 ## Deferred
 
-- Atlas may still need the matching endpoint/indexing slice if
+- Atlas may still need the matching POST endpoint/indexing slice if
   `/deflection-reports/{request_id}/search` is not deployed yet.
-- The server-to-Atlas search leg still follows the not-yet-built Atlas contract
-  as a URL query; moving that leg to POST belongs with the Atlas companion
-  endpoint.
 - No changes to checkout, artifact unlock, or Snapshot generation.
 - No landing-page copy changes beyond reused configurable demo labels.
 

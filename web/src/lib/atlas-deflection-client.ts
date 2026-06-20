@@ -513,24 +513,23 @@ export async function searchUploadedDeflectionReport(input: {
   const query = input.query.trim();
   if (!query) return { ok: true, item: null };
 
-  const params = new URLSearchParams({
-    q: query,
-    limit: String(DEFLECTION_REPORT_SEARCH_LIMIT),
-  });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(
-      `${config.baseUrl}${deflectionReportSearchPath(input.requestId)}?${params}`,
-      {
-        headers: {
-          Authorization: `Bearer ${config.token}`,
-          Accept: 'application/json',
-        },
-        cache: 'no-store',
-        signal: controller.signal,
+    const res = await fetch(`${config.baseUrl}${deflectionReportSearchPath(input.requestId)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify({
+        q: query,
+        limit: DEFLECTION_REPORT_SEARCH_LIMIT,
+      }),
+      cache: 'no-store',
+      signal: controller.signal,
+    });
     if (res.status === 404) return { ok: false, reason: 'not_found' };
     if (!res.ok) {
       console.error(`deflection uploaded search failed: HTTP ${res.status}`);

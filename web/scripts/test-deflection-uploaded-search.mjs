@@ -198,6 +198,9 @@ try {
     atlasClientSource,
     /content-ops\/deflection-reports\/\$\{encodeURIComponent\(requestId\)\}\/search/,
   );
+  assert.match(atlasClientSource, /method: 'POST'/);
+  assert.match(atlasClientSource, /'Content-Type': 'application\/json'/);
+  assert.match(atlasClientSource, /JSON\.stringify\(\{\s*q: query,\s*limit: DEFLECTION_REPORT_SEARCH_LIMIT,\s*\}\)/s);
   assert.match(atlasClientSource, /Authorization: `Bearer \$\{config\.token\}`/);
   assert.match(atlasClientSource, /value\.results\.length === 0/);
   assert.match(atlasClientSource, /value\.item \?\? value\.faq_item/);
