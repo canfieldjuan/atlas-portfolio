@@ -363,8 +363,8 @@ export function DeflectionSnapshotLandingPage() {
 
   return (
     <main className="deflection-landing min-h-screen px-6 pb-20 pt-12 md:pt-16">
-      <section className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,0.82fr)_minmax(27rem,1fr)] md:items-center">
-        <div>
+      <section className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,0.82fr)_minmax(27rem,1fr)] md:items-start lg:gap-12">
+        <div className="md:pt-10">
           <Eyebrow smoke="snapshotBadge">
             <Upload className="h-3.5 w-3.5" />
             Ticket Resolution Report
@@ -382,16 +382,18 @@ export function DeflectionSnapshotLandingPage() {
           </p>
         </div>
 
-        <SupportTicketCsvIntakeForm
-          copy={{
-            backHref: '/',
-            backLabel: 'Back to site',
-            sourcePage: '/systems/support-ticket-deflection/snapshot',
-            sourceOffer: 'support-ticket-deflection-intake',
-            snapshotName: 'Resolution Report',
-            submitLabel: 'Get my free Resolution Report',
-          }}
-        />
+        <div className="md:w-full md:max-w-[34rem] md:justify-self-end">
+          <SupportTicketCsvIntakeForm
+            copy={{
+              backHref: '/',
+              backLabel: 'Back to site',
+              sourcePage: '/systems/support-ticket-deflection/snapshot',
+              sourceOffer: 'support-ticket-deflection-intake',
+              snapshotName: 'Resolution Report',
+              submitLabel: 'Get my free Resolution Report',
+            }}
+          />
+        </div>
       </section>
 
       <section className="section-band">
