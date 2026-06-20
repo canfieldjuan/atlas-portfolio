@@ -7,6 +7,7 @@ const ERROR_MARKERS = ['Application error', 'This page could not be found', '404
 const REQUIRED_MARKERS = [
   'snapshotBadge',
   'promiseHeadline',
+  'heroProofStrip',
   'inlineForm',
   'supportPlatformField',
   'resolutionReportCta',

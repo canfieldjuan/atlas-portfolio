@@ -7,6 +7,7 @@ const SNAPSHOT_URL = 'https://portfolio.example.com/systems/support-ticket-defle
 const MARKER_KEYS = [
   'snapshotBadge',
   'promiseHeadline',
+  'heroProofStrip',
   'inlineForm',
   'supportPlatformField',
   'resolutionReportCta',
@@ -21,6 +22,7 @@ const GOOD_HTML = [
   '<main>',
   '<span data-smoke="snapshotBadge">Any badge</span>',
   '<h1 data-smoke="promiseHeadline">Any promise</h1>',
+  '<section data-smoke="heroProofStrip">Any hero proof strip</section>',
   '<section data-smoke="inlineForm uploadEyebrow">',
   '<select data-smoke="supportPlatformField"></select>',
   '<button data-smoke="resolutionReportCta submitCta">Any submit</button>',
@@ -100,6 +102,14 @@ assert.equal(
 assert.ok(
   snapshotLandingSource.includes('Get my free Resolution Report'),
   'Snapshot hero form should use the Resolution Report submit label.',
+);
+assert.ok(
+  snapshotLandingSource.includes('data-smoke="heroProofStrip"'),
+  'Snapshot hero proof strip should keep a stable smoke marker.',
+);
+assert.ok(
+  snapshotLandingSource.includes('over ${costProof.sourceWindowDays} days'),
+  'Snapshot hero proof strip should name the uploaded-window scope for cost.',
 );
 assert.ok(
   snapshotLandingSource.includes('Customer wording &rarr; your long-tail SEO target list'),
