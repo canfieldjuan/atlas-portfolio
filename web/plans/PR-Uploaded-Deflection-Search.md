@@ -25,6 +25,8 @@ Slice phase: Vertical slice
 4. Keep uploaded customer searches out of browser URLs by using a POST body,
    rate-limit the uploaded proxy with both IP-wide and per-report buckets, and
    require the report to be unlocked before returning full `TicketFAQItem` data.
+   Uploaded mode searches only on submit or chip selection, not each typed
+   character, so normal typing cannot consume the Atlas search quota.
 5. Add focused tests for local mode, uploaded mode, no-match, locked reports,
    rate limiting, upstream failure, query capping, and test enrollment.
 
@@ -49,10 +51,13 @@ public sample demo only. Uploaded report search is dark by default and requires
 returns 404 before parsing report access or calling Atlas. When enabled,
 uploaded report search uses `POST /api/demo/deflection-search` with `{ requestId,
 q }`, so customer phrases from a ticket export are not placed in browser history
-or URL logs. Before proxying to Atlas, the route first applies an IP-wide client
-bucket, then a per-report bucket, then verifies the report is unlocked by probing
-the paid report model/artifact path. Only then does it call Atlas with the
-server-only `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN` credentials:
+or URL logs. The uploaded workbench updates the input immediately but dispatches
+search only on submit or chip selection, while the public sample demo keeps its
+short local debounce. Before proxying to Atlas, the route first applies an
+IP-wide client bucket, then a per-report bucket, then verifies the report is
+unlocked by probing the paid report model/artifact path. Only then does it call
+Atlas with the server-only `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN`
+credentials:
 
 `POST /api/v1/content-ops/deflection-reports/{request_id}/search`
 with JSON `{ q, limit }`.
@@ -105,10 +110,10 @@ Parked hardening: none.
 | Plan doc | ~105 |
 | Atlas search client + parser | ~130 |
 | API route/helper wiring | ~115 |
-| Demo component configurability | ~65 |
+| Demo component configurability | ~85 |
 | Unlocked report-page mount | ~45 |
-| Test + enrollment | ~225 |
-| Total | ~640 |
+| Test + enrollment | ~235 |
+| Total | ~670 |
 
 This is over the 400-LOC soft cap because the vertical slice needs route,
 server-only Atlas validation, reusable UI, and enrolled tests together. Splitting

@@ -9,6 +9,7 @@ const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-uploaded-search-'
 const routeUrl = new URL('../src/app/api/demo/deflection-search/route.ts', import.meta.url);
 const helperUrl = new URL('../src/lib/deflection-demo.ts', import.meta.url);
 const atlasClientUrl = new URL('../src/lib/atlas-deflection-client.ts', import.meta.url);
+const demoComponentUrl = new URL('../src/components/deflection-demo/DeflectionDemo.tsx', import.meta.url);
 const resultsPageUrl = new URL('../src/components/landing/DeflectionResultsPage.tsx', import.meta.url);
 const routeCompiledPath = join(testDir, 'route.cjs');
 const nextStubDir = join(testDir, 'node_modules', 'next');
@@ -202,6 +203,11 @@ try {
   assert.match(helperSource, /options: \{ requestId\?: string \}/);
   assert.match(helperSource, /method: 'POST'/);
   assert.match(helperSource, /JSON\.stringify\(\{ requestId: options\.requestId, q \}\)/);
+
+  const demoComponentSource = await readFile(demoComponentUrl, 'utf8');
+  assert.match(demoComponentSource, /const uploadedSearchMode = Boolean\(requestId\)/);
+  assert.match(demoComponentSource, /if \(uploadedSearchMode\) \{\s*setPhase\('idle'\);\s*setItem\(null\);\s*return;\s*\}/s);
+  assert.match(demoComponentSource, /debounceRef\.current = setTimeout\(\(\) => void runSearch\(raw\), 220\)/);
 
   const atlasClientSource = await readFile(atlasClientUrl, 'utf8');
   assert.match(

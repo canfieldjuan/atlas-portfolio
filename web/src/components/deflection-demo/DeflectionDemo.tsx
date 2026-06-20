@@ -226,6 +226,7 @@ export function DeflectionDemo({
   errorCopy =
     "The search couldn't run just now. Try a chip above or search again, this is a recoverable state, not a frozen one.",
 }: DeflectionDemoProps = {}) {
+  const uploadedSearchMode = Boolean(requestId);
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [item, setItem] = useState<TicketFAQItem | null>(null);
@@ -265,8 +266,8 @@ export function DeflectionDemo({
     }
   }
 
-  // Per-keystroke: update the field immediately, debounce the search so a real
-  // backend isn't hit on every character.
+  // Per-keystroke: sample mode keeps the quick debounce; uploaded mode waits
+  // for submit/chip selection so typed customer phrases do not burn Atlas quota.
   function onType(raw: string) {
     setQuery(raw);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -278,6 +279,11 @@ export function DeflectionDemo({
       setPhase('idle');
       setItem(null);
       setResultSource('local');
+      return;
+    }
+    if (uploadedSearchMode) {
+      setPhase('idle');
+      setItem(null);
       return;
     }
     debounceRef.current = setTimeout(() => void runSearch(raw), 220);
@@ -329,6 +335,16 @@ export function DeflectionDemo({
                 className="text-foreground/40 hover:text-foreground transition-colors"
               >
                 <X className="w-4 h-4" />
+              </button>
+            )}
+            {uploadedSearchMode && (
+              <button
+                type="submit"
+                disabled={!query.trim() || phase === 'searching'}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                <Search className="h-3.5 w-3.5" />
+                Search
               </button>
             )}
           </div>
