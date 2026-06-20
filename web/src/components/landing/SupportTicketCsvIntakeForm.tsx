@@ -453,173 +453,175 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
   return (
     <div
       data-smoke="inlineForm uploadEyebrow"
-      className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm"
+      className="space-y-4"
     >
-      <div className="mb-8">
-        <h2
-          data-smoke="headline"
-          className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2"
-        >
-          Get your ticket resolution report and start taking actionable steps to resolve tickets today.
-        </h2>
-        <p className="text-foreground/65 text-sm leading-relaxed">
-          Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares
-          one review-ready drafted answer using repeatable clustering.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <div className="grid gap-5 md:grid-cols-2 md:items-start">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
-              Your name <span className="text-primary">*</span>
-            </label>
-            <input
-              id="name"
-              type="text"
-              autoComplete="name"
-              required
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-              }}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
-              placeholder="Your name"
-              aria-invalid={Boolean(errors.name)}
-            />
-            {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
-              Work email <span className="text-primary">*</span>
-            </label>
-            <input
-              id="email"
-              data-smoke="workEmail"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-              }}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
-              placeholder="you@yourcompany.com"
-              aria-invalid={Boolean(errors.email)}
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
-          </div>
+      <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 shadow-sm">
+        <div className="mb-8">
+          <h2
+            data-smoke="headline"
+            className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2"
+          >
+            Get your ticket resolution report and start taking actionable steps to resolve tickets today.
+          </h2>
+          <p className="text-foreground/65 text-sm leading-relaxed">
+            Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares
+            one review-ready drafted answer using repeatable clustering.
+          </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 md:items-start">
-          <div>
-            <label htmlFor="companyName" className="block text-sm font-medium text-foreground mb-1.5">
-              Company name <span className="text-primary">*</span>
-            </label>
-            <input
-              id="companyName"
-              type="text"
-              autoComplete="organization"
-              required
-              value={companyName}
-              onChange={(e) => {
-                setCompanyName(e.target.value);
-                if (errors.companyName) setErrors((prev) => ({ ...prev, companyName: undefined }));
-              }}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
-              placeholder="Acme Inc."
-              aria-invalid={Boolean(errors.companyName)}
-            />
-            {errors.companyName && <p className="mt-1 text-xs text-red-400">{errors.companyName}</p>}
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <div className="grid gap-5 md:grid-cols-2 md:items-start">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
+                Your name <span className="text-primary">*</span>
+              </label>
+              <input
+                id="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                }}
+                className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+                placeholder="Your name"
+                aria-invalid={Boolean(errors.name)}
+              />
+              {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
+                Work email <span className="text-primary">*</span>
+              </label>
+              <input
+                id="email"
+                data-smoke="workEmail"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                }}
+                className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+                placeholder="you@yourcompany.com"
+                aria-invalid={Boolean(errors.email)}
+              />
+              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 md:items-start">
+            <div>
+              <label htmlFor="companyName" className="block text-sm font-medium text-foreground mb-1.5">
+                Company name <span className="text-primary">*</span>
+              </label>
+              <input
+                id="companyName"
+                type="text"
+                autoComplete="organization"
+                required
+                value={companyName}
+                onChange={(e) => {
+                  setCompanyName(e.target.value);
+                  if (errors.companyName) setErrors((prev) => ({ ...prev, companyName: undefined }));
+                }}
+                className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/60 disabled:opacity-50"
+                placeholder="Acme Inc."
+                aria-invalid={Boolean(errors.companyName)}
+              />
+              {errors.companyName && <p className="mt-1 text-xs text-red-400">{errors.companyName}</p>}
+            </div>
+
+            <div>
+              <label
+                htmlFor="supportPlatform"
+                className="block text-sm font-medium text-foreground mb-1.5"
+              >
+                Support platform <span className="text-primary">*</span>
+              </label>
+              <select
+                id="supportPlatform"
+                data-smoke="supportPlatformField"
+                value={supportPlatform}
+                required
+                onChange={(e) => {
+                  setSupportPlatform(e.target.value as SupportPlatform | '');
+                  if (errors.supportPlatform)
+                    setErrors((prev) => ({ ...prev, supportPlatform: undefined }));
+                }}
+                className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/60 disabled:opacity-50"
+                aria-invalid={Boolean(errors.supportPlatform)}
+                aria-describedby={
+                  errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
+                }
+              >
+                <option value="">Select your support platform</option>
+                {SUPPORT_PLATFORM_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              {errors.supportPlatform && (
+                <p id="supportPlatform-error" className="mt-1 text-xs text-red-400">
+                  {errors.supportPlatform}
+                </p>
+              )}
+              <p id="supportPlatform-hint" className="mt-2 text-xs text-foreground/50">
+                This keeps the report path compatible with your export format.
+              </p>
+            </div>
           </div>
 
           <div>
-            <label
-              htmlFor="supportPlatform"
-              className="block text-sm font-medium text-foreground mb-1.5"
-            >
-              Support platform <span className="text-primary">*</span>
+            <label htmlFor="csv" className="block text-sm font-medium text-foreground mb-1.5">
+              CSV file <span className="text-primary">*</span>
             </label>
-            <select
-              id="supportPlatform"
-              data-smoke="supportPlatformField"
-              value={supportPlatform}
+            <input
+              id="csv"
+              type="file"
+              accept=".csv,text/csv,application/csv,application/vnd.ms-excel"
               required
-              onChange={(e) => {
-                setSupportPlatform(e.target.value as SupportPlatform | '');
-                if (errors.supportPlatform)
-                  setErrors((prev) => ({ ...prev, supportPlatform: undefined }));
-              }}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary/60 disabled:opacity-50"
-              aria-invalid={Boolean(errors.supportPlatform)}
-              aria-describedby={
-                errors.supportPlatform ? 'supportPlatform-error' : 'supportPlatform-hint'
-              }
-            >
-              <option value="">Select your support platform</option>
-              {SUPPORT_PLATFORM_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            {errors.supportPlatform && (
-              <p id="supportPlatform-error" className="mt-1 text-xs text-red-400">
-                {errors.supportPlatform}
+              onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+              className="block w-full text-sm text-foreground/70 file:mr-4 file:rounded-md file:border-0 file:bg-primary/10 file:text-primary file:px-4 file:py-2.5 file:text-sm file:font-medium hover:file:bg-primary/20 disabled:opacity-50"
+              aria-invalid={Boolean(errors.csv)}
+            />
+            {csvFile && !errors.csv && (
+              <p className="mt-2 inline-flex items-center gap-2 text-xs text-foreground/65">
+                <FileText className="w-3.5 h-3.5 text-primary/80" />
+                {csvFile.name} <span className="text-foreground/45">({(csvFile.size / 1024).toFixed(0)} KB)</span>
               </p>
             )}
-            <p id="supportPlatform-hint" className="mt-2 text-xs text-foreground/50">
-              This keeps the report path compatible with your export format.
-            </p>
+            {errors.csv && <p className="mt-1 text-xs text-red-400">{errors.csv}</p>}
           </div>
-        </div>
 
-        <div>
-          <label htmlFor="csv" className="block text-sm font-medium text-foreground mb-1.5">
-            CSV file <span className="text-primary">*</span>
-          </label>
-          <input
-            id="csv"
-            type="file"
-            accept=".csv,text/csv,application/csv,application/vnd.ms-excel"
-            required
-            onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-foreground/70 file:mr-4 file:rounded-md file:border-0 file:bg-primary/10 file:text-primary file:px-4 file:py-2.5 file:text-sm file:font-medium hover:file:bg-primary/20 disabled:opacity-50"
-            aria-invalid={Boolean(errors.csv)}
-          />
-          {csvFile && !errors.csv && (
-            <p className="mt-2 inline-flex items-center gap-2 text-xs text-foreground/65">
-              <FileText className="w-3.5 h-3.5 text-primary/80" />
-              {csvFile.name} <span className="text-foreground/45">({(csvFile.size / 1024).toFixed(0)} KB)</span>
-            </p>
+          {submission.phase === 'error' && (
+            <div className="rounded-lg border border-red-500/40 bg-red-500/[0.04] p-4">
+              <p className="text-sm text-red-300/90">{submission.message}</p>
+            </div>
           )}
-          {errors.csv && <p className="mt-1 text-xs text-red-400">{errors.csv}</p>}
-        </div>
 
-        {submission.phase === 'error' && (
-          <div className="rounded-lg border border-red-500/40 bg-red-500/[0.04] p-4">
-            <p className="text-sm text-red-300/90">{submission.message}</p>
+          <div className="pt-2">
+            <button
+              data-smoke="resolutionReportCta submitCta"
+              type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+              className="w-full group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm"
+            >
+              {copy.submitLabel}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
-        )}
+        </form>
+      </div>
 
-        <div className="pt-2">
-          <button
-            data-smoke="resolutionReportCta submitCta"
-            type="submit"
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
-            className="w-full group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm"
-          >
-            {copy.submitLabel}
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </form>
-
-      <div className="mt-6 rounded-lg border border-border bg-background/35 p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-background/45 p-4 space-y-3 shadow-sm">
         <div className="flex items-start gap-2">
           <ShieldCheck className="w-4 h-4 text-primary/85 shrink-0 mt-0.5" />
           <div>
