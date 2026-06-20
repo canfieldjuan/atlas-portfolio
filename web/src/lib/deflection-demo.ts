@@ -429,11 +429,16 @@ export function matchLocal(query: string): TicketFAQItem | null {
  * returns one TicketFAQItem-shaped sample result until live full-artifact
  * hydration is wired.
  */
-export async function searchDeflection(query: string): Promise<DeflectionSearchResponse> {
+export async function searchDeflection(
+  query: string,
+  options: { requestId?: string } = {},
+): Promise<DeflectionSearchResponse> {
   const q = query.trim();
   if (!q) return { match: null, source: 'local' };
 
-  const res = await fetch(`/api/demo/deflection-search?q=${encodeURIComponent(q)}`, {
+  const params = new URLSearchParams({ q });
+  if (options.requestId) params.set('requestId', options.requestId);
+  const res = await fetch(`/api/demo/deflection-search?${params}`, {
     headers: { Accept: 'application/json' },
   });
   if (!res.ok) throw new Error(`deflection search failed: ${res.status}`);

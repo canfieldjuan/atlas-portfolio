@@ -55,6 +55,7 @@
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
     "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
     "test:deflection-results-state": "node scripts/test-deflection-results-state.mjs",
+    "test:deflection-uploaded-search": "node scripts/test-deflection-uploaded-search.mjs",
     "test:deflection-snapshot-landing-smoke": "node scripts/test-deflection-snapshot-landing-smoke.mjs",
     "test:deflection-csv-privacy": "node scripts/test-deflection-csv-privacy-contract.mjs",
     "test:deflection-cost-projection-share": "node scripts/test-deflection-cost-projection-share.mjs",

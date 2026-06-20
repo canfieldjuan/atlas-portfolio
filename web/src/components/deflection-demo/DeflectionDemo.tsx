@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Loader2, Search, X } from 'lucide-react';
 import {
@@ -18,6 +18,17 @@ import type { FAQTermMapping, TicketFAQItem } from '@/lib/deflection-report-cont
 // paid report drill-down item.
 
 type Phase = 'idle' | 'searching' | 'result' | 'no-match' | 'error';
+
+type DeflectionDemoProps = {
+  requestId?: string;
+  chips?: string[];
+  className?: string;
+  label?: string;
+  idleCopy?: string;
+  searchingCopy?: string;
+  noMatchCopy?: ReactNode;
+  errorCopy?: string;
+};
 
 const resultSourceLabel: Record<DeflectionSearchSource, string> = {
   local: 'Illustrative · sample dataset',
@@ -203,7 +214,18 @@ function FaqDraftCard({ item }: { item: TicketFAQItem }) {
   );
 }
 
-export function DeflectionDemo() {
+export function DeflectionDemo({
+  requestId,
+  chips = DEMO_CHIPS,
+  className = '',
+  label = 'Type a question your customers keep asking',
+  idleCopy =
+    "Pick a question above. You'll see the kind of report finding your team would review: customer wording, term mappings, source-ticket evidence, and a drafted FAQ.",
+  searchingCopy = 'Matching against the sample ticket dataset...',
+  noMatchCopy,
+  errorCopy =
+    "The search couldn't run just now. Try a chip above or search again, this is a recoverable state, not a frozen one.",
+}: DeflectionDemoProps = {}) {
   const [query, setQuery] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
   const [item, setItem] = useState<TicketFAQItem | null>(null);
@@ -227,7 +249,7 @@ export function DeflectionDemo() {
     }
     setPhase('searching');
     try {
-      const found = await searchDeflection(q);
+      const found = await searchDeflection(q, requestId ? { requestId } : {});
       if (reqId !== reqRef.current) return; // superseded by a newer search
       setItem(found.match);
       setResultSource(found.source);
@@ -281,11 +303,11 @@ export function DeflectionDemo() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className}`}>
       {/* Search */}
       <div className="glass rounded-2xl border border-border p-5 sm:p-6">
         <label htmlFor="deflection-q" className="block text-[10px] font-mono uppercase tracking-widest text-foreground/45 mb-2">
-          Type a question your customers keep asking
+          {label}
         </label>
         <form onSubmit={onSubmit}>
           <div className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 focus-within:border-primary/60 transition-colors">
@@ -315,7 +337,7 @@ export function DeflectionDemo() {
           <span className="text-[11px] font-mono uppercase tracking-widest text-foreground/40 mr-0.5">
             Try
           </span>
-          {DEMO_CHIPS.map((chip) => (
+          {chips.map((chip) => (
             <button
               key={chip}
               type="button"
@@ -331,29 +353,31 @@ export function DeflectionDemo() {
       {/* States */}
       {phase === 'idle' && (
         <p className="text-sm text-foreground/50 leading-relaxed px-1">
-          Pick a question above. You&apos;ll see the kind of report finding your team would review:
-          customer wording, term mappings, source-ticket evidence, and a drafted FAQ.
+          {idleCopy}
         </p>
       )}
 
       {phase === 'searching' && (
         <div className="flex items-center gap-2 text-sm text-foreground/55 px-1">
-          <Loader2 className="w-4 h-4 animate-spin" /> Matching against the sample ticket dataset…
+          <Loader2 className="w-4 h-4 animate-spin" /> {searchingCopy}
         </div>
       )}
 
       {phase === 'no-match' && (
         <div className="glass rounded-xl border border-border p-6 text-sm text-foreground/60 leading-relaxed">
-          No close match in this short sample set. The real Report runs against <em>your</em> 30-day
-          ticket export, where repeat questions like this surface by volume, try one of the chips
-          above to see an example.
+          {noMatchCopy ?? (
+            <>
+              No close match in this short sample set. The real Report runs against <em>your</em>{' '}
+              30-day ticket export, where repeat questions like this surface by volume, try one of
+              the chips above to see an example.
+            </>
+          )}
         </div>
       )}
 
       {phase === 'error' && (
         <div className="glass rounded-xl border border-border p-6 text-sm text-foreground/60 leading-relaxed">
-          The search couldn&apos;t run just now. Try a chip above or search again, this is a
-          recoverable state, not a frozen one.
+          {errorCopy}
         </div>
       )}
 
@@ -369,7 +393,9 @@ export function DeflectionDemo() {
               {titleCase(item.topic)}: ranked finding and draft FAQ
             </h2>
             <span className="text-[11px] font-mono uppercase tracking-widest text-foreground/40">
-              {resultSourceLabel[resultSource]}
+              {requestId && resultSource === 'atlas'
+                ? 'Atlas-backed · uploaded report'
+                : resultSourceLabel[resultSource]}
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
