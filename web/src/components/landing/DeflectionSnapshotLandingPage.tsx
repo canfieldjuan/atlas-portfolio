@@ -133,7 +133,9 @@ function HeroProofStrip({
       icon: <FileText className="h-4 w-4" />,
       label: 'Support Tax estimate',
       value: formatDeflectionWholeUsd(costProof.uploadedWindowCost),
-      detail: `${formatAssistedContactCost(assistedContactCost)} per assisted contact`,
+      detail: costProof.sourceWindowDays
+        ? `${formatAssistedContactCost(assistedContactCost)} per contact over ${costProof.sourceWindowDays} days`
+        : `${formatAssistedContactCost(assistedContactCost)} per assisted contact`,
     },
     {
       icon: <CheckCircle2 className="h-4 w-4" />,
@@ -149,7 +151,7 @@ function HeroProofStrip({
     <div
       data-smoke="heroProofStrip"
       aria-label="Example Snapshot metrics"
-      className="mt-7 grid max-w-3xl gap-3 sm:grid-cols-3"
+      className="mt-7 grid max-w-3xl gap-3 xl:grid-cols-3"
     >
       {metrics.map((metric) => (
         <div

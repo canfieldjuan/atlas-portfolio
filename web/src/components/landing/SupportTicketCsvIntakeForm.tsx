@@ -612,7 +612,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
               {copy.submitLabel}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <p className="mx-auto mt-3 flex max-w-md items-start justify-center gap-2 text-center font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-primary/85 sm:items-center sm:whitespace-nowrap">
+            <p className="mx-auto mt-3 flex max-w-md items-start justify-center gap-2 text-center font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-primary/85 xl:items-center xl:whitespace-nowrap">
               <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
               <span>Deterministic pipeline - private uploads - no generative AI</span>
             </p>
