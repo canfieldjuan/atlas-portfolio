@@ -131,6 +131,21 @@ assert.match(
   /<DeflectionLockedQuestionRows\s+questions=\{locked_questions\}\s+assistedContactCost=\{assistedContactCost\}/,
   'Snapshot landing page should render locked questions through the shared row component and shared cost state.',
 );
+assert.match(
+  landingSource,
+  /top_blind_spots = \[\]/,
+  'Snapshot landing page should keep snapshots without optional blind-spot rows compatible.',
+);
+assert.match(
+  landingSource,
+  /<DeflectionBlindSpotRows\s+blindSpots=\{top_blind_spots\}\s+assistedContactCost=\{assistedContactCost\}/,
+  'Snapshot landing page should render blind spots through the shared row component and shared cost state.',
+);
+assert.match(
+  landingSource,
+  /They are not drafted answers/,
+  'Snapshot landing page should distinguish unresolved blind spots from drafted answers.',
+);
 assert.equal(
   /function\s+SnapshotQuestionRows|function\s+LockedQuestionFomoRows/.test(landingSource),
   false,

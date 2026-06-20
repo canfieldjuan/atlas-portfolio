@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { type ReactNode, useState } from 'react';
 import {
+  DeflectionBlindSpotRows,
   DeflectionLockedQuestionRows,
   DeflectionTopQuestionRows,
 } from './DeflectionSnapshotRows';
@@ -160,7 +161,13 @@ function SnapshotArtifact({
   assistedContactCost: number;
   showTeaser?: boolean;
 }) {
-  const { summary, top_questions, locked_questions, teaser } = snapshot;
+  const {
+    summary,
+    top_questions,
+    locked_questions,
+    teaser,
+    top_blind_spots = [],
+  } = snapshot;
   const artifactCostProof = snapshotCostProof(snapshot, assistedContactCost);
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
@@ -245,6 +252,28 @@ function SnapshotArtifact({
         questions={top_questions}
         assistedContactCost={assistedContactCost}
       />
+
+      {top_blind_spots.length > 0 && (
+        <div className="mt-6 rounded-md border border-amber-500/20 bg-amber-500/[0.04] p-4">
+          <div className="mb-3">
+            <p className="font-mono text-xs text-amber-700/80">
+              NO-PROVEN-ANSWER GAPS
+            </p>
+            <h3 className="mt-1 text-lg font-semibold text-foreground">
+              High-cost repeats your team still has to investigate.
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-foreground/62">
+              These are repeated questions with no consistent resolution evidence
+              in the ticket history. They are not drafted answers; they are the
+              expensive support gaps to resolve next.
+            </p>
+          </div>
+          <DeflectionBlindSpotRows
+            blindSpots={top_blind_spots}
+            assistedContactCost={assistedContactCost}
+          />
+        </div>
+      )}
 
       <div className="mt-6 grid gap-3 md:grid-cols-2">
         <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
