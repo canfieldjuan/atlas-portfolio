@@ -13,6 +13,7 @@ const resultsPageUrl = new URL('../src/components/landing/DeflectionResultsPage.
 const routeCompiledPath = join(testDir, 'route.cjs');
 const nextStubDir = join(testDir, 'node_modules', 'next');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
+const originalUploadedSearchEnabled = process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
 
 const localMatch = { topic: 'local sample' };
 const atlasMatch = { topic: 'uploaded report' };
@@ -124,6 +125,15 @@ try {
   assert.deepEqual(localCalls, ['export']);
   assert.deepEqual(atlasCalls, []);
 
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 404);
+  assert.equal(response.body.error, 'Uploaded report search is not enabled.');
+  assert.deepEqual(modelCalls, []);
+  assert.deepEqual(atlasCalls, []);
+  assert.deepEqual(rateLimitCalls, []);
+
+  process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = 'true';
+
   localCalls = [];
   atlasCalls = [];
   modelCalls = [];
@@ -213,6 +223,12 @@ try {
   );
   assert.match(modelPageSource, /Search the FAQ drafts built from this CSV/);
   assert.match(modelPageSource, /requestId=\{requestId\}/);
+  assert.match(modelPageSource, /DEFLECTION_UPLOADED_SEARCH_ENABLED/);
 } finally {
+  if (originalUploadedSearchEnabled === undefined) {
+    delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
+  } else {
+    process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = originalUploadedSearchEnabled;
+  }
   await rm(testDir, { recursive: true, force: true });
 }

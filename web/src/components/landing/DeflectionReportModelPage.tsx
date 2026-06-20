@@ -56,6 +56,10 @@ function uploadedSearchChips(model: DeflectionStructuredReport): string[] {
   return Array.from(new Set([...rankedQuestions, ...seoTargets])).slice(0, 6);
 }
 
+function uploadedSearchEnabled() {
+  return process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED === 'true';
+}
+
 function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const sourceWindow = asRecord(data.source_date_window);
@@ -256,6 +260,7 @@ export function DeflectionReportModelPage({
   const sections = sortedWebSections(model);
   const supportTax = sectionById(model, 'support_tax');
   const searchChips = uploadedSearchChips(model);
+  const showUploadedSearch = uploadedSearchEnabled() && searchChips.length > 0;
 
   return (
     <main className="min-h-screen px-6 pb-20 pt-16">
@@ -276,7 +281,7 @@ export function DeflectionReportModelPage({
 
         <div className="space-y-8">
           <SupportTaxSummary section={supportTax} />
-          {searchChips.length > 0 && (
+          {showUploadedSearch && (
             <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
               <h2 className="text-xl font-semibold text-foreground">
                 Search the FAQ drafts built from this CSV

@@ -42,6 +42,10 @@ const UPLOADED_SEARCH_CLIENT_RATE_LIMIT = {
 const UPLOADED_SEARCH_CLIENT_BUCKET = 'all';
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
+function uploadedSearchEnabled() {
+  return process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED === 'true';
+}
+
 function uploadedSearchFailureResponse(reason: string) {
   const status =
     reason === 'not_configured'
@@ -100,6 +104,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!uploadedSearchEnabled()) {
+      return NextResponse.json(
+        {
+          match: null,
+          source: 'atlas',
+          error: 'Uploaded report search is not enabled.',
+        },
+        { status: 404 },
+      );
+    }
+
     const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
     const requestId = typeof payload?.requestId === 'string' ? payload.requestId.trim() : '';
     const q = typeof payload?.q === 'string' ? payload.q.trim().slice(0, MAX_Q) : '';

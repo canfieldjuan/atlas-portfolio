@@ -19,8 +19,9 @@ Slice phase: Vertical slice
    `POST /api/v1/content-ops/deflection-reports/{request_id}/search`.
 2. Extend the existing same-origin demo search route so `requestId` means
    uploaded-report search, while no `requestId` keeps the local demo behavior.
-3. Make the demo search component configurable and mount it on the unlocked
-   report-model page with chips from that report.
+3. Make the demo search component configurable and mount it behind
+   `DEFLECTION_UPLOADED_SEARCH_ENABLED=true` on the unlocked report-model page
+   with chips from that report.
 4. Keep uploaded customer searches out of browser URLs by using a POST body,
    rate-limit the uploaded proxy with both IP-wide and per-report buckets, and
    require the report to be unlocked before returning full `TicketFAQItem` data.
@@ -43,13 +44,15 @@ Slice phase: Vertical slice
 ## Mechanism
 
 The same-origin route keeps `GET /api/demo/deflection-search?q=...` for the
-public sample demo only. Uploaded report search uses `POST
-/api/demo/deflection-search` with `{ requestId, q }`, so customer phrases from a
-ticket export are not placed in browser history or URL logs. Before proxying to
-Atlas, the route first applies an IP-wide client bucket, then a per-report
-bucket, then verifies the report is unlocked by probing the paid report
-model/artifact path. Only then does it call Atlas with the server-only
-`ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN` credentials:
+public sample demo only. Uploaded report search is dark by default and requires
+`DEFLECTION_UPLOADED_SEARCH_ENABLED=true`; while the flag is off, the POST proxy
+returns 404 before parsing report access or calling Atlas. When enabled,
+uploaded report search uses `POST /api/demo/deflection-search` with `{ requestId,
+q }`, so customer phrases from a ticket export are not placed in browser history
+or URL logs. Before proxying to Atlas, the route first applies an IP-wide client
+bucket, then a per-report bucket, then verifies the report is unlocked by probing
+the paid report model/artifact path. Only then does it call Atlas with the
+server-only `ATLAS_API_BASE_URL` and `ATLAS_B2B_SERVICE_TOKEN` credentials:
 
 `POST /api/v1/content-ops/deflection-reports/{request_id}/search`
 with JSON `{ q, limit }`.
@@ -73,11 +76,14 @@ The portfolio does not adapt compact search rows into fake report items.
   only compact rows, the parser rejects the shape instead of fabricating fields.
 - The free Snapshot remains bounded. Full answer/evidence search is mounted only
   on the unlocked report-model page, not on the free Snapshot page.
+- The unlocked report workbench is feature-flagged off until Atlas ships the
+  matching endpoint, so paying users do not see a dead search box.
 
 ## Deferred
 
 - Atlas may still need the matching POST endpoint/indexing slice if
-  `/deflection-reports/{request_id}/search` is not deployed yet.
+  `/deflection-reports/{request_id}/search` is not deployed yet; once that lands,
+  enable `DEFLECTION_UPLOADED_SEARCH_ENABLED=true`.
 - No changes to checkout, artifact unlock, or Snapshot generation.
 - No landing-page copy changes beyond reused configurable demo labels.
 
@@ -98,11 +104,11 @@ Parked hardening: none.
 |---|---:|
 | Plan doc | ~105 |
 | Atlas search client + parser | ~130 |
-| API route/helper wiring | ~105 |
+| API route/helper wiring | ~115 |
 | Demo component configurability | ~65 |
 | Unlocked report-page mount | ~45 |
-| Test + enrollment | ~215 |
-| Total | ~620 |
+| Test + enrollment | ~225 |
+| Total | ~640 |
 
 This is over the 400-LOC soft cap because the vertical slice needs route,
 server-only Atlas validation, reusable UI, and enrolled tests together. Splitting
