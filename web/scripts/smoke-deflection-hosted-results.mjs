@@ -22,6 +22,7 @@ const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
   { key: 'topUnresolvedRepeats', labels: ['Top Unresolved Repeats'] },
   { key: 'draftedResolutions', labels: ['Drafted Resolutions'] },
   { key: 'coveredRecurring', labels: ['Already Covered but Still Recurring'] },
+  { key: 'backlogTable', labels: ['Backlog Table'] },
   { key: 'seoTargeting', labels: ['Help-desk SEO targeting list'] },
   { key: 'rankedQuestions', labels: ['Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Top publishable answers and gaps'] },
