@@ -203,6 +203,16 @@ function projectedSection(section) {
       },
     };
   }
+  if (section.id === 'backlog_table') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map(projectedActionItem),
+        total_item_count: section.data.total_item_count,
+        default_limit: section.data.default_limit,
+      },
+    };
+  }
   return section;
 }
 
@@ -311,6 +321,34 @@ function coveredRecurringSection(overrides = {}) {
   };
 }
 
+function backlogTableSection(overrides = {}) {
+  return {
+    id: 'backlog_table',
+    title: 'Backlog Table',
+    priority: 39,
+    surfaces: ['web', 'pdf', 'export'],
+    default_limit: 25,
+    required_data: ['items', 'total_item_count', 'default_limit'],
+    data: {
+      total_item_count: 2,
+      default_limit: 25,
+      items: [
+        actionItem({ rank: 1 }),
+        actionItem({
+          rank: 2,
+          question: 'Why did my invoice retry?',
+          status: 'Needs review',
+          recommended_action: 'Review billing evidence before publishing customer guidance.',
+          ticket_count: 3,
+          estimated_support_cost: 40.5,
+          priority_score: 76,
+        }),
+      ],
+    },
+    ...overrides,
+  };
+}
+
 function minimalModel(overrides = {}) {
   return {
     schema_version: 'deflection.v1',
@@ -322,6 +360,7 @@ function minimalModel(overrides = {}) {
       topUnresolvedRepeatsSection(),
       draftedResolutionsSection(),
       coveredRecurringSection(),
+      backlogTableSection(),
     ],
     ...overrides,
   };
@@ -586,6 +625,13 @@ try {
           top_item_count: 1,
         },
       }),
+      backlogTableSection({
+        data: {
+          ...backlogTableSection().data,
+          items: [unsafeActionItem],
+          total_item_count: 1,
+        },
+      }),
     ],
   });
   const projectedUnsafeModel = await fetchDeflectionReportModel('content-ops-unit-123');
@@ -594,7 +640,8 @@ try {
     section.id === 'priority_fix_queue' ||
     section.id === 'top_unresolved_repeats' ||
     section.id === 'drafted_resolutions' ||
-    section.id === 'already_covered_still_recurring'
+    section.id === 'already_covered_still_recurring' ||
+    section.id === 'backlog_table'
   ))) {
     const item = section.data.items[0];
     assert.equal('recommended_title' in item, false);
@@ -938,6 +985,79 @@ try {
     reason: 'error',
   });
 
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      backlogTableSection({
+        data: {
+          ...backlogTableSection().data,
+          total_item_count: '2',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      backlogTableSection({
+        data: {
+          ...backlogTableSection().data,
+          total_item_count: 1,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      backlogTableSection({
+        data: {
+          ...backlogTableSection().data,
+          default_limit: '25',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      backlogTableSection({
+        data: {
+          ...backlogTableSection().data,
+          items: [actionItem({ priority_score: '84' })],
+          total_item_count: 1,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
   resetEnv({});
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
@@ -995,6 +1115,9 @@ try {
   );
   assert.ok(modelPageSource.includes('Already Covered but Still Recurring'), 'model page names covered recurring actions');
   assert.ok(modelPageSource.includes('data-smoke="coveredRecurring"'), 'covered recurring keeps a stable smoke marker');
+  assert.ok(modelPageSource.includes("section.id === 'backlog_table'"), 'model page renders backlog_table sections');
+  assert.ok(modelPageSource.includes('Backlog Table'), 'model page names the backlog table');
+  assert.ok(modelPageSource.includes('data-smoke="backlogTable"'), 'backlog table keeps a stable smoke marker');
   assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
@@ -1010,6 +1133,10 @@ try {
   assert.ok(
     modelPageSource.includes('const limit = Math.min(COVERED_RECURRING_LIMIT, requestedLimit)'),
     'covered recurring clamps the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(BACKLOG_TABLE_LIMIT, requestedLimit)'),
+    'backlog table clamps the result-page limit locally',
   );
   assert.ok(
     modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),
