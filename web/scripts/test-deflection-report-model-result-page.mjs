@@ -185,6 +185,15 @@ function projectedSection(section) {
       },
     };
   }
+  if (section.id === 'drafted_resolutions') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map(projectedActionItem),
+        top_item_count: section.data.top_item_count,
+      },
+    };
+  }
   return section;
 }
 
@@ -242,12 +251,34 @@ function topUnresolvedRepeatsSection(overrides = {}) {
   };
 }
 
+function draftedResolutionsSection(overrides = {}) {
+  return {
+    id: 'drafted_resolutions',
+    title: 'Drafted Resolutions',
+    priority: 37,
+    surfaces: ['web', 'pdf'],
+    default_limit: 3,
+    required_data: ['items', 'top_item_count'],
+    data: {
+      top_item_count: 1,
+      items: [
+        actionItem({
+          rank: 1,
+          status: 'Draft ready',
+          recommended_action: 'Review the drafted answer and publish it to the help center.',
+        }),
+      ],
+    },
+    ...overrides,
+  };
+}
+
 function minimalModel(overrides = {}) {
   return {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [supportTaxSection(), priorityFixQueueSection(), topUnresolvedRepeatsSection()],
+    sections: [supportTaxSection(), priorityFixQueueSection(), topUnresolvedRepeatsSection(), draftedResolutionsSection()],
     ...overrides,
   };
 }
@@ -497,12 +528,21 @@ try {
           top_item_count: 1,
         },
       }),
+      draftedResolutionsSection({
+        data: {
+          ...draftedResolutionsSection().data,
+          items: [unsafeActionItem],
+          top_item_count: 1,
+        },
+      }),
     ],
   });
   const projectedUnsafeModel = await fetchDeflectionReportModel('content-ops-unit-123');
   assert.equal(projectedUnsafeModel.ok, true);
   for (const section of projectedUnsafeModel.model.sections.filter((section) => (
-    section.id === 'priority_fix_queue' || section.id === 'top_unresolved_repeats'
+    section.id === 'priority_fix_queue' ||
+    section.id === 'top_unresolved_repeats' ||
+    section.id === 'drafted_resolutions'
   ))) {
     const item = section.data.items[0];
     assert.equal('recommended_title' in item, false);
@@ -738,6 +778,60 @@ try {
     reason: 'error',
   });
 
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      draftedResolutionsSection({
+        data: {
+          ...draftedResolutionsSection().data,
+          top_item_count: '1',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      draftedResolutionsSection({
+        data: {
+          ...draftedResolutionsSection().data,
+          top_item_count: 2,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      draftedResolutionsSection({
+        data: {
+          ...draftedResolutionsSection().data,
+          items: [actionItem({ priority_score: '84' })],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
   resetEnv({});
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
@@ -786,6 +880,9 @@ try {
   assert.ok(modelPageSource.includes("section.id === 'top_unresolved_repeats'"), 'model page renders top_unresolved_repeats sections');
   assert.ok(modelPageSource.includes('Top Unresolved Repeats'), 'model page names unresolved repeat actions');
   assert.ok(modelPageSource.includes('data-smoke="topUnresolvedRepeats"'), 'top unresolved repeats keeps a stable smoke marker');
+  assert.ok(modelPageSource.includes("section.id === 'drafted_resolutions'"), 'model page renders drafted_resolutions sections');
+  assert.ok(modelPageSource.includes('Drafted Resolutions'), 'model page names drafted resolution actions');
+  assert.ok(modelPageSource.includes('data-smoke="draftedResolutions"'), 'drafted resolutions keeps a stable smoke marker');
   assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
@@ -793,6 +890,10 @@ try {
   assert.ok(
     modelPageSource.includes('const limit = Math.min(TOP_UNRESOLVED_REPEATS_LIMIT, requestedLimit)'),
     'top unresolved repeats clamps the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(DRAFTED_RESOLUTIONS_LIMIT, requestedLimit)'),
+    'drafted resolutions clamp the result-page limit locally',
   );
   assert.ok(
     modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),

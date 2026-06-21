@@ -6,6 +6,7 @@ import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-searc
 const RANKED_ROW_LIMIT = 25;
 const PRIORITY_FIX_QUEUE_LIMIT = 3;
 const TOP_UNRESOLVED_REPEATS_LIMIT = 3;
+const DRAFTED_RESOLUTIONS_LIMIT = 3;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
 const QUESTION_DETAIL_LIMIT = 10;
 const SEO_TARGET_LIMIT = 20;
@@ -304,6 +305,76 @@ function TopUnresolvedRepeats({ section }: { section?: DeflectionReportSection }
   );
 }
 
+function DraftedResolutions({ section }: { section?: DeflectionReportSection }) {
+  const data = asRecord(section?.data);
+  const allItems = rows(data.items);
+  const requestedLimit = nonNegativeIntOrNull(section?.default_limit) ?? DRAFTED_RESOLUTIONS_LIMIT;
+  const limit = Math.min(DRAFTED_RESOLUTIONS_LIMIT, requestedLimit);
+  const items = allItems.slice(0, limit);
+  const topItemCount = Math.max(int(data.top_item_count), allItems.length);
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-5 md:p-6" data-smoke="draftedResolutions">
+      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        Ready to review
+      </div>
+      <h2 className="mt-3 text-xl font-semibold text-foreground">Drafted Resolutions</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
+        These repeat questions already have a proposed resolution path. Review the action, approve the answer,
+        and use the export when you need the complete source trail.
+      </p>
+
+      {items.length > 0 ? (
+        <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+            <thead className="bg-background/50 text-foreground">
+              <tr>
+                {['Question/theme', 'Draft status', 'Repeats', 'Cost', 'CSAT', 'Owner lane', 'Confidence', 'Next action'].map((label) => (
+                  <th key={label} className="border-b border-border px-3 py-2 font-semibold">
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((row) => (
+                <tr key={`${int(row.rank)}-${text(row.question)}-${text(row.status)}`} className="border-t border-border/70">
+                  <td className="px-3 py-2">
+                    <div className="font-medium leading-snug text-foreground">{text(row.question)}</div>
+                    <div className="mt-1 text-xs leading-relaxed text-foreground/48">
+                      {texts(row.priority_drivers).slice(0, 3).map(priorityDriverLabel).join(' / ')}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="rounded-full border border-border bg-background/45 px-2 py-1 text-xs text-foreground/70">
+                      {text(row.status) || 'Draft ready'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
+                  <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
+                  <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-border bg-background/35 p-4 text-sm text-foreground/60">
+          No drafted resolutions are shown in this result-page view.
+        </div>
+      )}
+      <p className="mt-3 text-xs leading-relaxed text-foreground/50">
+        Showing {items.length.toLocaleString()} of {topItemCount.toLocaleString()} drafted resolutions. Complete
+        source IDs and evidence stay in the export.
+      </p>
+    </section>
+  );
+}
+
 function SeoTargets({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const requestedLimit = int(data.limit) || SEO_TARGET_LIMIT;
@@ -511,6 +582,7 @@ export function DeflectionReportModelPage({
             if (section.id === 'ranked_questions') return <RankedQuestions key={section.id} section={section} />;
             if (section.id === 'priority_fix_queue') return <PriorityFixQueue key={section.id} section={section} />;
             if (section.id === 'top_unresolved_repeats') return <TopUnresolvedRepeats key={section.id} section={section} />;
+            if (section.id === 'drafted_resolutions') return <DraftedResolutions key={section.id} section={section} />;
             if (section.id === 'outcome_diagnostics') return <OutcomeDiagnostics key={section.id} section={section} />;
             if (section.id === 'question_details') return <QuestionDetails key={section.id} section={section} />;
             return null;

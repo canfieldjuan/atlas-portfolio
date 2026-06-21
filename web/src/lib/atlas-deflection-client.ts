@@ -818,6 +818,13 @@ function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
   return isPrioritySupportCostBasis(data.support_cost_basis);
 }
 
+function isDraftedResolutionsSection(data: Record<string, unknown>): boolean {
+  const items = data.items;
+  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
+  if (!isNonNegativeInteger(data.top_item_count)) return false;
+  return data.top_item_count === items.length;
+}
+
 function safeActionItem(row: Record<string, unknown>): Record<string, unknown> {
   const csatSignal = row.csat_signal as Record<string, unknown>;
   return {
@@ -894,6 +901,15 @@ function constructSafeActionSection(section: DeflectionReportSection): Deflectio
       },
     };
   }
+  if (section.id === 'drafted_resolutions') {
+    return {
+      ...section,
+      data: {
+        items: safeActionItems(data.items),
+        top_item_count: data.top_item_count,
+      },
+    };
+  }
   return section;
 }
 
@@ -963,6 +979,9 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   if (section.id === 'top_unresolved_repeats') {
     return isTopUnresolvedRepeatsSection(data);
   }
+  if (section.id === 'drafted_resolutions') {
+    return isDraftedResolutionsSection(data);
+  }
   if (section.id === 'outcome_diagnostics') {
     return (
       requireNonNegativeNumbers(data, [
@@ -982,7 +1001,11 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
 
 function constructWebReportSection(section: DeflectionReportSection): DeflectionReportSection | null {
   if (!validateWebReportSection(section)) return null;
-  if (section.id === 'priority_fix_queue' || section.id === 'top_unresolved_repeats') {
+  if (
+    section.id === 'priority_fix_queue' ||
+    section.id === 'top_unresolved_repeats' ||
+    section.id === 'drafted_resolutions'
+  ) {
     return constructSafeActionSection(section);
   }
   return section;
