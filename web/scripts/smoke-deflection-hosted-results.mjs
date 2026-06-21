@@ -4,7 +4,7 @@ import { failCommand, isBareFlag, parseArgs, writeJsonArtifact } from './ads-cli
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const DEFAULT_BASE_URL = 'https://juancanfield.com';
 const RESULTS_PATH = '/systems/support-ticket-deflection/results';
-const EXPECTED_RENDER_STATES = new Set(['snapshot', 'full-report']);
+const EXPECTED_RENDER_STATES = new Set(['snapshot', 'full-report', 'model-full-report']);
 const DEFAULT_EXPECTED_STATE = 'snapshot';
 const REQUIRED_SNAPSHOT_MARKERS = [
   { key: 'snapshotBadge', label: 'YOUR DEFLECTION SNAPSHOT' },
@@ -59,7 +59,7 @@ Usage:
 
 Options:
   --base-url <url>   Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
-  --expect <state>   Expected render state: snapshot or full-report (default: snapshot)
+  --expect <state>   Expected render state: snapshot, full-report, or model-full-report (default: snapshot)
   --json             Print machine-readable JSON
   --output <path>    Write the smoke artifact JSON
 
@@ -111,8 +111,13 @@ function hasSnapshotAnswerState(html) {
   return ZERO_DRAFTED_SUMMARY_RE.test(html) && html.includes(NO_DRAFTED_REPORT_COPY);
 }
 
-function missingFullReportMarkers(html) {
-  return fullReportMarkers(html).filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
+function fullReportMarkersForExpectedState(expectedState, html) {
+  if (expectedState === 'model-full-report') return REQUIRED_MODEL_FULL_REPORT_MARKERS;
+  return fullReportMarkers(html);
+}
+
+function missingFullReportMarkers(expectedState, html) {
+  return fullReportMarkersForExpectedState(expectedState, html).filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
     (marker) => marker.key,
   );
 }
@@ -129,8 +134,8 @@ function lockedFullReportMarkers(html) {
 }
 
 function markerResult(expectedState, html = '') {
-  if (expectedState === 'full-report') {
-    return Object.fromEntries(fullReportMarkers(html).map((marker) => [marker.key, true]));
+  if (expectedState === 'full-report' || expectedState === 'model-full-report') {
+    return Object.fromEntries(fullReportMarkersForExpectedState(expectedState, html).map((marker) => [marker.key, true]));
   }
   return {
     ...Object.fromEntries(REQUIRED_SNAPSHOT_MARKERS.map((marker) => [marker.key, true])),
@@ -204,8 +209,9 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
   }
 
   const html = await response.text();
-  const missing = expectedState === 'full-report' ? missingFullReportMarkers(html) : missingSnapshotMarkers(html);
-  const lockedMarkers = expectedState === 'full-report' ? lockedFullReportMarkers(html) : [];
+  const expectsFullReport = expectedState === 'full-report' || expectedState === 'model-full-report';
+  const missing = expectsFullReport ? missingFullReportMarkers(expectedState, html) : missingSnapshotMarkers(html);
+  const lockedMarkers = expectsFullReport ? lockedFullReportMarkers(html) : [];
   if (missing.length > 0) {
     const errorMarker = renderedErrorMarker(html, missing);
     return {
