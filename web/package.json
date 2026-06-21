@@ -30,6 +30,7 @@
     "smoke:deflection-paid-unlock": "node scripts/smoke-deflection-paid-unlock.mjs",
     "smoke:deflection-public-reachability": "node scripts/smoke-deflection-public-reachability.mjs",
     "smoke:deflection-snapshot-landing": "node scripts/smoke-deflection-snapshot-landing.mjs",
+    "smoke:deflection-uploaded-search": "node scripts/smoke-deflection-uploaded-search.mjs",
     "check:deflection-checkout-env": "node scripts/check-deflection-checkout-env.mjs",
     "check:dead-code": "node scripts/check-knip-baseline.mjs",
     "create:deflection-partner-token": "node scripts/create-deflection-partner-token.mjs",
