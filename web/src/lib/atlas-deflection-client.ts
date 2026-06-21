@@ -783,7 +783,7 @@ function isRankedQuestionRows(value: unknown): boolean {
   ));
 }
 
-function isPriorityFixQueueRows(value: unknown): boolean {
+function isActionItemRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
     isPlainRecord(row) &&
@@ -808,6 +808,14 @@ function isPriorityFixQueueRows(value: unknown): boolean {
       isFiniteNumber(row.csat_signal.numeric_average)
     )
   ));
+}
+
+function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
+  const items = data.items;
+  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
+  if (!isNonNegativeInteger(data.top_item_count)) return false;
+  if (data.top_item_count !== items.length) return false;
+  return isPrioritySupportCostBasis(data.support_cost_basis);
 }
 
 function isPrioritySupportCostBasis(value: unknown): boolean {
@@ -873,13 +881,16 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   }
   if (section.id === 'priority_fix_queue') {
     return (
-      isPriorityFixQueueRows(data.items) &&
+      isActionItemRows(data.items) &&
       isPriorityStatusCounts(data.status_counts) &&
       isNonNegativeInteger(data.result_page_limit) &&
       isNonNegativeInteger(data.pdf_limit) &&
       isNonNegativeInteger(data.backlog_limit) &&
       isPrioritySupportCostBasis(data.support_cost_basis)
     );
+  }
+  if (section.id === 'top_unresolved_repeats') {
+    return isTopUnresolvedRepeatsSection(data);
   }
   if (section.id === 'outcome_diagnostics') {
     return (
