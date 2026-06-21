@@ -18,6 +18,7 @@ const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const originalUploadedSearchEnabled = process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
 const originalAtlasApiBaseUrl = process.env.ATLAS_API_BASE_URL;
 const originalAtlasServiceToken = process.env.ATLAS_B2B_SERVICE_TOKEN;
+const originalVercelEnv = process.env.VERCEL_ENV;
 
 const localMatch = { topic: 'local sample' };
 const atlasMatch = { topic: 'uploaded report' };
@@ -102,7 +103,8 @@ try {
       '  const flag = clean(env.DEFLECTION_UPLOADED_SEARCH_ENABLED).toLowerCase();',
       '  if (flag === "false") return false;',
       '  if (flag === "true") return true;',
-      '  return Boolean(clean(env.ATLAS_API_BASE_URL) && clean(env.ATLAS_B2B_SERVICE_TOKEN));',
+      '  if (!clean(env.ATLAS_API_BASE_URL) || !clean(env.ATLAS_B2B_SERVICE_TOKEN)) return false;',
+      '  return clean(env.VERCEL_ENV).toLowerCase() !== "production";',
       '};',
       '',
     ].join('\n'),
@@ -118,6 +120,10 @@ try {
   globalThis.__uploadedSearchModelResult = modelResult;
   globalThis.__uploadedSearchArtifactResult = artifactResult;
   globalThis.__uploadedSearchRateLimitResult = rateLimitResult;
+  delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
+  delete process.env.ATLAS_API_BASE_URL;
+  delete process.env.ATLAS_B2B_SERVICE_TOKEN;
+  delete process.env.VERCEL_ENV;
 
   const source = await readFile(routeUrl, 'utf8');
   const compiled = ts.transpileModule(source, {
@@ -186,6 +192,20 @@ try {
   assert.equal(atlasCalls.length, 1);
   assert.equal(atlasCalls[0].requestId, 'content-ops-unit');
   assert.equal(atlasCalls[0].query.length, 256);
+
+  process.env.VERCEL_ENV = 'production';
+  atlasCalls = [];
+  modelCalls = [];
+  rateLimitCalls = [];
+  globalThis.__uploadedSearchAtlasCalls = atlasCalls;
+  globalThis.__uploadedSearchModelCalls = modelCalls;
+  globalThis.__uploadedSearchRateLimitCalls = rateLimitCalls;
+  response = await POST(makePostRequest({ requestId: 'content-ops-unit', q: 'export' }));
+  assert.equal(response.status, 404);
+  assert.equal(response.body.error, 'Uploaded report search is not enabled.');
+  assert.deepEqual(modelCalls, []);
+  assert.deepEqual(atlasCalls, []);
+  assert.deepEqual(rateLimitCalls, []);
 
   delete process.env.ATLAS_API_BASE_URL;
   delete process.env.ATLAS_B2B_SERVICE_TOKEN;
@@ -267,6 +287,7 @@ try {
   assert.match(uploadedSearchConfigSource, /flag === 'true'/);
   assert.match(uploadedSearchConfigSource, /ATLAS_API_BASE_URL/);
   assert.match(uploadedSearchConfigSource, /ATLAS_B2B_SERVICE_TOKEN/);
+  assert.match(uploadedSearchConfigSource, /VERCEL_ENV/);
 
   const resultsPageSource = await readFile(resultsPageUrl, 'utf8');
   assert.doesNotMatch(resultsPageSource, /requestId=\{requestId\}/);
@@ -292,6 +313,11 @@ try {
     delete process.env.ATLAS_B2B_SERVICE_TOKEN;
   } else {
     process.env.ATLAS_B2B_SERVICE_TOKEN = originalAtlasServiceToken;
+  }
+  if (originalVercelEnv === undefined) {
+    delete process.env.VERCEL_ENV;
+  } else {
+    process.env.VERCEL_ENV = originalVercelEnv;
   }
   await rm(testDir, { recursive: true, force: true });
 }
