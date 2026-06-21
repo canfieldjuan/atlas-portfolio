@@ -28,6 +28,7 @@ const FULL_REPORT_HTML = [
   '<div>Paid report dashboard</div>',
   '<section>Priority Fix Queue</section>',
   '<section>Top Unresolved Repeats</section>',
+  '<section>Drafted Resolutions</section>',
   '<section>Help-desk SEO targeting list</section>',
   '<strong>Ranked question opportunities</strong>',
   '<div>Top publishable answers and gaps</div>',
@@ -278,6 +279,7 @@ async function run(options, response) {
   assert.equal(result.ok, true);
   assert.equal(result.expectedState, 'full-report');
   assert.deepEqual(result.markers, {
+    draftedResolutions: true,
     paidHeadline: true,
     paidReportBadge: true,
     priorityFixQueue: true,
@@ -342,6 +344,18 @@ async function run(options, response) {
   assert.equal(result.expectedState, 'full-report');
   assert.equal(result.error, 'Hosted results page is missing required render markers.');
   assert.deepEqual(result.missing, ['topUnresolvedRepeats']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
+    { status: 200, body: FULL_REPORT_HTML.replace('Drafted Resolutions', '') },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.expectedState, 'full-report');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['draftedResolutions']);
 }
 
 {
