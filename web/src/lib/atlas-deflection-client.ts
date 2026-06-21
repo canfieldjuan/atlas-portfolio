@@ -661,6 +661,9 @@ function isTermMapping(v: unknown): boolean {
 // Validate the TicketFAQItem fields the report render reads — the render maps
 // over steps/action_items/term_mappings and reads topic/question/answer/etc, so
 // a malformed item would crash it. Reject the whole artifact if any item fails.
+// Keep this shape aligned with `summarizeRenderableItem` in
+// `web/scripts/smoke-deflection-uploaded-search.mjs` and ATLAS
+// `_deflection_report_full_item`.
 function isRenderableItem(v: unknown): boolean {
   if (typeof v !== 'object' || v === null) return false;
   const i = v as Record<string, unknown>;
