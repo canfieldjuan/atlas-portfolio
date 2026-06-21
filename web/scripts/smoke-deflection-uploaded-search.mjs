@@ -56,6 +56,9 @@ function isTermMapping(value) {
   );
 }
 
+// Keep this shape aligned with `isRenderableItem` in
+// `web/src/lib/atlas-deflection-client.ts` and ATLAS
+// `_deflection_report_full_item`.
 function summarizeRenderableItem(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   if (
