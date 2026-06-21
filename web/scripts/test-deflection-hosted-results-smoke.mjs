@@ -298,6 +298,30 @@ async function run(options, response) {
 }
 
 {
+  const { result, fetchImpl } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
+    { status: 200, body: FULL_REPORT_HTML },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.expectedState, 'model-full-report');
+  assert.deepEqual(result.markers, {
+    backlogTable: true,
+    coveredRecurring: true,
+    draftedResolutions: true,
+    paidHeadline: true,
+    paidReportBadge: true,
+    priorityFixQueue: true,
+    rankedQuestions: true,
+    reportContents: true,
+    reviewerGuidance: true,
+    seoTargeting: true,
+    topUnresolvedRepeats: true,
+  });
+  assert.equal(fetchImpl.calls.length, 1);
+  assert.equal(fetchImpl.calls[0].init.cache, 'no-store');
+}
+
+{
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
     { status: 200, body: LEGACY_FULL_REPORT_HTML },
@@ -312,6 +336,28 @@ async function run(options, response) {
     reviewerGuidance: true,
     seoTargeting: true,
   });
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
+    { status: 200, body: LEGACY_FULL_REPORT_HTML },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.expectedState, 'model-full-report');
+  assert.deepEqual(result.missing, [
+    'paidReportBadge',
+    'paidHeadline',
+    'reportContents',
+    'priorityFixQueue',
+    'topUnresolvedRepeats',
+    'draftedResolutions',
+    'coveredRecurring',
+    'backlogTable',
+    'seoTargeting',
+    'rankedQuestions',
+    'reviewerGuidance',
+  ]);
 }
 
 {
@@ -382,6 +428,18 @@ async function run(options, response) {
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.equal(result.expectedState, 'full-report');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['backlogTable']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
+    { status: 200, body: FULL_REPORT_HTML.replace('Backlog Table', '') },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.expectedState, 'model-full-report');
   assert.equal(result.error, 'Hosted results page is missing required render markers.');
   assert.deepEqual(result.missing, ['backlogTable']);
 }
