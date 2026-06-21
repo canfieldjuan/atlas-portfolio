@@ -345,12 +345,28 @@ try {
   });
 
   resetCalls();
+  const validPriorityQueueSection = priorityFixQueueSection();
   fetchPayload = minimalModel({
-    sections: [supportTaxSection(), priorityFixQueueSection()],
+    sections: [supportTaxSection(), validPriorityQueueSection],
   });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
-    model: minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection()] }),
+    model: minimalModel({ sections: [supportTaxSection(), validPriorityQueueSection] }),
+  });
+
+  resetCalls();
+  const zeroLimitPriorityQueueSection = priorityFixQueueSection({
+    data: {
+      ...priorityFixQueueSection().data,
+      result_page_limit: 0,
+    },
+  });
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), zeroLimitPriorityQueueSection],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: minimalModel({ sections: [supportTaxSection(), zeroLimitPriorityQueueSection] }),
   });
 
   resetCalls();
@@ -364,6 +380,51 @@ try {
             {
               ...priorityFixQueueSection().data.items[0],
               priority_score: '84',
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          support_cost_basis: {
+            ...priorityFixQueueSection().data.support_cost_basis,
+            status: 17,
+          },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              csat_signal: {
+                ...priorityFixQueueSection().data.items[0].csat_signal,
+                negative_csat_ticket_count: '3',
+              },
             },
           ],
         },
@@ -423,6 +484,15 @@ try {
   assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),
+    'priority queue preserves explicit zero result-page limits',
+  );
+  assert.equal(
+    modelPageSource.includes('int(data.result_page_limit) ||'),
+    false,
+    'priority queue must not treat result_page_limit: 0 as missing',
   );
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
   assert.equal(modelPageSource.includes('top_evidence'), false, 'priority queue must not inline evidence snippets in S3A');

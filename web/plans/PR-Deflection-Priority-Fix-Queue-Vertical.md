@@ -15,6 +15,18 @@ incoming priority-queue shape, render the top bounded rows on the paid result
 page, and extend the hosted-results smoke so the model-backed full report must
 show the action queue while legacy paid reports remain tolerated.
 
+Review follow-up root cause: the first validator version checked less than the
+renderer consumed, so malformed cost-basis metadata, malformed CSAT metrics, or
+an explicit zero row cap could still produce misleading paid output. This push
+fixes the root in the validation/render contract: every priority-queue field the
+renderer reads is either validated before render or, for `result_page_limit: 0`,
+preserved as an explicit cap instead of falling through to the default.
+
+The final diff is over the 400 LOC soft cap because the review fix adds the
+required fail-closed regression fixtures to the same validator/renderer boundary.
+Splitting those tests out would leave this buyer-visible slice knowingly under
+protected.
+
 ## Scope (this PR)
 
 Slice phase: Vertical slice
@@ -42,16 +54,16 @@ Slice phase: Vertical slice
 `atlas-deflection-client.ts` validates `priority_fix_queue.data.items` before
 the model reaches the renderer. It checks the fields the result page needs:
 question, status, owner lane, fix type, confidence, recommended action, ticket
-count, estimated cost, priority score, CSAT signal, and driver labels. Malformed
-web priority-queue sections reject the model instead of rendering partial or
-misleading rows.
+count, estimated cost, priority score, CSAT status/count/average metrics, cost
+basis status, and driver labels. Malformed web priority-queue sections reject
+the model instead of rendering partial or misleading rows.
 
 `DeflectionReportModelPage` adds a `PriorityFixQueue` section. It reads
 `result_page_limit` / `default_limit`, caps locally to the result-page maximum,
-and renders only the top rows with status, repeat count, estimated cost, CSAT
-signal, owner lane, confidence, priority score, and recommended action. It does
-not render `top_evidence`, raw source IDs, evidence quotes, or representative
-phrasing in this first vertical.
+honors explicit zero as a valid cap, and renders only the top rows with status,
+repeat count, estimated cost, CSAT signal, owner lane, confidence, priority
+score, and recommended action. It does not render `top_evidence`, raw source
+IDs, evidence quotes, or representative phrasing in this first vertical.
 
 The hosted-results smoke chooses marker sets based on the rendered paid report
 shape. Model-backed reports must include `Priority Fix Queue`; legacy full
@@ -67,6 +79,9 @@ read-only smoke.
   dedicated snippet-bearing section lands with its own scrub/projection tests.
 - No visual redesign of the paid page. This PR follows the existing report-model
   section rhythm to keep the diff reviewable.
+- `result_page_limit: 0` is honored as "show no priority rows" rather than
+  rejected, because the model contract already treats the limit as
+  non-negative.
 
 ## Deferred
 
@@ -82,6 +97,8 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-report-model-result-page`
   - Pass: `Deflection report-model result page tests passed.`
+  - Covers invalid priority score, invalid cost-basis status, invalid CSAT
+    counts, and explicit zero result-page limits.
 - `npm --prefix web run test:deflection-hosted-results-smoke`
   - Pass: `Deflection hosted results smoke tests passed.`
 - `npm --prefix web run lint -- src/lib/atlas-deflection-client.ts src/components/landing/DeflectionReportModelPage.tsx scripts/smoke-deflection-hosted-results.mjs scripts/test-deflection-hosted-results-smoke.mjs scripts/test-deflection-report-model-result-page.mjs`
@@ -92,10 +109,10 @@ Parked hardening: none.
 
 | File | LOC |
 |---|---:|
-| `web/src/lib/atlas-deflection-client.ts` | +31 / -0 |
-| `web/src/components/landing/DeflectionReportModelPage.tsx` | +116 / -1 |
+| `web/src/lib/atlas-deflection-client.ts` | +41 / -0 |
+| `web/src/components/landing/DeflectionReportModelPage.tsx` | +123 / -1 |
 | `web/scripts/smoke-deflection-hosted-results.mjs` | +21 / -5 |
 | `web/scripts/test-deflection-hosted-results-smoke.mjs` | +14 / -0 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | +92 / -0 |
-| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +98 / -0 |
-| **Total** | **381 LOC** |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | +162 / -0 |
+| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +118 / -0 |
+| **Total** | **485 LOC** |

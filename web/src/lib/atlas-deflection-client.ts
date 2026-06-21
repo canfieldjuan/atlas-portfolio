@@ -792,8 +792,18 @@ function isPriorityFixQueueRows(value: unknown): boolean {
     isNonNegativeFiniteNumber(row.priority_score) &&
     parseStringList(row.priority_drivers) !== null &&
     isPlainRecord(row.csat_signal) &&
-    typeof row.csat_signal.status === 'string'
+    typeof row.csat_signal.status === 'string' &&
+    isNonNegativeFiniteNumber(row.csat_signal.negative_csat_ticket_count) &&
+    isNonNegativeFiniteNumber(row.csat_signal.csat_present_count) &&
+    (
+      row.csat_signal.numeric_average === null ||
+      isFiniteNumber(row.csat_signal.numeric_average)
+    )
   ));
+}
+
+function isPrioritySupportCostBasis(value: unknown): boolean {
+  return isPlainRecord(value) && typeof value.status === 'string';
 }
 
 function isQuestionDetailRows(value: unknown): boolean {
@@ -856,7 +866,7 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
       isNonNegativeFiniteNumber(data.result_page_limit) &&
       isNonNegativeFiniteNumber(data.pdf_limit) &&
       isNonNegativeFiniteNumber(data.backlog_limit) &&
-      isPlainRecord(data.support_cost_basis)
+      isPrioritySupportCostBasis(data.support_cost_basis)
     );
   }
   if (section.id === 'outcome_diagnostics') {

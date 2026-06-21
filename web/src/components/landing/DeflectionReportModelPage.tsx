@@ -33,6 +33,10 @@ function int(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
 }
 
+function nonNegativeIntOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
+}
+
 function money(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value)
     ? `$${Math.max(0, Math.round(value)).toLocaleString()}`
@@ -127,7 +131,10 @@ function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
 function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const allItems = rows(data.items);
-  const requestedLimit = int(data.result_page_limit) || int(section?.default_limit) || PRIORITY_FIX_QUEUE_LIMIT;
+  const requestedLimit =
+    nonNegativeIntOrNull(data.result_page_limit) ??
+    nonNegativeIntOrNull(section?.default_limit) ??
+    PRIORITY_FIX_QUEUE_LIMIT;
   const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit);
   const items = allItems.slice(0, limit);
   if (items.length === 0) return null;
