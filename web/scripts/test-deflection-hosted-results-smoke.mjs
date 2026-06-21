@@ -26,6 +26,7 @@ const FULL_REPORT_HTML = [
   '<span>MODEL-BACKED REPORT</span>',
   '<h1>Your Support Tax report is ready.</h1>',
   '<div>Paid report dashboard</div>',
+  '<section>Priority Fix Queue</section>',
   '<section>Help-desk SEO targeting list</section>',
   '<strong>Ranked question opportunities</strong>',
   '<div>Top publishable answers and gaps</div>',
@@ -278,6 +279,7 @@ async function run(options, response) {
   assert.deepEqual(result.markers, {
     paidHeadline: true,
     paidReportBadge: true,
+    priorityFixQueue: true,
     rankedQuestions: true,
     reportContents: true,
     reviewerGuidance: true,
@@ -314,6 +316,18 @@ async function run(options, response) {
   assert.equal(result.expectedState, 'full-report');
   assert.equal(result.error, 'Hosted results page is missing required render markers.');
   assert.deepEqual(result.missing, ['reportContents']);
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
+    { status: 200, body: FULL_REPORT_HTML.replace('Priority Fix Queue', '') },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'render');
+  assert.equal(result.expectedState, 'full-report');
+  assert.equal(result.error, 'Hosted results page is missing required render markers.');
+  assert.deepEqual(result.missing, ['priorityFixQueue']);
 }
 
 {

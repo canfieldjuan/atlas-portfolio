@@ -737,6 +737,14 @@ function isNonNegativeFiniteNumber(value: unknown): value is number {
   return isFiniteNumber(value) && value >= 0;
 }
 
+function isNonNegativeInteger(value: unknown): value is number {
+  return isNonNegativeFiniteNumber(value) && Number.isInteger(value);
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isFiniteNumber(value) && Number.isInteger(value) && value > 0;
+}
+
 function requireNonNegativeNumbers(
   data: Record<string, unknown>,
   keys: string[],
@@ -773,6 +781,41 @@ function isRankedQuestionRows(value: unknown): boolean {
     isFiniteNumber(row.opportunity_score) &&
     typeof row.answer_status === 'string'
   ));
+}
+
+function isPriorityFixQueueRows(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.every((row) => (
+    isPlainRecord(row) &&
+    isPositiveInteger(row.rank) &&
+    typeof row.question === 'string' &&
+    typeof row.status === 'string' &&
+    typeof row.owner_lane === 'string' &&
+    typeof row.fix_type === 'string' &&
+    typeof row.confidence === 'string' &&
+    typeof row.recommended_action === 'string' &&
+    isNonNegativeFiniteNumber(row.ticket_count) &&
+    isNonNegativeFiniteNumber(row.estimated_support_cost) &&
+    isFiniteNumber(row.opportunity_score) &&
+    isNonNegativeFiniteNumber(row.priority_score) &&
+    parseStringList(row.priority_drivers) !== null &&
+    isPlainRecord(row.csat_signal) &&
+    typeof row.csat_signal.status === 'string' &&
+    isNonNegativeFiniteNumber(row.csat_signal.negative_csat_ticket_count) &&
+    isNonNegativeFiniteNumber(row.csat_signal.csat_present_count) &&
+    (
+      row.csat_signal.numeric_average === null ||
+      isFiniteNumber(row.csat_signal.numeric_average)
+    )
+  ));
+}
+
+function isPrioritySupportCostBasis(value: unknown): boolean {
+  return isPlainRecord(value) && typeof value.status === 'string';
+}
+
+function isPriorityStatusCounts(value: unknown): boolean {
+  return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
 }
 
 function isQuestionDetailRows(value: unknown): boolean {
@@ -827,6 +870,16 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   }
   if (section.id === 'ranked_questions') {
     return isRankedQuestionRows(data.rows);
+  }
+  if (section.id === 'priority_fix_queue') {
+    return (
+      isPriorityFixQueueRows(data.items) &&
+      isPriorityStatusCounts(data.status_counts) &&
+      isNonNegativeInteger(data.result_page_limit) &&
+      isNonNegativeInteger(data.pdf_limit) &&
+      isNonNegativeInteger(data.backlog_limit) &&
+      isPrioritySupportCostBasis(data.support_cost_basis)
+    );
   }
   if (section.id === 'outcome_diagnostics') {
     return (
@@ -900,6 +953,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
     sections.push(parsed);
   }
   if (!sections.some((section) => section.id === 'support_tax')) return null;
+  if (!sections.some((section) => section.id === 'priority_fix_queue')) return null;
   return {
     schema_version: 'deflection.v1',
     title: value.title,

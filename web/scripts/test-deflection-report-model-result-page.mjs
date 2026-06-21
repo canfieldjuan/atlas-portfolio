@@ -112,12 +112,65 @@ function exportOnlySection(overrides = {}) {
   };
 }
 
+function priorityFixQueueSection(overrides = {}) {
+  return {
+    id: 'priority_fix_queue',
+    title: 'Priority Fix Queue',
+    priority: 35,
+    surfaces: ['web', 'pdf', 'email_summary'],
+    default_limit: 3,
+    required_data: [
+      'items',
+      'status_counts',
+      'result_page_limit',
+      'pdf_limit',
+      'backlog_limit',
+      'support_cost_basis',
+    ],
+    data: {
+      result_page_limit: 3,
+      pdf_limit: 10,
+      backlog_limit: 25,
+      status_counts: { 'Needs answer': 1 },
+      support_cost_basis: {
+        assisted_contact_cost: 13.5,
+        formula: 'ticket_count * assisted_contact_cost',
+        source: 'default_assisted_contact_benchmark',
+        status: 'benchmark_only',
+      },
+      items: [
+        {
+          rank: 2,
+          question: 'How do I enable SSO for my team?',
+          status: 'Needs answer',
+          owner_lane: 'Help Center',
+          fix_type: 'create_missing_answer',
+          confidence: 'medium',
+          recommended_action: 'Write and approve the missing answer.',
+          ticket_count: 2,
+          estimated_support_cost: 27,
+          opportunity_score: 2,
+          priority_score: 84,
+          priority_drivers: ['repeat_volume', 'missing_answer', 'benchmark_cost'],
+          csat_signal: {
+            status: 'insufficient_data',
+            csat_present_count: 0,
+            negative_csat_ticket_count: 0,
+            numeric_average: null,
+          },
+        },
+      ],
+    },
+    ...overrides,
+  };
+}
+
 function minimalModel(overrides = {}) {
   return {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [supportTaxSection()],
+    sections: [supportTaxSection(), priorityFixQueueSection()],
     ...overrides,
   };
 }
@@ -280,6 +333,24 @@ try {
   fetchPayload = minimalModel({
     sections: [
       supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          result_page_limit: 1.9,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
       exportOnlySection({
         required_data: ['evidence_row_count', 'source_id_count'],
         data: { evidence_row_count: 42 },
@@ -289,6 +360,168 @@ try {
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
     model: minimalModel(),
+  });
+
+  resetCalls();
+  const validPriorityQueueSection = priorityFixQueueSection();
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), validPriorityQueueSection],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: minimalModel({ sections: [supportTaxSection(), validPriorityQueueSection] }),
+  });
+
+  resetCalls();
+  const zeroLimitPriorityQueueSection = priorityFixQueueSection({
+    data: {
+      ...priorityFixQueueSection().data,
+      result_page_limit: 0,
+    },
+  });
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), zeroLimitPriorityQueueSection],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: minimalModel({ sections: [supportTaxSection(), zeroLimitPriorityQueueSection] }),
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              priority_score: '84',
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          support_cost_basis: {
+            ...priorityFixQueueSection().data.support_cost_basis,
+            status: 17,
+          },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          status_counts: { 'Needs answer': '2' },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              rank: 1.9,
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              rank: -1,
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              csat_signal: {
+                ...priorityFixQueueSection().data.items[0].csat_signal,
+                negative_csat_ticket_count: '3',
+              },
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
   });
 
   resetEnv({});
@@ -334,6 +567,32 @@ try {
   assert.ok(modelPageSource.includes('const diagnostics = allDiagnostics.slice(0, limit)'), 'outcome diagnostics are capped before rendering');
   assert.ok(modelPageSource.includes('Diagnostics capped at'), 'diagnostic cap copy points to the export');
   assert.ok(modelPageSource.includes('complete evidence export'), 'model page points to the complete evidence export');
+  assert.ok(modelPageSource.includes("section.id === 'priority_fix_queue'"), 'model page renders priority_fix_queue sections');
+  assert.ok(modelPageSource.includes('Priority Fix Queue'), 'model page names the action queue');
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
+    'priority queue clamps the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),
+    'priority queue preserves explicit zero result-page limits',
+  );
+  assert.equal(
+    modelPageSource.includes('int(data.result_page_limit) ||'),
+    false,
+    'priority queue must not treat result_page_limit: 0 as missing',
+  );
+  assert.ok(
+    modelPageSource.includes('No priority fixes are shown in this result-page view.'),
+    'priority queue renders an empty state when an explicit zero cap selects no rows',
+  );
+  assert.equal(
+    modelPageSource.includes('if (items.length === 0) return null'),
+    false,
+    'priority queue must keep the section marker visible for explicit zero caps',
+  );
+  assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
+  assert.equal(modelPageSource.includes('top_evidence'), false, 'priority queue must not inline evidence snippets in S3A');
   assert.equal(modelPageSource.includes('evidence_quotes'), false, 'model page must not read raw evidence quotes');
   assert.equal(modelPageSource.includes('source_ids.map'), false, 'model page must not render raw source IDs');
 

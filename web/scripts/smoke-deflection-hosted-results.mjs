@@ -14,7 +14,16 @@ const REQUIRED_SNAPSHOT_MARKERS = [
   { key: 'runRateComparison', label: 'This backlog at current pace' },
   { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
 ];
-const REQUIRED_FULL_REPORT_MARKERS = [
+const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
+  { key: 'paidReportBadge', labels: ['MODEL-BACKED REPORT'] },
+  { key: 'paidHeadline', labels: ['Your Support Tax report is ready.'] },
+  { key: 'reportContents', labels: ['Paid report dashboard'] },
+  { key: 'priorityFixQueue', labels: ['Priority Fix Queue'] },
+  { key: 'seoTargeting', labels: ['Help-desk SEO targeting list'] },
+  { key: 'rankedQuestions', labels: ['Ranked question opportunities'] },
+  { key: 'reviewerGuidance', labels: ['Top publishable answers and gaps'] },
+];
+const REQUIRED_LEGACY_FULL_REPORT_MARKERS = [
   { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'MODEL-BACKED REPORT'] },
   {
     key: 'paidHeadline',
@@ -99,18 +108,25 @@ function hasSnapshotAnswerState(html) {
 }
 
 function missingFullReportMarkers(html) {
-  return REQUIRED_FULL_REPORT_MARKERS.filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
+  return fullReportMarkers(html).filter((marker) => !marker.labels.some((label) => html.includes(label))).map(
     (marker) => marker.key,
   );
+}
+
+function fullReportMarkers(html) {
+  if (html.includes('MODEL-BACKED REPORT') || html.includes('Paid report dashboard')) {
+    return REQUIRED_MODEL_FULL_REPORT_MARKERS;
+  }
+  return REQUIRED_LEGACY_FULL_REPORT_MARKERS;
 }
 
 function lockedFullReportMarkers(html) {
   return LOCKED_FULL_REPORT_MARKERS.filter((marker) => html.includes(marker));
 }
 
-function markerResult(expectedState) {
+function markerResult(expectedState, html = '') {
   if (expectedState === 'full-report') {
-    return Object.fromEntries(REQUIRED_FULL_REPORT_MARKERS.map((marker) => [marker.key, true]));
+    return Object.fromEntries(fullReportMarkers(html).map((marker) => [marker.key, true]));
   }
   return {
     ...Object.fromEntries(REQUIRED_SNAPSHOT_MARKERS.map((marker) => [marker.key, true])),
@@ -223,7 +239,7 @@ export async function runDeflectionHostedResultsSmoke(options, deps = {}) {
     checkedAt: now(),
     requestId,
     url,
-    markers: markerResult(expectedState),
+    markers: markerResult(expectedState, html),
   };
 }
 

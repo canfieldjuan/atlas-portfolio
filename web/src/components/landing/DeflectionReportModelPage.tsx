@@ -1,9 +1,10 @@
-import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, FileText, ListChecks, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
 
 const RANKED_ROW_LIMIT = 25;
+const PRIORITY_FIX_QUEUE_LIMIT = 3;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
 const QUESTION_DETAIL_LIMIT = 10;
 const SEO_TARGET_LIMIT = 20;
@@ -32,10 +33,31 @@ function int(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
 }
 
+function nonNegativeIntOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
+}
+
 function money(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value)
     ? `$${Math.max(0, Math.round(value)).toLocaleString()}`
     : '$0';
+}
+
+function csatSignalLabel(value: unknown): string {
+  const signal = asRecord(value);
+  const status = text(signal.status);
+  const negativeCount = int(signal.negative_csat_ticket_count);
+  const presentCount = int(signal.csat_present_count);
+  const average = signal.numeric_average;
+  if (negativeCount > 0) return `${negativeCount.toLocaleString()} negative CSAT`;
+  if (typeof average === 'number' && Number.isFinite(average)) return `Avg ${average.toFixed(1)}`;
+  if (status === 'present') return 'CSAT present';
+  if (status === 'sparse' || presentCount > 0) return 'CSAT sparse';
+  return 'Insufficient data';
+}
+
+function priorityDriverLabel(value: string): string {
+  return value.replace(/_/g, ' ');
 }
 
 function sortedWebSections(model: DeflectionStructuredReport): DeflectionReportSection[] {
@@ -102,6 +124,110 @@ function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
+  const data = asRecord(section?.data);
+  const allItems = rows(data.items);
+  const requestedLimit =
+    nonNegativeIntOrNull(data.result_page_limit) ??
+    nonNegativeIntOrNull(section?.default_limit) ??
+    PRIORITY_FIX_QUEUE_LIMIT;
+  const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit);
+  const items = allItems.slice(0, limit);
+
+  const statusCounts = Object.entries(asRecord(data.status_counts))
+    .filter(([, value]) => int(value) > 0)
+    .slice(0, 4);
+  const basis = asRecord(data.support_cost_basis);
+  const basisStatus = text(basis.status).replace(/_/g, ' ');
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-5 md:p-6" data-smoke="priorityFixQueue">
+      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+        <ListChecks className="h-3.5 w-3.5" />
+        Action queue
+      </div>
+      <h2 className="mt-3 text-xl font-semibold text-foreground">Priority Fix Queue</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
+        Ranked by repeat volume, benchmark support cost, answer status, confidence, reopened tickets, and CSAT signal.
+      </p>
+
+      {statusCounts.length > 0 && (
+        <dl className="mt-4 flex flex-wrap gap-2 text-xs">
+          {statusCounts.map(([status, count]) => (
+            <div key={status} className="rounded-full border border-border bg-background/35 px-3 py-1">
+              <dt className="sr-only">{status}</dt>
+              <dd className="font-mono text-foreground/65">
+                {int(count).toLocaleString()} {status}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {items.length > 0 ? (
+        <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+            <thead className="bg-background/50 text-foreground">
+              <tr>
+                {[
+                  'Rank',
+                  'Question/theme',
+                  'Status',
+                  'Repeats',
+                  'Cost',
+                  'CSAT',
+                  'Owner lane',
+                  'Confidence',
+                  'Score',
+                  'Recommended action',
+                ].map((label) => (
+                  <th key={label} className="border-b border-border px-3 py-2 font-semibold">
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((row) => (
+                <tr key={`${int(row.rank)}-${text(row.question)}-${text(row.status)}`} className="border-t border-border/70">
+                  <td className="px-3 py-2 font-mono text-foreground/55">{int(row.rank)}</td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium leading-snug text-foreground">{text(row.question)}</div>
+                    <div className="mt-1 text-xs leading-relaxed text-foreground/48">
+                      {texts(row.priority_drivers).slice(0, 3).map(priorityDriverLabel).join(' / ')}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="rounded-full border border-border bg-background/45 px-2 py-1 text-xs text-foreground/70">
+                      {text(row.status) || 'Unknown'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
+                  <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
+                  <td className="px-3 py-2 font-mono text-foreground/70">{int(row.priority_score).toLocaleString()}</td>
+                  <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-border bg-background/35 p-4 text-sm text-foreground/60">
+          No priority fixes are shown in this result-page view.
+        </div>
+      )}
+      <p className="mt-3 text-xs leading-relaxed text-foreground/50">
+        Showing {items.length.toLocaleString()} of {allItems.length.toLocaleString()} queued fixes. Cost basis:
+        {' '}
+        {basisStatus || 'benchmark only'}. Complete source IDs and evidence stay in the export.
+      </p>
     </section>
   );
 }
@@ -311,6 +437,7 @@ export function DeflectionReportModelPage({
             }
             if (section.id === 'seo_targets') return <SeoTargets key={section.id} section={section} />;
             if (section.id === 'ranked_questions') return <RankedQuestions key={section.id} section={section} />;
+            if (section.id === 'priority_fix_queue') return <PriorityFixQueue key={section.id} section={section} />;
             if (section.id === 'outcome_diagnostics') return <OutcomeDiagnostics key={section.id} section={section} />;
             if (section.id === 'question_details') return <QuestionDetails key={section.id} section={section} />;
             return null;
