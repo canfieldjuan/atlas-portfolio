@@ -170,7 +170,7 @@ function minimalModel(overrides = {}) {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [supportTaxSection()],
+    sections: [supportTaxSection(), priorityFixQueueSection()],
     ...overrides,
   };
 }
@@ -333,6 +333,7 @@ try {
   fetchPayload = minimalModel({
     sections: [
       supportTaxSection(),
+      priorityFixQueueSection(),
       exportOnlySection({
         required_data: ['evidence_row_count', 'source_id_count'],
         data: { evidence_row_count: 42 },
@@ -393,6 +394,15 @@ try {
 
   resetCalls();
   fetchPayload = minimalModel({
+    sections: [supportTaxSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
     sections: [
       supportTaxSection(),
       priorityFixQueueSection({
@@ -402,6 +412,67 @@ try {
             ...priorityFixQueueSection().data.support_cost_basis,
             status: 17,
           },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          status_counts: { 'Needs answer': '2' },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              rank: 1.9,
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...priorityFixQueueSection().data.items[0],
+              rank: -1,
+            },
+          ],
         },
       }),
     ],

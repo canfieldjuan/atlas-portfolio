@@ -27,6 +27,13 @@ required fail-closed regression fixtures to the same validator/renderer boundary
 Splitting those tests out would leave this buyer-visible slice knowingly under
 protected.
 
+Second review follow-up root cause: the same validator/render contract still
+left three values fail-open. A model-backed report could omit the priority
+section, malformed status counts could disappear from the summary, and malformed
+ranks could be floored/clamped for buyers. This push closes that class by
+requiring the section for `deflection.v1` model reports and validating
+renderer-read counts/ranks before render.
+
 ## Scope (this PR)
 
 Slice phase: Vertical slice
@@ -51,12 +58,14 @@ Slice phase: Vertical slice
 
 ## Mechanism
 
-`atlas-deflection-client.ts` validates `priority_fix_queue.data.items` before
-the model reaches the renderer. It checks the fields the result page needs:
-question, status, owner lane, fix type, confidence, recommended action, ticket
-count, estimated cost, priority score, CSAT status/count/average metrics, cost
-basis status, and driver labels. Malformed web priority-queue sections reject
-the model instead of rendering partial or misleading rows.
+`atlas-deflection-client.ts` requires model-backed reports to include
+`priority_fix_queue` and validates `priority_fix_queue.data.items` before the
+model reaches the renderer. It checks the fields the result page needs:
+positive-integer rank, question, status, owner lane, fix type, confidence,
+recommended action, ticket count, estimated cost, priority score, CSAT
+status/count/average metrics, numeric status counts, cost basis status, and
+driver labels. Malformed web priority-queue sections reject the model instead
+of rendering partial or misleading rows.
 
 `DeflectionReportModelPage` adds a `PriorityFixQueue` section. It reads
 `result_page_limit` / `default_limit`, caps locally to the result-page maximum,
@@ -98,7 +107,8 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-report-model-result-page`
   - Pass: `Deflection report-model result page tests passed.`
   - Covers invalid priority score, invalid cost-basis status, invalid CSAT
-    counts, and explicit zero result-page limits.
+    counts, invalid status-count values, missing priority queue sections,
+    invalid ranks, and explicit zero result-page limits.
 - `npm --prefix web run test:deflection-hosted-results-smoke`
   - Pass: `Deflection hosted results smoke tests passed.`
 - `npm --prefix web run lint -- src/lib/atlas-deflection-client.ts src/components/landing/DeflectionReportModelPage.tsx scripts/smoke-deflection-hosted-results.mjs scripts/test-deflection-hosted-results-smoke.mjs scripts/test-deflection-report-model-result-page.mjs`
@@ -109,10 +119,10 @@ Parked hardening: none.
 
 | File | LOC |
 |---|---:|
-| `web/src/lib/atlas-deflection-client.ts` | +41 / -0 |
+| `web/src/lib/atlas-deflection-client.ts` | +54 / -0 |
 | `web/src/components/landing/DeflectionReportModelPage.tsx` | +123 / -1 |
 | `web/scripts/smoke-deflection-hosted-results.mjs` | +21 / -5 |
 | `web/scripts/test-deflection-hosted-results-smoke.mjs` | +14 / -0 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | +162 / -0 |
-| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +118 / -0 |
-| **Total** | **485 LOC** |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | +234 / -1 |
+| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +128 / -0 |
+| **Total** | **581 LOC** |

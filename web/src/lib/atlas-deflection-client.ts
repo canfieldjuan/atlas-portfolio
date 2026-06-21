@@ -737,6 +737,14 @@ function isNonNegativeFiniteNumber(value: unknown): value is number {
   return isFiniteNumber(value) && value >= 0;
 }
 
+function isNonNegativeInteger(value: unknown): value is number {
+  return isNonNegativeFiniteNumber(value) && Number.isInteger(value);
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isFiniteNumber(value) && Number.isInteger(value) && value > 0;
+}
+
 function requireNonNegativeNumbers(
   data: Record<string, unknown>,
   keys: string[],
@@ -779,7 +787,7 @@ function isPriorityFixQueueRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
     isPlainRecord(row) &&
-    isFiniteNumber(row.rank) &&
+    isPositiveInteger(row.rank) &&
     typeof row.question === 'string' &&
     typeof row.status === 'string' &&
     typeof row.owner_lane === 'string' &&
@@ -804,6 +812,10 @@ function isPriorityFixQueueRows(value: unknown): boolean {
 
 function isPrioritySupportCostBasis(value: unknown): boolean {
   return isPlainRecord(value) && typeof value.status === 'string';
+}
+
+function isPriorityStatusCounts(value: unknown): boolean {
+  return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
 }
 
 function isQuestionDetailRows(value: unknown): boolean {
@@ -862,7 +874,7 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   if (section.id === 'priority_fix_queue') {
     return (
       isPriorityFixQueueRows(data.items) &&
-      isPlainRecord(data.status_counts) &&
+      isPriorityStatusCounts(data.status_counts) &&
       isNonNegativeFiniteNumber(data.result_page_limit) &&
       isNonNegativeFiniteNumber(data.pdf_limit) &&
       isNonNegativeFiniteNumber(data.backlog_limit) &&
@@ -941,6 +953,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
     sections.push(parsed);
   }
   if (!sections.some((section) => section.id === 'support_tax')) return null;
+  if (!sections.some((section) => section.id === 'priority_fix_queue')) return null;
   return {
     schema_version: 'deflection.v1',
     title: value.title,
