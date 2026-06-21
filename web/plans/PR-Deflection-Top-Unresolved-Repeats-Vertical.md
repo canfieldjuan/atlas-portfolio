@@ -11,6 +11,12 @@ This stays deliberately narrow. It validates and renders one paid action
 section end to end before expanding to drafted resolutions, already-covered
 recurrence, or the full backlog table.
 
+This slice is over the 400 LOC soft target after review because the MAJOR fix is
+not just a rendering tweak: it changes the parser boundary from
+validate-and-pass-through to allowlist construction for both action sections and
+adds regression coverage proving export-only fields do not reach the hosted-page
+payload.
+
 ## Scope (this PR)
 
 Slice phase: Vertical slice
@@ -42,10 +48,15 @@ shape: `items`, `top_item_count`, and `support_cost_basis`, with each row
 carrying string question/status/action fields and numeric count/cost/score
 fields.
 
+Before the model reaches `DeflectionReportModelPage`, the parser constructs safe
+action-item payloads for both `priority_fix_queue` and `top_unresolved_repeats`.
+That projection keeps only the fields the hosted page uses and drops backend
+fields such as `top_evidence`, `source_ids`, `representative_phrasing`,
+`recommended_title`, `fix_type`, and `opportunity_score`.
+
 `DeflectionReportModelPage` then renders only the bounded result-page slice:
 question/theme, unresolved status, repeat count, estimated cost, CSAT label,
-owner lane, confidence, score, and recommended action. It does not render
-`top_evidence`, raw source IDs, or evidence quotes.
+owner lane, confidence, score, and recommended action.
 
 ## Intentional
 
@@ -79,10 +90,10 @@ owner lane, confidence, score, and recommended action. It does not render
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/plans/PR-Deflection-Top-Unresolved-Repeats-Vertical.md` | +88 / -0 |
-| `web/src/lib/atlas-deflection-client.ts` | +13 / -2 |
+| `web/plans/PR-Deflection-Top-Unresolved-Repeats-Vertical.md` | +99 / -0 |
+| `web/src/lib/atlas-deflection-client.ts` | +95 / -4 |
 | `web/src/components/landing/DeflectionReportModelPage.tsx` | +74 / -1 |
 | `web/scripts/smoke-deflection-hosted-results.mjs` | +1 / -0 |
 | `web/scripts/test-deflection-hosted-results-smoke.mjs` | +14 / -0 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | +131 / -24 |
-| Total | 348 LOC |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | +249 / -28 |
+| Total | 565 LOC |
