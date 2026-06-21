@@ -137,7 +137,6 @@ function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
     PRIORITY_FIX_QUEUE_LIMIT;
   const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit);
   const items = allItems.slice(0, limit);
-  if (items.length === 0) return null;
 
   const statusCounts = Object.entries(asRecord(data.status_counts))
     .filter(([, value]) => int(value) > 0)
@@ -169,55 +168,61 @@ function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
         </dl>
       )}
 
-      <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
-          <thead className="bg-background/50 text-foreground">
-            <tr>
-              {[
-                'Rank',
-                'Question/theme',
-                'Status',
-                'Repeats',
-                'Cost',
-                'CSAT',
-                'Owner lane',
-                'Confidence',
-                'Score',
-                'Recommended action',
-              ].map((label) => (
-                <th key={label} className="border-b border-border px-3 py-2 font-semibold">
-                  {label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((row) => (
-              <tr key={`${int(row.rank)}-${text(row.question)}-${text(row.status)}`} className="border-t border-border/70">
-                <td className="px-3 py-2 font-mono text-foreground/55">{int(row.rank)}</td>
-                <td className="px-3 py-2">
-                  <div className="font-medium leading-snug text-foreground">{text(row.question)}</div>
-                  <div className="mt-1 text-xs leading-relaxed text-foreground/48">
-                    {texts(row.priority_drivers).slice(0, 3).map(priorityDriverLabel).join(' / ')}
-                  </div>
-                </td>
-                <td className="px-3 py-2">
-                  <span className="rounded-full border border-border bg-background/45 px-2 py-1 text-xs text-foreground/70">
-                    {text(row.status) || 'Unknown'}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
-                <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
-                <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
-                <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
-                <td className="px-3 py-2 font-mono text-foreground/70">{int(row.priority_score).toLocaleString()}</td>
-                <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
+      {items.length > 0 ? (
+        <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+            <thead className="bg-background/50 text-foreground">
+              <tr>
+                {[
+                  'Rank',
+                  'Question/theme',
+                  'Status',
+                  'Repeats',
+                  'Cost',
+                  'CSAT',
+                  'Owner lane',
+                  'Confidence',
+                  'Score',
+                  'Recommended action',
+                ].map((label) => (
+                  <th key={label} className="border-b border-border px-3 py-2 font-semibold">
+                    {label}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {items.map((row) => (
+                <tr key={`${int(row.rank)}-${text(row.question)}-${text(row.status)}`} className="border-t border-border/70">
+                  <td className="px-3 py-2 font-mono text-foreground/55">{int(row.rank)}</td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium leading-snug text-foreground">{text(row.question)}</div>
+                    <div className="mt-1 text-xs leading-relaxed text-foreground/48">
+                      {texts(row.priority_drivers).slice(0, 3).map(priorityDriverLabel).join(' / ')}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="rounded-full border border-border bg-background/45 px-2 py-1 text-xs text-foreground/70">
+                      {text(row.status) || 'Unknown'}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
+                  <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
+                  <td className="px-3 py-2 font-mono text-foreground/70">{int(row.priority_score).toLocaleString()}</td>
+                  <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-xl border border-border bg-background/35 p-4 text-sm text-foreground/60">
+          No priority fixes are shown in this result-page view.
+        </div>
+      )}
       <p className="mt-3 text-xs leading-relaxed text-foreground/50">
         Showing {items.length.toLocaleString()} of {allItems.length.toLocaleString()} queued fixes. Cost basis:
         {' '}

@@ -333,6 +333,23 @@ try {
   fetchPayload = minimalModel({
     sections: [
       supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          result_page_limit: 1.9,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
       priorityFixQueueSection(),
       exportOnlySection({
         required_data: ['evidence_row_count', 'source_id_count'],
@@ -564,6 +581,15 @@ try {
     modelPageSource.includes('int(data.result_page_limit) ||'),
     false,
     'priority queue must not treat result_page_limit: 0 as missing',
+  );
+  assert.ok(
+    modelPageSource.includes('No priority fixes are shown in this result-page view.'),
+    'priority queue renders an empty state when an explicit zero cap selects no rows',
+  );
+  assert.equal(
+    modelPageSource.includes('if (items.length === 0) return null'),
+    false,
+    'priority queue must keep the section marker visible for explicit zero caps',
   );
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
   assert.equal(modelPageSource.includes('top_evidence'), false, 'priority queue must not inline evidence snippets in S3A');

@@ -34,6 +34,12 @@ ranks could be floored/clamped for buyers. This push closes that class by
 requiring the section for `deflection.v1` model reports and validating
 renderer-read counts/ranks before render.
 
+Third review follow-up root cause: a valid explicit zero result-page cap kept
+the data contract intact but returned `null` from the renderer, hiding the
+required action section marker. Fractional limits also still accepted malformed
+input and floored it at render time. This push keeps zero-cap sections visible
+with an empty state and requires priority queue limits to be integers.
+
 ## Scope (this PR)
 
 Slice phase: Vertical slice
@@ -64,15 +70,18 @@ model reaches the renderer. It checks the fields the result page needs:
 positive-integer rank, question, status, owner lane, fix type, confidence,
 recommended action, ticket count, estimated cost, priority score, CSAT
 status/count/average metrics, numeric status counts, cost basis status, and
-driver labels. Malformed web priority-queue sections reject the model instead
-of rendering partial or misleading rows.
+integer result/PDF/backlog limits, and driver labels. Malformed web
+priority-queue sections reject the model instead of rendering partial or
+misleading rows.
 
 `DeflectionReportModelPage` adds a `PriorityFixQueue` section. It reads
 `result_page_limit` / `default_limit`, caps locally to the result-page maximum,
 honors explicit zero as a valid cap, and renders only the top rows with status,
 repeat count, estimated cost, CSAT signal, owner lane, confidence, priority
-score, and recommended action. It does not render `top_evidence`, raw source
-IDs, evidence quotes, or representative phrasing in this first vertical.
+score, and recommended action. Explicit zero caps keep the section marker
+visible and render an empty state instead of omitting the action queue. It does
+not render `top_evidence`, raw source IDs, evidence quotes, or representative
+phrasing in this first vertical.
 
 The hosted-results smoke chooses marker sets based on the rendered paid report
 shape. Model-backed reports must include `Priority Fix Queue`; legacy full
@@ -108,7 +117,8 @@ Parked hardening: none.
   - Pass: `Deflection report-model result page tests passed.`
   - Covers invalid priority score, invalid cost-basis status, invalid CSAT
     counts, invalid status-count values, missing priority queue sections,
-    invalid ranks, and explicit zero result-page limits.
+    invalid ranks, fractional limits, and explicit zero result-page limits with
+    visible empty-state rendering.
 - `npm --prefix web run test:deflection-hosted-results-smoke`
   - Pass: `Deflection hosted results smoke tests passed.`
 - `npm --prefix web run lint -- src/lib/atlas-deflection-client.ts src/components/landing/DeflectionReportModelPage.tsx scripts/smoke-deflection-hosted-results.mjs scripts/test-deflection-hosted-results-smoke.mjs scripts/test-deflection-report-model-result-page.mjs`
@@ -120,9 +130,9 @@ Parked hardening: none.
 | File | LOC |
 |---|---:|
 | `web/src/lib/atlas-deflection-client.ts` | +54 / -0 |
-| `web/src/components/landing/DeflectionReportModelPage.tsx` | +123 / -1 |
+| `web/src/components/landing/DeflectionReportModelPage.tsx` | +128 / -1 |
 | `web/scripts/smoke-deflection-hosted-results.mjs` | +21 / -5 |
 | `web/scripts/test-deflection-hosted-results-smoke.mjs` | +14 / -0 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | +234 / -1 |
-| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +128 / -0 |
-| **Total** | **581 LOC** |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | +260 / -1 |
+| `web/plans/PR-Deflection-Priority-Fix-Queue-Vertical.md` | +138 / -0 |
+| **Total** | **622 LOC** |

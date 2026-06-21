@@ -875,9 +875,9 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
     return (
       isPriorityFixQueueRows(data.items) &&
       isPriorityStatusCounts(data.status_counts) &&
-      isNonNegativeFiniteNumber(data.result_page_limit) &&
-      isNonNegativeFiniteNumber(data.pdf_limit) &&
-      isNonNegativeFiniteNumber(data.backlog_limit) &&
+      isNonNegativeInteger(data.result_page_limit) &&
+      isNonNegativeInteger(data.pdf_limit) &&
+      isNonNegativeInteger(data.backlog_limit) &&
       isPrioritySupportCostBasis(data.support_cost_basis)
     );
   }
