@@ -825,6 +825,13 @@ function isDraftedResolutionsSection(data: Record<string, unknown>): boolean {
   return data.top_item_count === items.length;
 }
 
+function isCoveredRecurringSection(data: Record<string, unknown>): boolean {
+  const items = data.items;
+  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
+  if (!isNonNegativeInteger(data.top_item_count)) return false;
+  return data.top_item_count === items.length;
+}
+
 function safeActionItem(row: Record<string, unknown>): Record<string, unknown> {
   const csatSignal = row.csat_signal as Record<string, unknown>;
   return {
@@ -910,6 +917,15 @@ function constructSafeActionSection(section: DeflectionReportSection): Deflectio
       },
     };
   }
+  if (section.id === 'already_covered_still_recurring') {
+    return {
+      ...section,
+      data: {
+        items: safeActionItems(data.items),
+        top_item_count: data.top_item_count,
+      },
+    };
+  }
   return section;
 }
 
@@ -982,6 +998,9 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   if (section.id === 'drafted_resolutions') {
     return isDraftedResolutionsSection(data);
   }
+  if (section.id === 'already_covered_still_recurring') {
+    return isCoveredRecurringSection(data);
+  }
   if (section.id === 'outcome_diagnostics') {
     return (
       requireNonNegativeNumbers(data, [
@@ -1004,7 +1023,8 @@ function constructWebReportSection(section: DeflectionReportSection): Deflection
   if (
     section.id === 'priority_fix_queue' ||
     section.id === 'top_unresolved_repeats' ||
-    section.id === 'drafted_resolutions'
+    section.id === 'drafted_resolutions' ||
+    section.id === 'already_covered_still_recurring'
   ) {
     return constructSafeActionSection(section);
   }

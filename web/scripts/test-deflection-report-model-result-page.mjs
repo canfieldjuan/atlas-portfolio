@@ -194,6 +194,15 @@ function projectedSection(section) {
       },
     };
   }
+  if (section.id === 'already_covered_still_recurring') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map(projectedActionItem),
+        top_item_count: section.data.top_item_count,
+      },
+    };
+  }
   return section;
 }
 
@@ -273,12 +282,47 @@ function draftedResolutionsSection(overrides = {}) {
   };
 }
 
+function coveredRecurringSection(overrides = {}) {
+  return {
+    id: 'already_covered_still_recurring',
+    title: 'Already Covered but Still Recurring',
+    priority: 38,
+    surfaces: ['web', 'pdf'],
+    default_limit: 3,
+    required_data: ['items', 'top_item_count'],
+    data: {
+      top_item_count: 1,
+      items: [
+        actionItem({
+          rank: 1,
+          status: 'Already covered but still recurring',
+          recommended_action: 'Improve discoverability, search wording, macro use, or answer quality.',
+          priority_drivers: ['repeat_volume', 'already_covered_recurring', 'negative_csat'],
+          csat_signal: {
+            status: 'present',
+            csat_present_count: 4,
+            negative_csat_ticket_count: 2,
+            numeric_average: 2,
+          },
+        }),
+      ],
+    },
+    ...overrides,
+  };
+}
+
 function minimalModel(overrides = {}) {
   return {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [supportTaxSection(), priorityFixQueueSection(), topUnresolvedRepeatsSection(), draftedResolutionsSection()],
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection(),
+      draftedResolutionsSection(),
+      coveredRecurringSection(),
+    ],
     ...overrides,
   };
 }
@@ -535,6 +579,13 @@ try {
           top_item_count: 1,
         },
       }),
+      coveredRecurringSection({
+        data: {
+          ...coveredRecurringSection().data,
+          items: [unsafeActionItem],
+          top_item_count: 1,
+        },
+      }),
     ],
   });
   const projectedUnsafeModel = await fetchDeflectionReportModel('content-ops-unit-123');
@@ -542,7 +593,8 @@ try {
   for (const section of projectedUnsafeModel.model.sections.filter((section) => (
     section.id === 'priority_fix_queue' ||
     section.id === 'top_unresolved_repeats' ||
-    section.id === 'drafted_resolutions'
+    section.id === 'drafted_resolutions' ||
+    section.id === 'already_covered_still_recurring'
   ))) {
     const item = section.data.items[0];
     assert.equal('recommended_title' in item, false);
@@ -832,6 +884,60 @@ try {
     reason: 'error',
   });
 
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      coveredRecurringSection({
+        data: {
+          ...coveredRecurringSection().data,
+          top_item_count: '1',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      coveredRecurringSection({
+        data: {
+          ...coveredRecurringSection().data,
+          top_item_count: 2,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      coveredRecurringSection({
+        data: {
+          ...coveredRecurringSection().data,
+          items: [actionItem({ priority_score: '84' })],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
   resetEnv({});
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
@@ -884,6 +990,12 @@ try {
   assert.ok(modelPageSource.includes('Drafted Resolutions'), 'model page names drafted resolution actions');
   assert.ok(modelPageSource.includes('data-smoke="draftedResolutions"'), 'drafted resolutions keeps a stable smoke marker');
   assert.ok(
+    modelPageSource.includes("section.id === 'already_covered_still_recurring'"),
+    'model page renders already_covered_still_recurring sections',
+  );
+  assert.ok(modelPageSource.includes('Already Covered but Still Recurring'), 'model page names covered recurring actions');
+  assert.ok(modelPageSource.includes('data-smoke="coveredRecurring"'), 'covered recurring keeps a stable smoke marker');
+  assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
   );
@@ -894,6 +1006,10 @@ try {
   assert.ok(
     modelPageSource.includes('const limit = Math.min(DRAFTED_RESOLUTIONS_LIMIT, requestedLimit)'),
     'drafted resolutions clamp the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(COVERED_RECURRING_LIMIT, requestedLimit)'),
+    'covered recurring clamps the result-page limit locally',
   );
   assert.ok(
     modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),
