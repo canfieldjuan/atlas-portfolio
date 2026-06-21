@@ -783,7 +783,7 @@ function isRankedQuestionRows(value: unknown): boolean {
   ));
 }
 
-function isPriorityFixQueueRows(value: unknown): boolean {
+function isActionItemRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
     isPlainRecord(row) &&
@@ -810,12 +810,91 @@ function isPriorityFixQueueRows(value: unknown): boolean {
   ));
 }
 
+function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
+  const items = data.items;
+  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
+  if (!isNonNegativeInteger(data.top_item_count)) return false;
+  if (data.top_item_count !== items.length) return false;
+  return isPrioritySupportCostBasis(data.support_cost_basis);
+}
+
+function safeActionItem(row: Record<string, unknown>): Record<string, unknown> {
+  const csatSignal = row.csat_signal as Record<string, unknown>;
+  return {
+    rank: row.rank,
+    question: row.question,
+    status: row.status,
+    owner_lane: row.owner_lane,
+    confidence: row.confidence,
+    recommended_action: row.recommended_action,
+    ticket_count: row.ticket_count,
+    estimated_support_cost: row.estimated_support_cost,
+    priority_score: row.priority_score,
+    priority_drivers: parseStringList(row.priority_drivers) ?? [],
+    csat_signal: {
+      status: csatSignal.status,
+      csat_present_count: csatSignal.csat_present_count,
+      negative_csat_ticket_count: csatSignal.negative_csat_ticket_count,
+      numeric_average: csatSignal.numeric_average,
+    },
+  };
+}
+
+function safeActionItems(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter(isPlainRecord).map(safeActionItem)
+    : [];
+}
+
 function isPrioritySupportCostBasis(value: unknown): boolean {
   return isPlainRecord(value) && typeof value.status === 'string';
 }
 
+function safeSupportCostBasis(value: unknown): Record<string, unknown> {
+  const basis = isPlainRecord(value) ? value : {};
+  return { status: basis.status };
+}
+
 function isPriorityStatusCounts(value: unknown): boolean {
   return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
+}
+
+function safeStatusCounts(value: unknown): Record<string, number> {
+  if (!isPlainRecord(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, number] => (
+      typeof entry[0] === 'string' &&
+      isNonNegativeInteger(entry[1])
+    )),
+  );
+}
+
+function constructSafeActionSection(section: DeflectionReportSection): DeflectionReportSection {
+  const data = section.data;
+  if (section.id === 'priority_fix_queue') {
+    return {
+      ...section,
+      data: {
+        items: safeActionItems(data.items),
+        status_counts: safeStatusCounts(data.status_counts),
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
+        backlog_limit: data.backlog_limit,
+        support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
+      },
+    };
+  }
+  if (section.id === 'top_unresolved_repeats') {
+    return {
+      ...section,
+      data: {
+        items: safeActionItems(data.items),
+        top_item_count: data.top_item_count,
+        support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
+      },
+    };
+  }
+  return section;
 }
 
 function isQuestionDetailRows(value: unknown): boolean {
@@ -873,13 +952,16 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   }
   if (section.id === 'priority_fix_queue') {
     return (
-      isPriorityFixQueueRows(data.items) &&
+      isActionItemRows(data.items) &&
       isPriorityStatusCounts(data.status_counts) &&
       isNonNegativeInteger(data.result_page_limit) &&
       isNonNegativeInteger(data.pdf_limit) &&
       isNonNegativeInteger(data.backlog_limit) &&
       isPrioritySupportCostBasis(data.support_cost_basis)
     );
+  }
+  if (section.id === 'top_unresolved_repeats') {
+    return isTopUnresolvedRepeatsSection(data);
   }
   if (section.id === 'outcome_diagnostics') {
     return (
@@ -896,6 +978,14 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
     return isQuestionDetailRows(data.rows);
   }
   return true;
+}
+
+function constructWebReportSection(section: DeflectionReportSection): DeflectionReportSection | null {
+  if (!validateWebReportSection(section)) return null;
+  if (section.id === 'priority_fix_queue' || section.id === 'top_unresolved_repeats') {
+    return constructSafeActionSection(section);
+  }
+  return section;
 }
 
 function parseReportSection(value: unknown): DeflectionReportSection | null {
@@ -949,8 +1039,9 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
       return null;
     }
     if (!parsed.surfaces.includes('web')) continue;
-    if (!validateWebReportSection(parsed)) return null;
-    sections.push(parsed);
+    const constructed = constructWebReportSection(parsed);
+    if (!constructed) return null;
+    sections.push(constructed);
   }
   if (!sections.some((section) => section.id === 'support_tax')) return null;
   if (!sections.some((section) => section.id === 'priority_fix_queue')) return null;

@@ -112,6 +112,82 @@ function exportOnlySection(overrides = {}) {
   };
 }
 
+function actionItem(overrides = {}) {
+  return {
+    rank: 2,
+    question: 'How do I enable SSO for my team?',
+    status: 'Needs answer',
+    owner_lane: 'Help Center',
+    fix_type: 'create_missing_answer',
+    confidence: 'medium',
+    recommended_action: 'Write and approve the missing answer.',
+    ticket_count: 2,
+    estimated_support_cost: 27,
+    opportunity_score: 2,
+    priority_score: 84,
+    priority_drivers: ['repeat_volume', 'missing_answer', 'benchmark_cost'],
+    csat_signal: {
+      status: 'insufficient_data',
+      csat_present_count: 0,
+      negative_csat_ticket_count: 0,
+      numeric_average: null,
+    },
+    ...overrides,
+  };
+}
+
+function projectedActionItem(row = actionItem()) {
+  return {
+    rank: row.rank,
+    question: row.question,
+    status: row.status,
+    owner_lane: row.owner_lane,
+    confidence: row.confidence,
+    recommended_action: row.recommended_action,
+    ticket_count: row.ticket_count,
+    estimated_support_cost: row.estimated_support_cost,
+    priority_score: row.priority_score,
+    priority_drivers: row.priority_drivers,
+    csat_signal: {
+      status: row.csat_signal.status,
+      csat_present_count: row.csat_signal.csat_present_count,
+      negative_csat_ticket_count: row.csat_signal.negative_csat_ticket_count,
+      numeric_average: row.csat_signal.numeric_average,
+    },
+  };
+}
+
+function projectedSupportCostBasis(section) {
+  return { status: section.data.support_cost_basis.status };
+}
+
+function projectedSection(section) {
+  if (section.id === 'priority_fix_queue') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map(projectedActionItem),
+        status_counts: section.data.status_counts,
+        result_page_limit: section.data.result_page_limit,
+        pdf_limit: section.data.pdf_limit,
+        backlog_limit: section.data.backlog_limit,
+        support_cost_basis: projectedSupportCostBasis(section),
+      },
+    };
+  }
+  if (section.id === 'top_unresolved_repeats') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map(projectedActionItem),
+        top_item_count: section.data.top_item_count,
+        support_cost_basis: projectedSupportCostBasis(section),
+      },
+    };
+  }
+  return section;
+}
+
 function priorityFixQueueSection(overrides = {}) {
   return {
     id: 'priority_fix_queue',
@@ -138,28 +214,29 @@ function priorityFixQueueSection(overrides = {}) {
         source: 'default_assisted_contact_benchmark',
         status: 'benchmark_only',
       },
-      items: [
-        {
-          rank: 2,
-          question: 'How do I enable SSO for my team?',
-          status: 'Needs answer',
-          owner_lane: 'Help Center',
-          fix_type: 'create_missing_answer',
-          confidence: 'medium',
-          recommended_action: 'Write and approve the missing answer.',
-          ticket_count: 2,
-          estimated_support_cost: 27,
-          opportunity_score: 2,
-          priority_score: 84,
-          priority_drivers: ['repeat_volume', 'missing_answer', 'benchmark_cost'],
-          csat_signal: {
-            status: 'insufficient_data',
-            csat_present_count: 0,
-            negative_csat_ticket_count: 0,
-            numeric_average: null,
-          },
-        },
-      ],
+      items: [actionItem()],
+    },
+    ...overrides,
+  };
+}
+
+function topUnresolvedRepeatsSection(overrides = {}) {
+  return {
+    id: 'top_unresolved_repeats',
+    title: 'Top Unresolved Repeats',
+    priority: 36,
+    surfaces: ['web', 'pdf'],
+    default_limit: 3,
+    required_data: ['items', 'top_item_count', 'support_cost_basis'],
+    data: {
+      top_item_count: 1,
+      support_cost_basis: {
+        assisted_contact_cost: 13.5,
+        formula: 'ticket_count * assisted_contact_cost',
+        source: 'default_assisted_contact_benchmark',
+        status: 'benchmark_only',
+      },
+      items: [actionItem({ rank: 1 })],
     },
     ...overrides,
   };
@@ -170,8 +247,18 @@ function minimalModel(overrides = {}) {
     schema_version: 'deflection.v1',
     title: 'Support Ticket Deflection Report',
     summary: { generated: 1 },
-    sections: [supportTaxSection(), priorityFixQueueSection()],
+    sections: [supportTaxSection(), priorityFixQueueSection(), topUnresolvedRepeatsSection()],
     ...overrides,
+  };
+}
+
+function projectedModel(overrides = {}) {
+  const model = minimalModel(overrides);
+  return {
+    ...model,
+    sections: model.sections
+      .filter((section) => section.surfaces.includes('web'))
+      .map(projectedSection),
   };
 }
 
@@ -268,7 +355,7 @@ try {
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
-    model: minimalModel(),
+    model: projectedModel(),
   });
   assert.equal(
     fetchCalls[0].url,
@@ -359,7 +446,7 @@ try {
   });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
-    model: minimalModel(),
+    model: projectedModel({ sections: [supportTaxSection(), priorityFixQueueSection()] }),
   });
 
   resetCalls();
@@ -369,7 +456,7 @@ try {
   });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
-    model: minimalModel({ sections: [supportTaxSection(), validPriorityQueueSection] }),
+    model: projectedModel({ sections: [supportTaxSection(), validPriorityQueueSection] }),
   });
 
   resetCalls();
@@ -384,8 +471,60 @@ try {
   });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: true,
-    model: minimalModel({ sections: [supportTaxSection(), zeroLimitPriorityQueueSection] }),
+    model: projectedModel({ sections: [supportTaxSection(), zeroLimitPriorityQueueSection] }),
   });
+
+  resetCalls();
+  const unsafeActionItem = actionItem({
+    recommended_title: 'Unsafe title should not reach page data',
+    representative_phrasing: ['My token is raw-customer-phrase'],
+    source_ids: ['zendesk-ticket-123'],
+    top_evidence: [{ source_id: 'zendesk-ticket-123', quote: 'raw customer evidence quote' }],
+  });
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [unsafeActionItem],
+        },
+      }),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          items: [unsafeActionItem],
+          top_item_count: 1,
+        },
+      }),
+    ],
+  });
+  const projectedUnsafeModel = await fetchDeflectionReportModel('content-ops-unit-123');
+  assert.equal(projectedUnsafeModel.ok, true);
+  for (const section of projectedUnsafeModel.model.sections.filter((section) => (
+    section.id === 'priority_fix_queue' || section.id === 'top_unresolved_repeats'
+  ))) {
+    const item = section.data.items[0];
+    assert.equal('recommended_title' in item, false);
+    assert.equal('representative_phrasing' in item, false);
+    assert.equal('source_ids' in item, false);
+    assert.equal('top_evidence' in item, false);
+    assert.equal('fix_type' in item, false);
+    assert.equal('opportunity_score' in item, false);
+    assert.deepEqual(Object.keys(item).sort(), [
+      'confidence',
+      'csat_signal',
+      'estimated_support_cost',
+      'owner_lane',
+      'priority_drivers',
+      'priority_score',
+      'question',
+      'rank',
+      'recommended_action',
+      'status',
+      'ticket_count',
+    ].sort());
+  }
 
   resetCalls();
   fetchPayload = minimalModel({
@@ -524,6 +663,81 @@ try {
     reason: 'error',
   });
 
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          top_item_count: '1',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          top_item_count: 2,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          items: [actionItem({ priority_score: '84' })],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          support_cost_basis: {
+            ...topUnresolvedRepeatsSection().data.support_cost_basis,
+            status: 17,
+          },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
   resetEnv({});
   resetCalls();
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
@@ -569,9 +783,16 @@ try {
   assert.ok(modelPageSource.includes('complete evidence export'), 'model page points to the complete evidence export');
   assert.ok(modelPageSource.includes("section.id === 'priority_fix_queue'"), 'model page renders priority_fix_queue sections');
   assert.ok(modelPageSource.includes('Priority Fix Queue'), 'model page names the action queue');
+  assert.ok(modelPageSource.includes("section.id === 'top_unresolved_repeats'"), 'model page renders top_unresolved_repeats sections');
+  assert.ok(modelPageSource.includes('Top Unresolved Repeats'), 'model page names unresolved repeat actions');
+  assert.ok(modelPageSource.includes('data-smoke="topUnresolvedRepeats"'), 'top unresolved repeats keeps a stable smoke marker');
   assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
+  );
+  assert.ok(
+    modelPageSource.includes('const limit = Math.min(TOP_UNRESOLVED_REPEATS_LIMIT, requestedLimit)'),
+    'top unresolved repeats clamps the result-page limit locally',
   );
   assert.ok(
     modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),
@@ -606,7 +827,7 @@ try {
     };
   }
 
-  let statusState = resetStatusRoute({ modelResult: { ok: true, model: minimalModel() } });
+  let statusState = resetStatusRoute({ modelResult: { ok: true, model: projectedModel() } });
   assert.deepEqual(await readReportStatus(), { status: 200, body: { status: 'unlocked' } });
   assert.deepEqual(statusState.calls.map((call) => call.kind), ['rateLimit', 'model']);
 
