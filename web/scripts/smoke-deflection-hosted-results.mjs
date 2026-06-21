@@ -21,6 +21,7 @@ const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
   { key: 'priorityFixQueue', labels: ['Priority Fix Queue'] },
   { key: 'topUnresolvedRepeats', labels: ['Top Unresolved Repeats'] },
   { key: 'draftedResolutions', labels: ['Drafted Resolutions'] },
+  { key: 'coveredRecurring', labels: ['Already Covered but Still Recurring'] },
   { key: 'seoTargeting', labels: ['Help-desk SEO targeting list'] },
   { key: 'rankedQuestions', labels: ['Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Top publishable answers and gaps'] },
