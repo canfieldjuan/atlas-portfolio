@@ -775,6 +775,27 @@ function isRankedQuestionRows(value: unknown): boolean {
   ));
 }
 
+function isPriorityFixQueueRows(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.every((row) => (
+    isPlainRecord(row) &&
+    isFiniteNumber(row.rank) &&
+    typeof row.question === 'string' &&
+    typeof row.status === 'string' &&
+    typeof row.owner_lane === 'string' &&
+    typeof row.fix_type === 'string' &&
+    typeof row.confidence === 'string' &&
+    typeof row.recommended_action === 'string' &&
+    isNonNegativeFiniteNumber(row.ticket_count) &&
+    isNonNegativeFiniteNumber(row.estimated_support_cost) &&
+    isFiniteNumber(row.opportunity_score) &&
+    isNonNegativeFiniteNumber(row.priority_score) &&
+    parseStringList(row.priority_drivers) !== null &&
+    isPlainRecord(row.csat_signal) &&
+    typeof row.csat_signal.status === 'string'
+  ));
+}
+
 function isQuestionDetailRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
@@ -827,6 +848,16 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   }
   if (section.id === 'ranked_questions') {
     return isRankedQuestionRows(data.rows);
+  }
+  if (section.id === 'priority_fix_queue') {
+    return (
+      isPriorityFixQueueRows(data.items) &&
+      isPlainRecord(data.status_counts) &&
+      isNonNegativeFiniteNumber(data.result_page_limit) &&
+      isNonNegativeFiniteNumber(data.pdf_limit) &&
+      isNonNegativeFiniteNumber(data.backlog_limit) &&
+      isPlainRecord(data.support_cost_basis)
+    );
   }
   if (section.id === 'outcome_diagnostics') {
     return (
