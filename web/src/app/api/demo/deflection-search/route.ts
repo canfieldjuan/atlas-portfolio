@@ -9,6 +9,7 @@ import {
   consumeDeflectionRateLimit,
   type DeflectionRateLimitConfig,
 } from '@/lib/deflection-rate-limit';
+import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
 
 // Backend seam for the Support Ticket Deflection demo.
 //
@@ -41,10 +42,6 @@ const UPLOADED_SEARCH_CLIENT_RATE_LIMIT = {
 } satisfies DeflectionRateLimitConfig;
 const UPLOADED_SEARCH_CLIENT_BUCKET = 'all';
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
-
-function uploadedSearchEnabled() {
-  return process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED === 'true';
-}
 
 function uploadedSearchFailureResponse(reason: string) {
   const status =
@@ -104,7 +101,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!uploadedSearchEnabled()) {
+    if (!uploadedDeflectionSearchEnabled()) {
       return NextResponse.json(
         {
           match: null,

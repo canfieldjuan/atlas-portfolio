@@ -1,6 +1,7 @@
 import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
+import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
 
 const RANKED_ROW_LIMIT = 25;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
@@ -54,10 +55,6 @@ function uploadedSearchChips(model: DeflectionStructuredReport): string[] {
     .filter(Boolean);
   const seoTargets = texts(asRecord(sectionById(model, 'seo_targets')?.data).phrases);
   return Array.from(new Set([...rankedQuestions, ...seoTargets])).slice(0, 6);
-}
-
-function uploadedSearchEnabled() {
-  return process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED === 'true';
 }
 
 function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
@@ -260,7 +257,7 @@ export function DeflectionReportModelPage({
   const sections = sortedWebSections(model);
   const supportTax = sectionById(model, 'support_tax');
   const searchChips = uploadedSearchChips(model);
-  const showUploadedSearch = uploadedSearchEnabled() && searchChips.length > 0;
+  const showUploadedSearch = uploadedDeflectionSearchEnabled() && searchChips.length > 0;
 
   return (
     <main className="min-h-screen px-6 pb-20 pt-16">
