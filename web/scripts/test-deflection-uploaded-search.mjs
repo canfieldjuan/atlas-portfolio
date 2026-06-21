@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import ts from 'typescript';
+import { runDeflectionUploadedSearchSmoke } from './smoke-deflection-uploaded-search.mjs';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-uploaded-search-'));
 const routeUrl = new URL('../src/app/api/demo/deflection-search/route.ts', import.meta.url);
@@ -22,6 +23,26 @@ const originalVercelEnv = process.env.VERCEL_ENV;
 
 const localMatch = { topic: 'local sample' };
 const atlasMatch = { topic: 'uploaded report' };
+const smokeMatch = {
+  topic: 'Reporting friction',
+  question: 'How do I export attribution reports?',
+  ticket_count: 4,
+  opportunity_score: 12,
+  answer: 'Open Analytics, choose the report, then export it.',
+  steps: ['Open Analytics.', 'Choose Export.'],
+  action_items: ['Document export path'],
+  answer_evidence_status: 'resolution_evidence',
+  when_to_contact_support: 'Contact support if export is missing.',
+  source_ids: ['ticket-1', 'ticket-2'],
+  source_labels: ['ticket-1 - How do I export?'],
+  term_mappings: [
+    {
+      customer_term: 'export',
+      documentation_term: 'Download report',
+      suggestion: 'Add export phrasing.',
+    },
+  ],
+};
 let localCalls = [];
 let atlasCalls = [];
 let modelCalls = [];
@@ -43,6 +64,37 @@ function makePostRequest(body) {
       return body;
     },
   };
+}
+
+function makeFetchMock(responses) {
+  const calls = [];
+  const queue = [...responses];
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    const response = queue.shift();
+    if (!response) throw new Error(`Unexpected fetch: ${url}`);
+    if (response.reject) throw new Error(response.reject);
+    return Response.json(response.body, { status: response.status });
+  };
+  fetchImpl.calls = calls;
+  return fetchImpl;
+}
+
+async function runUploadedSearchSmoke(options, responses) {
+  const fetchImpl = makeFetchMock(responses);
+  const result = await runDeflectionUploadedSearchSmoke(
+    {
+      requestId: 'content-ops-unit',
+      query: 'export reports',
+      baseUrl: 'https://portfolio.example.com/',
+      ...options,
+    },
+    {
+      fetchImpl,
+      now: () => '2026-06-20T18:30:00.000Z',
+    },
+  );
+  return { result, fetchImpl };
 }
 
 try {
@@ -298,6 +350,85 @@ try {
   assert.match(modelPageSource, /Search the FAQ drafts built from this CSV/);
   assert.match(modelPageSource, /requestId=\{requestId\}/);
   assert.match(modelPageSource, /uploadedDeflectionSearchEnabled\(\)/);
+
+  {
+    const { result, fetchImpl } = await runUploadedSearchSmoke({}, [
+      { status: 200, body: { match: smokeMatch, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, true);
+    assert.equal(result.status, 'atlas_match_renderable');
+    assert.equal(result.requestId, 'content-ops-unit');
+    assert.equal(result.queryLength, 'export reports'.length);
+    assert.equal(result.match.topicLength, smokeMatch.topic.length);
+    assert.equal(result.match.questionLength, smokeMatch.question.length);
+    assert.equal(result.match.answerLength, smokeMatch.answer.length);
+    assert.equal(result.match.stepsCount, 2);
+    assert.equal(result.match.sourceIdsCount, 2);
+    assert.equal(fetchImpl.calls.length, 1);
+    assert.equal(fetchImpl.calls[0].url, 'https://portfolio.example.com/api/demo/deflection-search');
+    assert.equal(fetchImpl.calls[0].init.method, 'POST');
+    assert.equal(fetchImpl.calls[0].init.cache, 'no-store');
+    assert.deepEqual(JSON.parse(fetchImpl.calls[0].init.body), {
+      requestId: 'content-ops-unit',
+      q: 'export reports',
+    });
+  }
+
+  {
+    const { result } = await runUploadedSearchSmoke({}, [
+      { status: 200, body: { match: null, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.stage, 'match');
+    assert.equal(result.error, 'Uploaded search route returned no match.');
+  }
+
+  {
+    const { result, fetchImpl } = await runUploadedSearchSmoke({ requestId: '../bad' }, [
+      { status: 200, body: { match: smokeMatch, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.error, 'Uploaded search smoke request id is invalid.');
+    assert.equal(result.apiCalls, false);
+    assert.equal(fetchImpl.calls.length, 0);
+  }
+
+  {
+    const { result, fetchImpl } = await runUploadedSearchSmoke({ baseUrl: 'http://evil.example.com' }, [
+      { status: 200, body: { match: smokeMatch, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.error, 'Uploaded search smoke base URL is invalid.');
+    assert.equal(result.apiCalls, false);
+    assert.equal(fetchImpl.calls.length, 0);
+  }
+
+  {
+    const { result } = await runUploadedSearchSmoke({}, [
+      { status: 404, body: { match: null, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.stage, 'search');
+    assert.equal(result.error, 'Uploaded search route failed with HTTP 404.');
+  }
+
+  {
+    const { result } = await runUploadedSearchSmoke({}, [
+      { status: 200, body: { match: smokeMatch, source: 'local' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.stage, 'envelope');
+    assert.equal(result.error, 'Uploaded search route did not return the Atlas source envelope.');
+  }
+
+  {
+    const { result } = await runUploadedSearchSmoke({}, [
+      { status: 200, body: { match: { ...smokeMatch, steps: [{}] }, source: 'atlas' } },
+    ]);
+    assert.equal(result.ok, false);
+    assert.equal(result.stage, 'shape');
+    assert.equal(result.error, 'Uploaded search route returned a non-renderable match item.');
+  }
 } finally {
   if (originalUploadedSearchEnabled === undefined) {
     delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
