@@ -92,6 +92,8 @@ function assertResultFields(result, expected, name) {
 const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
+const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
+const submitCtaIndex = intakeFormSource.indexOf('data-smoke="resolutionReportCta submitCta"');
 
 assert.ok(
   snapshotLandingSource.includes('Top Proven Resolutions'),
@@ -117,6 +119,12 @@ assert.ok(
 assert.ok(
   intakeFormSource.includes('data-smoke="deterministicBadge"'),
   'Snapshot intake trust panel should keep the deterministic badge smoke marker.',
+);
+assert.ok(
+  submitSecurityLineIndex !== -1 &&
+    submitCtaIndex !== -1 &&
+    submitSecurityLineIndex < submitCtaIndex,
+  'Snapshot intake trust panel should render before the submit CTA.',
 );
 assert.ok(
   snapshotLandingSource.includes('data-smoke="heroProofStrip"'),

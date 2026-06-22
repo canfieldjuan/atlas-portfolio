@@ -24,13 +24,16 @@ Slice phase: Product polish
    exposure, and no-proven-answer gaps.
 3. Rework the final CTA as a Snapshot-first qualification gate with a bounded
    audit-standard reassurance instead of a broad savings or usefulness promise.
-4. Update the landing smoke test assertions that intentionally pin this visible
-   copy.
+4. Move the intake trust signals above the submit CTA so the privacy/security
+   reassurance stays above the fold before the upload action.
+5. Update the landing smoke test assertions that intentionally pin this visible
+   copy and trust-before-CTA ordering.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Snapshot-Audit-Copy.md` - this plan contract.
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` - Snapshot landing copy and final CTA framing.
+- `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` - intake trust signal placement above the submit CTA.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - copy smoke expectations for the changed labels/headings.
 
 ## Mechanism
@@ -44,8 +47,13 @@ Slice phase: Product polish
 - The final CTA adds a compact guarantee-style reassurance that promises a
   ranked, source-backed audit output or correction, not savings, rankings,
   resolution lift, or entirely-new findings.
+- The shared intake form moves its existing trust panel inside the form, between
+  the CSV file input/error state and the submit button. The copy remains
+  unchanged, but the security context now appears before the upload action
+  instead of below the card.
 - The smoke test swaps the old Resolution Report submit-label and sample-heading
-  assertions for the new forensic-audit CTA and sample-heading copy.
+  assertions for the new forensic-audit CTA and sample-heading copy, and checks
+  that the trust marker appears before the submit CTA marker in the intake form.
 
 ## Intentional
 
@@ -73,23 +81,26 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed;
-  confirms the Snapshot landing smoke contract and the new pinned forensic-audit
-  CTA/sample-heading copy.
+  confirms the Snapshot landing smoke contract, pinned forensic-audit
+  CTA/sample-heading copy, and intake trust-before-CTA source order.
+- `npm --prefix web run test:deflection-public-reachability-smoke` - passed;
+  confirms the public landing/intake smoke markers still render.
 - `npm --prefix web run lint` - passed.
 - `rg -n "Ticket Resolution Report|Deflect tickets by actually resolving them|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed with no matches; old copy and intentionally-rejected overclaim
   language is gone from the changed runtime/test files.
-- `bash scripts/local_pr_review.sh` - passed on the committed diff; includes
-  plan-doc audits, cross-session drift advisory, dead-code baseline, Snapshot
-  landing smoke, ESLint, Next build, and `git diff --check`.
+- `bash scripts/local_pr_review.sh` - passed on the final two-commit PR branch;
+  includes plan-doc audits, cross-session drift advisory, dead-code baseline,
+  Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
 | Snapshot landing copy | ~59 |
-| Snapshot landing smoke expectations | ~8 |
-| this plan doc | ~96 |
-| **Total** | ~163 |
+| Intake trust placement | ~80 |
+| Snapshot landing smoke expectations | ~16 |
+| this plan doc | ~104 |
+| **Total** | ~259 |
 
 Well under the 400-LOC soft cap.
