@@ -3,7 +3,7 @@ import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
 export const metadata = generatePageMetadata({
   title: "Support Ticket Deflection, Interactive Demo",
   description:
-    "Type a question your customers keep asking and see the jargon-y help-center article they hit today beside the actionable, customer-language answer the Support Ticket Deflection Report would publish.",
+    "Type a question your customers keep asking and see the jargon-y help-center article they hit today beside the customer-language answer a Resolution Audit would surface for review.",
   path: "/systems/support-ticket-deflection/demo",
   keywords: [
     "support ticket deflection demo",

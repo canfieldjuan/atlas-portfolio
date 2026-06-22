@@ -202,6 +202,23 @@ const snapshotRouteSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/snapshot/page.tsx', import.meta.url),
   'utf8',
 );
+const publicMetadataSources = [
+  [
+    'support-ticket-deflection layout metadata',
+    await readFile(new URL('../src/app/systems/support-ticket-deflection/layout.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'support-ticket-deflection demo metadata',
+    await readFile(new URL('../src/app/systems/support-ticket-deflection/demo/layout.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'AI Content Ops metadata',
+    await readFile(new URL('../src/app/systems/ai-content-ops/layout.tsx', import.meta.url), 'utf8'),
+  ],
+];
+const combinedPublicMetadataSource = publicMetadataSources
+  .map(([label, source]) => `\n--- ${label} ---\n${source}`)
+  .join('');
 const partnerClientSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx', import.meta.url),
   'utf8',
@@ -345,6 +362,16 @@ assert.ok(
   snapshotRouteSource.includes('The Resolution Audit: Find Support Ticket Cost Exposure') &&
     snapshotRouteSource.includes('forensic Snapshot of repeat contacts'),
   'Snapshot route metadata should align with the Resolution Audit offer',
+);
+assert.ok(
+  combinedPublicMetadataSource.includes('Resolution Audit: Find Repeat Support Ticket Cost Exposure') &&
+    combinedPublicMetadataSource.includes('Start with the Resolution Audit, then expand.') &&
+    combinedPublicMetadataSource.includes('a Resolution Audit would surface for review.'),
+  'public metadata should use Resolution Audit offer wording',
+);
+assert.ok(
+  !combinedPublicMetadataSource.includes('Support Ticket Deflection Report'),
+  'public metadata should not retain the old Support Ticket Deflection Report label',
 );
 assert.ok(
   !snapshotRouteSource.includes('Free Deflection Snapshot') &&
