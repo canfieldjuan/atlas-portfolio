@@ -198,6 +198,10 @@ const intakeLayoutSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/intake/layout.tsx', import.meta.url),
   'utf8',
 );
+const snapshotRouteSource = await readFile(
+  new URL('../src/app/systems/support-ticket-deflection/snapshot/page.tsx', import.meta.url),
+  'utf8',
+);
 const staleDeliverySources = [
   [
     'long-form landing config',
@@ -227,8 +231,12 @@ const staleDeliverySources = [
 ];
 
 assert.ok(
-  intakeClientSource.includes('Get your ticket resolution report and start taking actionable steps to resolve tickets today.'),
-  'intake headline should frame the ticket resolution report and next steps',
+  intakeClientSource.includes('Identify the cost exposure behind your unresolved questions.'),
+  'intake headline should frame the cost-exposure audit question',
+);
+assert.ok(
+  intakeClientSource.includes('Upload your support-ticket export.'),
+  'intake subcopy should use export/audit framing instead of the old 30-day report framing',
 );
 assert.ok(
   intakeClientSource.includes('No LLM or Generative models.'),
@@ -253,6 +261,31 @@ assert.ok(
 assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/snapshot'"),
   'non-partner intake should route back/source attribution to the Snapshot landing',
+);
+assert.ok(
+  intakeRouteSource.includes("'Back to Resolution Audit'") &&
+    intakeRouteSource.includes("snapshotName: isPartner ? 'Deflection Report' : 'Resolution Audit'") &&
+    intakeRouteSource.includes("submitLabel: isPartner ? 'Upload my CSV for my partner audit' : 'Start Your Forensic Audit'"),
+  'non-partner intake route should stay in the Resolution Audit offer path',
+);
+assert.ok(
+  !intakeRouteSource.includes('Upload my CSV, get my free Deflection Snapshot'),
+  'intake route should not send linked audit CTAs back to the old Deflection Snapshot submit copy',
+);
+assert.ok(
+  intakeLayoutSource.includes('Resolution Audit Intake') &&
+    intakeLayoutSource.includes('deterministic Resolution Audit intake'),
+  'intake metadata should frame the linked route as the Resolution Audit intake',
+);
+assert.ok(
+  snapshotRouteSource.includes('The Resolution Audit: Find Support Ticket Cost Exposure') &&
+    snapshotRouteSource.includes('forensic Snapshot of repeat contacts'),
+  'Snapshot route metadata should align with the Resolution Audit offer',
+);
+assert.ok(
+  !snapshotRouteSource.includes('Free Deflection Snapshot') &&
+    !snapshotRouteSource.includes('Upload 30 days of closed tickets'),
+  'Snapshot route metadata should not retain the old free-Snapshot/30-day framing',
 );
 assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),

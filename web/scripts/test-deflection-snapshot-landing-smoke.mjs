@@ -92,6 +92,8 @@ function assertResultFields(result, expected, name) {
 const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
+const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
+const submitCtaIndex = intakeFormSource.indexOf('data-smoke="resolutionReportCta submitCta"');
 
 assert.ok(
   snapshotLandingSource.includes('Top Proven Resolutions'),
@@ -107,8 +109,20 @@ assert.equal(
   'Inline Snapshot form should not use the non-reporting hero_intake source offer.',
 );
 assert.ok(
-  snapshotLandingSource.includes('Get my free Resolution Report'),
-  'Snapshot hero form should use the Resolution Report submit label.',
+  snapshotLandingSource.includes("const CTA_LABEL = 'Start Your Forensic Audit';"),
+  'Snapshot landing should define the forensic audit CTA label.',
+);
+assert.ok(
+  snapshotLandingSource.includes('submitLabel: CTA_LABEL'),
+  'Snapshot inline form should receive the forensic audit CTA label.',
+);
+assert.ok(
+  snapshotLandingSource.includes('Deflect tickets by actually resolving them.'),
+  'Snapshot hero should keep the original hero H1.',
+);
+assert.ok(
+  intakeFormSource.includes('Identify the cost exposure behind your unresolved questions.'),
+  'Snapshot intake form should own the cost-exposure heading.',
 );
 assert.ok(
   intakeFormSource.includes('data-smoke="submitSecurityLine"'),
@@ -119,6 +133,12 @@ assert.ok(
   'Snapshot intake trust panel should keep the deterministic badge smoke marker.',
 );
 assert.ok(
+  submitSecurityLineIndex !== -1 &&
+    submitCtaIndex !== -1 &&
+    submitSecurityLineIndex < submitCtaIndex,
+  'Snapshot intake trust panel should render before the submit CTA.',
+);
+assert.ok(
   snapshotLandingSource.includes('data-smoke="heroProofStrip"'),
   'Snapshot hero proof strip should keep a stable smoke marker.',
 );
@@ -127,8 +147,14 @@ assert.ok(
   'Snapshot landing blind-spots section should keep a stable smoke marker.',
 );
 assert.ok(
-  snapshotLandingSource.includes('over ${costProof.sourceWindowDays} days'),
-  'Snapshot hero proof strip should name the uploaded-window scope for cost.',
+  snapshotLandingSource.includes('Estimated Support Tax') &&
+    snapshotLandingSource.includes('Repeat Contacts') &&
+    snapshotLandingSource.includes('Draft + Gap'),
+  'Snapshot hero proof strip should keep the support-tax, repeat-contact, and draft-gap metric labels.',
+);
+assert.ok(
+  snapshotLandingSource.includes('one agent-backed answer and one unresolved finding'),
+  'Snapshot hero proof strip should name the unresolved finding alongside the draft answer.',
 );
 assert.ok(
   snapshotLandingSource.includes('Customer wording &rarr; your long-tail SEO target list'),
@@ -143,8 +169,8 @@ assert.ok(
   'Customer wording subsection should render actual wording examples when present.',
 );
 assert.ok(
-  snapshotLandingSource.includes('What it gives you.'),
-  'Snapshot artifact should keep its lead-in heading after the hero form.',
+  snapshotLandingSource.includes('A preview of the truth.'),
+  'Snapshot artifact should keep the audit-preview lead-in heading after the hero form.',
 );
 assert.ok(
   snapshotLandingSource.includes('When the upload includes customer phrasing'),

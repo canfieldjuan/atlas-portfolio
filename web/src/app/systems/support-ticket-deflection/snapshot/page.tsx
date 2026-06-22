@@ -2,18 +2,18 @@ import { DeflectionSnapshotLandingPage } from '@/components/landing/DeflectionSn
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
-  title: 'Free Deflection Snapshot: Find Repeat Support Tickets to Deflect First',
+  title: 'The Resolution Audit: Find Support Ticket Cost Exposure',
   description:
-    'Upload 30 days of closed tickets and get a free Deflection Snapshot: ranked repeat-ticket issues, customer wording, a benchmark Support Tax estimate, and one sourced answer draft.',
+    'Upload your support-ticket export for a forensic Snapshot of repeat contacts, ranked question clusters, estimated Support Tax, one agent-backed answer, and one unresolved finding.',
   path: '/systems/support-ticket-deflection/snapshot',
   keywords: [
-    'free Deflection Snapshot',
-    'support ticket deflection snapshot',
-    'repeat support ticket analysis',
-    'support ticket CSV analysis',
+    'Resolution Audit',
+    'support ticket audit',
+    'support ticket cost exposure',
+    'support ticket CSV audit',
     'ranked support questions',
     'customer wording analysis',
-    'help center answer drafts',
+    'Support Tax estimate',
   ],
 });
 
