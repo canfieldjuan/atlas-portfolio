@@ -19,9 +19,9 @@ const PAID_HTML = [
 ].join('');
 const MODEL_PAID_HTML = [
   '<main>',
-  '<span>MODEL-BACKED REPORT</span>',
-  '<h1>Your Support Tax report is ready.</h1>',
-  '<div>Paid report dashboard</div>',
+  '<span>FULL RESOLUTION AUDIT</span>',
+  '<h1>Your Resolution Audit is ready.</h1>',
+  '<div>Full audit dashboard</div>',
   '<strong>Help-desk SEO targeting list</strong>',
   '<strong>Ranked question opportunities</strong>',
   '<div>Top publishable answers and gaps</div>',

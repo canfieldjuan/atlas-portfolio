@@ -118,21 +118,8 @@ async function getResultsAnalyticsContext(
 
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
-  const modelResult = await getReportModel(requestId);
-  if (modelResult.ok) {
-    return <DeflectionReportModelPage model={modelResult.model} requestId={requestId} />;
-  }
-
-  const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
-  if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
-
-  const snapshotState = await getSnapshotState(requestId);
-  if (snapshotState.kind === 'not_found') notFound();
-  if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
-  const snapshot: DeflectionSnapshot = snapshotState.snapshot;
   const query = searchParams ? await searchParams : undefined;
   const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
-  const analyticsContext = await getResultsAnalyticsContext(requestId);
   const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
   if (
     process.env.NODE_ENV === 'production' &&
@@ -148,6 +135,26 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
         (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
     ) ||
     DEFLECTION_DEFAULT_PRICE_VARIANT;
+
+  const modelResult = await getReportModel(requestId);
+  if (modelResult.ok) {
+    return (
+      <DeflectionReportModelPage
+        model={modelResult.model}
+        requestId={requestId}
+        priceVariant={priceVariant}
+      />
+    );
+  }
+
+  const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
+  if (artifact) return <DeflectionReportArtifactPage artifact={artifact} />;
+
+  const snapshotState = await getSnapshotState(requestId);
+  if (snapshotState.kind === 'not_found') notFound();
+  if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
+  const snapshot: DeflectionSnapshot = snapshotState.snapshot;
+  const analyticsContext = await getResultsAnalyticsContext(requestId);
   return (
     <DeflectionResultsPage
       snapshot={snapshot}

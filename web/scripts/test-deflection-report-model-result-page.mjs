@@ -376,6 +376,18 @@ function projectedModel(overrides = {}) {
   };
 }
 
+function extractPartnerReportModelCopyBranch(source) {
+  const partnerMarker = 'if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {';
+  const partnerStart = source.indexOf(partnerMarker);
+  assert.notEqual(partnerStart, -1, 'report model page should have a partner copy branch');
+
+  const publicMarker = "badge: 'FULL RESOLUTION AUDIT'";
+  const publicStart = source.indexOf(publicMarker, partnerStart);
+  assert.notEqual(publicStart, -1, 'report model page should have a public copy branch after partner copy');
+
+  return source.slice(partnerStart, publicStart);
+}
+
 globalThis.fetch = async (url, init) => {
   fetchCalls.push({
     url: String(url),
@@ -1079,8 +1091,12 @@ try {
 
   const routeSource = await readFile(routeUrl, 'utf8');
   const modelFetchIndex = routeSource.indexOf('const modelResult = await getReportModel(requestId)');
+  const priceVariantIndex = routeSource.indexOf('const priceVariant =');
   const artifactFetchIndex = routeSource.indexOf("modelResult.reason === 'not_found' ? await getArtifact(requestId) : null");
   assert.ok(modelFetchIndex > -1, 'results route fetches the report model first');
+  assert.ok(priceVariantIndex > -1, 'results route resolves the price variant');
+  assert.ok(priceVariantIndex < modelFetchIndex, 'results route resolves the price variant before paid model render');
+  assert.ok(routeSource.includes('priceVariant={priceVariant}'), 'results route passes price variant to the model page');
   assert.ok(artifactFetchIndex > modelFetchIndex, 'artifact fallback happens after model fetch');
   assert.equal(
     routeSource.includes('fetchDeflectionArtifact(requestId);\\n  const model'),
@@ -1089,7 +1105,18 @@ try {
   );
 
   const modelPageSource = await readFile(modelPageUrl, 'utf8');
+  const partnerReportModelCopyBranch = extractPartnerReportModelCopyBranch(modelPageSource);
   assert.ok(modelPageSource.includes("section.surfaces.includes('web')"), 'model page filters to web sections');
+  assert.ok(modelPageSource.includes('FULL RESOLUTION AUDIT'), 'public paid model page uses Resolution Audit badge copy');
+  assert.ok(modelPageSource.includes('Your Resolution Audit is ready.'), 'public paid model page uses Resolution Audit headline copy');
+  assert.ok(modelPageSource.includes('Full audit dashboard'), 'public paid model page uses audit dashboard copy');
+  assert.ok(partnerReportModelCopyBranch.includes("badge: 'FULL DEFLECTION REPORT'"), 'partner paid model page keeps Deflection Report badge copy');
+  assert.ok(partnerReportModelCopyBranch.includes("headline: 'Your Deflection Report is ready.'"), 'partner paid model page keeps Deflection Report headline copy');
+  assert.ok(partnerReportModelCopyBranch.includes("dashboardLabel: 'Full report dashboard'"), 'partner paid model page keeps report dashboard copy');
+  assert.equal(partnerReportModelCopyBranch.includes('Resolution Audit'), false, 'partner paid model branch should not leak public Resolution Audit copy');
+  assert.equal(modelPageSource.includes('MODEL-BACKED REPORT'), false, 'model page should not use the old model-backed report badge');
+  assert.equal(modelPageSource.includes('Your Support Tax report is ready.'), false, 'model page should not use the old Support Tax report headline');
+  assert.equal(modelPageSource.includes('Paid report dashboard'), false, 'model page should not use the old paid report dashboard label');
   assert.ok(
     modelPageSource.includes('const limit = Math.min(OUTCOME_DIAGNOSTIC_LIMIT, requestedLimit)'),
     'outcome diagnostics clamp upstream limits to the local cap',

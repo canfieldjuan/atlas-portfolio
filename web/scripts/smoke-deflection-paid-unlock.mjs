@@ -15,12 +15,12 @@ const DEFAULT_MAX_WAIT_MS = 120_000;
 const DEFAULT_POLL_MS = 5_000;
 const VERCEL_CURL_STATUS_MARKER = '__ATLAS_HTTP_STATUS__:';
 const REQUIRED_PAID_MARKERS = [
-  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'MODEL-BACKED REPORT'] },
+  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'FULL RESOLUTION AUDIT'] },
   {
     key: 'paidHeadline',
-    labels: ['Your complete Support Tax report is ready.', 'Your Support Tax report is ready.'],
+    labels: ['Your complete Support Tax report is ready.', 'Your Resolution Audit is ready.'],
   },
-  { key: 'reportContents', labels: ['Paid report contents', 'Paid report dashboard'] },
+  { key: 'reportContents', labels: ['Paid report contents', 'Full audit dashboard'] },
   { key: 'seoTargeting', labels: ['Your Help-Desk SEO Targeting List', 'Help-desk SEO targeting list'] },
   { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },

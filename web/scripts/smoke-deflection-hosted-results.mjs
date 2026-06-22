@@ -15,9 +15,9 @@ const REQUIRED_SNAPSHOT_MARKERS = [
   { key: 'unlockCta', label: 'Unlock your full Resolution Audit' },
 ];
 const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
-  { key: 'paidReportBadge', labels: ['MODEL-BACKED REPORT'] },
-  { key: 'paidHeadline', labels: ['Your Support Tax report is ready.'] },
-  { key: 'reportContents', labels: ['Paid report dashboard'] },
+  { key: 'paidReportBadge', labels: ['FULL RESOLUTION AUDIT'] },
+  { key: 'paidHeadline', labels: ['Your Resolution Audit is ready.'] },
+  { key: 'reportContents', labels: ['Full audit dashboard'] },
   { key: 'priorityFixQueue', labels: ['Priority Fix Queue'] },
   { key: 'topUnresolvedRepeats', labels: ['Top Unresolved Repeats'] },
   { key: 'draftedResolutions', labels: ['Drafted Resolutions'] },
@@ -28,12 +28,9 @@ const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
   { key: 'reviewerGuidance', labels: ['Top publishable answers and gaps'] },
 ];
 const REQUIRED_LEGACY_FULL_REPORT_MARKERS = [
-  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT', 'MODEL-BACKED REPORT'] },
-  {
-    key: 'paidHeadline',
-    labels: ['Your complete Support Tax report is ready.', 'Your Support Tax report is ready.'],
-  },
-  { key: 'reportContents', labels: ['Paid report contents', 'Paid report dashboard'] },
+  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT'] },
+  { key: 'paidHeadline', labels: ['Your complete Support Tax report is ready.'] },
+  { key: 'reportContents', labels: ['Paid report contents'] },
   { key: 'seoTargeting', labels: ['Your Help-Desk SEO Targeting List', 'Help-desk SEO targeting list'] },
   { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
@@ -123,7 +120,7 @@ function missingFullReportMarkers(expectedState, html) {
 }
 
 function fullReportMarkers(html) {
-  if (html.includes('MODEL-BACKED REPORT') || html.includes('Paid report dashboard')) {
+  if (html.includes('FULL RESOLUTION AUDIT') || html.includes('Full audit dashboard')) {
     return REQUIRED_MODEL_FULL_REPORT_MARKERS;
   }
   return REQUIRED_LEGACY_FULL_REPORT_MARKERS;
