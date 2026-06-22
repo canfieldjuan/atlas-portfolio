@@ -235,8 +235,15 @@ assert.ok(
   'intake headline should frame the cost-exposure audit question',
 );
 assert.ok(
-  intakeClientSource.includes('Upload your support-ticket export.'),
-  'intake subcopy should use export/audit framing instead of the old 30-day report framing',
+  intakeClientSource.includes('Upload your 30-day ticket export.') &&
+    intakeClientSource.includes('high-volume repeat') &&
+    intakeClientSource.includes('where documentation alone cannot carry the load.'),
+  'intake subcopy should use the 30-day export, repeat-question, and operational-gap framing',
+);
+assert.ok(
+  !intakeClientSource.includes('Upload your support-ticket export. The audit ranks repeated questions') &&
+    !intakeClientSource.includes('prepares one review-ready drafted answer'),
+  'intake subcopy should remove the previous generic audit phrasing',
 );
 assert.ok(
   intakeClientSource.includes('No LLM or Generative models.'),

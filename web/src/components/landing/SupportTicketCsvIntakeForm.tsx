@@ -464,9 +464,9 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
             Identify the cost exposure behind your unresolved questions.
           </h2>
           <p className="text-foreground/65 text-sm leading-relaxed">
-            Upload your support-ticket export. The audit ranks repeated questions,
-            estimates cost exposure, and prepares one review-ready drafted answer
-            using repeatable clustering.
+            Upload your 30-day ticket export. We will map your high-volume repeat
+            questions to proven agent resolutions and isolate the operational gaps
+            where documentation alone cannot carry the load.
           </p>
         </div>
 

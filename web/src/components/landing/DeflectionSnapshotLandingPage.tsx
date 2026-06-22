@@ -417,21 +417,21 @@ function ProofList() {
   const items = [
     {
       icon: <ShieldCheck className="h-5 w-5" />,
-      title: 'Grounded in resolved tickets',
+      title: 'The Anatomy of a Finding',
       body:
-        'Drafted resolutions are added only when the ticket history contains a scoped resolution.',
+        'Each finding consists of four verifiable elements: the volume of repeat tickets, the strength of existing agent resolution evidence, the estimated support cost, and the original source tickets.',
     },
     {
       icon: <FileText className="h-5 w-5" />,
-      title: 'A real diagnostic, not a generic calculator',
+      title: 'The Audit Trail',
       body:
-        'A calculator gives you one total. The Snapshot shows the recurring cost behind each repeat question, so you can fix the biggest losses first.',
+        'We do not guess. Every drafted resolution is anchored to source ticket IDs. If your ticket history does not contain scoped resolution evidence, we mark the issue as "no proven answer" rather than inventing a solution.',
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
-      title: 'No LLM or Model touches your data',
+      title: 'A Diagnostic, Not a Dashboard',
       body:
-        'The output is a resolution queue for your team. Nothing auto-publishes and nothing replies on your behalf.',
+        'The report is a ranked queue of actions. It separates ready-to-review documentation drafts from product or policy gaps: the issues that require a fix to the software or the rulebook, not a new help article.',
     },
   ];
 
@@ -533,12 +533,11 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Built for you to take action today: Fix the most unresolved questions now.
+              The mechanism behind the audit.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The Snapshot has one job: read the queue, show the repeat unresolved
-              questions, and keep every publishable resolution grounded in your
-              support history.
+              Every finding has to trace back to ticket volume, resolution
+              evidence, estimated cost exposure, and source tickets.
             </p>
           </div>
           <ProofList />
@@ -549,26 +548,26 @@ export function DeflectionSnapshotLandingPage() {
         data-smoke="snapshotFirst finalSnapshotAsk"
         className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8"
       >
-        <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Start with the Snapshot before you commit to a deeper audit.
+          Decide if an audit is worth the investment before you commit.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          Upload your CSV to see whether your ticket history contains enough
-          repeated, unresolved questions to justify a full audit. If it does,
-          you get the evidence to decide what to pursue next. If it does not,
-          the Snapshot still gives you a bounded starting point instead of a
-          sales pitch.
+          Upload your support-ticket CSV to receive a Snapshot. You will
+          immediately see your top deflection topic and a summary count. This
+          tells you if your ticket history contains enough unresolved,
+          repetitive questions to justify a full audit. If the data is thin,
+          you have a bounded starting point instead of a sales pitch.
         </p>
-        <div className="mx-auto mt-5 max-w-2xl border-t border-primary/20 pt-4 text-left">
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
-            Audit standard
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-foreground/62">
-            If a full audit does not turn your uploaded tickets into a ranked,
-            source-backed action queue, we will correct the report. The promise
-            is a usable audit trail, not guaranteed savings, rankings, or
-            entirely-new findings.
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
+          If the data warrants it, the full report provides a ranked,
+          source-backed action queue. You receive draft answers anchored to real
+          agent resolutions and a list of operational blind spots.
+        </p>
+        <div className="mx-auto mt-5 max-w-2xl border-t border-primary/20 pt-4">
+          <p className="text-sm leading-relaxed text-foreground/62">
+            We do not promise guaranteed savings. We promise a usable audit
+            trail. If the full report fails to deliver a ranked, source-backed
+            queue of questions and answers, we will correct the findings.
           </p>
         </div>
         <div className="mt-6">
