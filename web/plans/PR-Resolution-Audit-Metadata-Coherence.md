@@ -70,6 +70,7 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-public-reachability-smoke` - passed.
 - `rg -n "Support Ticket Deflection Report|Resolution Audit: Find Repeat Support Ticket Cost Exposure|Start with the Resolution Audit, then expand|a Resolution Audit would surface for review" web/src/app/systems/support-ticket-deflection/layout.tsx web/src/app/systems/support-ticket-deflection/demo/layout.tsx web/src/app/systems/ai-content-ops/layout.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
   - passed; the touched runtime metadata uses the new Resolution Audit wording, and the old report label remains only in negative test assertions.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
