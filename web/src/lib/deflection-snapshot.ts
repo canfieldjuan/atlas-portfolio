@@ -142,17 +142,17 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
   ],
   top_blind_spots: [
     {
-      rank: 1,
+      rank: 2,
       question: 'How do customers pause billing without losing workspace access?',
       ticket_count: 72,
     },
     {
-      rank: 2,
+      rank: 4,
       question: 'What should customers do when SSO provisioning gets stuck?',
       ticket_count: 54,
     },
     {
-      rank: 3,
+      rank: 7,
       question: 'How are annual renewal credits applied after a plan change?',
       ticket_count: 38,
     },
@@ -196,4 +196,15 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
       },
     ],
   },
+};
+
+export const DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD: DeflectionSnapshot = {
+  ...DEMO_DEFLECTION_SNAPSHOT,
+  summary: {
+    generated: DEMO_DEFLECTION_SNAPSHOT.summary.generated,
+    drafted_answer_count: DEMO_DEFLECTION_SNAPSHOT.summary.generated,
+    no_proven_answer_count: 0,
+    repeat_ticket_count: DEMO_DEFLECTION_SNAPSHOT.summary.repeat_ticket_count,
+  },
+  top_blind_spots: [],
 };
