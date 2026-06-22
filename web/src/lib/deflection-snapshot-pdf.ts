@@ -15,10 +15,16 @@ type DeflectionSnapshotPdfInput = {
   snapshot: DeflectionSnapshot;
   companyName?: string;
   resultsUrl?: string | null;
+  artifactName?: string;
+  filenamePrefix?: string;
+  paidArtifactName?: string;
 };
 
 const MAX_TEXT_LINE_LENGTH = 92;
 export const DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE = 48;
+const DEFLECTION_SNAPSHOT_PDF_TITLE = 'Resolution Audit Snapshot';
+const DEFLECTION_SNAPSHOT_PDF_FILENAME_PREFIX = 'resolution-audit-snapshot';
+const DEFLECTION_FULL_ARTIFACT_NAME = 'Full Resolution Audit';
 
 function asciiText(value: unknown) {
   return String(value ?? '')
@@ -93,8 +99,10 @@ function addWrapped(lines: string[], line = '') {
 
 export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInput) {
   const { snapshot } = input;
+  const artifactName = input.artifactName || DEFLECTION_SNAPSHOT_PDF_TITLE;
+  const paidArtifactName = input.paidArtifactName || DEFLECTION_FULL_ARTIFACT_NAME;
   const lines: string[] = [
-    'Deflection Snapshot',
+    artifactName,
     input.companyName ? `Company: ${asciiText(input.companyName)}` : 'Company: Uploaded support-ticket CSV',
     sourceWindowLabel(snapshot),
     '',
@@ -107,15 +115,15 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
   lines.push('');
   addWrapped(
     lines,
-    'Privacy boundary: this free Snapshot PDF includes only summary counts, top free questions, customer wording, the one free answer teaser, and locked rank/count placeholders.',
+    `Privacy boundary: this free ${artifactName} PDF includes only summary counts, top free questions, customer wording, the one free answer teaser, and locked rank/count placeholders.`,
   );
   addWrapped(
     lines,
-    'It excludes source IDs, evidence quotes, raw ticket bodies, full-report markdown, and locked answer bodies.',
+    'It excludes source IDs, evidence quotes, raw ticket bodies, full-audit markdown, and locked answer bodies.',
   );
   if (input.resultsUrl) {
     lines.push('');
-    addWrapped(lines, `Live Snapshot: ${input.resultsUrl}`);
+    addWrapped(lines, `Live ${artifactName}: ${input.resultsUrl}`);
   }
 
   lines.push('', 'Top repeat questions');
@@ -142,11 +150,11 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
       }
     }
   } else {
-    addWrapped(lines, 'No proven answer was included in the free teaser for this Snapshot.');
+    addWrapped(lines, `No proven answer was included in the free teaser for this ${artifactName}.`);
   }
 
   if (snapshot.locked_questions.length > 0) {
-    lines.push('', `${DEFLECTION_FULL_REPORT_PRICE_LABEL} Full Report locked preview`);
+    lines.push('', `${DEFLECTION_FULL_REPORT_PRICE_LABEL} ${paidArtifactName} locked preview`);
     for (const question of snapshot.locked_questions.slice(0, 8)) {
       addWrapped(
         lines,
@@ -164,7 +172,7 @@ export function buildDeflectionSnapshotPdfPages(input: DeflectionSnapshotPdfInpu
   for (let index = 0; index < lines.length; index += DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE) {
     pages.push(lines.slice(index, index + DEFLECTION_SNAPSHOT_PDF_LINES_PER_PAGE));
   }
-  return pages.length > 0 ? pages : [['Deflection Snapshot']];
+  return pages.length > 0 ? pages : [[input.artifactName || DEFLECTION_SNAPSHOT_PDF_TITLE]];
 }
 
 function pdfString(value: string) {
@@ -220,8 +228,9 @@ export function createDeflectionSnapshotPdfAttachment(
   input: DeflectionSnapshotPdfInput,
 ): DeflectionSnapshotPdfAttachment {
   const pdf = buildPdf(buildDeflectionSnapshotPdfPages(input));
+  const filenamePrefix = safeFilenamePart(input.filenamePrefix || DEFLECTION_SNAPSHOT_PDF_FILENAME_PREFIX);
   return {
-    filename: `deflection-snapshot-${safeFilenamePart(input.companyName)}.pdf`,
+    filename: `${filenamePrefix}-${safeFilenamePart(input.companyName)}.pdf`,
     content: pdf.toString('base64'),
   };
 }

@@ -177,6 +177,9 @@ type IntakeOfferCopy = {
   notificationSubjectPrefix: string;
   customerSubject: string;
   snapshotName: string;
+  snapshotFilenamePrefix: string;
+  fullDeliverableName: string;
+  paidArtifactName: string;
 };
 
 const FAQ_REPORT_OFFER_COPY: IntakeOfferCopy = {
@@ -185,19 +188,41 @@ const FAQ_REPORT_OFFER_COPY: IntakeOfferCopy = {
   notificationSubjectPrefix: 'New FAQ Report CSV',
   customerSubject: 'We received your FAQ Report CSV',
   snapshotName: 'FAQ Snapshot',
+  snapshotFilenamePrefix: 'faq-snapshot',
+  fullDeliverableName: 'full report',
+  paidArtifactName: 'Full Report',
 };
 
-const SUPPORT_DEFLECTION_OFFER_COPY: IntakeOfferCopy = {
+const SUPPORT_DEFLECTION_PUBLIC_OFFER_COPY: IntakeOfferCopy = {
+  notificationHeading: 'New Resolution Audit CSV submission',
+  notificationFooter: '— Atlas Portfolio (Resolution Audit intake)',
+  notificationSubjectPrefix: 'New Resolution Audit CSV',
+  customerSubject: 'We received your Resolution Audit CSV',
+  snapshotName: 'Resolution Audit Snapshot',
+  snapshotFilenamePrefix: 'resolution-audit-snapshot',
+  fullDeliverableName: 'full Resolution Audit',
+  paidArtifactName: 'Full Resolution Audit',
+};
+
+const SUPPORT_DEFLECTION_PARTNER_OFFER_COPY: IntakeOfferCopy = {
   notificationHeading: 'New Support Ticket Deflection Report CSV submission',
   notificationFooter: '— Atlas Portfolio (Support Ticket Deflection Report intake)',
   notificationSubjectPrefix: 'New Deflection Report CSV',
   customerSubject: 'We received your Deflection Report CSV',
   snapshotName: 'Deflection Snapshot',
+  snapshotFilenamePrefix: 'deflection-snapshot',
+  fullDeliverableName: 'full report',
+  paidArtifactName: 'Full Deflection Report',
 };
 
-function intakeOfferCopy(sourceOffer: string | undefined): IntakeOfferCopy {
+function intakeOfferCopy(
+  sourceOffer: string | undefined,
+  priceVariant?: DeflectionPriceVariantId,
+): IntakeOfferCopy {
   if (sourceOffer === 'support-ticket-deflection-intake') {
-    return SUPPORT_DEFLECTION_OFFER_COPY;
+    return priceVariant === DEFLECTION_PARTNER_PRICE_VARIANT_ID
+      ? SUPPORT_DEFLECTION_PARTNER_OFFER_COPY
+      : SUPPORT_DEFLECTION_PUBLIC_OFFER_COPY;
   }
 
   return FAQ_REPORT_OFFER_COPY;
@@ -240,7 +265,7 @@ function deflectionResultsUrl(
 }
 
 function buildNotificationText(record: GapReportSubmissionRecord) {
-  const offer = intakeOfferCopy(record.sourceOffer);
+  const offer = intakeOfferCopy(record.sourceOffer, record.priceVariant);
   const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
@@ -268,7 +293,7 @@ function buildNotificationText(record: GapReportSubmissionRecord) {
 
 function buildSnapshotEmailText(record: GapReportSubmissionRecord) {
   const firstName = record.name?.trim().split(/\s+/)[0] || '';
-  const offer = intakeOfferCopy(record.sourceOffer);
+  const offer = intakeOfferCopy(record.sourceOffer, record.priceVariant);
   const resultsUrl = deflectionResultsUrl(record.reportRequestId, record.priceVariant);
 
   return [
@@ -286,7 +311,7 @@ function buildSnapshotEmailText(record: GapReportSubmissionRecord) {
     ...(resultsUrl
       ? [
           '',
-          'Tip: save this email or bookmark your results link if you might come back later. Your CSV is held for 30 days, so you can upgrade to the full report during that window without re-uploading.',
+          `Tip: save this email or bookmark your results link if you might come back later. Your CSV is held for 30 days, so you can upgrade to the ${offer.fullDeliverableName} during that window without re-uploading.`,
         ]
       : []),
     '',
@@ -335,7 +360,7 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
       from: fromEmail,
       to: toRecipients,
       reply_to: record.email,
-      subject: `${intakeOfferCopy(record.sourceOffer).notificationSubjectPrefix}: ${record.companyName} (${record.email})`,
+      subject: `${intakeOfferCopy(record.sourceOffer, record.priceVariant).notificationSubjectPrefix}: ${record.companyName} (${record.email})`,
       text: buildNotificationText(record),
     }),
     cache: 'no-store',
@@ -353,6 +378,7 @@ async function sendNotificationEmail(record: GapReportSubmissionRecord) {
 
 async function sendSnapshotEmail(record: GapReportSubmissionRecord, snapshot?: DeflectionSnapshot) {
   const { resendApiKey, fromEmail } = emailConfig();
+  const offer = intakeOfferCopy(record.sourceOffer, record.priceVariant);
 
   if (!resendApiKey || !fromEmail) {
     throw new Error('Gap Report snapshot email is not fully configured.');
@@ -364,12 +390,15 @@ async function sendSnapshotEmail(record: GapReportSubmissionRecord, snapshot?: D
         snapshot,
         companyName: record.companyName,
         resultsUrl,
+        artifactName: offer.snapshotName,
+        filenamePrefix: offer.snapshotFilenamePrefix,
+        paidArtifactName: offer.paidArtifactName,
       })
     : null;
   const payload = {
     from: fromEmail,
     to: [record.email],
-    subject: intakeOfferCopy(record.sourceOffer).customerSubject,
+    subject: offer.customerSubject,
     text: buildSnapshotEmailText(record),
     ...(attachment ? { attachments: [attachment] } : {}),
   };

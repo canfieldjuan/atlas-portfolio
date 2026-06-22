@@ -108,7 +108,8 @@ try {
   });
   const text = lines.join('\n');
 
-  assert.match(text, /Deflection Snapshot/);
+  assert.match(text, /Resolution Audit Snapshot/);
+  assert.doesNotMatch(text, /Deflection Snapshot/);
   assert.match(text, /Effingham Office Maids/);
   assert.match(text, /Repeat-ticket hits: 64/);
   assert.match(text, /Support Tax: \$864 in this upload; about \$10,512 annualized/);
@@ -129,9 +130,10 @@ try {
   const pdf = Buffer.from(attachment.content, 'base64');
   const pdfText = pdf.toString('ascii');
 
-  assert.equal(attachment.filename, 'deflection-snapshot-effingham-office-maids-llc.pdf');
+  assert.equal(attachment.filename, 'resolution-audit-snapshot-effingham-office-maids-llc.pdf');
   assert.match(pdfText, /^%PDF-1\.4/);
-  assert.match(pdfText, /Deflection Snapshot/);
+  assert.match(pdfText, /Resolution Audit Snapshot/);
+  assert.doesNotMatch(pdfText, /Deflection Snapshot/);
   assert.match(pdfText, /xref/);
   assert.match(pdfText, /%%EOF/);
   assert.doesNotMatch(pdfText, /source-secret/);
@@ -188,7 +190,7 @@ try {
   assert.match(richPdfText, /#13: 33 repeat tickets - question text, evidence, and answer body stay locked/);
   assert.doesNotMatch(richPdfText, /Hidden locked answer body/);
 
-  console.log('Deflection Snapshot PDF email tests passed.');
+  console.log('Resolution Audit Snapshot PDF email tests passed.');
 } finally {
   await rm(testDir, { recursive: true, force: true });
 }
