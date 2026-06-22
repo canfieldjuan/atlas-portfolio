@@ -139,6 +139,21 @@ try {
   assert.doesNotMatch(pdfText, /source-secret/);
   assert.doesNotMatch(pdfText, /Hidden locked question text/);
 
+  const partnerAttachment = createDeflectionSnapshotPdfAttachment({
+    snapshot,
+    companyName: 'Partner Co',
+    resultsUrl: 'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123?priceVariant=partner',
+    artifactName: 'Deflection Snapshot',
+    filenamePrefix: 'deflection-snapshot',
+    paidArtifactName: 'Full Deflection Report',
+  });
+  const partnerPdfText = Buffer.from(partnerAttachment.content, 'base64').toString('ascii');
+  assert.equal(partnerAttachment.filename, 'deflection-snapshot-partner-co.pdf');
+  assert.match(partnerPdfText, /Deflection Snapshot/);
+  assert.match(partnerPdfText, /full Deflection Report markdown/);
+  assert.match(partnerPdfText, /\$1,500 Full Deflection Report locked preview/);
+  assert.doesNotMatch(partnerPdfText, /audit/i);
+
   const contentRichSnapshot = {
     ...snapshot,
     top_questions: Array.from({ length: 5 }, (_, index) => ({

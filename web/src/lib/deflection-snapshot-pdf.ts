@@ -55,6 +55,10 @@ function usd(value: number) {
   return formatDeflectionWholeUsd(value);
 }
 
+function lowerInitial(value: string) {
+  return value ? `${value.charAt(0).toLowerCase()}${value.slice(1)}` : value;
+}
+
 function sourceWindowLabel(snapshot: DeflectionSnapshot) {
   const { source_date_start: start, source_date_end: end, source_window_days: days } = snapshot.summary;
   if (!start || !end || !days) return 'Source window: uploaded CSV window';
@@ -101,6 +105,7 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
   const { snapshot } = input;
   const artifactName = input.artifactName || DEFLECTION_SNAPSHOT_PDF_TITLE;
   const paidArtifactName = input.paidArtifactName || DEFLECTION_FULL_ARTIFACT_NAME;
+  const paidArtifactLabel = lowerInitial(paidArtifactName);
   const lines: string[] = [
     artifactName,
     input.companyName ? `Company: ${asciiText(input.companyName)}` : 'Company: Uploaded support-ticket CSV',
@@ -119,7 +124,7 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
   );
   addWrapped(
     lines,
-    'It excludes source IDs, evidence quotes, raw ticket bodies, full-audit markdown, and locked answer bodies.',
+    `It excludes source IDs, evidence quotes, raw ticket bodies, ${paidArtifactLabel} markdown, and locked answer bodies.`,
   );
   if (input.resultsUrl) {
     lines.push('');

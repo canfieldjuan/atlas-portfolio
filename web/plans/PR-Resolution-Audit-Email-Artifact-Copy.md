@@ -43,6 +43,8 @@ Slice phase: Product polish
 - The Snapshot PDF remains the same bounded payload, but its visible artifact
   title, generated filename prefix, and paid-preview label are supplied from the
   resolved offer copy so public and partner attachments stay separated.
+- The PDF exclusion line derives its paid-artifact label from the same resolved
+  name so partner PDFs do not retain public `full-audit` wording.
 
 ## Intentional
 
@@ -72,6 +74,10 @@ Parked hardening: none.
     Deflection Report / Deflection Snapshot hits remain in the partner copy
     object and partner assertions, and structural `DeflectionSnapshot*`
     identifiers are outside the visible-copy sweep.
+- `rg -n "full-audit markdown|full Deflection Report markdown|full Resolution Audit markdown|audit" web/src/lib/deflection-snapshot-pdf.ts web/scripts/test-deflection-snapshot-pdf-email.mjs web/scripts/test-deflection-email-results-link.mjs web/src/lib/gap-report-intake.ts`
+  - passed; the hardcoded `full-audit markdown` string is gone, the partner PDF
+    test asserts `full Deflection Report markdown`, and the partner PDF output is
+    guarded with a no-`audit` assertion.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
@@ -79,7 +85,7 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | Email copy resolver split | ~45 |
-| PDF artifact labels | ~25 |
-| Email/PDF tests | ~45 |
+| PDF artifact labels | ~30 |
+| Email/PDF tests | ~60 |
 | this plan doc | ~75 |
-| **Total** | ~190 |
+| **Total** | ~210 |
