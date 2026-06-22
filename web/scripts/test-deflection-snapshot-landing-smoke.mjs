@@ -173,6 +173,50 @@ assert.ok(
   'Snapshot artifact should keep the audit-preview lead-in heading after the hero form.',
 );
 assert.ok(
+  snapshotLandingSource.includes('Decide if an audit is worth the investment before you commit.'),
+  'Final Snapshot CTA should frame the Snapshot as an investment gate.',
+);
+assert.ok(
+  compactSnapshotLandingSource.includes(
+    'Upload your Zendesk or Freshdesk CSV to receive a Snapshot. You will immediately see your top deflection topic and a summary count.',
+  ),
+  'Final Snapshot CTA should name the Snapshot output and immediate summary count.',
+);
+assert.ok(
+  compactSnapshotLandingSource.includes(
+    'If the data is thin, you have a bounded starting point instead of a sales pitch.',
+  ),
+  'Final Snapshot CTA should keep the thin-data case bounded.',
+);
+assert.ok(
+  compactSnapshotLandingSource.includes(
+    'If the data warrants it, the full report provides a ranked, source-backed action queue.',
+  ) &&
+    compactSnapshotLandingSource.includes(
+      'draft answers anchored to real agent resolutions and a list of operational blind spots.',
+    ),
+  'Final Snapshot CTA should define the full-report deliverable without overclaiming outcomes.',
+);
+assert.ok(
+  compactSnapshotLandingSource.includes(
+    'We do not promise guaranteed savings. We promise a usable audit trail.',
+  ) &&
+    compactSnapshotLandingSource.includes(
+      'ranked, source-backed queue of questions and answers, we will correct the findings.',
+    ),
+  'Final Snapshot CTA should keep the audit-trail guarantee bounded.',
+);
+assert.equal(
+  snapshotLandingSource.includes('Start with the Snapshot before you commit to a deeper audit.'),
+  false,
+  'Old final Snapshot CTA headline should be removed.',
+);
+assert.equal(
+  snapshotLandingSource.includes('entirely-new findings'),
+  false,
+  'Old final Snapshot guarantee should not promise entirely-new findings.',
+);
+assert.ok(
   snapshotLandingSource.includes('When the upload includes customer phrasing'),
   'Customer wording claim should stay conditional when phrasing is absent.',
 );

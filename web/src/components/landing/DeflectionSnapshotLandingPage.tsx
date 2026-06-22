@@ -549,26 +549,26 @@ export function DeflectionSnapshotLandingPage() {
         data-smoke="snapshotFirst finalSnapshotAsk"
         className="mx-auto mt-16 max-w-4xl rounded-md border border-primary/25 bg-primary/[0.05] p-6 text-center shadow-[var(--primary-glow)] md:p-8"
       >
-        <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Start with the Snapshot before you commit to a deeper audit.
+          Decide if an audit is worth the investment before you commit.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          Upload your CSV to see whether your ticket history contains enough
-          repeated, unresolved questions to justify a full audit. If it does,
-          you get the evidence to decide what to pursue next. If it does not,
-          the Snapshot still gives you a bounded starting point instead of a
-          sales pitch.
+          Upload your Zendesk or Freshdesk CSV to receive a Snapshot. You will
+          immediately see your top deflection topic and a summary count. This
+          tells you if your ticket history contains enough unresolved,
+          repetitive questions to justify a full audit. If the data is thin,
+          you have a bounded starting point instead of a sales pitch.
         </p>
-        <div className="mx-auto mt-5 max-w-2xl border-t border-primary/20 pt-4 text-left">
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
-            Audit standard
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-foreground/62">
-            If a full audit does not turn your uploaded tickets into a ranked,
-            source-backed action queue, we will correct the report. The promise
-            is a usable audit trail, not guaranteed savings, rankings, or
-            entirely-new findings.
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
+          If the data warrants it, the full report provides a ranked,
+          source-backed action queue. You receive draft answers anchored to real
+          agent resolutions and a list of operational blind spots.
+        </p>
+        <div className="mx-auto mt-5 max-w-2xl border-t border-primary/20 pt-4">
+          <p className="text-sm leading-relaxed text-foreground/62">
+            We do not promise guaranteed savings. We promise a usable audit
+            trail. If the full report fails to deliver a ranked, source-backed
+            queue of questions and answers, we will correct the findings.
           </p>
         </div>
         <div className="mt-6">
