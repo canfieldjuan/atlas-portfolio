@@ -173,6 +173,44 @@ assert.ok(
   'Snapshot artifact should keep the audit-preview lead-in heading after the hero form.',
 );
 assert.ok(
+  snapshotLandingSource.includes('The mechanism behind the audit.'),
+  'Proof section should frame the report around mechanism instead of slogan copy.',
+);
+assert.ok(
+  snapshotLandingSource.includes('The Anatomy of a Finding') &&
+    compactSnapshotLandingSource.includes(
+      'the volume of repeat tickets, the strength of existing agent resolution evidence, the estimated support cost, and the original source tickets.',
+    ),
+  'Proof section should define finding anatomy without claiming actual agent time.',
+);
+assert.ok(
+  snapshotLandingSource.includes('The Audit Trail') &&
+    compactSnapshotLandingSource.includes(
+      'Every drafted resolution is anchored to source ticket IDs.',
+    ) &&
+    compactSnapshotLandingSource.includes(
+      'we mark the issue as "no proven answer" rather than inventing a solution.',
+    ),
+  'Proof section should tie drafted resolutions to source ticket IDs and no-proven-answer handling.',
+);
+assert.ok(
+  snapshotLandingSource.includes('A Diagnostic, Not a Dashboard') &&
+    compactSnapshotLandingSource.includes(
+      'It separates ready-to-review documentation drafts from product or policy gaps',
+    ),
+  'Proof section should describe the report as a diagnostic action queue.',
+);
+assert.equal(
+  snapshotLandingSource.includes('Built for you to take action today: Fix the most unresolved questions now.'),
+  false,
+  'Old proof-section slogan headline should be removed.',
+);
+assert.equal(
+  snapshotLandingSource.includes('No LLM or Model touches your data'),
+  false,
+  'Proof section should avoid the overly broad no-model claim.',
+);
+assert.ok(
   snapshotLandingSource.includes('Decide if an audit is worth the investment before you commit.'),
   'Final Snapshot CTA should frame the Snapshot as an investment gate.',
 );

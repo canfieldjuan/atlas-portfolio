@@ -417,21 +417,21 @@ function ProofList() {
   const items = [
     {
       icon: <ShieldCheck className="h-5 w-5" />,
-      title: 'Grounded in resolved tickets',
+      title: 'The Anatomy of a Finding',
       body:
-        'Drafted resolutions are added only when the ticket history contains a scoped resolution.',
+        'Each finding consists of four verifiable elements: the volume of repeat tickets, the strength of existing agent resolution evidence, the estimated support cost, and the original source tickets.',
     },
     {
       icon: <FileText className="h-5 w-5" />,
-      title: 'A real diagnostic, not a generic calculator',
+      title: 'The Audit Trail',
       body:
-        'A calculator gives you one total. The Snapshot shows the recurring cost behind each repeat question, so you can fix the biggest losses first.',
+        'We do not guess. Every drafted resolution is anchored to source ticket IDs. If your ticket history does not contain scoped resolution evidence, we mark the issue as "no proven answer" rather than inventing a solution.',
     },
     {
       icon: <CheckCircle2 className="h-5 w-5" />,
-      title: 'No LLM or Model touches your data',
+      title: 'A Diagnostic, Not a Dashboard',
       body:
-        'The output is a resolution queue for your team. Nothing auto-publishes and nothing replies on your behalf.',
+        'The report is a ranked queue of actions. It separates ready-to-review documentation drafts from product or policy gaps: the issues that require a fix to the software or the rulebook, not a new help article.',
     },
   ];
 
@@ -533,12 +533,11 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Proof</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Built for you to take action today: Fix the most unresolved questions now.
+              The mechanism behind the audit.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The Snapshot has one job: read the queue, show the repeat unresolved
-              questions, and keep every publishable resolution grounded in your
-              support history.
+              Every finding has to trace back to ticket volume, resolution
+              evidence, estimated cost exposure, and source tickets.
             </p>
           </div>
           <ProofList />
