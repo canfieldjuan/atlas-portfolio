@@ -259,7 +259,7 @@ export function SupportTaxMiniCalculator() {
             Deterministic parsing of your own ticket export. No AI guesswork, and you won&apos;t wait days for it.
           </p>
           <p className="mt-2 text-center text-xs leading-relaxed text-foreground/45">
-            This sizes current spend. It is not a forecast of what the Deflection Report will save.
+            This sizes current spend. It is not a forecast of what the Resolution Audit will save.
           </p>
         </aside>
       </div>

@@ -202,6 +202,10 @@ const snapshotRouteSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/snapshot/page.tsx', import.meta.url),
   'utf8',
 );
+const partnerClientSource = await readFile(
+  new URL('../src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx', import.meta.url),
+  'utf8',
+);
 const nonPartnerEntrySources = [
   [
     'systems support-ops card',
@@ -353,6 +357,11 @@ assert.ok(
     combinedNonPartnerEntrySource.includes('Start Your Forensic Audit'),
   'non-partner entry surfaces should use the Resolution Audit and forensic-audit CTA labels',
 );
+assert.ok(
+  combinedNonPartnerEntrySource.includes('Free Snapshot to full audit') &&
+    !combinedNonPartnerEntrySource.includes('DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL'),
+  'AI Content Ops card should not import the old Snapshot/full-report offer label into the renamed entry surface',
+);
 for (const [oldLabel, sourceLabel] of [
   ['Deflection Snapshot', 'Deflection Snapshot'],
   ['free Deflection Snapshot', 'free Deflection Snapshot'],
@@ -369,6 +378,13 @@ for (const [oldLabel, sourceLabel] of [
     `non-partner entry surfaces should not retain old ${sourceLabel} wording`,
   );
 }
+assert.ok(
+  partnerClientSource.includes("title: 'Deflection Snapshot'") &&
+    partnerClientSource.includes("title: 'Full Deflection Report'") &&
+    partnerClientSource.includes("title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.'") &&
+    partnerClientSource.includes('free Deflection Snapshot'),
+  'partner client should override shared pricing copy back to the partner-scoped Deflection Snapshot offer',
+);
 assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),
   'partner intake should keep partner route attribution',

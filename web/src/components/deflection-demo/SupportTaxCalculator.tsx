@@ -9,7 +9,7 @@ import {
 
 // Leaky Bucket Calculator — estimates the annual cost of repeated support
 // questions from user inputs and explicit assumptions. This is not a forecast of
-// what the Deflection Report will save.
+// what the Resolution Audit will save.
 
 const TICKETS = { min: 100, max: 20000, step: 100, default: 3000 };
 const AGENTS = { min: 1, max: 100, step: 1, default: 10 };
@@ -295,7 +295,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
             </div>
             <p className={`${compact ? 'mt-2 text-xs' : 'mt-3 text-sm'} leading-relaxed text-foreground/62`}>
               Directional budget exposed by the assumptions below. This is not a forecast of what
-              the Deflection Report will save.
+              the Resolution Audit will save.
             </p>
           </div>
 
