@@ -19,6 +19,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
+  type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 import {
   getGapReportPriceVariantByReportRequestId,
@@ -116,11 +117,11 @@ async function getResultsAnalyticsContext(
   }
 }
 
-export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
-  const { requestId } = await params;
-  const query = searchParams ? await searchParams : undefined;
+async function getResultsPriceVariant(
+  requestId: string,
+  requestedPriceVariant: DeflectionPriceVariant | null | undefined,
+): Promise<DeflectionPriceVariant> {
   const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
-  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
   if (
     process.env.NODE_ENV === 'production' &&
     !savedPriceVariantId &&
@@ -129,15 +130,22 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   ) {
     throw new Error('Results are temporarily unavailable. Please try again.');
   }
-  const priceVariant =
+  return (
     resolveDeflectionPriceVariant(
       savedPriceVariantId ||
         (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
     ) ||
-    DEFLECTION_DEFAULT_PRICE_VARIANT;
+    DEFLECTION_DEFAULT_PRICE_VARIANT
+  );
+}
 
+export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
+  const { requestId } = await params;
+  const query = searchParams ? await searchParams : undefined;
+  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
   const modelResult = await getReportModel(requestId);
   if (modelResult.ok) {
+    const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
     return (
       <DeflectionReportModelPage
         model={modelResult.model}
@@ -154,6 +162,7 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   if (snapshotState.kind === 'not_found') notFound();
   if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
   const snapshot: DeflectionSnapshot = snapshotState.snapshot;
+  const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
   const analyticsContext = await getResultsAnalyticsContext(requestId);
   return (
     <DeflectionResultsPage

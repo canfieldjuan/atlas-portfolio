@@ -27,6 +27,13 @@ const MODEL_PAID_HTML = [
   '<div>Top publishable answers and gaps</div>',
   '</main>',
 ].join('');
+const PARTNER_MODEL_PAID_HTML = MODEL_PAID_HTML.replace(
+  'FULL RESOLUTION AUDIT',
+  'FULL DEFLECTION REPORT',
+).replace(
+  'Your Resolution Audit is ready.',
+  'Your Deflection Report is ready.',
+).replace('Full audit dashboard', 'Full report dashboard');
 const reportPageSourceUrl = new URL('../src/components/landing/DeflectionReportArtifactPage.tsx', import.meta.url);
 
 function assertIncludes(haystack, needle, context) {
@@ -120,6 +127,20 @@ function run(options, responses, deps = {}) {
   assert.equal(result.initialStatus, 'unlocked');
   assert.equal(result.requireUnlocked, true);
   assert.equal(result.checkoutUrl, undefined);
+  assert.equal(fetchImpl.calls.length, 2);
+}
+
+{
+  const { result, fetchImpl } = await run({ requireUnlocked: true }, [
+    { status: 200, body: { status: 'unlocked' } },
+    { status: 200, kind: 'html', body: PARTNER_MODEL_PAID_HTML },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.initialStatus, 'unlocked');
+  assert.equal(result.requireUnlocked, true);
+  assert.equal(result.markers.paidReportBadge, true);
+  assert.equal(result.markers.paidHeadline, true);
+  assert.equal(result.markers.reportContents, true);
   assert.equal(fetchImpl.calls.length, 2);
 }
 

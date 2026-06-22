@@ -37,6 +37,13 @@ const FULL_REPORT_HTML = [
   '<div>Top publishable answers and gaps</div>',
   '</main>',
 ].join('');
+const PARTNER_FULL_REPORT_HTML = FULL_REPORT_HTML.replace(
+  'FULL RESOLUTION AUDIT',
+  'FULL DEFLECTION REPORT',
+).replace(
+  'Your Resolution Audit is ready.',
+  'Your Deflection Report is ready.',
+).replace('Full audit dashboard', 'Full report dashboard');
 const LEGACY_FULL_REPORT_HTML = [
   '<main>',
   '<span>FULL BACKLOG REPORT</span>',
@@ -343,6 +350,28 @@ function extractPartnerOfferCopyBranch(source) {
   });
   assert.equal(fetchImpl.calls.length, 1);
   assert.equal(fetchImpl.calls[0].init.cache, 'no-store');
+}
+
+{
+  const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
+    { status: 200, body: PARTNER_FULL_REPORT_HTML },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.expectedState, 'model-full-report');
+  assert.deepEqual(result.markers, {
+    backlogTable: true,
+    coveredRecurring: true,
+    draftedResolutions: true,
+    paidHeadline: true,
+    paidReportBadge: true,
+    priorityFixQueue: true,
+    rankedQuestions: true,
+    reportContents: true,
+    reviewerGuidance: true,
+    seoTargeting: true,
+    topUnresolvedRepeats: true,
+  });
 }
 
 {

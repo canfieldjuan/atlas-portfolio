@@ -24,7 +24,8 @@ Slice phase: Product polish
 3. Pass the saved/requested price variant into the structured paid report page
    so partner paid results keep full Deflection Report language.
 4. Update hosted-results, paid-unlock, and report-model tests/smokes for the new
-   public paid-page markers and the partner preservation path.
+   public paid-page markers, partner paid-page markers, and the partner
+   preservation path.
 
 ### Files touched
 
@@ -39,15 +40,18 @@ Slice phase: Product polish
 
 ## Mechanism
 
-- The results route resolves the price variant before returning the structured
-  paid report. Saved server-side metadata is authoritative; local development
-  can still use the `priceVariant` query fallback already used by the free
-  snapshot page.
+- The results route resolves the price variant after confirming a model or
+  snapshot exists, then before rendering that surface. Saved server-side
+  metadata is authoritative; local development can still use the `priceVariant`
+  query fallback already used by the free snapshot page. Missing/stale partner
+  result links still reach the existing not-found path before price-variant
+  enforcement.
 - `DeflectionReportModelPage` derives its badge, headline, intro, and dashboard
   label from the resolved variant. Public/default copy says full Resolution
   Audit; partner copy says full Deflection Report.
-- Smoke markers are updated to the public structured paid-report labels while
-  legacy artifact fallback markers remain accepted for old non-model reports.
+- Smoke markers are updated to accept the public and partner structured paid
+  report labels while legacy artifact fallback markers remain accepted for old
+  non-model reports.
 
 ## Intentional
 
@@ -74,7 +78,8 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-paid-unlock-smoke` - passed.
 - `rg -n "MODEL-BACKED REPORT|Your Support Tax report is ready|Paid report dashboard|FULL RESOLUTION AUDIT|Your Resolution Audit is ready|Full audit dashboard|FULL DEFLECTION REPORT|Your Deflection Report is ready|Full report dashboard" web/src/components/landing/DeflectionReportModelPage.tsx web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx web/scripts/smoke-deflection-hosted-results.mjs web/scripts/test-deflection-hosted-results-smoke.mjs web/scripts/smoke-deflection-paid-unlock.mjs web/scripts/test-deflection-paid-unlock-smoke.mjs web/scripts/test-deflection-report-model-result-page.mjs`
   - passed; public structured paid-report markers moved to Resolution Audit
-    language, partner copy remains Deflection Report language, and old
+    language, partner copy remains Deflection Report language, partner paid
+    markers are accepted by the hosted and paid-unlock smokes, and old
     model-report labels survive only as negative assertions in the report-model
     test. Legacy artifact fallback labels remain accepted in the paid smoke
     scripts.
@@ -84,8 +89,8 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Results route variant pass-through | ~25 |
+| Results route variant pass-through | ~35 |
 | Structured paid report copy resolver | ~50 |
-| Smoke and report-model test updates | ~75 |
+| Smoke and report-model test updates | ~105 |
 | this plan doc | ~90 |
-| **Total** | ~240 |
+| **Total** | ~280 |

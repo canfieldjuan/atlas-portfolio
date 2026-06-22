@@ -15,9 +15,9 @@ const REQUIRED_SNAPSHOT_MARKERS = [
   { key: 'unlockCta', label: 'Unlock your full Resolution Audit' },
 ];
 const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
-  { key: 'paidReportBadge', labels: ['FULL RESOLUTION AUDIT'] },
-  { key: 'paidHeadline', labels: ['Your Resolution Audit is ready.'] },
-  { key: 'reportContents', labels: ['Full audit dashboard'] },
+  { key: 'paidReportBadge', labels: ['FULL RESOLUTION AUDIT', 'FULL DEFLECTION REPORT'] },
+  { key: 'paidHeadline', labels: ['Your Resolution Audit is ready.', 'Your Deflection Report is ready.'] },
+  { key: 'reportContents', labels: ['Full audit dashboard', 'Full report dashboard'] },
   { key: 'priorityFixQueue', labels: ['Priority Fix Queue'] },
   { key: 'topUnresolvedRepeats', labels: ['Top Unresolved Repeats'] },
   { key: 'draftedResolutions', labels: ['Drafted Resolutions'] },
@@ -120,7 +120,12 @@ function missingFullReportMarkers(expectedState, html) {
 }
 
 function fullReportMarkers(html) {
-  if (html.includes('FULL RESOLUTION AUDIT') || html.includes('Full audit dashboard')) {
+  if (
+    html.includes('FULL RESOLUTION AUDIT') ||
+    html.includes('FULL DEFLECTION REPORT') ||
+    html.includes('Full audit dashboard') ||
+    html.includes('Full report dashboard')
+  ) {
     return REQUIRED_MODEL_FULL_REPORT_MARKERS;
   }
   return REQUIRED_LEGACY_FULL_REPORT_MARKERS;
