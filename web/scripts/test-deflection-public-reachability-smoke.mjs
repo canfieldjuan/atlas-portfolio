@@ -411,10 +411,12 @@ assert.ok(
   partnerClientSource.includes("title: 'Deflection Snapshot'") &&
     partnerClientSource.includes("title: 'Full Deflection Report'") &&
     partnerClientSource.includes("title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.'") &&
+    partnerClientSource.includes("note: 'Best after the first full Deflection Report proves the work is useful.'") &&
     partnerClientSource.includes('free Deflection Snapshot') &&
     partnerClientSource.includes('What do I get in the full Deflection Report?') &&
-    partnerClientSource.includes('items: partnerPricingFaqs()'),
-  'partner client should override shared pricing copy back to the partner-scoped Deflection Snapshot offer',
+    partnerClientSource.includes('structuredData: generateFaqJsonLd(') &&
+    partnerClientSource.includes('items: partnerFaqItems'),
+  'partner client should override shared pricing and FAQ copy back to the partner-scoped Deflection Snapshot offer',
 );
 assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),

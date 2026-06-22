@@ -4,7 +4,9 @@ PR #356 aligned the non-partner Resolution Audit entry CTAs, but post-merge
 review found a few residue points: partner FAQ copy still inherited the public
 Resolution Audit FAQ, the public quarterly refresh note still said "full
 report," and the playbook CTA promised a review-ready answer without the
-resolution-evidence caveat used elsewhere.
+resolution-evidence caveat used elsewhere. PR review also found that the
+partner page inherited public FAQ JSON-LD and the public quarterly refresh note
+after the first fix, so those sibling fields need the same partner scoping.
 
 ## Why this slice exists
 
@@ -19,8 +21,9 @@ resolution-evidence caveat used elsewhere.
 
 Slice phase: Product polish
 
-1. Add a partner FAQ override in `PartnerDeflectionLandingClient` so the partner
-   funnel keeps its Deflection Snapshot / Deflection Report wording.
+1. Add partner FAQ, FAQ JSON-LD, and quarterly-note overrides in
+   `PartnerDeflectionLandingClient` so the partner funnel keeps its Deflection
+   Snapshot / Deflection Report wording.
 2. Update the public quarterly refresh tier note from "full report" to "full
    audit."
 3. Qualify the playbook CTA promise so the review-ready answer appears only when
@@ -38,9 +41,11 @@ Slice phase: Product polish
 
 ## Mechanism
 
-- The partner client keeps spreading `landingPageConfigV2`, but now overrides
-  `faq.items` with partner-scoped FAQ labels and answers, mirroring the existing
-  partner pricing tier override.
+- The partner client keeps spreading `landingPageConfigV2`, but now creates one
+  partner-scoped FAQ item list and uses it for both `faq.items` and FAQ JSON-LD,
+  mirroring the existing partner pricing tier override.
+- The partner quarterly refresh tier overrides the public note so the partner
+  card does not inherit the public "full audit" wording.
 - The public quarterly refresh note uses "full audit" to match the public Full
   Resolution Audit tier name.
 - The playbook CTA uses the same evidence-conditioned answer language as the
@@ -71,15 +76,18 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-public-reachability-smoke` - passed.
 - `npm --prefix web run build` - passed.
-- `rg -n "full report proves|one review-ready answer\\.|What do I get in the full Resolution Audit\\?|What do I get in the full Deflection Report\\?|partnerPricingFaqs|resolution evidence" web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx web/src/app/systems/support-ticket-deflection/landingConfig.tsx web/src/app/systems/support-ticket-deflection/playbook/page.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
-  - passed; partner FAQ override is present, the public refresh note no longer says `full report proves`, and the playbook answer promise is evidence-conditioned.
+- `rg -n "full report proves|full Deflection Report proves|one review-ready answer\\.|What do I get in the full Resolution Audit\\?|What do I get in the full Deflection Report\\?|structuredData: generateFaqJsonLd|partnerFaqItems|resolution evidence" web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx web/src/app/systems/support-ticket-deflection/landingConfig.tsx web/src/app/systems/support-ticket-deflection/playbook/page.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
+  - passed; partner FAQ and JSON-LD overrides are present, the partner
+    quarterly note is scoped back to `full Deflection Report`, the public refresh
+    note no longer says `full report proves`, and the playbook answer promise is
+    evidence-conditioned.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Partner FAQ override | ~30 |
+| Partner FAQ / JSON-LD / note overrides | ~40 |
 | Public copy residue | ~4 |
 | Public reachability smoke guards | ~8 |
 | this plan doc | ~78 |

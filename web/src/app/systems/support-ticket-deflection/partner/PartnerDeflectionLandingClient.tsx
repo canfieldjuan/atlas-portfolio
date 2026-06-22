@@ -9,6 +9,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_PARTNER_PRICE_VARIANT,
 } from '@/lib/deflection-pricing';
+import { generateFaqJsonLd } from '@/lib/seo';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
 import { pricingFaqs, pricingTiers } from '../landingConfig';
 
@@ -62,6 +63,7 @@ const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
       'New self-service answers to review and publish',
       'Cancel any time after the next report',
     ],
+    note: 'Best after the first full Deflection Report proves the work is useful.',
   },
 };
 
@@ -122,8 +124,12 @@ export function PartnerDeflectionLandingClient({
     label: 'Upload your tickets, get a free Deflection Snapshot',
     href: intakeHref,
   };
+  const partnerFaqItems = partnerPricingFaqs();
   const partnerConfig = {
     ...landingPageConfigV2,
+    structuredData: generateFaqJsonLd(
+      partnerFaqItems.map((faq) => ({ question: faq.q, answer: faq.a })),
+    ),
     hero: { ...landingPageConfigV2.hero, cta: partnerSnapshotCta },
     finalCta: { ...landingPageConfigV2.finalCta, cta: partnerSnapshotCta },
     problemAgitation: makeProblemAgitation(),
@@ -138,7 +144,7 @@ export function PartnerDeflectionLandingClient({
     },
     faq: {
       ...landingPageConfigV2.faq,
-      items: partnerPricingFaqs(),
+      items: partnerFaqItems,
     },
   };
   return <DeflectionLandingPage config={partnerConfig} />;
