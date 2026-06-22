@@ -46,14 +46,21 @@ const PARTNER_FULL_REPORT_HTML = FULL_REPORT_HTML.replace(
 ).replace('Full audit dashboard', 'Full report dashboard');
 const LEGACY_FULL_REPORT_HTML = [
   '<main>',
-  '<span>FULL BACKLOG REPORT</span>',
-  '<h1>Your complete Support Tax report is ready.</h1>',
-  '<div>Paid report contents</div>',
+  '<span>FULL RESOLUTION AUDIT</span>',
+  '<h1>Your Resolution Audit is ready.</h1>',
+  '<div>Full audit contents</div>',
   '<section>Your Help-Desk SEO Targeting List</section>',
   '<strong>Publishable Help-Center Copy</strong>',
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const PARTNER_LEGACY_FULL_REPORT_HTML = LEGACY_FULL_REPORT_HTML.replace(
+  'FULL RESOLUTION AUDIT',
+  'FULL DEFLECTION REPORT',
+).replace(
+  'Your Resolution Audit is ready.',
+  'Your Deflection Report is ready.',
+).replace('Full audit contents', 'Full report contents');
 const resultPageSourceUrl = new URL('../src/components/landing/DeflectionResultsPage.tsx', import.meta.url);
 
 function makeFetchMock(response) {
@@ -393,14 +400,29 @@ function extractPartnerOfferCopyBranch(source) {
 
 {
   const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
+    { status: 200, body: PARTNER_LEGACY_FULL_REPORT_HTML },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.expectedState, 'full-report');
+  assert.deepEqual(result.markers, {
+    paidHeadline: true,
+    paidReportBadge: true,
+    rankedQuestions: true,
+    reportContents: true,
+    reviewerGuidance: true,
+    seoTargeting: true,
+  });
+}
+
+{
+  const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
     { status: 200, body: LEGACY_FULL_REPORT_HTML },
   );
   assert.equal(result.ok, false);
   assert.equal(result.expectedState, 'model-full-report');
   assert.deepEqual(result.missing, [
-    'paidReportBadge',
-    'paidHeadline',
     'reportContents',
     'priorityFixQueue',
     'topUnresolvedRepeats',

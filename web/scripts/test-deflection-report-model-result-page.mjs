@@ -1096,12 +1096,17 @@ try {
     modelFetchIndex,
   );
   const artifactFetchIndex = routeSource.indexOf("modelResult.reason === 'not_found' ? await getArtifact(requestId) : null");
+  const artifactPriceVariantIndex = routeSource.indexOf(
+    'const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant)',
+    artifactFetchIndex,
+  );
   const snapshotNotFoundIndex = routeSource.indexOf("if (snapshotState.kind === 'not_found') notFound();");
   const snapshotPriceVariantIndex = routeSource.indexOf(
     'const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant)',
     snapshotNotFoundIndex,
   );
   const modelPageRenderIndex = routeSource.indexOf('<DeflectionReportModelPage');
+  const artifactPageRenderIndex = routeSource.indexOf('<DeflectionReportArtifactPage');
   assert.ok(modelFetchIndex > -1, 'results route fetches the report model first');
   assert.ok(modelPriceVariantIndex > modelFetchIndex, 'results route resolves paid model price variant after confirming a model exists');
   assert.ok(modelPriceVariantIndex < modelPageRenderIndex, 'results route resolves paid model price variant before paid model render');
@@ -1111,6 +1116,18 @@ try {
   );
   assert.ok(routeSource.includes('priceVariant={priceVariant}'), 'results route passes price variant to the model page');
   assert.ok(artifactFetchIndex > modelFetchIndex, 'artifact fallback happens after model fetch');
+  assert.ok(
+    artifactPriceVariantIndex > artifactFetchIndex,
+    'results route resolves artifact price variant after confirming an artifact exists',
+  );
+  assert.ok(
+    artifactPriceVariantIndex < artifactPageRenderIndex,
+    'results route resolves artifact price variant before artifact render',
+  );
+  assert.ok(
+    routeSource.includes('<DeflectionReportArtifactPage artifact={artifact} priceVariant={priceVariant} />'),
+    'results route passes price variant to the artifact page',
+  );
   assert.equal(
     routeSource.includes('fetchDeflectionArtifact(requestId);\\n  const model'),
     false,
