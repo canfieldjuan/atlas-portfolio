@@ -88,7 +88,7 @@ Parked hardening: none.
   - passed; only negative test assertions retain the replaced final-CTA phrases.
 - `rg -n "Built for you to take action today|Grounded in resolved tickets|A real diagnostic, not a generic calculator|No LLM or Model touches your data|cost of agent time|agents cannot consistently solve" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed; only negative test assertions retain the replaced proof-section phrases.
-- `bash scripts/local_pr_review.sh` - pending.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
