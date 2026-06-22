@@ -31,28 +31,28 @@ const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
   snapshot: {
     title: 'Deflection Snapshot',
     description:
-      'Upload your last 30 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.',
+      'Upload your last 30 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one review-ready answer when your tickets contain resolution evidence.',
     includes: [
       'Your top 5 repeat questions, ranked by how often they were asked',
       'Customer wording examples',
-      '1 sample self-service answer',
+      '1 review-ready answer when your tickets contain resolution evidence',
       'No card required, no contract',
     ],
-    note: 'The free snapshot proves whether the pattern is there. It is not the full report.',
+    note: 'The free snapshot is the gate. It shows whether the pattern is there before you commit to the full report.',
     cta: 'Get the free snapshot',
   },
   'full-report': {
     title: 'Full Deflection Report',
     description:
-      'For the first 30 day batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.',
+      'For the first 30-day batch. We turn the repeat questions into a full Deflection Report your team can use to decide what to fix and publish first.',
     includes: [
       'Every recurring question, ranked by how often it was asked (typically 50+)',
-      'Customer wording clusters, the long-tail keywords needed to rank',
-      "A drafted, publishable answer for every gap your tickets already solve, your team's own resolved replies, 100% deterministic, no AI",
+      'Customer wording clusters and self-service title targets',
+      "A review-ready draft for every gap your tickets already solve, using your team's resolved replies",
       'A "no proven answer yet" list, the frequent questions you have not cracked',
       'Priority ranking and source ticket IDs on every finding',
     ],
-    note: 'This is the paid version of the work: enough detail to actually update the help center.',
+    note: 'This is the paid expansion: enough detail to actually update the help center.',
     cta: 'Start the full report',
   },
   'quarterly-refresh': {
@@ -60,7 +60,7 @@ const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
       'Full Deflection Report every 90 days',
       'What changed since the last report',
       'Questions that are still coming back',
-      'New self-service answers to review and publish',
+      'New review-ready answers to review and publish',
       'Cancel any time after the next report',
     ],
     note: 'Best after the first full Deflection Report proves the work is useful.',
@@ -70,7 +70,7 @@ const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
 const partnerFaqCopyByQuestion: Record<string, DiagnosticFaqItem> = {
   'What do I get in the free Snapshot?': {
     q: 'What do I get in the free Deflection Snapshot?',
-    a: 'You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one sample self-service answer. It is enough to show whether the repeat pattern is real before you pay for the full report. It is not the full report.',
+    a: 'You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one review-ready answer when your tickets contain resolution evidence. It is enough to show whether the repeat pattern is real before you pay for the full report. It is not the full report.',
   },
   'What do I get in the full Resolution Audit?': {
     q: 'What do I get in the full Deflection Report?',
@@ -125,13 +125,33 @@ export function PartnerDeflectionLandingClient({
     href: intakeHref,
   };
   const partnerFaqItems = partnerPricingFaqs();
+  const partnerHero = {
+    ...landingPageConfigV2.hero,
+    eyebrow: 'DESIGN PARTNER ACCESS',
+    title: 'See whether your repeat tickets justify a full Deflection Report.',
+    intro:
+      'Upload 30 days of closed tickets and get a free Deflection Snapshot that shows the repeat pattern, customer wording, and one review-ready answer when your tickets contain resolution evidence.',
+    body:
+      'If the pattern is strong, the partner-priced full Deflection Report expands the audit into a ranked, source-backed action queue of questions, answers, and no-proven-answer gaps. If the data is thin, you know before committing.',
+    cta: partnerSnapshotCta,
+  };
+  const partnerFinalCta = {
+    ...landingPageConfigV2.finalCta,
+    label: 'START WITH THE FREE SNAPSHOT',
+    title: 'Use the Snapshot as the gate.',
+    body: [
+      'The free Deflection Snapshot shows whether your ticket history contains enough repeated questions to justify a full Deflection Report.',
+      'If the data warrants it, the partner-priced report turns your ticket history into a ranked, source-backed action queue. It does not promise guaranteed savings; it promises a usable audit trail.',
+    ],
+    cta: partnerSnapshotCta,
+  };
   const partnerConfig = {
     ...landingPageConfigV2,
     structuredData: generateFaqJsonLd(
       partnerFaqItems.map((faq) => ({ question: faq.q, answer: faq.a })),
     ),
-    hero: { ...landingPageConfigV2.hero, cta: partnerSnapshotCta },
-    finalCta: { ...landingPageConfigV2.finalCta, cta: partnerSnapshotCta },
+    hero: partnerHero,
+    finalCta: partnerFinalCta,
     problemAgitation: makeProblemAgitation(),
     problemCost: makeProblemCost(),
     calculator: undefined, // keep the partner funnel focused on the partner offer
@@ -139,7 +159,7 @@ export function PartnerDeflectionLandingClient({
       ...landingPageConfigV2.pricing,
       title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.',
       description:
-        'The free snapshot shows whether your tickets contain enough repeated questions to justify the full report. If the pattern is real, the full report gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
+        'The free Deflection Snapshot shows whether your tickets contain enough repeated questions to justify the full Deflection Report. If the pattern is real, the full report gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
       tiers: partnerPricingTiers(hasPartnerAccess, intakeHref),
     },
     faq: {

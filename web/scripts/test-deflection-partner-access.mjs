@@ -266,6 +266,30 @@ try {
     partnerClient.includes('priceVariant: DEFLECTION_PARTNER_PRICE_VARIANT.id'),
     'partner client includes partner variant only in validated partner intake links',
   );
+  assert.ok(
+    partnerClient.includes('DESIGN PARTNER ACCESS'),
+    'partner landing uses partner-specific hero framing',
+  );
+  assert.ok(
+    partnerClient.includes('See whether your repeat tickets justify a full Deflection Report.'),
+    'partner landing preserves Deflection Report naming',
+  );
+  assert.ok(
+    partnerClient.includes('one review-ready answer when your tickets contain resolution evidence'),
+    'partner copy qualifies the free Snapshot answer on resolution evidence',
+  );
+  assert.ok(
+    partnerClient.includes('It does not promise guaranteed savings; it promises a usable audit trail.'),
+    'partner final CTA keeps the guarantee scoped to audit-trail delivery',
+  );
+  assert.ok(
+    !partnerClient.includes('one self-service answer'),
+    'partner copy does not promise an unconditional self-service answer',
+  );
+  assert.ok(
+    !partnerClient.includes('1 sample self-service answer'),
+    'partner pricing copy does not promise an unconditional sample answer',
+  );
 
   await writeFile(
     join(libStubDir, 'gap-report-intake-database.js'),
