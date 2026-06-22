@@ -1,13 +1,17 @@
 'use client';
 
-import { type DiagnosticPricingTier } from '@/components/landing/LandingPrimitives';
+import {
+  type DiagnosticFaqItem,
+  type DiagnosticPricingTier,
+} from '@/components/landing/LandingPrimitives';
 import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_PARTNER_PRICE_VARIANT,
 } from '@/lib/deflection-pricing';
+import { generateFaqJsonLd } from '@/lib/seo';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
-import { pricingTiers } from '../landingConfig';
+import { pricingFaqs, pricingTiers } from '../landingConfig';
 
 const PARTNER_TOKEN_PARAM = 'partnerToken';
 
@@ -59,8 +63,28 @@ const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
       'New self-service answers to review and publish',
       'Cancel any time after the next report',
     ],
+    note: 'Best after the first full Deflection Report proves the work is useful.',
   },
 };
+
+const partnerFaqCopyByQuestion: Record<string, DiagnosticFaqItem> = {
+  'What do I get in the free Snapshot?': {
+    q: 'What do I get in the free Deflection Snapshot?',
+    a: 'You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one sample self-service answer. It is enough to show whether the repeat pattern is real before you pay for the full report. It is not the full report.',
+  },
+  'What do I get in the full Resolution Audit?': {
+    q: 'What do I get in the full Deflection Report?',
+    a: 'You get the working list: every recurring question ranked by volume, customer wording clusters, documentation gaps, source ticket IDs, review-ready drafts for gaps your tickets already solve, and a "no proven answer yet" list for frequent questions without enough answer evidence.',
+  },
+  'Do we have to sign up for quarterly reports?': {
+    q: 'Do we have to sign up for quarterly reports?',
+    a: 'No. Start with the free Deflection Snapshot. If it shows a useful repeat-question pattern, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep updating the help center as new repeat questions appear.',
+  },
+};
+
+function partnerPricingFaqs(): DiagnosticFaqItem[] {
+  return pricingFaqs.map((faq) => partnerFaqCopyByQuestion[faq.q] ?? faq);
+}
 
 function partnerPricingTiers(
   hasPartnerAccess: boolean,
@@ -100,8 +124,12 @@ export function PartnerDeflectionLandingClient({
     label: 'Upload your tickets, get a free Deflection Snapshot',
     href: intakeHref,
   };
+  const partnerFaqItems = partnerPricingFaqs();
   const partnerConfig = {
     ...landingPageConfigV2,
+    structuredData: generateFaqJsonLd(
+      partnerFaqItems.map((faq) => ({ question: faq.q, answer: faq.a })),
+    ),
     hero: { ...landingPageConfigV2.hero, cta: partnerSnapshotCta },
     finalCta: { ...landingPageConfigV2.finalCta, cta: partnerSnapshotCta },
     problemAgitation: makeProblemAgitation(),
@@ -113,6 +141,10 @@ export function PartnerDeflectionLandingClient({
       description:
         'The free snapshot shows whether your tickets contain enough repeated questions to justify the full report. If the pattern is real, the full report gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
       tiers: partnerPricingTiers(hasPartnerAccess, intakeHref),
+    },
+    faq: {
+      ...landingPageConfigV2.faq,
+      items: partnerFaqItems,
     },
   };
   return <DeflectionLandingPage config={partnerConfig} />;

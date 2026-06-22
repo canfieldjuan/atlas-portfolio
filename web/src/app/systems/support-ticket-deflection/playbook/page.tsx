@@ -95,7 +95,7 @@ export default function SupportTicketDeflectionPlaybookPage() {
           </h2>
           <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
             Upload a CSV of your last 30 days of closed tickets. We send back a Resolution Audit
-            Snapshot: your top repeat questions, the wording customers use, and one review-ready answer.
+            Snapshot: your top repeat questions, the wording customers use, and one review-ready answer when your tickets contain resolution evidence.
           </p>
           <Link
             href="/systems/support-ticket-deflection/intake"

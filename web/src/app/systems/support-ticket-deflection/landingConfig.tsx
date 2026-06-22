@@ -58,7 +58,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
       `New self-service answers to review and publish`,
       `Cancel any time after the next report`,
     ],
-    note: `Best after the first full report proves the work is useful.`,
+    note: `Best after the first full audit proves the work is useful.`,
     cta: `Keep it updated`,
     href: GAP_REPORT_INTAKE_HREF,
   },
