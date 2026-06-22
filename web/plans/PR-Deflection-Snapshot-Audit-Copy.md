@@ -108,8 +108,9 @@ Parked hardening: none.
 - `rg -n "Ticket Resolution Report|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed with no matches; old copy and intentionally-rejected overclaim
   language is gone from the changed runtime/test files.
-- `bash scripts/local_pr_review.sh` - pending after the hero-H1/intake-heading
-  correction.
+- `bash scripts/local_pr_review.sh` - passed after the hero-H1/intake-heading
+  correction; includes plan-doc audits, cross-session drift advisory, dead-code
+  baseline, Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
 - Production-server browser check at `1365x768` - passed; the intake trust block
   measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
   `768px` viewport, so the full trust block stays above the fold and before the
@@ -123,7 +124,7 @@ Parked hardening: none.
 | Intake trust placement | ~74 |
 | Snapshot landing smoke expectations | ~34 |
 | public reachability smoke expectation | ~4 |
-| this plan doc | ~136 |
-| **Total** | ~344 |
+| this plan doc | ~129 |
+| **Total** | ~333 |
 
 Well under the 400-LOC soft cap.
