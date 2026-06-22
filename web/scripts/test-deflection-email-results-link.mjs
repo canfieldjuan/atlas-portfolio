@@ -106,9 +106,9 @@ try {
   await writeFile(
     join(testDir, 'deflection-snapshot-pdf.js'),
     [
-      'exports.createDeflectionSnapshotPdfAttachment = ({ snapshot, companyName, resultsUrl }) => ({',
-      '  filename: "deflection-snapshot-unit.pdf",',
-      '  content: Buffer.from(JSON.stringify({ companyName, resultsUrl, topQuestions: snapshot.top_questions.length })).toString("base64"),',
+      'exports.createDeflectionSnapshotPdfAttachment = ({ snapshot, companyName, resultsUrl, artifactName, filenamePrefix, paidArtifactName }) => ({',
+      '  filename: `${filenamePrefix}-unit.pdf`,',
+      '  content: Buffer.from(JSON.stringify({ companyName, resultsUrl, artifactName, filenamePrefix, paidArtifactName, topQuestions: snapshot.top_questions.length })).toString("base64"),',
       '});',
       '',
     ].join('\n'),
@@ -209,26 +209,31 @@ try {
   assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
   assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailError, undefined);
   assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationError, undefined);
+  assert.match(calls[0].body.subject, /New Resolution Audit CSV/);
+  assert.equal(calls[1].body.subject, 'We received your Resolution Audit CSV');
   assert.match(sentText(0), /Report request ID: content-ops-unit-123/);
   assert.match(
     sentText(0),
     /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
   );
-  assert.match(sentText(1), /Your free Deflection Snapshot is ready:/);
+  assert.match(sentText(1), /Your free Resolution Audit Snapshot is ready:/);
   assert.match(
     sentText(1),
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
   );
   assert.match(sentText(1), /save this email or bookmark your results link/);
-  assert.match(sentText(1), /upgrade to the full report during that window without re-uploading/);
+  assert.match(sentText(1), /upgrade to the full Resolution Audit during that window without re-uploading/);
   assert.doesNotMatch(sentText(1), /within 24 hours/);
   assert.deepEqual(calls[1].body.attachments?.map((attachment) => attachment.filename), [
-    'deflection-snapshot-unit.pdf',
+    'resolution-audit-snapshot-unit.pdf',
   ]);
   assert.deepEqual(JSON.parse(Buffer.from(calls[1].body.attachments[0].content, 'base64')), {
     companyName: 'Effingham Office Maids',
     resultsUrl:
       'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123',
+    artifactName: 'Resolution Audit Snapshot',
+    filenamePrefix: 'resolution-audit-snapshot',
+    paidArtifactName: 'Full Resolution Audit',
     topQuestions: 1,
   });
 
@@ -238,11 +243,13 @@ try {
     ...baseInput,
     priceVariant: 'partner',
     reportRequestId: 'content-ops-unit-123',
-  });
+  }, { snapshot: snapshotFixture });
   assert.equal(partnerLink.status, 'submitted');
   assert.equal(calls.length, 2);
   assert.equal(globalThis.__gapReportPersistedRecords[0].snapshotEmailStatus, 'sent');
   assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
+  assert.match(calls[0].body.subject, /New Deflection Report CSV/);
+  assert.equal(calls[1].body.subject, 'We received your Deflection Report CSV');
   assert.match(
     sentText(0),
     /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
@@ -251,8 +258,22 @@ try {
     sentText(1),
     /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
   );
+  assert.match(sentText(1), /Your free Deflection Snapshot is ready:/);
+  assert.match(sentText(1), /upgrade to the full report during that window without re-uploading/);
+  assert.doesNotMatch(sentText(1), /Resolution Audit/);
   assert.match(sentText(1), /save this email or bookmark your results link/);
-  assert.equal(calls[1].body.attachments, undefined);
+  assert.deepEqual(calls[1].body.attachments?.map((attachment) => attachment.filename), [
+    'deflection-snapshot-unit.pdf',
+  ]);
+  assert.deepEqual(JSON.parse(Buffer.from(calls[1].body.attachments[0].content, 'base64')), {
+    companyName: 'Effingham Office Maids',
+    resultsUrl:
+      'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123?priceVariant=partner',
+    artifactName: 'Deflection Snapshot',
+    filenamePrefix: 'deflection-snapshot',
+    paidArtifactName: 'Full Deflection Report',
+    topQuestions: 1,
+  });
 
   installFetchMock();
   globalThis.__gapReportPersistedRecords = [];
@@ -263,6 +284,7 @@ try {
   assert.equal(globalThis.__gapReportPersistedRecords[0].confirmationStatus, 'sent');
   assert.doesNotMatch(sentText(0), /Report request ID:/);
   assert.doesNotMatch(sentText(0), /\/systems\/support-ticket-deflection\/results\//);
+  assert.doesNotMatch(sentText(1), /Your free Resolution Audit Snapshot is ready:/);
   assert.doesNotMatch(sentText(1), /Your free Deflection Snapshot is ready:/);
   assert.doesNotMatch(sentText(1), /bookmark your results link/);
   assert.match(sentText(1), /as soon as processing finishes/);
