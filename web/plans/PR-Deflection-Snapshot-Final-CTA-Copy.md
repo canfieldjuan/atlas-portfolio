@@ -99,7 +99,7 @@ Parked hardening: none.
   - passed; only negative test assertions retain the replaced proof-section phrases.
 - `rg -n "Upload your support-ticket export\\. The audit ranks repeated questions|estimates cost exposure, and prepares one review-ready drafted answer|using repeatable clustering" web/src/components/landing/SupportTicketCsvIntakeForm.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
   - passed; only the negative test assertion retains the replaced intake phrasing.
-- `bash scripts/local_pr_review.sh` - pending.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
