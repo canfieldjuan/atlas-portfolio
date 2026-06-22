@@ -14,6 +14,8 @@ copy updates without starting the broader entry-point copy sweep.
 - The current proof section reads like promises. The page needs a clearer
   mechanism story that names the finding anatomy, audit trail, and diagnostic
   output without overclaiming true agent time or universal resolution quotes.
+- The intake subheadline needs to match the same audit framing: a 30-day export,
+  high-volume repeat questions, proven agent resolutions, and operational gaps.
 
 ## Scope (this PR)
 
@@ -24,15 +26,19 @@ Slice phase: Product polish
    issue #353.
 2. Replace the proof cards with the approved "Anatomy of a Finding", "Audit
    Trail", and "Diagnostic, Not a Dashboard" copy.
-3. Preserve the existing `snapshotFirst finalSnapshotAsk` smoke markers and CTA
+3. Replace the intake subheadline below "Identify the cost exposure..." with the
+   approved 30-day export / repeat-question / operational-gap wording.
+4. Preserve the existing `snapshotFirst finalSnapshotAsk` smoke markers and CTA
    button behavior.
-4. Update the Snapshot landing source smoke test so it pins the new proof and
-   final CTA claim boundaries and rejects the replaced wording.
+5. Update the Snapshot landing source smoke tests so they pin the new proof,
+   intake, and final CTA claim boundaries and reject the replaced wording.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Snapshot-Final-CTA-Copy.md` - this plan contract.
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` - proof section and final CTA copy.
+- `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` - intake subheadline copy.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` - source-level guard for the intake subheadline.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - source-level copy guard for the proof section and final CTA.
 
 ## Mechanism
@@ -46,14 +52,16 @@ Slice phase: Product polish
   and card copy from general promises to mechanism proof: finding anatomy, source
   ticket IDs, no-proven-answer handling, and diagnostic separation between
   documentation drafts and product/policy gaps.
-- The test asserts the new proof copy, final CTA headline, Snapshot
+- The intake form keeps the same heading, fields, submit behavior, and security
+  panel; only the paragraph below the heading changes.
+- The test asserts the new proof copy, intake subheadline, final CTA headline, Snapshot
   qualification copy, full-report deliverable language, no-guaranteed-savings
   disclaimer, and correction promise while confirming the previous proof and
   final CTA wording no longer remains.
 
 ## Intentional
 
-- No entry-point, partner, email/PDF, result-page, pricing, form-field,
+- No entry-point, partner, email/PDF, result-page, pricing, form-field behavior,
   metadata, or PII/security copy changes are included.
 - The proof copy says "estimated support cost" instead of actual agent time or
   AHT because the current product uses a benchmark/configurable assisted-contact
@@ -83,18 +91,21 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
+- `npm --prefix web run test:deflection-public-reachability-smoke` - passed.
 - `npm --prefix web run lint` - passed.
 - `rg -n "Start with the Snapshot before you commit to a deeper audit|If it does not, the Snapshot still gives you a bounded starting point|entirely-new findings|Audit standard" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed; only negative test assertions retain the replaced final-CTA phrases.
 - `rg -n "Built for you to take action today|Grounded in resolved tickets|A real diagnostic, not a generic calculator|No LLM or Model touches your data|cost of agent time|agents cannot consistently solve" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed; only negative test assertions retain the replaced proof-section phrases.
-- `bash scripts/local_pr_review.sh` - passed.
+- `rg -n "Upload your support-ticket export\\. The audit ranks repeated questions|estimates cost exposure, and prepares one review-ready drafted answer|using repeatable clustering" web/src/components/landing/SupportTicketCsvIntakeForm.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
+  - passed; only the negative test assertion retains the replaced intake phrasing.
+- `bash scripts/local_pr_review.sh` - pending.
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Proof and final CTA copy | ~48 |
-| Snapshot landing smoke expectations | ~60 |
-| this plan doc | ~95 |
-| **Total** | ~203 |
+| Proof, intake, and final CTA copy | ~56 |
+| Snapshot/public smoke expectations | ~72 |
+| this plan doc | ~115 |
+| **Total** | ~243 |
