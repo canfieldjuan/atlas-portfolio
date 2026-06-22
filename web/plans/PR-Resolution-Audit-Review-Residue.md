@@ -73,6 +73,7 @@ Parked hardening: none.
 - `npm --prefix web run build` - passed.
 - `rg -n "full report proves|one review-ready answer\\.|What do I get in the full Resolution Audit\\?|What do I get in the full Deflection Report\\?|partnerPricingFaqs|resolution evidence" web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx web/src/app/systems/support-ticket-deflection/landingConfig.tsx web/src/app/systems/support-ticket-deflection/playbook/page.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
   - passed; partner FAQ override is present, the public refresh note no longer says `full report proves`, and the playbook answer promise is evidence-conditioned.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
