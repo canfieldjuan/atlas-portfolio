@@ -552,7 +552,7 @@ export function DeflectionSnapshotLandingPage() {
           Decide if an audit is worth the investment before you commit.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          Upload your Zendesk or Freshdesk CSV to receive a Snapshot. You will
+          Upload your support-ticket CSV to receive a Snapshot. You will
           immediately see your top deflection topic and a summary count. This
           tells you if your ticket history contains enough unresolved,
           repetitive questions to justify a full audit. If the data is thin,

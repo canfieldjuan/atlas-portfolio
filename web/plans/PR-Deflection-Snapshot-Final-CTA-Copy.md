@@ -32,6 +32,8 @@ Slice phase: Product polish
    button behavior.
 5. Update the Snapshot landing source smoke tests so they pin the new proof,
    intake, and final CTA claim boundaries and reject the replaced wording.
+6. Keep the final CTA platform-agnostic so it does not contradict supported
+   Intercom, HelpScout, or Other upload paths in the intake form.
 
 ### Files touched
 
@@ -48,6 +50,8 @@ Slice phase: Product polish
 - The heading changes to the requested investment-gate line.
 - The body becomes three copy blocks: Snapshot qualification, full-report
   deliverable, and bounded audit-trail guarantee.
+- The final CTA uses "support-ticket CSV" rather than naming only Zendesk and
+  Freshdesk, keeping it aligned with the full supported provider list.
 - The proof section keeps its three-card layout but changes the section heading
   and card copy from general promises to mechanism proof: finding anatomy, source
   ticket IDs, no-proven-answer handling, and diagnostic separation between
@@ -71,6 +75,8 @@ Slice phase: Product polish
 - The copy says the Snapshot shows the top deflection topic and a summary count.
   It does not claim exact savings, guaranteed resolution lift, or guaranteed
   SEO/ranking outcomes.
+- The final CTA stays provider-agnostic because the intake form supports
+  Zendesk, Freshdesk, Intercom, HelpScout, and Other.
 - "If the data warrants it" is preserved as conditional language so the page
   does not imply every upload justifies a full audit.
 
@@ -99,6 +105,8 @@ Parked hardening: none.
   - passed; only negative test assertions retain the replaced proof-section phrases.
 - `rg -n "Upload your support-ticket export\\. The audit ranks repeated questions|estimates cost exposure, and prepares one review-ready drafted answer|using repeatable clustering" web/src/components/landing/SupportTicketCsvIntakeForm.tsx web/scripts/test-deflection-public-reachability-smoke.mjs`
   - passed; only the negative test assertion retains the replaced intake phrasing.
+- `rg -n "Upload your Zendesk or Freshdesk CSV to receive a Snapshot|Upload your support-ticket CSV to receive a Snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs web/plans/PR-Deflection-Snapshot-Final-CTA-Copy.md`
+  - passed; the live CTA uses the provider-agnostic `support-ticket CSV` wording, and only the negative test assertion retains the narrowed platform phrase.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
@@ -106,6 +114,6 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | Proof, intake, and final CTA copy | ~56 |
-| Snapshot/public smoke expectations | ~72 |
-| this plan doc | ~115 |
-| **Total** | ~243 |
+| Snapshot/public smoke expectations | ~82 |
+| this plan doc | ~123 |
+| **Total** | ~261 |

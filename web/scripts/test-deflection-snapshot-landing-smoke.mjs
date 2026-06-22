@@ -216,9 +216,14 @@ assert.ok(
 );
 assert.ok(
   compactSnapshotLandingSource.includes(
-    'Upload your Zendesk or Freshdesk CSV to receive a Snapshot. You will immediately see your top deflection topic and a summary count.',
+    'Upload your support-ticket CSV to receive a Snapshot. You will immediately see your top deflection topic and a summary count.',
   ),
-  'Final Snapshot CTA should name the Snapshot output and immediate summary count.',
+  'Final Snapshot CTA should name the Snapshot output and immediate summary count without narrowing supported platforms.',
+);
+assert.equal(
+  snapshotLandingSource.includes('Upload your Zendesk or Freshdesk CSV to receive a Snapshot.'),
+  false,
+  'Final Snapshot CTA should not contradict the supported platform list.',
 );
 assert.ok(
   compactSnapshotLandingSource.includes(
