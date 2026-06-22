@@ -83,7 +83,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `What about private customer data?`,
-    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first, we recommend it. We do not need PII to find repeat questions. Your file is deleted after 30 days. The analysis is 100% deterministic, no AI, no model training, no fine-tuning, no sharing.`,
+    a: `If your export tool can remove names, emails, phone numbers, or other private details, do that first, we recommend it. The intake minimizes common contact identifiers in the CSV body before upload, and the backend redacts supported PII patterns from generated Snapshot and report outputs. We do not need PII to find repeat questions. Your file is deleted after 30 days. The analysis is 100% deterministic, no AI, no model training, no fine-tuning, no sharing.`,
   },
   {
     q: `Why use customer wording?`,
