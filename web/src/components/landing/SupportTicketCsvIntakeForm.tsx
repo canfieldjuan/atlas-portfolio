@@ -627,9 +627,12 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
             <div className="flex items-start gap-2 border-t border-border pt-2">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/85" />
               <p className="text-[11px] leading-relaxed text-foreground/62">
-                <strong className="font-semibold text-foreground">Local PII Scrubbing.</strong>{' '}
-                Your browser applies best-effort local scrubbing for common
-                contact identifiers in the CSV body before upload.
+                <strong className="font-semibold text-foreground">
+                  Browser + backend PII controls.
+                </strong>{' '}
+                Your browser minimizes common contact identifiers before upload;
+                the backend redacts supported PII patterns from generated
+                Snapshot and report outputs.
               </p>
             </div>
           </div>

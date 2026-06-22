@@ -213,8 +213,9 @@ export default function SecurityPage() {
           </div>
           <p className="text-sm text-foreground/65 mb-6 leading-relaxed">
             When you upload ticket logs for a Support Deflection gap analysis, we keep the flow
-            narrow: direct private storage, deterministic processing, best-effort CSV minimization,
-            and bounded cleanup for uploaded files.
+            narrow: direct private storage, deterministic processing, browser CSV minimization,
+            backend redaction for supported report-output PII patterns, and bounded cleanup for
+            uploaded files.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-lg border border-border bg-surface p-5">
@@ -240,12 +241,14 @@ export default function SecurityPage() {
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">
-              <h3 className="text-base font-semibold text-foreground mb-2">4. Client-Side PII Scrubbing</h3>
+              <h3 className="text-base font-semibold text-foreground mb-2">4. Browser + Backend PII Controls</h3>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                Before upload, the intake interface runs best-effort local filters against common
-                contact identifiers in the CSV body, including emails, formatted phone numbers, and
-                IP addresses. This does not guarantee removal of every name, account number, or
-                free-text identifier, and upload stops if the CSV cannot be safely decoded.
+                Before upload, the intake interface minimizes common contact identifiers in the CSV
+                body, including emails, formatted phone numbers, and IP addresses. The downstream
+                report pipeline redacts supported PII patterns from generated Snapshot and report
+                outputs before storage or delivery. This does not guarantee removal of every name,
+                account number, or free-text identifier, and upload stops if the CSV cannot be
+                safely decoded.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-5">

@@ -34,6 +34,7 @@ const adminCsvRoute = await source('src/app/admin/intake/gap-report/[requestId]/
 const cleanupLib = await source('src/lib/gap-report-cleanup.ts');
 const landingConfig = await source('src/app/systems/support-ticket-deflection/landingConfig.tsx');
 const securityPage = await source('src/app/security/page.tsx');
+const compactSecurityPage = securityPage.replace(/\s+/g, ' ');
 
 const intakeClientSource = `${intakePage}\n${intakeForm}`;
 
@@ -46,10 +47,21 @@ assertIncludes(intakeClientSource, 'SCRUBBED_CSV_FILENAME', 'CSV scrubbed generi
 assertIncludes(intakeClientSource, 'new TextDecoder(\'utf-8\', { fatal: true })', 'CSV scrub UTF-8 gate');
 assertIncludes(intakeClientSource, 'looksLikeUtf16(bytes)', 'CSV scrub UTF-16 rejection');
 assertIncludes(intakeClientSource, 'Upload stopped before any file was sent', 'CSV scrub fail-closed copy');
-assertIncludes(intakeClientSource, 'best-effort local scrubbing', 'CSV scrub scoped public copy');
+assertIncludes(intakeClientSource, 'Browser + backend PII controls', 'CSV scrub scoped public copy');
+assertIncludes(
+  intakeClientSource,
+  'Your browser minimizes common contact identifiers before upload',
+  'CSV scrub scoped public copy',
+);
+assertIncludes(
+  intakeClientSource,
+  'backend redacts supported PII patterns from generated',
+  'CSV backend redaction public copy',
+);
 assertNotIncludes(intakeClientSource, 'using raw file', 'CSV scrub fail-closed upload path');
 assertNotIncludes(intakeClientSource, 'let fileToUpload: File = file', 'CSV scrub fail-closed upload path');
 assertNotIncludes(intakeClientSource, 'never leave your device', 'CSV scrub scoped public copy');
+assertNotIncludes(intakeClientSource, 'never make it into the report', 'CSV scrub scoped public copy');
 
 assertIncludes(uploadRoute, "pathname.startsWith('gap-report-csvs/')", 'CSV upload token scope');
 assertIncludes(uploadRoute, 'allowedContentTypes: CSV_CONTENT_TYPES', 'CSV upload content type gate');
@@ -109,10 +121,25 @@ assertIncludes(
   'If your export tool can remove names, emails, phone numbers, or other private details, do that first',
   'CSV public PII guidance',
 );
+assertIncludes(
+  landingConfig,
+  'The intake minimizes common contact identifiers before upload',
+  'CSV public PII guidance',
+);
+assertIncludes(
+  landingConfig,
+  'backend redacts supported PII patterns from generated Snapshot and report outputs',
+  'CSV public PII guidance',
+);
 assertIncludes(landingConfig, 'We do not need PII to find repeat questions', 'CSV public PII guidance');
 assertNotIncludes(landingConfig, 'we drop PII in our intake step', 'CSV public PII guidance');
 
-assertIncludes(securityPage, 'best-effort CSV minimization', 'security page CSV data safety copy');
+assertIncludes(securityPage, 'browser CSV minimization', 'security page CSV data safety copy');
+assertIncludes(
+  securityPage,
+  'backend redaction for supported report-output PII patterns',
+  'security page CSV data safety copy',
+);
 assertIncludes(
   securityPage,
   'Uploaded CSV ticket exports and local submission records are deleted after 30 days',
@@ -124,11 +151,18 @@ assertIncludes(
   'security page report-data retention scope',
 );
 assertIncludes(
-  securityPage,
+  compactSecurityPage,
   'This does not guarantee removal of every name, account number, or',
   'security page scoped PII claim',
 );
+assertIncludes(
+  compactSecurityPage,
+  'redacts supported PII patterns from generated Snapshot and report outputs before storage or delivery',
+  'security page scoped PII claim',
+);
 assertNotIncludes(securityPage, 'No PII ever leaves your browser', 'security page scoped PII claim');
+assertNotIncludes(securityPage, 'all PII is removed', 'security page scoped PII claim');
+assertNotIncludes(securityPage, 'no PII can appear', 'security page scoped PII claim');
 assertNotIncludes(securityPage, 'automatically and completely deleted', 'security page retention scope');
 assertNotIncludes(securityPage, 'AES-256', 'security page encryption scope');
 assertNotIncludes(securityPage, 'zero training data leaks', 'security page deterministic processing copy');
