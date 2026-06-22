@@ -10,38 +10,38 @@ export const pricingTiers: DiagnosticPricingTier[] = [
   {
     id: `snapshot`,
     badge: `FREE · NO CARD`,
-    title: `Deflection Snapshot`,
+    title: `Resolution Audit Snapshot`,
     price: `Free`,
     sla: `Delivered in seconds after CSV upload`,
     description:
-      `Upload your last 30 days of tickets. We send back enough to show you the pattern: the repeat questions, customer wording, and one self-service answer so you can see if the full report is worth doing.`,
+      `Upload your 30-day ticket export. We send back enough to show whether the repeat pattern is real: top questions, customer wording, and one source-backed answer when evidence exists.`,
     includes: [
       `Your top 5 repeat questions, ranked by how often they were asked`,
       `Customer wording examples`,
-      `1 sample self-service answer`,
+      `1 review-ready answer when your tickets contain resolution evidence`,
       `No card required, no contract`,
     ],
-    note: `The free snapshot proves whether the pattern is there. It is not the full report.`,
-    cta: `Get the free snapshot`,
+    note: `The free Snapshot shows whether the pattern is there. It is not the full audit.`,
+    cta: `Start Your Forensic Audit`,
     href: GAP_REPORT_INTAKE_HREF,
     highlighted: true,
   },
   {
     id: `full-report`,
     badge: `FULL REPORT`,
-    title: `Full Deflection Report`,
+    title: `Full Resolution Audit`,
     price: DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel,
     description:
-      `For the first 30 day batch. We turn the repeat questions into a full Support Ticket Deflection Report your team can use to decide what to fix and publish first.`,
+      `For the first 30-day batch. We turn the repeat questions into a full Resolution Audit your team can use to decide what to fix and publish first.`,
     includes: [
       `Every recurring question, ranked by how often it was asked (typically 50+)`,
-      `Customer wording clusters, the long-tail keywords needed to rank`,
-      `A drafted, publishable answer for every gap your tickets already solve, your team's own resolved replies, 100% deterministic, no AI`,
+      `Customer wording clusters and self-service title targets`,
+      `A review-ready draft for every gap your tickets already solve, using your team's resolved replies`,
       `A "no proven answer yet" list, the frequent questions you have not cracked`,
       `Priority ranking and source ticket IDs on every finding`,
     ],
-    note: `This is the paid version of the work: enough detail to actually update the help center.`,
-    cta: `Start the full report`,
+    note: `This is the paid expansion: enough detail to actually update the help center.`,
+    cta: `Start the full audit`,
     href: GAP_REPORT_INTAKE_HREF,
   },
   {
@@ -52,7 +52,7 @@ export const pricingTiers: DiagnosticPricingTier[] = [
     description:
       `Run the report every 90 days so your help center keeps up as customer questions change. Good for teams that keep seeing new repeat issues.`,
     includes: [
-      `Full Deflection Report every 90 days`,
+      `Full Resolution Audit every 90 days`,
       `What changed since the last report`,
       `Questions that are still coming back`,
       `New self-service answers to review and publish`,
@@ -66,11 +66,11 @@ export const pricingTiers: DiagnosticPricingTier[] = [
 
 export const pricingFaqs: { q: string; a: string }[] = [
   {
-    q: `What do I get in the free snapshot?`,
-    a: `You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one sample self-service answer. It is enough to show whether the repeat pattern is real before you pay for the full report. It is not the full report.`,
+    q: `What do I get in the free Snapshot?`,
+    a: `You get your top 5 repeat questions ranked from your ticket history, examples of the exact customer wording, and one review-ready answer when your tickets contain resolution evidence. It is enough to show whether the repeat pattern is real before you pay for the full audit. It is not the full audit.`,
   },
   {
-    q: `What do I get in the full Deflection Report?`,
+    q: `What do I get in the full Resolution Audit?`,
     a: `You get the working list: every recurring question ranked by volume, customer wording clusters, documentation gaps, source ticket IDs, review-ready drafts for gaps your tickets already solve, and a "no proven answer yet" list for frequent questions without enough answer evidence.`,
   },
   {
@@ -91,7 +91,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `We just updated our help center, do we still need this?`,
-    a: `Maybe not, and the free snapshot will tell you. If customers still ask questions your updated docs already cover, the gap is usually wording or findability. If the snapshot does not find a repeat pattern, it will say so.`,
+    a: `Maybe not, and the free Snapshot will tell you. If customers still ask questions your updated docs already cover, the gap is usually wording or findability. If the Snapshot does not find a repeat pattern, it will say so.`,
   },
   {
     q: `How much editing will the answers need?`,
@@ -107,7 +107,7 @@ export const pricingFaqs: { q: string; a: string }[] = [
   },
   {
     q: `Do we have to sign up for quarterly reports?`,
-    a: `No. Start with the free snapshot. If it shows a useful repeat-question pattern, you can pay for the full Deflection Report. Quarterly refreshes are only for teams that want to keep updating the help center as new repeat questions appear.`,
+    a: `No. Start with the free Snapshot. If it shows a useful repeat-question pattern, you can pay for the full Resolution Audit. Quarterly refreshes are only for teams that want to keep updating the help center as new repeat questions appear.`,
   },
   {
     q: `How do you reduce repeat support tickets?`,

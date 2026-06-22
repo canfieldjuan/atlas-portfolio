@@ -202,6 +202,63 @@ const snapshotRouteSource = await readFile(
   new URL('../src/app/systems/support-ticket-deflection/snapshot/page.tsx', import.meta.url),
   'utf8',
 );
+const partnerClientSource = await readFile(
+  new URL('../src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx', import.meta.url),
+  'utf8',
+);
+const nonPartnerEntrySources = [
+  [
+    'systems support-ops card',
+    await readFile(new URL('../src/app/systems/page.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'AI Content Ops cross-sell',
+    await readFile(new URL('../src/app/systems/ai-content-ops/page.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'public landing pricing config',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/landingConfig.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'public landing v2 config',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/landingConfig-v2.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'demo page CTA',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/demo/page.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'playbook CTA',
+    await readFile(
+      new URL('../src/app/systems/support-ticket-deflection/playbook/page.tsx', import.meta.url),
+      'utf8',
+    ),
+  ],
+  [
+    'thirty-second calculator CTA',
+    await readFile(new URL('../src/components/deflection-demo/ThirtySecondCalculator.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'support-tax calculator CTA',
+    await readFile(new URL('../src/components/deflection-demo/SupportTaxCalculator.tsx', import.meta.url), 'utf8'),
+  ],
+  [
+    'support-tax mini calculator CTA',
+    await readFile(new URL('../src/components/deflection-demo/SupportTaxMiniCalculator.tsx', import.meta.url), 'utf8'),
+  ],
+];
+const combinedNonPartnerEntrySource = nonPartnerEntrySources
+  .map(([label, source]) => `\n--- ${label} ---\n${source}`)
+  .join('');
 const staleDeliverySources = [
   [
     'long-form landing config',
@@ -293,6 +350,40 @@ assert.ok(
   !snapshotRouteSource.includes('Free Deflection Snapshot') &&
     !snapshotRouteSource.includes('Upload 30 days of closed tickets'),
   'Snapshot route metadata should not retain the old free-Snapshot/30-day framing',
+);
+assert.ok(
+  combinedNonPartnerEntrySource.includes('Resolution Audit Snapshot') &&
+    combinedNonPartnerEntrySource.includes('Full Resolution Audit') &&
+    combinedNonPartnerEntrySource.includes('Start Your Forensic Audit'),
+  'non-partner entry surfaces should use the Resolution Audit and forensic-audit CTA labels',
+);
+assert.ok(
+  combinedNonPartnerEntrySource.includes('Free Snapshot to full audit') &&
+    !combinedNonPartnerEntrySource.includes('DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL'),
+  'AI Content Ops card should not import the old Snapshot/full-report offer label into the renamed entry surface',
+);
+for (const [oldLabel, sourceLabel] of [
+  ['Deflection Snapshot', 'Deflection Snapshot'],
+  ['free Deflection Snapshot', 'free Deflection Snapshot'],
+  ['Support Ticket Deflection Report', 'Support Ticket Deflection Report'],
+  ['Full Deflection Report', 'Full Deflection Report'],
+  ['Get the free Snapshot first', 'Get the free Snapshot first'],
+  ['Upload your CSV, get a free Snapshot', 'Upload your CSV, get a free Snapshot'],
+  ['Upload tickets, get a free Deflection Snapshot', 'Upload tickets, get a free Deflection Snapshot'],
+  ['Stop the leak: get a free Deflection Snapshot', 'Stop the leak: get a free Deflection Snapshot'],
+  ['Get a free Deflection Snapshot', 'Get a free Deflection Snapshot'],
+]) {
+  assert.ok(
+    !combinedNonPartnerEntrySource.includes(oldLabel),
+    `non-partner entry surfaces should not retain old ${sourceLabel} wording`,
+  );
+}
+assert.ok(
+  partnerClientSource.includes("title: 'Deflection Snapshot'") &&
+    partnerClientSource.includes("title: 'Full Deflection Report'") &&
+    partnerClientSource.includes("title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.'") &&
+    partnerClientSource.includes('free Deflection Snapshot'),
+  'partner client should override shared pricing copy back to the partner-scoped Deflection Snapshot offer',
 );
 assert.ok(
   intakeRouteSource.includes("'/systems/support-ticket-deflection/partner'"),

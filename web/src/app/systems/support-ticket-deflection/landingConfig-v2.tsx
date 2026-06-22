@@ -223,7 +223,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
     body:
       'Upload 30 days of tickets. In seconds, get the repeat questions ranked, the missing customer wording surfaced, and review-ready FAQ drafts built from resolved replies.',
     cta: {
-      label: 'Get the free Snapshot first',
+      label: 'Start Your Forensic Audit',
       href: SNAPSHOT_HREF,
     },
   },
@@ -384,7 +384,7 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
       'If the repetition is not there, the data will prove it. If it is, you will have a prioritized list of exactly what to publish first to start clearing the repeats.',
     ],
     cta: {
-      label: 'Get the free Snapshot first',
+      label: 'Start Your Forensic Audit',
       href: SNAPSHOT_HREF,
     },
     privacy:
@@ -393,9 +393,9 @@ export const landingPageConfigV2: DeflectionLandingPageConfig = {
   pricing: {
     id: 'pricing',
     label: 'PRICING',
-    title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.',
+    title: 'Start with the Snapshot. Continue when the repeat pattern is clear.',
     description:
-      'The free snapshot shows whether your tickets contain enough repeated questions to justify the full report. If the pattern is real, the full report gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
+      'The Snapshot shows whether your tickets contain enough repeated questions to justify the full Resolution Audit. If the pattern is real, the full audit gives your team the ranked questions, customer wording, documentation gaps, source evidence, and review-ready drafts to publish first.',
     tiers: pricingTiers,
     constraintLabel: 'WHAT IS NOT INCLUDED',
     exclusions: [

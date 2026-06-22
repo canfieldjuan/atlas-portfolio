@@ -8,7 +8,7 @@ import Link from 'next/link';
 // leaky-bucket model: two inputs (ticket volume + fully loaded cost per ticket)
 // sized against fixed assumptions, showing the monthly cost and agent-hours spent
 // re-answering repeat questions. This sizes current spend; it is not a forecast of
-// what the Deflection Report will save.
+// what the Resolution Audit will save.
 
 const TICKETS = { min: 100, max: 10000, step: 50, default: 1500 };
 const COST = { min: 10, max: 30, step: 1, default: 15 };
@@ -191,7 +191,7 @@ export function ThirtySecondCalculator() {
             </div>
             <p className="mt-3 text-sm leading-relaxed text-foreground/62">
               A directional size of what {usd(monthlyTax)} per month on repeat questions adds up to. This
-              sizes current spend, not a forecast of what the Deflection Report will save.
+              sizes current spend, not a forecast of what the Resolution Audit will save.
             </p>
           </div>
 
@@ -229,7 +229,7 @@ export function ThirtySecondCalculator() {
               href="/systems/support-ticket-deflection/intake"
               className="group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
             >
-              Stop the leak: get a free Deflection Snapshot
+              Start Your Forensic Audit
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <p className="mt-3 text-xs leading-relaxed text-foreground/45">

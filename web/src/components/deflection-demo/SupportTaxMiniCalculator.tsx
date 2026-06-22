@@ -242,9 +242,9 @@ export function SupportTaxMiniCalculator() {
             <Link
               href="/systems/support-ticket-deflection/intake"
               className="group inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-center text-sm font-semibold text-black transition hover:bg-primary/90"
-              aria-label="Stop the leak: get a free Deflection Snapshot"
+              aria-label="Start Your Forensic Audit"
             >
-              Stop the leak: get a free Deflection Snapshot
+              Start Your Forensic Audit
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </Link>
             <Link
@@ -259,7 +259,7 @@ export function SupportTaxMiniCalculator() {
             Deterministic parsing of your own ticket export. No AI guesswork, and you won&apos;t wait days for it.
           </p>
           <p className="mt-2 text-center text-xs leading-relaxed text-foreground/45">
-            This sizes current spend. It is not a forecast of what the Deflection Report will save.
+            This sizes current spend. It is not a forecast of what the Resolution Audit will save.
           </p>
         </aside>
       </div>
