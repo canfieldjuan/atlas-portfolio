@@ -142,19 +142,19 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
   ],
   top_blind_spots: [
     {
-      rank: 2,
-      question: 'How do customers pause billing without losing workspace access?',
-      ticket_count: 72,
-    },
-    {
-      rank: 4,
-      question: 'What should customers do when SSO provisioning gets stuck?',
-      ticket_count: 54,
-    },
-    {
       rank: 7,
+      question: 'How do customers pause billing without losing workspace access?',
+      ticket_count: 120,
+    },
+    {
+      rank: 9,
+      question: 'What should customers do when SSO provisioning gets stuck?',
+      ticket_count: 80,
+    },
+    {
+      rank: 11,
       question: 'How are annual renewal credits applied after a plan change?',
-      ticket_count: 38,
+      ticket_count: 60,
     },
   ],
   teaser: {

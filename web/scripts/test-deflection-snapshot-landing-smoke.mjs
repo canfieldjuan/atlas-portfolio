@@ -122,6 +122,43 @@ function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLev
   }
 }
 
+function assertBlindSpotRanksMatchOwningRows(snapshot, name) {
+  const topQuestionsByRank = new Map(
+    snapshot.top_questions.map((question) => [question.rank, question]),
+  );
+  const lockedQuestionsByRank = new Map(
+    snapshot.locked_questions.map((question) => [question.rank, question]),
+  );
+
+  for (const blindSpot of snapshot.top_blind_spots) {
+    const topQuestion = topQuestionsByRank.get(blindSpot.rank);
+    if (topQuestion) {
+      assert.equal(
+        blindSpot.question,
+        topQuestion.question,
+        `${name}: blind spot rank ${blindSpot.rank} should match the visible top-question text at that rank.`,
+      );
+      assert.equal(
+        blindSpot.ticket_count,
+        topQuestion.ticket_count,
+        `${name}: blind spot rank ${blindSpot.rank} should match the visible top-question count at that rank.`,
+      );
+      continue;
+    }
+
+    const lockedQuestion = lockedQuestionsByRank.get(blindSpot.rank);
+    assert.ok(
+      lockedQuestion,
+      `${name}: blind spot rank ${blindSpot.rank} should map to a visible top question or locked preview rank.`,
+    );
+    assert.equal(
+      blindSpot.ticket_count,
+      lockedQuestion.ticket_count,
+      `${name}: blind spot rank ${blindSpot.rank} should match the locked preview count at that rank.`,
+    );
+  }
+}
+
 function makeFetchMock(response) {
   const calls = [];
   const fetchImpl = async (url, init = {}) => {
@@ -211,6 +248,10 @@ assert.ok(
 assert.ok(
   DEMO_DEFLECTION_SNAPSHOT.top_blind_spots.some((blindSpot, index) => blindSpot.rank !== index + 1),
   'Primary demo blind spots should preserve original non-sequential ranks.',
+);
+assertBlindSpotRanksMatchOwningRows(
+  DEMO_DEFLECTION_SNAPSHOT,
+  'Primary demo Snapshot',
 );
 assertTopLevelSnapshotKeys(
   DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,

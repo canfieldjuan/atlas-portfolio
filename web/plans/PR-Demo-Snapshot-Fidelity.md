@@ -21,7 +21,8 @@ Slice phase: Functional validation
 1. Track the real generated Snapshot/report-model ground-truth payload named in
    issue #363 and correct its stale blind-spot delta note.
 2. Keep the primary demo populated for the live blind-spots smoke marker, but
-   change its blind-spot ranks to mirror real non-resequenced ranks.
+   change its blind-spot ranks to mirror real non-resequenced ranks without
+   colliding with visible top-question text.
 3. Add a second demo fixture for the clean-upload branch: empty blind spots and
    no source-date window.
 4. Extend the Snapshot landing smoke test so it validates the demo fixtures
@@ -41,14 +42,16 @@ Slice phase: Functional validation
   field set against the real emitted payload.
 - `DEMO_DEFLECTION_SNAPSHOT` keeps a populated `top_blind_spots` array so the
   existing live marker remains exercised, while its ranks become non-sequential
-  to match ATLAS preserving original unresolved-question ranks.
+  locked-preview ranks to match ATLAS preserving original unresolved-question
+  ranks without assigning one visible rank to two different questions.
 - A new exported clean-upload fixture reuses the demo shape with
   `top_blind_spots: []` and a summary that intentionally omits `source_date_*`.
   The landing component already guards both branches, so this slice validates
   the contract without changing layout.
 - The smoke test compiles `web/src/lib/deflection-snapshot.ts` with TypeScript's
   existing `transpileModule` pattern, imports the fixtures, and asserts their
-  runtime shape.
+  runtime shape. It also asserts each blind spot maps back to the top or locked
+  row that owns its rank, including matching counts for locked-preview ranks.
 
 ## Intentional
 
@@ -56,6 +59,10 @@ Slice phase: Functional validation
   landing UI; the parser can continue ignoring them until a product need exists.
 - This does not change Snapshot copy, pricing copy, PII/security copy, checkout
   behavior, or ATLAS endpoint wiring.
+- This does not align the demo blind spots to visible `top_questions` rows,
+  because the current landing section labels those rows as proven resolutions.
+  The demo uses locked ranks instead, avoiding duplicate visible rank/question
+  pairs while preserving the non-resequenced rank behavior.
 - This does not empty the primary demo's blind spots because that would silently
   remove the `blindSpots` smoke marker from the live landing monitor.
 
