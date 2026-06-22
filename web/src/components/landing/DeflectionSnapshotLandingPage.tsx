@@ -33,7 +33,7 @@ import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection
 import { SupportTicketCsvIntakeForm } from './SupportTicketCsvIntakeForm';
 
 const INTAKE_HREF = '/systems/support-ticket-deflection/intake';
-const CTA_LABEL = 'Get my free Deflection Snapshot';
+const CTA_LABEL = 'Start Your Forensic Audit';
 const integerFormatter = new Intl.NumberFormat('en-US');
 
 function formatInteger(value: number) {
@@ -283,7 +283,7 @@ function SnapshotArtifact({
         <div>
           <p className="font-mono text-xs text-primary">EXAMPLE RESOLUTION SNAPSHOT</p>
           <h2 className="mt-2 text-2xl font-semibold text-foreground">
-            What it gives you.
+            A preview of the truth.
           </h2>
         </div>
         <div className="grid gap-2 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -458,19 +458,25 @@ export function DeflectionSnapshotLandingPage() {
         <div className="md:pt-8 lg:pt-10">
           <Eyebrow smoke="snapshotBadge">
             <Upload className="h-3.5 w-3.5" />
-            Ticket Resolution Report
+            The Resolution Audit.
           </Eyebrow>
           <h1
             data-smoke="promiseHeadline"
             className="max-w-4xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl lg:text-7xl"
           >
-            Deflect tickets by actually resolving them.
+            Identify the cost exposure behind your unresolved questions.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground/68 lg:mt-6 lg:max-w-3xl lg:text-xl lg:leading-relaxed">
-            Upload 30 days of closed tickets. The free Resolution Report shows which
-            issues repeat, the exact wording customers use, what those repeats cost to
-            answer, and one sourced draft your team can review.
-          </p>
+          <div className="mt-5 max-w-2xl space-y-4 text-lg leading-relaxed text-foreground/68 lg:mt-6 lg:max-w-3xl lg:text-xl lg:leading-relaxed">
+            <p>Instead of guessing, we audit.</p>
+            <p>
+              Upload your support-ticket export to receive a forensic analysis
+              of your ticket history. We identify high-volume topics your team
+              can address with documentation or self-service, and we flag the
+              gaps where your tickets do not contain a proven resolution yet.
+              Those gaps often point to product, policy, or process fixes that
+              need to happen before another help article can carry the load.
+            </p>
+          </div>
           <HeroProofStrip
             snapshot={DEMO_DEFLECTION_SNAPSHOT}
             assistedContactCost={assistedContactCost}
@@ -485,7 +491,7 @@ export function DeflectionSnapshotLandingPage() {
               sourcePage: '/systems/support-ticket-deflection/snapshot',
               sourceOffer: 'support-ticket-deflection-intake',
               snapshotName: 'Resolution Report',
-              submitLabel: 'Get my free Resolution Report',
+              submitLabel: CTA_LABEL,
             }}
           />
         </div>
@@ -496,13 +502,14 @@ export function DeflectionSnapshotLandingPage() {
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Your Resolution Snapshot</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-              Read your Snapshot and take action to deflect tickets with real resolutions.
+              See the evidence behind your ticket volume.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-foreground/66">
-              The example below shows what you get: ranked repeat questions,
-              customer wording, a cost projection, one sourced, drafted resolution
-              for your #1 repeat, and a preview of the remaining questions and
-              resolutions the full report unlocks.
+              The Snapshot below reveals your top repeat question, the estimated
+              cost exposure behind it, and one real, agent-backed answer. It
+              also identifies a high-cost unresolved gap where your tickets do
+              not contain a proven resolution yet. A full report expands this
+              across the ranked backlog from your ticket history.
             </p>
           </div>
           <SnapshotArtifact
@@ -541,14 +548,26 @@ export function DeflectionSnapshotLandingPage() {
       >
         <Eyebrow>Push</Eyebrow>
         <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-          Every month, the same unresolved questions bill you again.
+          Start with the Snapshot before you commit to a deeper audit.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/66">
-          Upload your CSV to see the questions you haven&apos;t resolved yet.
-          Those repeats cost you and your team. We give you a ranked starting
-          point and one drafted resolution to review,
-          so you can decide if a full report is valuable to you or not.
+          Upload your CSV to see whether your ticket history contains enough
+          repeated, unresolved questions to justify a full audit. If it does,
+          you get the evidence to decide what to pursue next. If it does not,
+          the Snapshot still gives you a bounded starting point instead of a
+          sales pitch.
         </p>
+        <div className="mx-auto mt-5 max-w-2xl border-t border-primary/20 pt-4 text-left">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
+            Audit standard
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground/62">
+            If a full audit does not turn your uploaded tickets into a ranked,
+            source-backed action queue, we will correct the report. The promise
+            is a usable audit trail, not guaranteed savings, rankings, or
+            entirely-new findings.
+          </p>
+        </div>
         <div className="mt-6">
           <PrimarySnapshotCta />
         </div>

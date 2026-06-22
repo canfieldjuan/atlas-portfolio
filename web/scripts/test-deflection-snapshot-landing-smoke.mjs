@@ -107,8 +107,8 @@ assert.equal(
   'Inline Snapshot form should not use the non-reporting hero_intake source offer.',
 );
 assert.ok(
-  snapshotLandingSource.includes('Get my free Resolution Report'),
-  'Snapshot hero form should use the Resolution Report submit label.',
+  snapshotLandingSource.includes('Start Your Forensic Audit'),
+  'Snapshot hero form should use the forensic audit submit label.',
 );
 assert.ok(
   intakeFormSource.includes('data-smoke="submitSecurityLine"'),
@@ -143,8 +143,8 @@ assert.ok(
   'Customer wording subsection should render actual wording examples when present.',
 );
 assert.ok(
-  snapshotLandingSource.includes('What it gives you.'),
-  'Snapshot artifact should keep its lead-in heading after the hero form.',
+  snapshotLandingSource.includes('A preview of the truth.'),
+  'Snapshot artifact should keep the audit-preview lead-in heading after the hero form.',
 );
 assert.ok(
   snapshotLandingSource.includes('When the upload includes customer phrasing'),
