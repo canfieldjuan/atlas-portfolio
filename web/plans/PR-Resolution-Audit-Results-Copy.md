@@ -25,6 +25,8 @@ Slice phase: Product polish
    Report.
 4. Update hosted result, browser-upload, and paid-unlock smoke markers to the
    new public result-page labels.
+5. Add partner result-page copy coverage so the preserved partner branch cannot
+   leak the public Resolution Audit naming.
 
 ### Files touched
 
@@ -46,6 +48,9 @@ Slice phase: Product polish
   status/error copy.
 - Smoke scripts update their public-page render markers to the new public labels
   so hosted checks keep proving the visible result-page state.
+- The hosted-results smoke test also isolates the partner branch of the
+  result-page resolver and asserts it keeps Deflection Snapshot / full
+  Deflection Report wording with no Resolution Audit leak.
 
 ## Intentional
 
@@ -71,8 +76,9 @@ Parked hardening: none.
 - `rg -n "YOUR DEFLECTION SNAPSHOT|Unlock your full Backlog Report|Unlock the full report|full Backlog Report|In your full report|Stripe checkout unlocks the full Backlog Report|YOUR RESOLUTION AUDIT SNAPSHOT|full Resolution Audit|full Deflection Report" web/src/components/landing/DeflectionResultsPage.tsx web/scripts/smoke-deflection-hosted-results.mjs web/scripts/test-deflection-hosted-results-smoke.mjs web/scripts/test-deflection-browser-upload-smoke.mjs web/scripts/smoke-deflection-paid-unlock.mjs web/scripts/test-deflection-paid-unlock-smoke.mjs`
   - passed; public result markers use Resolution Audit language, partner copy
     retains Deflection Snapshot / full Deflection Report inside the copy
-    resolver, and old Backlog Report/result-page full-report labels are gone
-    from this slice.
+    resolver, the hosted-results test guards that partner branch from
+    Resolution Audit leaks, and old Backlog Report/result-page full-report
+    labels are gone from this slice.
 - `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
@@ -80,6 +86,6 @@ Parked hardening: none.
 | Area | LOC (added + deleted) |
 |---|---|
 | Results page copy resolver | ~60 |
-| Smoke marker updates | ~25 |
+| Smoke marker updates and partner guard | ~40 |
 | this plan doc | ~80 |
-| **Total** | ~165 |
+| **Total** | ~185 |

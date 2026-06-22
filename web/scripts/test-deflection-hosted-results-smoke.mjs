@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { runDeflectionHostedResultsSmoke } from './smoke-deflection-hosted-results.mjs';
 
 const REQUEST_ID = 'content-ops-unit-123';
@@ -46,6 +47,7 @@ const LEGACY_FULL_REPORT_HTML = [
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const resultPageSourceUrl = new URL('../src/components/landing/DeflectionResultsPage.tsx', import.meta.url);
 
 function makeFetchMock(response) {
   const calls = [];
@@ -67,6 +69,28 @@ async function run(options, response) {
     now: () => '2026-05-31T16:00:00.000Z',
   });
   return { result, fetchImpl };
+}
+
+function extractPartnerOfferCopyBranch(source) {
+  const partnerMarker = 'if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {';
+  const partnerStart = source.indexOf(partnerMarker);
+  assert.notEqual(partnerStart, -1, 'resultOfferCopy should have a partner branch');
+
+  const publicMarker = "snapshotBadge: 'YOUR RESOLUTION AUDIT SNAPSHOT'";
+  const publicStart = source.indexOf(publicMarker, partnerStart);
+  assert.notEqual(publicStart, -1, 'resultOfferCopy should have a public branch after partner copy');
+
+  return source.slice(partnerStart, publicStart);
+}
+
+{
+  const resultPageSource = await readFile(resultPageSourceUrl, 'utf8');
+  const partnerOfferCopyBranch = extractPartnerOfferCopyBranch(resultPageSource);
+
+  assert.match(partnerOfferCopyBranch, /snapshotBadge: 'YOUR DEFLECTION SNAPSHOT'/);
+  assert.match(partnerOfferCopyBranch, /fullArtifactName: 'full Deflection Report'/);
+  assert.match(partnerOfferCopyBranch, /offerHeading: 'Unlock your full Deflection Report'/);
+  assert.doesNotMatch(partnerOfferCopyBranch, /Resolution Audit/);
 }
 
 {
