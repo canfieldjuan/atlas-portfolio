@@ -35,13 +35,13 @@ export default async function SupportTicketDeflectionIntakePage({ searchParams }
         backHref: isPartner
           ? '/systems/support-ticket-deflection/partner'
           : '/systems/support-ticket-deflection/snapshot',
-        backLabel: isPartner ? 'Back to Deflection Report' : 'Back to Deflection Snapshot',
+        backLabel: isPartner ? 'Back to Deflection Report' : 'Back to Resolution Audit',
         sourcePage: isPartner
           ? '/systems/support-ticket-deflection/partner'
           : '/systems/support-ticket-deflection/snapshot',
         sourceOffer: 'support-ticket-deflection-intake',
-        snapshotName: 'Deflection Snapshot',
-        submitLabel: 'Upload my CSV, get my free Deflection Snapshot',
+        snapshotName: isPartner ? 'Deflection Report' : 'Resolution Audit',
+        submitLabel: isPartner ? 'Upload my CSV for my partner audit' : 'Start Your Forensic Audit',
         priceVariantId: priceVariant.id,
         partnerAccessToken: isPartner ? partnerToken : undefined,
       }}

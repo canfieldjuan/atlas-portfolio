@@ -31,16 +31,23 @@ Slice phase: Product polish
    reassurance stays above the fold before the upload action.
 6. Update the hero proof metrics to name estimated Support Tax, repeat contacts,
    and the draft-plus-unresolved-gap deliverable.
-7. Update the landing smoke test assertions that intentionally pin this visible
-   copy, trust-before-CTA ordering, and hero metric labels.
+7. Align the Snapshot route metadata and linked non-partner intake route with
+   the Resolution Audit offer so page CTAs do not drop users back into old
+   Deflection Snapshot copy.
+8. Update the landing smoke test assertions that intentionally pin this visible
+   copy, trust-before-CTA ordering, hero metric labels, linked-intake copy, and
+   Snapshot metadata.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Snapshot-Audit-Copy.md` - this plan contract.
+- `web/src/app/systems/support-ticket-deflection/snapshot/page.tsx` - Snapshot route metadata for the Resolution Audit offer.
+- `web/src/app/systems/support-ticket-deflection/intake/page.tsx` - linked intake route copy for the non-partner audit path.
+- `web/src/app/systems/support-ticket-deflection/intake/layout.tsx` - intake route metadata for the Resolution Audit intake.
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` - Snapshot landing copy and final CTA framing.
 - `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` - intake trust signal placement above the submit CTA.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - copy smoke expectations for the changed labels/headings.
-- `web/scripts/test-deflection-public-reachability-smoke.mjs` - intake heading copy expectation.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` - intake heading, route metadata, and linked-intake copy expectations.
 
 ## Mechanism
 
@@ -64,10 +71,17 @@ Slice phase: Product polish
   labels/details to `Estimated Support Tax`, `Repeat Contacts`, and `Draft +
   Gap`, with the third card using the demo Snapshot's teaser draft and
   `top_blind_spots` presence to show `1 + 1`.
+- `snapshot/page.tsx` metadata moves from old `Free Deflection Snapshot` /
+  `Upload 30 days` framing to the Resolution Audit offer. The noindex intake
+  layout metadata does the same for the linked conversion route.
+- The non-partner `/intake` route keeps the existing ATLAS source offer and
+  source page, but changes its back label, snapshot name, and submit label to the
+  Resolution Audit path. Partner-specific route labels stay partner-scoped.
 - The smoke test swaps the old Resolution Report submit-label and sample-heading
   assertions for the new forensic-audit CTA and sample-heading copy, and checks
   that the trust marker appears before the submit CTA marker in the intake form
-  and the hero metric copy names the unresolved finding.
+  and the hero metric copy names the unresolved finding. The public reachability
+  smoke now also pins the Snapshot metadata and non-partner intake route copy.
 
 ## Intentional
 
@@ -84,33 +98,31 @@ Slice phase: Product polish
 - The requested "problem lies in your product or process" language is softened to
   "product, policy, or process fixes" as an interpretation of no-proven-answer
   gaps, not a diagnosis the Snapshot can always prove from ticket text alone.
+- Partner route labels are updated only inside the shared intake route where the
+  route itself branches; partner landing page, playbook, and systems-index copy
+  stay out of this PR.
 
 ## Deferred
 
 - A broader landing-page copy sweep, including any final guarantee placement or
   deeper claims-doctrine cleanup outside this Snapshot page, stays in the copy
   issue for a later pass.
+- Partner landing, playbook, systems-index, email/PDF artifact, and lower sample
+  artifact-grid wording remain deferred to the broader funnel sweep.
 - No form-field removals, report-shape changes, PII-scrubbing claim changes, or
-  result-page changes are included in this slice.
+  result-page behavior changes are included in this slice.
 
 Parked hardening: none.
 
 ## Verification
 
-- `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed;
-  confirms the Snapshot landing smoke contract, pinned forensic-audit
-  CTA/sample-heading copy, restored original hero H1, intake cost-exposure
-  heading, hero metric labels, unresolved-finding language, and intake
-  trust-before-CTA source order.
-- `npm --prefix web run test:deflection-public-reachability-smoke` - passed;
-  confirms the public landing/intake smoke markers still render.
+- `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
+- `npm --prefix web run test:deflection-public-reachability-smoke` - passed.
 - `npm --prefix web run lint` - passed.
-- `rg -n "Ticket Resolution Report|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
-  - passed with no matches; old copy and intentionally-rejected overclaim
-  language is gone from the changed runtime/test files.
-- `bash scripts/local_pr_review.sh` - passed after the hero-H1/intake-heading
-  correction; includes plan-doc audits, cross-session drift advisory, dead-code
-  baseline, Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
+- `rg -n "Ticket Resolution Report|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process|Free Deflection Snapshot|Upload my CSV, get my free Deflection Snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/src/components/landing/SupportTicketCsvIntakeForm.tsx web/src/app/systems/support-ticket-deflection/snapshot/page.tsx web/src/app/systems/support-ticket-deflection/intake/page.tsx web/src/app/systems/support-ticket-deflection/intake/layout.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs web/scripts/test-deflection-public-reachability-smoke.mjs`
+  - passed; only negative test assertions retain the stale strings.
+- `bash scripts/local_pr_review.sh` - pending after the linked-intake/metadata
+  review fix.
 - Production-server browser check at `1365x768` - passed; the intake trust block
   measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
   `768px` viewport, so the full trust block stays above the fold and before the
@@ -120,11 +132,14 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Snapshot landing copy | ~96 |
-| Intake trust placement | ~74 |
-| Snapshot landing smoke expectations | ~34 |
-| public reachability smoke expectation | ~4 |
-| this plan doc | ~129 |
-| **Total** | ~333 |
+| Snapshot landing copy + metadata | ~104 |
+| Linked intake route/metadata | ~18 |
+| Intake trust placement | ~81 |
+| Snapshot landing smoke expectations | ~38 |
+| public reachability smoke expectations | ~37 |
+| this plan doc | ~145 |
+| **Total** | ~423 |
 
-Well under the 400-LOC soft cap.
+Over the 400-LOC soft cap, but this remains one coherent review-fix slice: the
+reviewed landing reframe cannot be made coherent without aligning the route
+metadata and linked intake path it sends users into.

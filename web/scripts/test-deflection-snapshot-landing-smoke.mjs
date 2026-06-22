@@ -109,8 +109,12 @@ assert.equal(
   'Inline Snapshot form should not use the non-reporting hero_intake source offer.',
 );
 assert.ok(
-  snapshotLandingSource.includes('Start Your Forensic Audit'),
-  'Snapshot hero form should use the forensic audit submit label.',
+  snapshotLandingSource.includes("const CTA_LABEL = 'Start Your Forensic Audit';"),
+  'Snapshot landing should define the forensic audit CTA label.',
+);
+assert.ok(
+  snapshotLandingSource.includes('submitLabel: CTA_LABEL'),
+  'Snapshot inline form should receive the forensic audit CTA label.',
 );
 assert.ok(
   snapshotLandingSource.includes('Deflect tickets by actually resolving them.'),

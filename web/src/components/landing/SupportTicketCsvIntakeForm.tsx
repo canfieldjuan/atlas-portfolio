@@ -464,8 +464,9 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
             Identify the cost exposure behind your unresolved questions.
           </h2>
           <p className="text-foreground/65 text-sm leading-relaxed">
-            Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares
-            one review-ready drafted answer using repeatable clustering.
+            Upload your support-ticket export. The audit ranks repeated questions,
+            estimates cost exposure, and prepares one review-ready drafted answer
+            using repeatable clustering.
           </p>
         </div>
 

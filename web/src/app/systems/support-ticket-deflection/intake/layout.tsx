@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { generatePageMetadata } from '@/lib/seo';
 
 const baseMetadata = generatePageMetadata({
-  title: 'FAQ Deflection Intake',
+  title: 'Resolution Audit Intake',
   description:
-    'Start a deterministic FAQ deflection analysis from private support-ticket data.',
+    'Upload a support-ticket export to start the deterministic Resolution Audit intake.',
   path: '/systems/support-ticket-deflection/intake',
   keywords: [
-    'Deflection Snapshot intake',
+    'Resolution Audit intake',
     'support ticket CSV upload',
-    'support ticket deflection intake',
-    'Zendesk CSV analysis',
-    'support ticket deflection snapshot',
+    'support ticket audit intake',
+    'support ticket cost exposure',
+    'support ticket CSV audit',
   ],
 });
 
