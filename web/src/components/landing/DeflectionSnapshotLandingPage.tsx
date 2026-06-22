@@ -123,28 +123,31 @@ function HeroProofStrip({
   assistedContactCost: number;
 }) {
   const costProof = snapshotCostProof(snapshot, assistedContactCost);
+  const includedDraftCount = snapshot.teaser.full_answer ? 1 : 0;
+  const highlightedGapCount = snapshot.top_blind_spots && snapshot.top_blind_spots.length > 0 ? 1 : 0;
   const metrics = [
     {
-      icon: <Search className="h-4 w-4" />,
-      label: 'Repeat-ticket hits',
-      value: formatInteger(costProof.repeatTicketCount),
-      detail: `${formatInteger(snapshot.summary.generated)} ranked groups`,
+      icon: <FileText className="h-4 w-4" />,
+      label: 'Estimated Support Tax',
+      value: formatDeflectionWholeUsd(costProof.uploadedWindowCost),
+      detail: `${formatInteger(costProof.repeatTicketCount)} repeat contacts at ${formatAssistedContactCost(
+        assistedContactCost,
+      )} each`,
     },
     {
-      icon: <FileText className="h-4 w-4" />,
-      label: 'Support Tax estimate',
-      value: formatDeflectionWholeUsd(costProof.uploadedWindowCost),
-      detail: costProof.sourceWindowDays
-        ? `${formatAssistedContactCost(assistedContactCost)} per contact over ${costProof.sourceWindowDays} days`
-        : `${formatAssistedContactCost(assistedContactCost)} per assisted contact`,
+      icon: <Search className="h-4 w-4" />,
+      label: 'Repeat Contacts',
+      value: formatInteger(costProof.repeatTicketCount),
+      detail: `grouped into ${formatInteger(snapshot.summary.generated)} ranked question clusters`,
     },
     {
       icon: <CheckCircle2 className="h-4 w-4" />,
-      label: 'Included draft',
-      value: snapshot.teaser.full_answer ? '1' : '0',
-      detail: snapshot.teaser.full_answer
-        ? `${formatInteger(snapshot.teaser.full_answer.source_count)} source tickets`
-        : 'No scoped draft in this sample',
+      label: 'Draft + Gap',
+      value: `${includedDraftCount} + ${highlightedGapCount}`,
+      detail:
+        includedDraftCount > 0 && highlightedGapCount > 0
+          ? 'one agent-backed answer and one unresolved finding'
+          : 'draft answer and unresolved finding availability',
     },
   ];
 

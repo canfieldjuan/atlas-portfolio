@@ -135,8 +135,14 @@ assert.ok(
   'Snapshot landing blind-spots section should keep a stable smoke marker.',
 );
 assert.ok(
-  snapshotLandingSource.includes('over ${costProof.sourceWindowDays} days'),
-  'Snapshot hero proof strip should name the uploaded-window scope for cost.',
+  snapshotLandingSource.includes('Estimated Support Tax') &&
+    snapshotLandingSource.includes('Repeat Contacts') &&
+    snapshotLandingSource.includes('Draft + Gap'),
+  'Snapshot hero proof strip should keep the support-tax, repeat-contact, and draft-gap metric labels.',
+);
+assert.ok(
+  snapshotLandingSource.includes('one agent-backed answer and one unresolved finding'),
+  'Snapshot hero proof strip should name the unresolved finding alongside the draft answer.',
 );
 assert.ok(
   snapshotLandingSource.includes('Customer wording &rarr; your long-tail SEO target list'),

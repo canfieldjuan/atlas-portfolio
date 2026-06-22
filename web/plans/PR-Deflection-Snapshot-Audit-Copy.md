@@ -26,8 +26,10 @@ Slice phase: Product polish
    audit-standard reassurance instead of a broad savings or usefulness promise.
 4. Move the intake trust signals above the submit CTA so the privacy/security
    reassurance stays above the fold before the upload action.
-5. Update the landing smoke test assertions that intentionally pin this visible
-   copy and trust-before-CTA ordering.
+5. Update the hero proof metrics to name estimated Support Tax, repeat contacts,
+   and the draft-plus-unresolved-gap deliverable.
+6. Update the landing smoke test assertions that intentionally pin this visible
+   copy, trust-before-CTA ordering, and hero metric labels.
 
 ### Files touched
 
@@ -51,9 +53,14 @@ Slice phase: Product polish
   the CSV file input/error state and the submit button. The copy remains
   unchanged, but the security context now appears before the upload action
   instead of below the card.
+- The three hero proof cards keep the same component and metric sources but swap
+  labels/details to `Estimated Support Tax`, `Repeat Contacts`, and `Draft +
+  Gap`, with the third card using the demo Snapshot's teaser draft and
+  `top_blind_spots` presence to show `1 + 1`.
 - The smoke test swaps the old Resolution Report submit-label and sample-heading
   assertions for the new forensic-audit CTA and sample-heading copy, and checks
-  that the trust marker appears before the submit CTA marker in the intake form.
+  that the trust marker appears before the submit CTA marker in the intake form
+  and the hero metric copy names the unresolved finding.
 
 ## Intentional
 
@@ -82,16 +89,15 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed;
   confirms the Snapshot landing smoke contract, pinned forensic-audit
-  CTA/sample-heading copy, and intake trust-before-CTA source order.
+  CTA/sample-heading copy, hero metric labels, unresolved-finding language, and
+  intake trust-before-CTA source order.
 - `npm --prefix web run test:deflection-public-reachability-smoke` - passed;
   confirms the public landing/intake smoke markers still render.
 - `npm --prefix web run lint` - passed.
 - `rg -n "Ticket Resolution Report|Deflect tickets by actually resolving them|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed with no matches; old copy and intentionally-rejected overclaim
   language is gone from the changed runtime/test files.
-- `bash scripts/local_pr_review.sh` - passed on the final two-commit PR branch;
-  includes plan-doc audits, cross-session drift advisory, dead-code baseline,
-  Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
+- `bash scripts/local_pr_review.sh` - pending after the hero metric copy update.
 - Production-server browser check at `1365x768` - passed; the intake trust block
   measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
   `768px` viewport, so the full trust block stays above the fold and before the
@@ -101,10 +107,10 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Snapshot landing copy | ~59 |
+| Snapshot landing copy | ~92 |
 | Intake trust placement | ~74 |
-| Snapshot landing smoke expectations | ~16 |
-| this plan doc | ~110 |
-| **Total** | ~259 |
+| Snapshot landing smoke expectations | ~26 |
+| this plan doc | ~118 |
+| **Total** | ~310 |
 
 Well under the 400-LOC soft cap.
