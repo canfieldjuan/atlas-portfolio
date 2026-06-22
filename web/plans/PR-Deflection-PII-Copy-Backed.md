@@ -21,7 +21,8 @@ public copy can name both layers without promising perfect removal.
 Slice phase: Product polish
 
 1. Reword the intake trust panel from local-only best-effort scrubbing to
-   browser minimization plus backend redaction for supported patterns.
+   browser minimization of common contact identifiers in the CSV body plus
+   backend redaction for supported patterns.
 2. Update the support-ticket-deflection privacy FAQ with the same scoped
    two-layer language.
 3. Update the Security page CSV data-safety section so it names browser
@@ -41,8 +42,8 @@ Slice phase: Product polish
 
 - The intake card keeps the existing smoke marker and layout, but the PII row is
   now titled `Browser + backend PII controls` and says the browser minimizes
-  common contact identifiers before upload while the backend redacts supported
-  PII patterns from generated Snapshot/report outputs.
+  common contact identifiers in the CSV body before upload while the backend
+  redacts supported PII patterns from generated Snapshot/report outputs.
 - The Security page mirrors that boundary in its short intro and the detailed
   PII card. It still states that this does not guarantee removal of every name,
   account number, or free-text identifier.
@@ -55,7 +56,8 @@ Slice phase: Product polish
 
 - This does not claim all PII is removed, that no PII can appear, or that PII
   never leaves the browser. The browser layer is still scoped to common contact
-  identifiers and the backend layer is scoped to supported PII patterns.
+  identifiers in the CSV body and the backend layer is scoped to supported PII
+  patterns.
 - This does not change upload mechanics, retention, cleanup, ATLAS submission,
   or backend scrubbing behavior; it aligns public copy to the implemented
   contract.
@@ -74,7 +76,7 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-csv-privacy` - passed.
-- `rg -n "Browser \\+ backend PII controls|backend redacts supported PII patterns|browser CSV minimization|backend redaction for supported report-output PII patterns" web/src web/scripts/test-deflection-csv-privacy-contract.mjs` - passed.
+- `rg -n "Browser \\+ backend PII controls|common contact identifiers in the CSV body|backend redacts supported PII patterns|browser CSV minimization|backend redaction for supported report-output PII patterns" web/src web/scripts/test-deflection-csv-privacy-contract.mjs` - passed.
 - `if rg -n "best-effort local scrubbing|best-effort CSV minimization|never make it into the report|No PII ever leaves your browser|all PII is removed|no PII can appear" web/src; then exit 1; else echo "no stale runtime PII overclaims"; fi` - passed.
 - `bash scripts/local_pr_review.sh` - passed.
 

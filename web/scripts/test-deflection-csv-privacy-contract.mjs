@@ -37,6 +37,7 @@ const securityPage = await source('src/app/security/page.tsx');
 const compactSecurityPage = securityPage.replace(/\s+/g, ' ');
 
 const intakeClientSource = `${intakePage}\n${intakeForm}`;
+const compactIntakeClientSource = intakeClientSource.replace(/\s+/g, ' ');
 
 assertIncludes(intakeClientSource, "access: 'private'", 'CSV client upload');
 assertIncludes(intakeClientSource, 'contentType,', 'CSV client upload content type');
@@ -50,11 +51,12 @@ assertIncludes(intakeClientSource, 'Upload stopped before any file was sent', 'C
 assertIncludes(intakeClientSource, 'Browser + backend PII controls', 'CSV scrub scoped public copy');
 assertIncludes(
   intakeClientSource,
-  'Your browser minimizes common contact identifiers before upload',
+  'Your browser minimizes common contact identifiers in the CSV',
   'CSV scrub scoped public copy',
 );
+assertIncludes(intakeClientSource, 'body before upload', 'CSV scrub scoped public copy');
 assertIncludes(
-  intakeClientSource,
+  compactIntakeClientSource,
   'backend redacts supported PII patterns from generated',
   'CSV backend redaction public copy',
 );
@@ -123,7 +125,7 @@ assertIncludes(
 );
 assertIncludes(
   landingConfig,
-  'The intake minimizes common contact identifiers before upload',
+  'The intake minimizes common contact identifiers in the CSV body before upload',
   'CSV public PII guidance',
 );
 assertIncludes(

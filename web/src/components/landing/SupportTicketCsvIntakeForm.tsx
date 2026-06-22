@@ -630,9 +630,9 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
                 <strong className="font-semibold text-foreground">
                   Browser + backend PII controls.
                 </strong>{' '}
-                Your browser minimizes common contact identifiers before upload;
-                the backend redacts supported PII patterns from generated
-                Snapshot and report outputs.
+                Your browser minimizes common contact identifiers in the CSV
+                body before upload; the backend redacts supported PII patterns
+                from generated Snapshot and report outputs.
               </p>
             </div>
           </div>
