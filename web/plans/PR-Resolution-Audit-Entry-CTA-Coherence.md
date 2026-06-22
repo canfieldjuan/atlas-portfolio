@@ -108,6 +108,7 @@ Parked hardening: none.
   - passed; calculator disclaimers and the AI Content Ops card no longer retain old Deflection Report or imported full-report label wording.
 - `rg -n "title: 'Deflection Snapshot'|title: 'Full Deflection Report'|Start with the snapshot\\. Upgrade|free Deflection Snapshot|Resolution Audit Snapshot|Full Resolution Audit" web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx`
   - passed; the partner client preserves the partner-scoped Deflection Snapshot copy and does not inherit the renamed Resolution Audit tier labels.
+- `npm --prefix web run build` - passed after the partner pricing-copy override type fix.
 
 ## Estimated diff size
 

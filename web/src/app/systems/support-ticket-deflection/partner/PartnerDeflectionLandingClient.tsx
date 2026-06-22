@@ -23,7 +23,7 @@ function partnerIntakeHref(token: string | undefined) {
 // design-partner offer copy while sharing the public page structure. This URL is
 // shared only in outbound (never linked from the public page); the noindex in
 // layout.tsx keeps the partner funnel out of search.
-const partnerPricingCopyById = {
+const partnerPricingCopyById: Record<string, Partial<DiagnosticPricingTier>> = {
   snapshot: {
     title: 'Deflection Snapshot',
     description:
@@ -60,7 +60,7 @@ const partnerPricingCopyById = {
       'Cancel any time after the next report',
     ],
   },
-} satisfies Partial<Record<string, Partial<DiagnosticPricingTier>>>;
+};
 
 function partnerPricingTiers(
   hasPartnerAccess: boolean,
