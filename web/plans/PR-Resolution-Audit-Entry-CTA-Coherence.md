@@ -109,6 +109,7 @@ Parked hardening: none.
 - `rg -n "title: 'Deflection Snapshot'|title: 'Full Deflection Report'|Start with the snapshot\\. Upgrade|free Deflection Snapshot|Resolution Audit Snapshot|Full Resolution Audit" web/src/app/systems/support-ticket-deflection/partner/PartnerDeflectionLandingClient.tsx`
   - passed; the partner client preserves the partner-scoped Deflection Snapshot copy and does not inherit the renamed Resolution Audit tier labels.
 - `npm --prefix web run build` - passed after the partner pricing-copy override type fix.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
