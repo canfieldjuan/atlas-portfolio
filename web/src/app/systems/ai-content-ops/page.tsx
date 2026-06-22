@@ -40,18 +40,18 @@ const offers: Offer[] = [
     icon: <BarChart3 className="w-5 h-5" />,
     category: 'SUPPORT OPERATIONS',
     accent: 'bg-primary',
-    title: 'Support Ticket Deflection Report',
-    tagline: 'Turn closed tickets into ranked self-service answers.',
+    title: 'Resolution Audit',
+    tagline: 'Turn closed tickets into an evidence-backed self-service queue.',
     summary:
-      'Analyzes 30 days of closed support tickets, returns a ranked list of repeat questions in the words customers actually use, with draft answers your team reviews and publishes.',
+      'Audits a 30-day ticket export, ranks repeat questions in the words customers actually use, and separates review-ready answers from operational gaps.',
     points: [
-      'Repeat-question clustering by customer intent',
-      'Volume-ranked deflection opportunities',
+      'Ranked repeat-question audit',
+      'Customer wording and operational gaps',
       'Draft answers with source-ticket traceability',
     ],
     price: DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL,
     href: '/systems/support-ticket-deflection/snapshot',
-    hrefLabel: 'Get the free Snapshot first',
+    hrefLabel: 'Start Your Forensic Audit',
     status: 'live',
   },
   {
@@ -161,7 +161,7 @@ export default function AiContentOpsHubPage() {
               href="/systems/support-ticket-deflection/snapshot"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-border rounded-md hover:bg-surface-hover transition-all text-sm text-foreground/70"
             >
-              Get the free Snapshot first
+              Start Your Forensic Audit
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

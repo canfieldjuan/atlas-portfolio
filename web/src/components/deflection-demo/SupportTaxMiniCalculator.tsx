@@ -242,9 +242,9 @@ export function SupportTaxMiniCalculator() {
             <Link
               href="/systems/support-ticket-deflection/intake"
               className="group inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-center text-sm font-semibold text-black transition hover:bg-primary/90"
-              aria-label="Stop the leak: get a free Deflection Snapshot"
+              aria-label="Start Your Forensic Audit"
             >
-              Stop the leak: get a free Deflection Snapshot
+              Start Your Forensic Audit
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </Link>
             <Link

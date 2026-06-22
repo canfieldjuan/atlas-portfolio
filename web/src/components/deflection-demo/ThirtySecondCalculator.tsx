@@ -229,7 +229,7 @@ export function ThirtySecondCalculator() {
               href="/systems/support-ticket-deflection/intake"
               className="group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
             >
-              Stop the leak: get a free Deflection Snapshot
+              Start Your Forensic Audit
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <p className="mt-3 text-xs leading-relaxed text-foreground/45">

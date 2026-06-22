@@ -94,14 +94,14 @@ export default function SupportTicketDeflectionPlaybookPage() {
             Run this on your own help center
           </h2>
           <p className="text-sm text-foreground/60 mb-6 max-w-xl mx-auto leading-relaxed">
-            Upload a CSV of your last 30 days of closed tickets. We send back a free Deflection
-            Snapshot: your top repeat questions, the wording customers use, and a sample rewrite.
+            Upload a CSV of your last 30 days of closed tickets. We send back a Resolution Audit
+            Snapshot: your top repeat questions, the wording customers use, and one review-ready answer.
           </p>
           <Link
             href="/systems/support-ticket-deflection/intake"
             className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-md hover:bg-primary/90 transition-all text-sm"
           >
-            Get a free Deflection Snapshot
+            Start Your Forensic Audit
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

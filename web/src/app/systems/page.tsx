@@ -87,13 +87,13 @@ const systems: SystemEntry[] = [
   {
     icon: <BarChart3 className="w-6 h-6" />,
     label: 'SUPPORT OPERATIONS',
-    title: 'Support Ticket Deflection Report',
+    title: 'Resolution Audit',
     interest: 'content-generation',
     offer: 'support-ticket-deflection',
     href: '/systems/support-ticket-deflection/snapshot',
-    hrefLabel: 'Get the free Snapshot first',
+    hrefLabel: 'Start Your Forensic Audit',
     summary:
-      'A focused report that turns closed support tickets into ranked repeat questions, customer wording, and self-service answers your team can review and publish.',
+      'A focused audit that turns closed support tickets into ranked repeat questions, customer wording, review-ready drafts, and operational gaps.',
     customerData: [
       'Closed support-ticket CSV from the last 30 days',
       'Ticket subject, body, created date, and support platform',
@@ -107,10 +107,10 @@ const systems: SystemEntry[] = [
       'Draft answer review path with source ticket traceability',
     ],
     outputs: [
-      'Deflection Snapshot',
-      'Full Support Ticket Deflection Report',
-      'Self-service answers to review',
-      'Quarterly repeat-ticket refresh path',
+      'Resolution Audit Snapshot',
+      'Full Resolution Audit',
+      'Review-ready self-service drafts',
+      'Operational-gap queue',
     ],
   },
   {

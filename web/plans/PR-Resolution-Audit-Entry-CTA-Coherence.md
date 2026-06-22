@@ -1,0 +1,106 @@
+# Plan: Align non-partner Resolution Audit entry CTAs
+
+Issue #353 tracks the broader Snapshot/Resolution Audit copy reframe. PR #354
+reframed the Snapshot landing page and intake path, and PR #355 tightened the
+proof/final-CTA copy. This slice picks up the next deferred piece: non-partner
+entry points that still send users toward the old "Deflection Snapshot" offer
+language.
+
+## Why this slice exists
+
+- The Snapshot landing page now frames the offer as the Resolution Audit, but
+  upstream non-partner entry points still say "Deflection Snapshot" or "Support
+  Ticket Deflection Report."
+- Several CTAs route users into the Snapshot/intake path with old free-Snapshot
+  labels, which makes the funnel feel renamed in one place and stale in the
+  next.
+- The copy pass should keep partner, email/PDF, result artifact, and PII/security
+  surfaces out of scope until those lanes are explicitly pulled forward.
+
+## Scope (this PR)
+
+Slice phase: Product polish
+
+1. Rename non-partner support-ops cards and CTAs on the systems and AI Content
+   Ops entry pages so they point at the Resolution Audit path.
+2. Align the public support-ticket-deflection landing configs where pricing,
+   hero/final CTA, and free/full offer labels still use old Deflection Snapshot
+   or Deflection Report wording.
+3. Update demo, playbook, support-tax, and calculator CTAs that route to
+   `/systems/support-ticket-deflection/intake` so they use the forensic audit
+   CTA language instead of old free Deflection Snapshot labels.
+4. Keep "Snapshot" where it names the free first output/gate, but remove
+   "Deflection Snapshot" as the public non-partner offer name on these entry
+   surfaces.
+5. Extend the public reachability smoke test with source-level guards for the
+   entry/CTA surfaces touched in this slice.
+
+### Files touched
+
+- `web/plans/PR-Resolution-Audit-Entry-CTA-Coherence.md` - this plan contract.
+- `web/src/app/systems/page.tsx` - support-ops product card offer labels.
+- `web/src/app/systems/ai-content-ops/page.tsx` - cross-sell card and CTA labels.
+- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` - legacy/public pricing and FAQ offer labels.
+- `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` - current public landing hero/final CTA and pricing labels.
+- `web/src/app/systems/support-ticket-deflection/demo/page.tsx` - demo bottom CTA copy.
+- `web/src/app/systems/support-ticket-deflection/playbook/page.tsx` - playbook CTA copy.
+- `web/src/components/deflection-demo/ThirtySecondCalculator.tsx` - calculator intake CTA copy.
+- `web/src/components/deflection-demo/SupportTaxCalculator.tsx` - support-tax CTA copy.
+- `web/src/components/deflection-demo/SupportTaxMiniCalculator.tsx` - mini calculator CTA copy.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` - source-level copy guards for non-partner entry CTAs.
+
+## Mechanism
+
+- The non-partner entry copy uses "Resolution Audit" as the offer name and
+  "Start Your Forensic Audit" as the primary action where the link begins the
+  Snapshot/intake path.
+- The pricing/config copy keeps the Snapshot as the free first gate and the full
+  Resolution Audit as the paid expansion, preserving the buyer-protection
+  framing without implying the free Snapshot is the full deliverable.
+- CTAs that route directly to `/systems/support-ticket-deflection/intake` get the
+  same forensic-audit action label so the click-through matches the intake form
+  introduced in PR #354.
+- The smoke test reads the touched entry source files and rejects old
+  non-partner labels only in those files, so partner and artifact copy can remain
+  intentionally unchanged.
+
+## Intentional
+
+- Partner route copy remains partner-scoped and is not renamed in this slice.
+- Email/PDF, result-page, and generated artifact wording stay unchanged because
+  those surfaces need their own report-shape and artifact naming decision.
+- PII/security copy remains unchanged.
+- The copy avoids outcome claims: no guaranteed savings, ranking lift, ticket
+  deflection percentage, or resolution increase.
+- "Snapshot" remains acceptable as the free first output, but "Deflection
+  Snapshot" is removed from the touched non-partner entry surfaces.
+
+## Deferred
+
+- Partner landing and partner intake wording remain deferred to a partner-specific
+  offer pass.
+- Email/PDF artifact and result-page copy remain deferred to the generated
+  artifact/report naming lane.
+- Any PII/security wording remains deferred until the scrubbing/backend contract
+  supports stronger copy.
+- A broader SEO/outcome-claim sweep remains deferred outside these entry CTAs.
+
+Parked hardening: none.
+
+## Verification
+
+- `npm --prefix web run test:deflection-public-reachability-smoke` - passed.
+- `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
+- `rg -n "Deflection Snapshot|free Deflection Snapshot|get my free Deflection Snapshot|Get a free Deflection Snapshot|Upload tickets, get a free Deflection Snapshot|Upload your CSV, get a free Snapshot|Support Ticket Deflection Report|Full Deflection Report|Get the free Snapshot first|Start the full report|free snapshot" web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/src/app/systems/support-ticket-deflection/landingConfig.tsx web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx web/src/app/systems/support-ticket-deflection/demo/page.tsx web/src/app/systems/support-ticket-deflection/playbook/page.tsx web/src/components/deflection-demo/ThirtySecondCalculator.tsx web/src/components/deflection-demo/SupportTaxCalculator.tsx web/src/components/deflection-demo/SupportTaxMiniCalculator.tsx`
+  - passed; no stale old-offer labels remain in touched runtime entry surfaces.
+- `rg -n "Resolution Audit Snapshot|Full Resolution Audit|Start Your Forensic Audit" web/src/app/systems/page.tsx web/src/app/systems/ai-content-ops/page.tsx web/src/app/systems/support-ticket-deflection/landingConfig.tsx web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx web/src/app/systems/support-ticket-deflection/demo/page.tsx web/src/app/systems/support-ticket-deflection/playbook/page.tsx web/src/components/deflection-demo/ThirtySecondCalculator.tsx web/src/components/deflection-demo/SupportTaxCalculator.tsx web/src/components/deflection-demo/SupportTaxMiniCalculator.tsx`
+  - passed; the new Resolution Audit and forensic-audit labels are present on the entry surfaces.
+
+## Estimated diff size
+
+| Area | LOC (added + deleted) |
+|---|---|
+| Entry and CTA copy | ~92 |
+| Public reachability smoke guards | ~75 |
+| this plan doc | ~110 |
+| **Total** | ~277 |
