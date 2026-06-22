@@ -461,7 +461,7 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
             data-smoke="headline"
             className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2"
           >
-            Get your ticket resolution report and start taking actionable steps to resolve tickets today.
+            Identify the cost exposure behind your unresolved questions.
           </h2>
           <p className="text-foreground/65 text-sm leading-relaxed">
             Upload 30 days of closed tickets. The Snapshot ranks repeated questions and prepares

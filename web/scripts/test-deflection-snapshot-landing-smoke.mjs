@@ -113,6 +113,14 @@ assert.ok(
   'Snapshot hero form should use the forensic audit submit label.',
 );
 assert.ok(
+  snapshotLandingSource.includes('Deflect tickets by actually resolving them.'),
+  'Snapshot hero should keep the original hero H1.',
+);
+assert.ok(
+  intakeFormSource.includes('Identify the cost exposure behind your unresolved questions.'),
+  'Snapshot intake form should own the cost-exposure heading.',
+);
+assert.ok(
   intakeFormSource.includes('data-smoke="submitSecurityLine"'),
   'Snapshot submit security line should keep a stable smoke marker.',
 );

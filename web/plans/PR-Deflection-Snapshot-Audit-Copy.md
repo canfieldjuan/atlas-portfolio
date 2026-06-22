@@ -17,18 +17,21 @@ outcome claims bounded to what the current report shape can prove.
 
 Slice phase: Product polish
 
-1. Reframe the Snapshot hero badge, headline, subheadline, and inline-form CTA
-   around the Resolution Audit and forensic-audit motion.
-2. Change the sample Snapshot lead-in from "What it gives you." to "A preview of
+1. Reframe the Snapshot hero badge, subheadline, and inline-form CTA around the
+   Resolution Audit and forensic-audit motion while preserving the original hero
+   H1.
+2. Move the cost-exposure heading into the intake form heading, where the audit
+   upload action happens.
+3. Change the sample Snapshot lead-in from "What it gives you." to "A preview of
    the truth." and tighten the section intro around evidence, estimated cost
    exposure, and no-proven-answer gaps.
-3. Rework the final CTA as a Snapshot-first qualification gate with a bounded
+4. Rework the final CTA as a Snapshot-first qualification gate with a bounded
    audit-standard reassurance instead of a broad savings or usefulness promise.
-4. Move the intake trust signals above the submit CTA so the privacy/security
+5. Move the intake trust signals above the submit CTA so the privacy/security
    reassurance stays above the fold before the upload action.
-5. Update the hero proof metrics to name estimated Support Tax, repeat contacts,
+6. Update the hero proof metrics to name estimated Support Tax, repeat contacts,
    and the draft-plus-unresolved-gap deliverable.
-6. Update the landing smoke test assertions that intentionally pin this visible
+7. Update the landing smoke test assertions that intentionally pin this visible
    copy, trust-before-CTA ordering, and hero metric labels.
 
 ### Files touched
@@ -37,12 +40,16 @@ Slice phase: Product polish
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` - Snapshot landing copy and final CTA framing.
 - `web/src/components/landing/SupportTicketCsvIntakeForm.tsx` - intake trust signal placement above the submit CTA.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - copy smoke expectations for the changed labels/headings.
+- `web/scripts/test-deflection-public-reachability-smoke.mjs` - intake heading copy expectation.
 
 ## Mechanism
 
 - Copy-only TSX changes in `DeflectionSnapshotLandingPage.tsx`; the upload form,
   source attribution, smoke markers, ATLAS submit path, and Snapshot data model
   are left unchanged.
+- The original hero H1, `Deflect tickets by actually resolving them.`, is
+  preserved. The cost-exposure sentence moves to the shared intake form heading,
+  where it frames the upload action rather than replacing the page promise.
 - The hero subheadline becomes two short paragraphs so "we audit" can land
   separately from the upload/report explanation without adding another component
   or changing layout structure.
@@ -66,7 +73,10 @@ Slice phase: Product polish
 
 - The requested "exact cost" language is softened to "cost exposure" because the
   page uses benchmark-assisted-contact math and relative ranking signals, not a
-  customer-specific accounting system.
+  customer-specific accounting system. That line belongs to the intake heading,
+  not the hero H1.
+- The original hero H1 is intentionally restored because the broad page promise
+  was already stronger than the audit-specific intake heading.
 - The requested "every question in your history" language is softened to "across
   the ranked backlog from your ticket history" because the current report shape
   ranks parsed groups and may cap/preview surfaces rather than guarantee a
@@ -89,17 +99,17 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed;
   confirms the Snapshot landing smoke contract, pinned forensic-audit
-  CTA/sample-heading copy, hero metric labels, unresolved-finding language, and
-  intake trust-before-CTA source order.
+  CTA/sample-heading copy, restored original hero H1, intake cost-exposure
+  heading, hero metric labels, unresolved-finding language, and intake
+  trust-before-CTA source order.
 - `npm --prefix web run test:deflection-public-reachability-smoke` - passed;
   confirms the public landing/intake smoke markers still render.
 - `npm --prefix web run lint` - passed.
-- `rg -n "Ticket Resolution Report|Deflect tickets by actually resolving them|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
+- `rg -n "Ticket Resolution Report|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed with no matches; old copy and intentionally-rejected overclaim
   language is gone from the changed runtime/test files.
-- `bash scripts/local_pr_review.sh` - passed after the hero metric copy update;
-  includes plan-doc audits, cross-session drift advisory, dead-code baseline,
-  Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
+- `bash scripts/local_pr_review.sh` - pending after the hero-H1/intake-heading
+  correction.
 - Production-server browser check at `1365x768` - passed; the intake trust block
   measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
   `768px` viewport, so the full trust block stays above the fold and before the
@@ -109,10 +119,11 @@ Parked hardening: none.
 
 | Area | LOC (added + deleted) |
 |---|---|
-| Snapshot landing copy | ~92 |
+| Snapshot landing copy | ~96 |
 | Intake trust placement | ~74 |
-| Snapshot landing smoke expectations | ~26 |
-| this plan doc | ~118 |
-| **Total** | ~310 |
+| Snapshot landing smoke expectations | ~34 |
+| public reachability smoke expectation | ~4 |
+| this plan doc | ~136 |
+| **Total** | ~344 |
 
 Well under the 400-LOC soft cap.

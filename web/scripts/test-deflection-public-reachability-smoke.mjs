@@ -227,8 +227,8 @@ const staleDeliverySources = [
 ];
 
 assert.ok(
-  intakeClientSource.includes('Get your ticket resolution report and start taking actionable steps to resolve tickets today.'),
-  'intake headline should frame the ticket resolution report and next steps',
+  intakeClientSource.includes('Identify the cost exposure behind your unresolved questions.'),
+  'intake headline should frame the cost-exposure audit question',
 );
 assert.ok(
   intakeClientSource.includes('No LLM or Generative models.'),

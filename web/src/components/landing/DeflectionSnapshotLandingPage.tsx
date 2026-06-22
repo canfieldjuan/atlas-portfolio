@@ -467,7 +467,7 @@ export function DeflectionSnapshotLandingPage() {
             data-smoke="promiseHeadline"
             className="max-w-4xl text-4xl font-semibold leading-[1.08] text-foreground md:text-6xl lg:text-7xl"
           >
-            Identify the cost exposure behind your unresolved questions.
+            Deflect tickets by actually resolving them.
           </h1>
           <div className="mt-5 max-w-2xl space-y-4 text-lg leading-relaxed text-foreground/68 lg:mt-6 lg:max-w-3xl lg:text-xl lg:leading-relaxed">
             <p>Instead of guessing, we audit.</p>
