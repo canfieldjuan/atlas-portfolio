@@ -603,39 +603,33 @@ export function SupportTicketCsvIntakeForm({ copy }: { copy: SupportTicketCsvInt
 
           <div
             data-smoke="submitSecurityLine"
-            className="space-y-3 rounded-lg border border-border bg-background/45 p-4 shadow-sm"
+            className="space-y-2 rounded-lg border border-border bg-background/45 p-3.5 shadow-sm"
           >
             <div className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary/85" />
-              <div>
-                <p data-smoke="deterministicBadge" className="text-xs font-semibold text-foreground">
+              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/85" />
+              <p className="text-[11px] leading-relaxed text-foreground/62">
+                <strong data-smoke="deterministicBadge" className="font-semibold text-foreground">
                   No LLM or Generative models.
-                </p>
-                <p className="text-[11px] leading-relaxed text-foreground/62">
-                  Our engine does not use LLMs or generative AI to analyze your ticket logs.
-                  We use deterministic clustering to sort repeated questions.
-                </p>
-              </div>
+                </strong>{' '}
+                We use deterministic clustering to sort repeated questions. No
+                LLM or generative AI analyzes your ticket logs.
+              </p>
             </div>
-            <div className="flex items-start gap-2 border-t border-border pt-3">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary/85" />
-              <div>
-                <p className="text-xs font-semibold text-foreground">Private Direct Storage</p>
-                <p className="text-[11px] leading-relaxed text-foreground/62">
-                  Uploaded directly to private storage. Uploaded CSVs and local submission records
-                  are deleted after 30 days.
-                </p>
-              </div>
+            <div className="flex items-start gap-2 border-t border-border pt-2">
+              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/85" />
+              <p className="text-[11px] leading-relaxed text-foreground/62">
+                <strong className="font-semibold text-foreground">Private Direct Storage.</strong>{' '}
+                Uploaded directly to private storage. Uploaded CSVs and local
+                submission records are deleted after 30 days.
+              </p>
             </div>
-            <div className="flex items-start gap-2 border-t border-border pt-3">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary/85" />
-              <div>
-                <p className="text-xs font-semibold text-foreground">Local PII Scrubbing</p>
-                <p className="text-[11px] leading-relaxed text-foreground/62">
-                  Your browser applies best-effort local scrubbing for common contact identifiers
-                  in the CSV body before upload.
-                </p>
-              </div>
+            <div className="flex items-start gap-2 border-t border-border pt-2">
+              <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/85" />
+              <p className="text-[11px] leading-relaxed text-foreground/62">
+                <strong className="font-semibold text-foreground">Local PII Scrubbing.</strong>{' '}
+                Your browser applies best-effort local scrubbing for common
+                contact identifiers in the CSV body before upload.
+              </p>
             </div>
           </div>
 

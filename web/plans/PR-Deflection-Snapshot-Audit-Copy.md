@@ -92,15 +92,19 @@ Parked hardening: none.
 - `bash scripts/local_pr_review.sh` - passed on the final two-commit PR branch;
   includes plan-doc audits, cross-session drift advisory, dead-code baseline,
   Snapshot landing smoke, ESLint, Next build, and `git diff --check`.
+- Production-server browser check at `1365x768` - passed; the intake trust block
+  measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
+  `768px` viewport, so the full trust block stays above the fold and before the
+  CTA.
 
 ## Estimated diff size
 
 | Area | LOC (added + deleted) |
 |---|---|
 | Snapshot landing copy | ~59 |
-| Intake trust placement | ~80 |
+| Intake trust placement | ~74 |
 | Snapshot landing smoke expectations | ~16 |
-| this plan doc | ~104 |
+| this plan doc | ~110 |
 | **Total** | ~259 |
 
 Well under the 400-LOC soft cap.
