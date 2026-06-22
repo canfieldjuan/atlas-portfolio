@@ -7,12 +7,12 @@ const RESULTS_PATH = '/systems/support-ticket-deflection/results';
 const EXPECTED_RENDER_STATES = new Set(['snapshot', 'full-report', 'model-full-report']);
 const DEFAULT_EXPECTED_STATE = 'snapshot';
 const REQUIRED_SNAPSHOT_MARKERS = [
-  { key: 'snapshotBadge', label: 'YOUR DEFLECTION SNAPSHOT' },
+  { key: 'snapshotBadge', label: 'YOUR RESOLUTION AUDIT SNAPSHOT' },
   { key: 'headline', label: 'We found' },
   { key: 'supportTax', label: 'Support Tax projection' },
   { key: 'keywordReframe', label: 'Help-desk SEO targeting list' },
   { key: 'runRateComparison', label: 'This backlog at current pace' },
-  { key: 'unlockCta', label: 'Unlock your full Backlog Report' },
+  { key: 'unlockCta', label: 'Unlock your full Resolution Audit' },
 ];
 const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
   { key: 'paidReportBadge', labels: ['MODEL-BACKED REPORT'] },
@@ -38,7 +38,7 @@ const REQUIRED_LEGACY_FULL_REPORT_MARKERS = [
   { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
 ];
-const LOCKED_FULL_REPORT_MARKERS = ['Unlock your full Backlog Report'];
+const LOCKED_FULL_REPORT_MARKERS = ['Unlock your full Resolution Audit'];
 const TEASER_ANSWER_LABEL = 'One drafted answer you can inspect before paying';
 const ZERO_DRAFTED_SUMMARY_RE =
   /(?:^|[>\s])0(?:\s|<[^>]*>|<!--.*?-->)*of them already have a publishable answer drafted/;

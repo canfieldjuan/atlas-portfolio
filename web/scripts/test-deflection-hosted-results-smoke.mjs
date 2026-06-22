@@ -4,14 +4,14 @@ import { runDeflectionHostedResultsSmoke } from './smoke-deflection-hosted-resul
 const REQUEST_ID = 'content-ops-unit-123';
 const GOOD_HTML = [
   '<main>',
-  '<span>YOUR DEFLECTION SNAPSHOT</span>',
+  '<span>YOUR RESOLUTION AUDIT SNAPSHOT</span>',
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
   '<p>Support Tax projection</p>',
   '<p>Help-desk SEO targeting list</p>',
   '<p>This backlog at current pace</p>',
   '<p>3 of them already have a publishable answer drafted</p>',
   '<p>One drafted answer you can inspect before paying</p>',
-  '<h2>Unlock your full Backlog Report</h2>',
+  '<h2>Unlock your full Resolution Audit</h2>',
   '</main>',
 ].join('');
 const NO_PROVEN_ANSWER_HTML = GOOD_HTML.replace(
@@ -158,7 +158,7 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
-    { status: 200, body: GOOD_HTML.replace('YOUR DEFLECTION SNAPSHOT', '') },
+    { status: 200, body: GOOD_HTML.replace('YOUR RESOLUTION AUDIT SNAPSHOT', '') },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
@@ -199,7 +199,7 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
-    { status: 200, body: GOOD_HTML.replace('Unlock your full Backlog Report', '') },
+    { status: 200, body: GOOD_HTML.replace('Unlock your full Resolution Audit', '') },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
@@ -447,13 +447,13 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
-    { status: 200, body: `${FULL_REPORT_HTML}<button>Unlock your full Backlog Report</button>` },
+    { status: 200, body: `${FULL_REPORT_HTML}<button>Unlock your full Resolution Audit</button>` },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.equal(result.expectedState, 'full-report');
   assert.equal(result.error, 'Hosted results page rendered the locked snapshot instead of the full report.');
-  assert.deepEqual(result.lockedMarkers, ['Unlock your full Backlog Report']);
+  assert.deepEqual(result.lockedMarkers, ['Unlock your full Resolution Audit']);
 }
 
 {
