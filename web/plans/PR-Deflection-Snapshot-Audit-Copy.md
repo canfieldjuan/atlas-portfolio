@@ -121,8 +121,7 @@ Parked hardening: none.
 - `npm --prefix web run lint` - passed.
 - `rg -n "Ticket Resolution Report|Upload 30 days of closed tickets|Get my free Resolution Report|Get my free Deflection Snapshot|What it gives you\.|Read your Snapshot and take action|The example below shows what you get|full report unlocks|exact cost|cost to solve it|every question in your history|problem lies in your product or process|Free Deflection Snapshot|Upload my CSV, get my free Deflection Snapshot" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/src/components/landing/SupportTicketCsvIntakeForm.tsx web/src/app/systems/support-ticket-deflection/snapshot/page.tsx web/src/app/systems/support-ticket-deflection/intake/page.tsx web/src/app/systems/support-ticket-deflection/intake/layout.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs web/scripts/test-deflection-public-reachability-smoke.mjs`
   - passed; only negative test assertions retain the stale strings.
-- `bash scripts/local_pr_review.sh` - pending after the linked-intake/metadata
-  review fix.
+- `bash scripts/local_pr_review.sh` - passed.
 - Production-server browser check at `1365x768` - passed; the intake trust block
   measured `top=563`, `bottom=735`, and the submit CTA started at `763` in a
   `768px` viewport, so the full trust block stays above the fold and before the
