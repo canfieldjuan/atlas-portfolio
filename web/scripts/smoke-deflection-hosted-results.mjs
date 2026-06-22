@@ -28,9 +28,9 @@ const REQUIRED_MODEL_FULL_REPORT_MARKERS = [
   { key: 'reviewerGuidance', labels: ['Top publishable answers and gaps'] },
 ];
 const REQUIRED_LEGACY_FULL_REPORT_MARKERS = [
-  { key: 'paidReportBadge', labels: ['FULL BACKLOG REPORT'] },
-  { key: 'paidHeadline', labels: ['Your complete Support Tax report is ready.'] },
-  { key: 'reportContents', labels: ['Paid report contents'] },
+  { key: 'paidReportBadge', labels: ['FULL RESOLUTION AUDIT', 'FULL DEFLECTION REPORT'] },
+  { key: 'paidHeadline', labels: ['Your Resolution Audit is ready.', 'Your Deflection Report is ready.'] },
+  { key: 'reportContents', labels: ['Full audit contents', 'Full report contents'] },
   { key: 'seoTargeting', labels: ['Your Help-Desk SEO Targeting List', 'Help-desk SEO targeting list'] },
   { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
@@ -121,8 +121,6 @@ function missingFullReportMarkers(expectedState, html) {
 
 function fullReportMarkers(html) {
   if (
-    html.includes('FULL RESOLUTION AUDIT') ||
-    html.includes('FULL DEFLECTION REPORT') ||
     html.includes('Full audit dashboard') ||
     html.includes('Full report dashboard')
   ) {

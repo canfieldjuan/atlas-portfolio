@@ -9,14 +9,21 @@ const REQUEST_ID = 'content-ops-unit-123';
 const ATTEMPT_ID = 'attempt-unit-12345678';
 const PAID_HTML = [
   '<main>',
-  '<span>FULL BACKLOG REPORT</span>',
-  '<h1>Your complete Support Tax report is ready.</h1>',
-  '<div>Paid report contents</div>',
+  '<span>FULL RESOLUTION AUDIT</span>',
+  '<h1>Your Resolution Audit is ready.</h1>',
+  '<div>Full audit contents</div>',
   '<strong>Your Help-Desk SEO Targeting List</strong>',
   '<strong>Publishable Help-Center Copy</strong>',
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const PARTNER_PAID_HTML = PAID_HTML.replace(
+  'FULL RESOLUTION AUDIT',
+  'FULL DEFLECTION REPORT',
+).replace(
+  'Your Resolution Audit is ready.',
+  'Your Deflection Report is ready.',
+).replace('Full audit contents', 'Full report contents');
 const MODEL_PAID_HTML = [
   '<main>',
   '<span>FULL RESOLUTION AUDIT</span>',
@@ -127,6 +134,20 @@ function run(options, responses, deps = {}) {
   assert.equal(result.initialStatus, 'unlocked');
   assert.equal(result.requireUnlocked, true);
   assert.equal(result.checkoutUrl, undefined);
+  assert.equal(fetchImpl.calls.length, 2);
+}
+
+{
+  const { result, fetchImpl } = await run({ requireUnlocked: true }, [
+    { status: 200, body: { status: 'unlocked' } },
+    { status: 200, kind: 'html', body: PARTNER_PAID_HTML },
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.initialStatus, 'unlocked');
+  assert.equal(result.requireUnlocked, true);
+  assert.equal(result.markers.paidReportBadge, true);
+  assert.equal(result.markers.paidHeadline, true);
+  assert.equal(result.markers.reportContents, true);
   assert.equal(fetchImpl.calls.length, 2);
 }
 
@@ -298,7 +319,7 @@ function run(options, responses, deps = {}) {
     {
       status: 200,
       kind: 'html',
-      body: PAID_HTML.replace('FULL BACKLOG REPORT', 'YOUR RESOLUTION AUDIT SNAPSHOT'),
+      body: PAID_HTML.replace('FULL RESOLUTION AUDIT', 'YOUR RESOLUTION AUDIT SNAPSHOT'),
     },
   ]);
   assert.equal(result.ok, false);
@@ -413,11 +434,18 @@ function run(options, responses, deps = {}) {
 
 {
   const source = await readFile(reportPageSourceUrl, 'utf8');
-  const primerRender = '<ReportContentsPrimer artifact={artifact} />';
+  const primerRender = '<ReportContentsPrimer artifact={artifact} contentsLabel={copy.contentsLabel} />';
   const reportRender = '<MarkdownDeliverable markdown={artifact.markdown} />';
 
   assertIncludes(source, 'function ReportContentsPrimer', 'paid report contents primer');
   assertExcludes(source, 'function ReportContentsPanel', 'paid report contents primer');
+  assertIncludes(source, "badge: 'FULL RESOLUTION AUDIT'", 'paid report artifact copy');
+  assertIncludes(source, "badge: 'FULL DEFLECTION REPORT'", 'paid report artifact copy');
+  assertIncludes(source, "contentsLabel: 'Full audit contents'", 'paid report artifact copy');
+  assertIncludes(source, "contentsLabel: 'Full report contents'", 'paid report artifact copy');
+  assertExcludes(source, 'FULL BACKLOG REPORT', 'paid report artifact copy');
+  assertExcludes(source, 'Your complete Support Tax report is ready.', 'paid report artifact copy');
+  assertExcludes(source, 'Paid report contents', 'paid report artifact copy');
   assertIncludes(source, 'mt-8 space-y-8', 'paid report stacked layout');
   assertIncludes(source, primerRender, 'paid report stacked layout');
   assertIncludes(source, reportRender, 'paid report stacked layout');

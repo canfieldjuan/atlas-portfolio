@@ -1,5 +1,10 @@
 import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react';
 import type { FAQDeflectionReportArtifact, TicketFAQItem } from '@/lib/deflection-report-contract';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  type DeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
 
 function cleanMarkdownText(value: string) {
   return value
@@ -224,7 +229,33 @@ function ProofBadges({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
   );
 }
 
-function ReportContentsPrimer({ artifact }: { artifact: FAQDeflectionReportArtifact }) {
+function artifactReportCopy(priceVariant: DeflectionPriceVariant) {
+  if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {
+    return {
+      badge: 'FULL DEFLECTION REPORT',
+      headline: 'Your Deflection Report is ready.',
+      intro:
+        'The Snapshot showed the cost of repeated tickets. This paid report gives the full ranked backlog, the Help-Desk SEO targeting list, publishable answer drafts, and the evidence appendix reviewers need.',
+      contentsLabel: 'Full report contents',
+    };
+  }
+
+  return {
+    badge: 'FULL RESOLUTION AUDIT',
+    headline: 'Your Resolution Audit is ready.',
+    intro:
+      'The Snapshot showed the cost of repeated tickets. This paid audit gives the full ranked backlog, the Help-Desk SEO targeting list, publishable answer drafts, and the evidence appendix reviewers need.',
+    contentsLabel: 'Full audit contents',
+  };
+}
+
+function ReportContentsPrimer({
+  artifact,
+  contentsLabel,
+}: {
+  artifact: FAQDeflectionReportArtifact;
+  contentsLabel: string;
+}) {
   const contents = [
     {
       label: 'Support Tax Confirmation',
@@ -253,7 +284,7 @@ function ReportContentsPrimer({ artifact }: { artifact: FAQDeflectionReportArtif
       <div>
         <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/45">
           <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-          Paid report contents
+          {contentsLabel}
         </div>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/60">
           A quick map of the unlocked report before the full ranked backlog,
@@ -361,32 +392,34 @@ function PaidReviewerGuidance({ artifact }: { artifact: FAQDeflectionReportArtif
 export function DeflectionReportArtifactPage({
   artifact,
   companyName,
+  priceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
 }: {
   artifact: FAQDeflectionReportArtifact;
   companyName?: string;
+  priceVariant?: DeflectionPriceVariant;
 }) {
+  const copy = artifactReportCopy(priceVariant);
+
   return (
     <main className="min-h-screen px-6 pb-20 pt-16">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono tracking-wide text-primary">
             <FileText className="h-3.5 w-3.5" />
-            <span>FULL BACKLOG REPORT{companyName ? ` | ${companyName}` : ''}</span>
+            <span>{copy.badge}{companyName ? ` | ${companyName}` : ''}</span>
           </div>
           <h1 className="max-w-3xl text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-5xl">
-            Your complete Support Tax report is ready.
+            {copy.headline}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-foreground/65">
-            The snapshot showed the cost of repeated tickets. This paid report gives
-            the full ranked backlog, the Help-Desk SEO targeting list, publishable
-            answer drafts, and the evidence appendix reviewers need.
+            {copy.intro}
           </p>
         </div>
 
         <ProofBadges artifact={artifact} />
 
         <div className="mt-8 space-y-8">
-          <ReportContentsPrimer artifact={artifact} />
+          <ReportContentsPrimer artifact={artifact} contentsLabel={copy.contentsLabel} />
           <MarkdownDeliverable markdown={artifact.markdown} />
         </div>
 
