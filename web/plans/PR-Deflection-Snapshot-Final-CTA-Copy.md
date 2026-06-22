@@ -67,7 +67,7 @@ Parked hardening: none.
 - `npm --prefix web run lint` - passed.
 - `rg -n "Start with the Snapshot before you commit to a deeper audit|If it does not, the Snapshot still gives you a bounded starting point|entirely-new findings|Audit standard" web/src/components/landing/DeflectionSnapshotLandingPage.tsx web/scripts/test-deflection-snapshot-landing-smoke.mjs`
   - passed; only negative test assertions retain the replaced phrases.
-- `bash scripts/local_pr_review.sh` - pending.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
