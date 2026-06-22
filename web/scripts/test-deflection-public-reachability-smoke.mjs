@@ -381,7 +381,9 @@ assert.ok(
 assert.ok(
   combinedNonPartnerEntrySource.includes('Resolution Audit Snapshot') &&
     combinedNonPartnerEntrySource.includes('Full Resolution Audit') &&
-    combinedNonPartnerEntrySource.includes('Start Your Forensic Audit'),
+    combinedNonPartnerEntrySource.includes('Start Your Forensic Audit') &&
+    combinedNonPartnerEntrySource.includes('Best after the first full audit proves the work is useful.') &&
+    combinedNonPartnerEntrySource.includes('one review-ready answer when your tickets contain resolution evidence.'),
   'non-partner entry surfaces should use the Resolution Audit and forensic-audit CTA labels',
 );
 assert.ok(
@@ -409,7 +411,9 @@ assert.ok(
   partnerClientSource.includes("title: 'Deflection Snapshot'") &&
     partnerClientSource.includes("title: 'Full Deflection Report'") &&
     partnerClientSource.includes("title: 'Start with the snapshot. Upgrade when the repeat pattern is clear.'") &&
-    partnerClientSource.includes('free Deflection Snapshot'),
+    partnerClientSource.includes('free Deflection Snapshot') &&
+    partnerClientSource.includes('What do I get in the full Deflection Report?') &&
+    partnerClientSource.includes('items: partnerPricingFaqs()'),
   'partner client should override shared pricing copy back to the partner-scoped Deflection Snapshot offer',
 );
 assert.ok(
