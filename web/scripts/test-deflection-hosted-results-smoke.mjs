@@ -1,17 +1,18 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { runDeflectionHostedResultsSmoke } from './smoke-deflection-hosted-results.mjs';
 
 const REQUEST_ID = 'content-ops-unit-123';
 const GOOD_HTML = [
   '<main>',
-  '<span>YOUR DEFLECTION SNAPSHOT</span>',
+  '<span>YOUR RESOLUTION AUDIT SNAPSHOT</span>',
   '<h1>We found <span>7</span> repeat questions hiding in your queue.</h1>',
   '<p>Support Tax projection</p>',
   '<p>Help-desk SEO targeting list</p>',
   '<p>This backlog at current pace</p>',
   '<p>3 of them already have a publishable answer drafted</p>',
   '<p>One drafted answer you can inspect before paying</p>',
-  '<h2>Unlock your full Backlog Report</h2>',
+  '<h2>Unlock your full Resolution Audit</h2>',
   '</main>',
 ].join('');
 const NO_PROVEN_ANSWER_HTML = GOOD_HTML.replace(
@@ -46,6 +47,7 @@ const LEGACY_FULL_REPORT_HTML = [
   '<div>Reviewer guidance</div>',
   '</main>',
 ].join('');
+const resultPageSourceUrl = new URL('../src/components/landing/DeflectionResultsPage.tsx', import.meta.url);
 
 function makeFetchMock(response) {
   const calls = [];
@@ -67,6 +69,28 @@ async function run(options, response) {
     now: () => '2026-05-31T16:00:00.000Z',
   });
   return { result, fetchImpl };
+}
+
+function extractPartnerOfferCopyBranch(source) {
+  const partnerMarker = 'if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {';
+  const partnerStart = source.indexOf(partnerMarker);
+  assert.notEqual(partnerStart, -1, 'resultOfferCopy should have a partner branch');
+
+  const publicMarker = "snapshotBadge: 'YOUR RESOLUTION AUDIT SNAPSHOT'";
+  const publicStart = source.indexOf(publicMarker, partnerStart);
+  assert.notEqual(publicStart, -1, 'resultOfferCopy should have a public branch after partner copy');
+
+  return source.slice(partnerStart, publicStart);
+}
+
+{
+  const resultPageSource = await readFile(resultPageSourceUrl, 'utf8');
+  const partnerOfferCopyBranch = extractPartnerOfferCopyBranch(resultPageSource);
+
+  assert.match(partnerOfferCopyBranch, /snapshotBadge: 'YOUR DEFLECTION SNAPSHOT'/);
+  assert.match(partnerOfferCopyBranch, /fullArtifactName: 'full Deflection Report'/);
+  assert.match(partnerOfferCopyBranch, /offerHeading: 'Unlock your full Deflection Report'/);
+  assert.doesNotMatch(partnerOfferCopyBranch, /Resolution Audit/);
 }
 
 {
@@ -158,7 +182,7 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
-    { status: 200, body: GOOD_HTML.replace('YOUR DEFLECTION SNAPSHOT', '') },
+    { status: 200, body: GOOD_HTML.replace('YOUR RESOLUTION AUDIT SNAPSHOT', '') },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
@@ -199,7 +223,7 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com' },
-    { status: 200, body: GOOD_HTML.replace('Unlock your full Backlog Report', '') },
+    { status: 200, body: GOOD_HTML.replace('Unlock your full Resolution Audit', '') },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
@@ -447,13 +471,13 @@ async function run(options, response) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
-    { status: 200, body: `${FULL_REPORT_HTML}<button>Unlock your full Backlog Report</button>` },
+    { status: 200, body: `${FULL_REPORT_HTML}<button>Unlock your full Resolution Audit</button>` },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
   assert.equal(result.expectedState, 'full-report');
   assert.equal(result.error, 'Hosted results page rendered the locked snapshot instead of the full report.');
-  assert.deepEqual(result.lockedMarkers, ['Unlock your full Backlog Report']);
+  assert.deepEqual(result.lockedMarkers, ['Unlock your full Resolution Audit']);
 }
 
 {

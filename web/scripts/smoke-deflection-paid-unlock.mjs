@@ -25,7 +25,7 @@ const REQUIRED_PAID_MARKERS = [
   { key: 'rankedQuestions', labels: ['Publishable Help-Center Copy', 'Ranked question opportunities'] },
   { key: 'reviewerGuidance', labels: ['Reviewer guidance', 'Top publishable answers and gaps'] },
 ];
-const LOCKED_MARKERS = ['Unlock your full Backlog Report'];
+const LOCKED_MARKERS = ['Unlock your full Resolution Audit'];
 
 function printUsage() {
   console.log(`Deflection paid unlock smoke

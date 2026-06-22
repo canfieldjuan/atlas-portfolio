@@ -12,6 +12,7 @@ import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 import {
@@ -41,10 +42,36 @@ function costLabel(value: number) {
   return `$${value.toFixed(value % 1 === 0 ? 0 : 2)}`;
 }
 
+function resultOfferCopy(priceVariant: DeflectionPriceVariant) {
+  if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {
+    return {
+      snapshotBadge: 'YOUR DEFLECTION SNAPSHOT',
+      fullArtifactName: 'full Deflection Report',
+      finalizingLabel: 'Finalizing report...',
+      finalizingError: 'Payment received. Your report is finalizing. Refresh in a moment.',
+      oneTimePriceLabel: 'One-time report price',
+      offerHeading: 'Unlock your full Deflection Report',
+      offerIntro:
+        'It is already computed. The drafts behind this Snapshot exist right now. Unlock the complete report to start reviewing repetitive customer ticket fixes.',
+    };
+  }
+
+  return {
+    snapshotBadge: 'YOUR RESOLUTION AUDIT SNAPSHOT',
+    fullArtifactName: 'full Resolution Audit',
+    finalizingLabel: 'Finalizing audit...',
+    finalizingError: 'Payment received. Your audit is finalizing. Refresh in a moment.',
+    oneTimePriceLabel: 'One-time audit price',
+    offerHeading: 'Unlock your full Resolution Audit',
+    offerIntro:
+      'It is already computed. The drafts behind this Snapshot exist right now. Unlock the complete audit trail to start reviewing repetitive customer ticket fixes.',
+  };
+}
+
 // Free-state results page. Renders ONLY the DeflectionSnapshot (summary + top
 // questions + bounded teaser). Evidence/source IDs/Markdown and non-teaser
-// answer bodies are never present in this payload — the full report is unlocked
-// server-side by ATLAS after payment (gated slice).
+// answer bodies are never present in this payload — the paid audit/report is
+// unlocked server-side by ATLAS after payment (gated slice).
 export function DeflectionResultsPage({
   snapshot,
   requestId,
@@ -62,6 +89,7 @@ export function DeflectionResultsPage({
 }) {
   const { summary, top_questions, locked_questions, teaser, top_blind_spots = [] } = snapshot;
   const fullReportPriceLabel = priceVariant.priceLabel;
+  const copy = useMemo(() => resultOfferCopy(priceVariant), [priceVariant]);
   const [assistedContactCost, setAssistedContactCost] = useState(
     DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   );
@@ -98,12 +126,12 @@ export function DeflectionResultsPage({
   const [error, setError] = useState<string | null>(null);
   const resultsViewTracked = useRef(false);
   const unlockLabel = finalizing
-    ? 'Finalizing report...'
+    ? copy.finalizingLabel
     : finalizingTimedOut
       ? 'Payment received'
       : loading
         ? 'Starting checkout...'
-        : `Unlock the full report - ${fullReportPriceLabel}`;
+        : `Unlock the ${copy.fullArtifactName} - ${fullReportPriceLabel}`;
   const unlockDisabled = loading || finalizing || finalizingTimedOut;
 
   const trackedResultsContext = useMemo(
@@ -157,7 +185,7 @@ export function DeflectionResultsPage({
       if (attempt >= FINALIZING_ATTEMPTS) {
         setFinalizing(false);
         setFinalizingTimedOut(true);
-        setError('Payment received. Your report is finalizing. Refresh in a moment.');
+        setError(copy.finalizingError);
         return;
       }
       timeout = setTimeout(() => void poll(attempt + 1), FINALIZING_INTERVAL_MS);
@@ -168,12 +196,12 @@ export function DeflectionResultsPage({
       cancelled = true;
       if (timeout) clearTimeout(timeout);
     };
-  }, [checkoutStatus, requestId]);
+  }, [checkoutStatus, copy.finalizingError, requestId]);
 
   // Ask our server to create a Stripe Checkout Session, then hand the browser to
   // Stripe's hosted page. ATLAS flips the paid flag from the webhook; on return
-  // the results page re-probes GET /artifact and renders the full report once
-  // unlocked. `alreadyPaid` means the webhook already landed — just reload.
+  // the results page re-probes GET /artifact and renders the paid audit/report
+  // once unlocked. `alreadyPaid` means the webhook already landed — just reload.
   async function handleUnlock() {
     setLoading(true);
     setError(null);
@@ -228,7 +256,7 @@ export function DeflectionResultsPage({
       <div className="max-w-3xl mx-auto">
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
-          <span>YOUR DEFLECTION SNAPSHOT{companyName ? ` · ${companyName}` : ''}</span>
+          <span>{copy.snapshotBadge}{companyName ? ` · ${companyName}` : ''}</span>
         </div>
 
         {/* ── Hook ───────────────────────────────────────────────── */}
@@ -307,7 +335,7 @@ export function DeflectionResultsPage({
               disabled: unlockDisabled,
               busy: loading || finalizing,
               helper:
-                'Stripe checkout unlocks the full Backlog Report after payment confirmation.',
+                `Stripe checkout unlocks the ${copy.fullArtifactName} after payment confirmation.`,
             }}
           />
         )}
@@ -390,7 +418,7 @@ export function DeflectionResultsPage({
         <div className="rounded-xl border border-border bg-surface p-6 mb-10">
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-foreground/55 mb-4">
             <Lock className="h-3.5 w-3.5" />
-            In your full report
+            In your {copy.fullArtifactName}
           </div>
           <ul className="space-y-3 text-sm leading-relaxed text-foreground/70">
             {hasMoreQuestions && (
@@ -457,11 +485,10 @@ export function DeflectionResultsPage({
           <div className="grid md:grid-cols-5 gap-8 items-center">
             <div className="md:col-span-3">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
-                Unlock your full Backlog Report
+                {copy.offerHeading}
               </h2>
               <p className="mb-5 text-sm leading-relaxed text-foreground/65">
-                It&apos;s already computed. The drafts behind this snapshot exist right now.
-                Unlock the complete analysis to start deflecting repetitive customer tickets.
+                {copy.offerIntro}
               </p>
               <ul className="space-y-2 text-xs text-foreground/75">
                 <li className="flex items-center gap-2">
@@ -509,7 +536,7 @@ export function DeflectionResultsPage({
                 </div>
               )}
               <div className="text-center mb-4">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">One-time report price</div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">{copy.oneTimePriceLabel}</div>
                 <div className="text-4xl font-extrabold text-foreground mt-1">
                   {fullReportPriceLabel}
                 </div>

@@ -277,7 +277,7 @@ function run(options, responses, deps = {}) {
     {
       status: 200,
       kind: 'html',
-      body: PAID_HTML.replace('FULL BACKLOG REPORT', 'YOUR DEFLECTION SNAPSHOT'),
+      body: PAID_HTML.replace('FULL BACKLOG REPORT', 'YOUR RESOLUTION AUDIT SNAPSHOT'),
     },
   ]);
   assert.equal(result.ok, false);
@@ -383,11 +383,11 @@ function run(options, responses, deps = {}) {
 {
   const { result } = await run({}, [
     { status: 200, body: { status: 'unlocked' } },
-    { status: 200, kind: 'html', body: `${PAID_HTML}<button>Unlock your full Backlog Report</button>` },
+    { status: 200, kind: 'html', body: `${PAID_HTML}<button>Unlock your full Resolution Audit</button>` },
   ]);
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');
-  assert.deepEqual(result.lockedMarkers, ['Unlock your full Backlog Report']);
+  assert.deepEqual(result.lockedMarkers, ['Unlock your full Resolution Audit']);
 }
 
 {

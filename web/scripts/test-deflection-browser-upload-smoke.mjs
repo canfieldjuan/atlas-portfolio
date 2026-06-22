@@ -12,13 +12,13 @@ const baseOptions = {
 };
 const LOCKED_RESULTS_HTML = [
   '<main>',
-  '<span>YOUR DEFLECTION SNAPSHOT</span>',
+  '<span>YOUR RESOLUTION AUDIT SNAPSHOT</span>',
   '<h1>We found 12 deflection opportunities</h1>',
   '<p>Support Tax projection</p>',
   '<p>Help-desk SEO targeting list</p>',
   '<p>This backlog at current pace</p>',
   '<p>One drafted answer you can inspect before paying</p>',
-  '<a>Unlock your full Backlog Report</a>',
+  '<a>Unlock your full Resolution Audit</a>',
   '</main>',
 ].join('');
 
@@ -185,7 +185,7 @@ async function run(options, uploadResponse, recordResponses, extra = {}) {
       {
         status: 200,
         kind: 'html',
-        body: LOCKED_RESULTS_HTML.replace('Unlock your full Backlog Report', 'Thanks'),
+        body: LOCKED_RESULTS_HTML.replace('Unlock your full Resolution Audit', 'Thanks'),
       },
     ],
   );
