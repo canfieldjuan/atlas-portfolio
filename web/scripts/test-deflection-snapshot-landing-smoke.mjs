@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import ts from 'typescript';
 import { runDeflectionSnapshotLandingSmoke } from './smoke-deflection-snapshot-landing.mjs';
 
 const SNAPSHOT_URL = 'https://portfolio.example.com/systems/support-ticket-deflection/snapshot';
@@ -41,6 +45,118 @@ const GOOD_HTML = [
 
 async function source(path) {
   return readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+}
+
+async function loadSnapshotFixtures() {
+  const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-snapshot-fixtures-'));
+  const compiledPath = join(testDir, 'deflection-snapshot.cjs');
+
+  try {
+    const fixtureSource = await source('src/lib/deflection-snapshot.ts');
+    const compiled = ts.transpileModule(fixtureSource, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
+    });
+    await writeFile(compiledPath, compiled.outputText);
+
+    const require = createRequire(compiledPath);
+    return require(compiledPath);
+  } finally {
+    await rm(testDir, { force: true, recursive: true });
+  }
+}
+
+function sortedKeys(value) {
+  return Object.keys(value).sort();
+}
+
+function assertTopLevelSnapshotKeys(snapshot, expectedKeys, name) {
+  assert.deepEqual(sortedKeys(snapshot), expectedKeys, name);
+}
+
+function assertArrayFieldSet(items, expectedKeys, name) {
+  assert.ok(items.length > 0, `${name}: expected at least one item`);
+  for (const [index, item] of items.entries()) {
+    assert.deepEqual(sortedKeys(item), expectedKeys, `${name}: item ${index}`);
+  }
+}
+
+function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLevelKeys, name) {
+  assertTopLevelSnapshotKeys(snapshot, expectedTopLevelKeys, `${name}: top-level keys`);
+  assertArrayFieldSet(
+    snapshot.top_questions,
+    sortedKeys(reference.top_questions[0]),
+    `${name}: top_questions field set`,
+  );
+  assertArrayFieldSet(
+    snapshot.locked_questions,
+    sortedKeys(reference.locked_questions[0]),
+    `${name}: locked_questions field set`,
+  );
+  assertArrayFieldSet(
+    snapshot.top_blind_spots,
+    sortedKeys(reference.top_blind_spots[0]),
+    `${name}: top_blind_spots field set`,
+  );
+  assert.deepEqual(
+    sortedKeys(snapshot.teaser.full_answer),
+    sortedKeys(reference.teaser.full_answer),
+    `${name}: teaser full_answer field set`,
+  );
+  assertArrayFieldSet(
+    snapshot.teaser.previews,
+    sortedKeys(reference.teaser.previews[0]),
+    `${name}: teaser preview field set`,
+  );
+
+  for (const key of [
+    'generated',
+    'drafted_answer_count',
+    'no_proven_answer_count',
+    'repeat_ticket_count',
+  ]) {
+    assert.ok(key in snapshot.summary, `${name}: summary keeps ${key}`);
+    assert.ok(key in reference.summary, `reference summary keeps ${key}`);
+  }
+}
+
+function assertBlindSpotRanksMatchOwningRows(snapshot, name) {
+  const topQuestionsByRank = new Map(
+    snapshot.top_questions.map((question) => [question.rank, question]),
+  );
+  const lockedQuestionsByRank = new Map(
+    snapshot.locked_questions.map((question) => [question.rank, question]),
+  );
+
+  for (const blindSpot of snapshot.top_blind_spots) {
+    const topQuestion = topQuestionsByRank.get(blindSpot.rank);
+    if (topQuestion) {
+      assert.equal(
+        blindSpot.question,
+        topQuestion.question,
+        `${name}: blind spot rank ${blindSpot.rank} should match the visible top-question text at that rank.`,
+      );
+      assert.equal(
+        blindSpot.ticket_count,
+        topQuestion.ticket_count,
+        `${name}: blind spot rank ${blindSpot.rank} should match the visible top-question count at that rank.`,
+      );
+      continue;
+    }
+
+    const lockedQuestion = lockedQuestionsByRank.get(blindSpot.rank);
+    assert.ok(
+      lockedQuestion,
+      `${name}: blind spot rank ${blindSpot.rank} should map to a visible top question or locked preview rank.`,
+    );
+    assert.equal(
+      blindSpot.ticket_count,
+      lockedQuestion.ticket_count,
+      `${name}: blind spot rank ${blindSpot.rank} should match the locked preview count at that rank.`,
+    );
+  }
 }
 
 function makeFetchMock(response) {
@@ -94,6 +210,71 @@ const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
 const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
 const submitCtaIndex = intakeFormSource.indexOf('data-smoke="resolutionReportCta submitCta"');
+const groundTruth = JSON.parse(
+  await source('plans/deflection-snapshot-report-groundtruth.json'),
+);
+const referenceSnapshot = groundTruth.snapshot;
+const expectedSnapshotTopLevelKeys = [...groundTruth._meta.snapshot_top_level_keys].sort();
+const {
+  DEMO_DEFLECTION_SNAPSHOT,
+  DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,
+} = await loadSnapshotFixtures();
+
+assert.equal(
+  groundTruth._meta.top_blind_spots_emitted,
+  true,
+  'Ground-truth payload should come from the post-ATLAS #1800 snapshot projection.',
+);
+assert.equal(
+  groundTruth._meta.demo_deltas.some((delta) => delta.includes('NEVER emitted by the snapshot')),
+  false,
+  'Ground-truth metadata should not carry the stale pre-projection blind-spots note.',
+);
+assertTopLevelSnapshotKeys(
+  referenceSnapshot,
+  expectedSnapshotTopLevelKeys,
+  'Reference Snapshot should match its declared top-level keys.',
+);
+assertSnapshotShapeMatchesReference(
+  DEMO_DEFLECTION_SNAPSHOT,
+  referenceSnapshot,
+  expectedSnapshotTopLevelKeys,
+  'Primary demo Snapshot',
+);
+assert.ok(
+  DEMO_DEFLECTION_SNAPSHOT.top_blind_spots.length > 0,
+  'Primary demo Snapshot should keep populated blind spots for the live smoke marker.',
+);
+assert.ok(
+  DEMO_DEFLECTION_SNAPSHOT.top_blind_spots.some((blindSpot, index) => blindSpot.rank !== index + 1),
+  'Primary demo blind spots should preserve original non-sequential ranks.',
+);
+assertBlindSpotRanksMatchOwningRows(
+  DEMO_DEFLECTION_SNAPSHOT,
+  'Primary demo Snapshot',
+);
+assertTopLevelSnapshotKeys(
+  DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,
+  expectedSnapshotTopLevelKeys,
+  'Clean-upload demo Snapshot should keep the same top-level keys.',
+);
+assert.deepEqual(
+  DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD.top_blind_spots,
+  [],
+  'Clean-upload demo Snapshot should exercise the no-blind-spots branch.',
+);
+for (const key of ['source_date_start', 'source_date_end', 'source_window_days']) {
+  assert.equal(
+    key in DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD.summary,
+    false,
+    `Clean-upload demo Snapshot should omit ${key}.`,
+  );
+}
+assert.equal(
+  DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD.summary.no_proven_answer_count,
+  0,
+  'Clean-upload demo Snapshot should represent a no-unresolved-repeat upload.',
+);
 
 assert.ok(
   snapshotLandingSource.includes('Top Proven Resolutions'),

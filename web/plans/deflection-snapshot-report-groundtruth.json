@@ -1,0 +1,429 @@
+{
+  "_meta": {
+    "what": "Ground-truth output of the REAL ATLAS deflection generator. The free snapshot is the exact payload build_deflection_snapshot() emits; report_model_shape lists every paid section's fields. Use to keep web/src/lib/deflection-snapshot.ts demo + types truthful.",
+    "generated_by": "build_deflection_report_artifact + build_deflection_snapshot on a synthetic 7-question fixture (top_n=5)",
+    "atlas_commit": "0c8d03382",
+    "captured": "2026-06-22",
+    "schema_version": "deflection.v1",
+    "report_title": "Support Ticket Deflection Report",
+    "snapshot_top_level_keys": [
+      "locked_questions",
+      "summary",
+      "teaser",
+      "top_blind_spots",
+      "top_questions"
+    ],
+    "top_blind_spots_emitted": true,
+    "demo_deltas": [
+      "top_blind_spots: now emitted by the snapshot from report top_unresolved_repeats; ranks preserve the original question rank rather than resequencing 1..N",
+      "summary: backend also emits non_repeat_ticket_count + support_ticket_resolution_evidence_present/count (demo omits; portfolio parser ignores)",
+      "summary.source_date_*: present ONLY when tickets carry parseable dates; demo always includes it \u2014 exercise a no-window variant"
+    ]
+  },
+  "snapshot": {
+    "summary": {
+      "generated": 7,
+      "drafted_answer_count": 3,
+      "no_proven_answer_count": 4,
+      "support_ticket_resolution_evidence_present": true,
+      "support_ticket_resolution_evidence_count": 3,
+      "repeat_ticket_count": 25,
+      "non_repeat_ticket_count": 0
+    },
+    "top_questions": [
+      {
+        "rank": 1,
+        "question": "How do I export attribution reports?",
+        "ticket_count": 6,
+        "weighted_frequency": 9,
+        "customer_wording": "export attribution reports"
+      },
+      {
+        "rank": 2,
+        "question": "Can I turn on SSO for all users?",
+        "ticket_count": 5,
+        "weighted_frequency": 7,
+        "customer_wording": "turn on SSO for all users"
+      },
+      {
+        "rank": 3,
+        "question": "How do I update my billing card?",
+        "ticket_count": 4,
+        "weighted_frequency": 6,
+        "customer_wording": "update billing card"
+      },
+      {
+        "rank": 4,
+        "question": "Why does the API return 429 errors?",
+        "ticket_count": 3,
+        "weighted_frequency": 5,
+        "customer_wording": "API returns 429"
+      },
+      {
+        "rank": 5,
+        "question": "How do I invite a teammate?",
+        "ticket_count": 3,
+        "weighted_frequency": 4,
+        "customer_wording": "invite a teammate"
+      }
+    ],
+    "locked_questions": [
+      {
+        "rank": 6,
+        "ticket_count": 2
+      },
+      {
+        "rank": 7,
+        "ticket_count": 2
+      }
+    ],
+    "top_blind_spots": [
+      {
+        "rank": 2,
+        "question": "Can I turn on SSO for all users?",
+        "ticket_count": 5
+      },
+      {
+        "rank": 4,
+        "question": "Why does the API return 429 errors?",
+        "ticket_count": 3
+      }
+    ],
+    "teaser": {
+      "full_answer": {
+        "rank": 1,
+        "question": "How do I export attribution reports?",
+        "answer": "Open Analytics, choose Attribution, then Download report.",
+        "steps": [
+          "Open Analytics",
+          "Select Download report"
+        ],
+        "answer_evidence_status": "resolution_evidence",
+        "resolution_evidence_scope": "scoped",
+        "weighted_frequency": 9,
+        "source_count": 3
+      },
+      "previews": [
+        {
+          "rank": 3,
+          "question": "How do I update my billing card?",
+          "answer_evidence_status": "resolution_evidence",
+          "resolution_evidence_scope": "scoped",
+          "weighted_frequency": 6,
+          "step_count": 2,
+          "source_count": 2,
+          "body_withheld": true
+        },
+        {
+          "rank": 5,
+          "question": "How do I invite a teammate?",
+          "answer_evidence_status": "resolution_evidence",
+          "resolution_evidence_scope": "scoped",
+          "weighted_frequency": 4,
+          "step_count": 3,
+          "source_count": 2,
+          "body_withheld": true
+        }
+      ]
+    }
+  },
+  "report_model_shape": {
+    "schema_version": "deflection.v1",
+    "title": "Support Ticket Deflection Report",
+    "summary_keys": [
+      "drafted_answer_count",
+      "generated",
+      "no_proven_answer_count",
+      "non_repeat_question_count",
+      "non_repeat_ticket_count",
+      "output_checks",
+      "source_count",
+      "support_ticket_resolution_evidence_count",
+      "support_ticket_resolution_evidence_present",
+      "ticket_source_count",
+      "top_opportunity_score",
+      "top_question"
+    ],
+    "sections": [
+      {
+        "id": "support_tax",
+        "title": "Support Tax Confirmation",
+        "snapshot_safe_fields": [
+          "repeat_ticket_count",
+          "non_repeat_ticket_count",
+          "generated_question_count",
+          "drafted_answer_count",
+          "no_proven_answer_count",
+          "ticket_source_count",
+          "source_date_window"
+        ],
+        "data_keys": [
+          "annualized_run_rate_support_cost",
+          "assisted_contact_cost",
+          "drafted_answer_count",
+          "estimated_support_cost",
+          "generated_question_count",
+          "no_proven_answer_count",
+          "non_repeat_ticket_count",
+          "repeat_ticket_count",
+          "source_date_window",
+          "ticket_source_count"
+        ],
+        "row_keys": null,
+        "item_keys": null
+      },
+      {
+        "id": "seo_targets",
+        "title": "Your Help-Desk SEO Targeting List",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "displayed_phrase_count",
+          "limit",
+          "omitted_phrase_count",
+          "phrases",
+          "total_phrase_count"
+        ],
+        "row_keys": null,
+        "item_keys": null
+      },
+      {
+        "id": "ranked_questions",
+        "title": "Ranked Question Opportunities",
+        "snapshot_safe_fields": [
+          "rows.rank",
+          "rows.question",
+          "rows.ticket_count",
+          "rows.weighted_frequency",
+          "rows.customer_wording"
+        ],
+        "data_keys": [
+          "rows"
+        ],
+        "row_keys": [
+          "answer_status",
+          "customer_wording",
+          "estimated_support_cost",
+          "opportunity_score",
+          "question",
+          "rank",
+          "source_proof",
+          "ticket_count",
+          "weighted_frequency"
+        ],
+        "item_keys": null
+      },
+      {
+        "id": "priority_fix_queue",
+        "title": "Priority Fix Queue",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "backlog_limit",
+          "items",
+          "pdf_limit",
+          "result_page_limit",
+          "status_counts",
+          "support_cost_basis"
+        ],
+        "row_keys": null,
+        "item_keys": [
+          "cluster_id",
+          "confidence",
+          "csat_signal",
+          "estimated_support_cost",
+          "fix_type",
+          "identity_basis",
+          "identity_confidence",
+          "opportunity_score",
+          "owner_lane",
+          "priority_drivers",
+          "priority_score",
+          "question",
+          "rank",
+          "recommended_action",
+          "recommended_title",
+          "repeat_key",
+          "representative_phrasing",
+          "status",
+          "support_cost_formula",
+          "support_cost_source",
+          "ticket_count",
+          "top_evidence"
+        ]
+      },
+      {
+        "id": "top_unresolved_repeats",
+        "title": "Top Unresolved Repeats",
+        "snapshot_safe_fields": [
+          "items.rank",
+          "items.question",
+          "items.ticket_count"
+        ],
+        "data_keys": [
+          "items",
+          "pdf_limit",
+          "result_page_limit",
+          "support_cost_basis",
+          "top_item_count"
+        ],
+        "row_keys": null,
+        "item_keys": [
+          "cluster_id",
+          "confidence",
+          "csat_signal",
+          "estimated_support_cost",
+          "fix_type",
+          "identity_basis",
+          "identity_confidence",
+          "opportunity_score",
+          "owner_lane",
+          "priority_drivers",
+          "priority_score",
+          "question",
+          "rank",
+          "recommended_action",
+          "recommended_title",
+          "repeat_key",
+          "representative_phrasing",
+          "status",
+          "support_cost_formula",
+          "support_cost_source",
+          "ticket_count",
+          "top_evidence"
+        ]
+      },
+      {
+        "id": "drafted_resolutions",
+        "title": "Drafted Resolutions Ready to Publish",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "items",
+          "pdf_limit",
+          "result_page_limit",
+          "top_item_count"
+        ],
+        "row_keys": null,
+        "item_keys": [
+          "cluster_id",
+          "confidence",
+          "csat_signal",
+          "estimated_support_cost",
+          "fix_type",
+          "identity_basis",
+          "identity_confidence",
+          "opportunity_score",
+          "owner_lane",
+          "priority_drivers",
+          "priority_score",
+          "question",
+          "rank",
+          "recommended_action",
+          "recommended_title",
+          "repeat_key",
+          "representative_phrasing",
+          "status",
+          "support_cost_formula",
+          "support_cost_source",
+          "ticket_count",
+          "top_evidence"
+        ]
+      },
+      {
+        "id": "already_covered_still_recurring",
+        "title": "Already Covered but Still Recurring",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "items",
+          "pdf_limit",
+          "result_page_limit",
+          "top_item_count"
+        ],
+        "row_keys": null,
+        "item_keys": null
+      },
+      {
+        "id": "backlog_table",
+        "title": "Backlog Table",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "default_limit",
+          "items",
+          "total_item_count"
+        ],
+        "row_keys": null,
+        "item_keys": [
+          "cluster_id",
+          "confidence",
+          "csat_signal",
+          "estimated_support_cost",
+          "fix_type",
+          "identity_basis",
+          "identity_confidence",
+          "opportunity_score",
+          "owner_lane",
+          "priority_drivers",
+          "priority_score",
+          "question",
+          "rank",
+          "recommended_action",
+          "recommended_title",
+          "repeat_key",
+          "representative_phrasing",
+          "status",
+          "support_cost_formula",
+          "support_cost_source",
+          "ticket_count",
+          "top_evidence"
+        ]
+      },
+      {
+        "id": "question_details",
+        "title": "Question Details and Evidence",
+        "snapshot_safe_fields": [
+          "rows.rank",
+          "rows.question",
+          "rows.answer_evidence_status",
+          "rows.resolution_evidence_scope",
+          "rows.weighted_frequency",
+          "rows.source_count"
+        ],
+        "data_keys": [
+          "rows"
+        ],
+        "row_keys": [
+          "answer",
+          "answer_evidence_status",
+          "answer_linkage",
+          "answer_status",
+          "customer_wording",
+          "estimated_support_cost",
+          "evidence_quotes",
+          "outcome_diagnostics",
+          "question",
+          "rank",
+          "resolution_evidence_scope",
+          "source_count",
+          "source_ids",
+          "steps",
+          "term_mappings",
+          "ticket_count",
+          "topic",
+          "weighted_frequency"
+        ],
+        "item_keys": null
+      },
+      {
+        "id": "complete_evidence",
+        "title": "Complete Evidence",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "evidence_row_count",
+          "question_count",
+          "source_id_count",
+          "surfaces"
+        ],
+        "row_keys": null,
+        "item_keys": null
+      }
+    ]
+  }
+}
