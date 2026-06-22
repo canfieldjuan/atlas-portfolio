@@ -24,9 +24,9 @@ const NO_PROVEN_ANSWER_HTML = GOOD_HTML.replace(
 );
 const FULL_REPORT_HTML = [
   '<main>',
-  '<span>MODEL-BACKED REPORT</span>',
-  '<h1>Your Support Tax report is ready.</h1>',
-  '<div>Paid report dashboard</div>',
+  '<span>FULL RESOLUTION AUDIT</span>',
+  '<h1>Your Resolution Audit is ready.</h1>',
+  '<div>Full audit dashboard</div>',
   '<section>Priority Fix Queue</section>',
   '<section>Top Unresolved Repeats</section>',
   '<section>Drafted Resolutions</section>',
@@ -37,6 +37,13 @@ const FULL_REPORT_HTML = [
   '<div>Top publishable answers and gaps</div>',
   '</main>',
 ].join('');
+const PARTNER_FULL_REPORT_HTML = FULL_REPORT_HTML.replace(
+  'FULL RESOLUTION AUDIT',
+  'FULL DEFLECTION REPORT',
+).replace(
+  'Your Resolution Audit is ready.',
+  'Your Deflection Report is ready.',
+).replace('Full audit dashboard', 'Full report dashboard');
 const LEGACY_FULL_REPORT_HTML = [
   '<main>',
   '<span>FULL BACKLOG REPORT</span>',
@@ -347,6 +354,28 @@ function extractPartnerOfferCopyBranch(source) {
 
 {
   const { result } = await run(
+    { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'model-full-report' },
+    { status: 200, body: PARTNER_FULL_REPORT_HTML },
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.expectedState, 'model-full-report');
+  assert.deepEqual(result.markers, {
+    backlogTable: true,
+    coveredRecurring: true,
+    draftedResolutions: true,
+    paidHeadline: true,
+    paidReportBadge: true,
+    priorityFixQueue: true,
+    rankedQuestions: true,
+    reportContents: true,
+    reviewerGuidance: true,
+    seoTargeting: true,
+    topUnresolvedRepeats: true,
+  });
+}
+
+{
+  const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
     { status: 200, body: LEGACY_FULL_REPORT_HTML },
   );
@@ -387,7 +416,7 @@ function extractPartnerOfferCopyBranch(source) {
 {
   const { result } = await run(
     { requestId: REQUEST_ID, baseUrl: 'https://portfolio.example.com/', expect: 'full-report' },
-    { status: 200, body: FULL_REPORT_HTML.replace('Paid report dashboard', '') },
+    { status: 200, body: FULL_REPORT_HTML.replace('Full audit dashboard', '') },
   );
   assert.equal(result.ok, false);
   assert.equal(result.stage, 'render');

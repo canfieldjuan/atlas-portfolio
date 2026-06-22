@@ -19,6 +19,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
+  type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
 import {
   getGapReportPriceVariantByReportRequestId,
@@ -116,11 +117,42 @@ async function getResultsAnalyticsContext(
   }
 }
 
+async function getResultsPriceVariant(
+  requestId: string,
+  requestedPriceVariant: DeflectionPriceVariant | null | undefined,
+): Promise<DeflectionPriceVariant> {
+  const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !savedPriceVariantId &&
+    requestedPriceVariant &&
+    requestedPriceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID
+  ) {
+    throw new Error('Results are temporarily unavailable. Please try again.');
+  }
+  return (
+    resolveDeflectionPriceVariant(
+      savedPriceVariantId ||
+        (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
+    ) ||
+    DEFLECTION_DEFAULT_PRICE_VARIANT
+  );
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
+  const query = searchParams ? await searchParams : undefined;
+  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
   const modelResult = await getReportModel(requestId);
   if (modelResult.ok) {
-    return <DeflectionReportModelPage model={modelResult.model} requestId={requestId} />;
+    const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
+    return (
+      <DeflectionReportModelPage
+        model={modelResult.model}
+        requestId={requestId}
+        priceVariant={priceVariant}
+      />
+    );
   }
 
   const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
@@ -130,24 +162,8 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   if (snapshotState.kind === 'not_found') notFound();
   if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
   const snapshot: DeflectionSnapshot = snapshotState.snapshot;
-  const query = searchParams ? await searchParams : undefined;
-  const savedPriceVariantId = await getServerBoundPriceVariantId(requestId);
+  const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
   const analyticsContext = await getResultsAnalyticsContext(requestId);
-  const requestedPriceVariant = resolveDeflectionPriceVariant(firstParam(query?.priceVariant));
-  if (
-    process.env.NODE_ENV === 'production' &&
-    !savedPriceVariantId &&
-    requestedPriceVariant &&
-    requestedPriceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID
-  ) {
-    throw new Error('Results are temporarily unavailable. Please try again.');
-  }
-  const priceVariant =
-    resolveDeflectionPriceVariant(
-      savedPriceVariantId ||
-        (process.env.NODE_ENV !== 'production' ? requestedPriceVariant?.id : undefined),
-    ) ||
-    DEFLECTION_DEFAULT_PRICE_VARIANT;
   return (
     <DeflectionResultsPage
       snapshot={snapshot}

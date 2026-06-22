@@ -1,6 +1,11 @@
 import { CheckCircle2, CircleAlert, FileText, ListChecks, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
+import {
+  DEFLECTION_DEFAULT_PRICE_VARIANT,
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  type DeflectionPriceVariant,
+} from '@/lib/deflection-pricing';
 import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
 
 const RANKED_ROW_LIMIT = 25;
@@ -83,7 +88,33 @@ function uploadedSearchChips(model: DeflectionStructuredReport): string[] {
   return Array.from(new Set([...rankedQuestions, ...seoTargets])).slice(0, 6);
 }
 
-function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
+function reportModelCopy(priceVariant: DeflectionPriceVariant) {
+  if (priceVariant.id === DEFLECTION_PARTNER_PRICE_VARIANT_ID) {
+    return {
+      badge: 'FULL DEFLECTION REPORT',
+      headline: 'Your Deflection Report is ready.',
+      intro:
+        'This hosted view gives you the operating summary, ranked action queue, review-ready drafts, and unresolved gaps. The complete evidence export remains the uncapped evidence surface.',
+      dashboardLabel: 'Full report dashboard',
+    };
+  }
+
+  return {
+    badge: 'FULL RESOLUTION AUDIT',
+    headline: 'Your Resolution Audit is ready.',
+    intro:
+      'This hosted view gives you the operating summary, ranked action queue, review-ready drafts, and unresolved gaps. The complete evidence export remains the uncapped audit surface.',
+    dashboardLabel: 'Full audit dashboard',
+  };
+}
+
+function SupportTaxSummary({
+  section,
+  dashboardLabel,
+}: {
+  section?: DeflectionReportSection;
+  dashboardLabel: string;
+}) {
   const data = asRecord(section?.data);
   const sourceWindow = asRecord(data.source_date_window);
   const sourceWindowLabel =
@@ -106,7 +137,7 @@ function SupportTaxSummary({ section }: { section?: DeflectionReportSection }) {
     <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
       <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
         <ShieldCheck className="h-3.5 w-3.5" />
-        Paid report dashboard
+        {dashboardLabel}
       </div>
       <h2 className="mt-3 text-2xl font-semibold text-foreground">Support Tax confirmation</h2>
       <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/60">
@@ -666,15 +697,18 @@ export function DeflectionReportModelPage({
   model,
   requestId,
   companyName,
+  priceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
 }: {
   model: DeflectionStructuredReport;
   requestId: string;
   companyName?: string;
+  priceVariant?: DeflectionPriceVariant;
 }) {
   const sections = sortedWebSections(model);
   const supportTax = sectionById(model, 'support_tax');
   const searchChips = uploadedSearchChips(model);
   const showUploadedSearch = uploadedDeflectionSearchEnabled() && searchChips.length > 0;
+  const copy = reportModelCopy(priceVariant);
 
   return (
     <main className="min-h-screen px-6 pb-20 pt-16">
@@ -682,19 +716,18 @@ export function DeflectionReportModelPage({
         <div className="mb-8">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono tracking-wide text-primary">
             <FileText className="h-3.5 w-3.5" />
-            <span>MODEL-BACKED REPORT{companyName ? ` | ${companyName}` : ''}</span>
+            <span>{copy.badge}{companyName ? ` | ${companyName}` : ''}</span>
           </div>
           <h1 className="max-w-3xl text-3xl font-semibold leading-[1.1] tracking-tight text-foreground md:text-5xl">
-            Your Support Tax report is ready.
+            {copy.headline}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-foreground/65">
-            This hosted view gives you the operating summary, ranked opportunities, publishable answer drafts,
-            and review gaps. The complete evidence export remains the uncapped audit surface.
+            {copy.intro}
           </p>
         </div>
 
         <div className="space-y-8">
-          <SupportTaxSummary section={supportTax} />
+          <SupportTaxSummary section={supportTax} dashboardLabel={copy.dashboardLabel} />
           {showUploadedSearch && (
             <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
               <h2 className="text-xl font-semibold text-foreground">
