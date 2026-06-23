@@ -14,10 +14,14 @@ const demoSnapshot = {
     generated: 1,
     drafted_answer_count: 1,
     no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 12,
+    non_repeat_ticket_count: 3,
   },
   top_questions: [],
   locked_questions: [],
+  top_blind_spots: [],
   teaser: { full_answer: null, previews: [] },
 };
 const atlasSnapshot = {
@@ -25,10 +29,14 @@ const atlasSnapshot = {
     generated: 2,
     drafted_answer_count: 1,
     no_proven_answer_count: 1,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 24,
+    non_repeat_ticket_count: 6,
   },
   top_questions: [],
   locked_questions: [],
+  top_blind_spots: [],
   teaser: { full_answer: null, previews: [] },
 };
 

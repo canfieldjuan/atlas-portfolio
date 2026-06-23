@@ -8,70 +8,9 @@
 //   GET /content-ops/deflection-reports/{request_id}/snapshot  -> DeflectionSnapshot
 //   GET /content-ops/deflection-reports/{request_id}/artifact   -> 200 full | 403 locked | 404 none
 
-export type DeflectionSnapshotQuestion = {
-  rank: number;
-  question: string;
-  customer_wording: string;
-  ticket_count: number;
-  weighted_frequency: number;
-};
+import type { DeflectionSnapshot } from './deflection-snapshot-contract';
 
-export type DeflectionSnapshotLockedQuestion = {
-  rank: number;
-  ticket_count: number;
-};
-
-export type DeflectionSnapshotBlindSpot = {
-  rank: number;
-  question: string;
-  ticket_count: number;
-};
-
-export type DeflectionSnapshotFullAnswer = {
-  rank: number;
-  question: string;
-  answer: string;
-  steps: string[];
-  answer_evidence_status: 'resolution_evidence';
-  resolution_evidence_scope: 'scoped';
-  weighted_frequency: number;
-  source_count: number;
-};
-
-export type DeflectionSnapshotAnswerPreview = {
-  rank: number;
-  question: string;
-  answer_evidence_status: 'resolution_evidence';
-  resolution_evidence_scope: 'scoped';
-  weighted_frequency: number;
-  step_count: number;
-  source_count: number;
-  body_withheld: true;
-};
-
-export type DeflectionSnapshotTeaser = {
-  full_answer: DeflectionSnapshotFullAnswer | null;
-  previews: DeflectionSnapshotAnswerPreview[];
-};
-
-export type DeflectionSnapshotSourceWindow = {
-  source_date_start: string;
-  source_date_end: string;
-  source_window_days: number;
-};
-
-export type DeflectionSnapshot = {
-  summary: {
-    generated: number;
-    drafted_answer_count: number;
-    no_proven_answer_count: number;
-    repeat_ticket_count: number;
-  } & Partial<DeflectionSnapshotSourceWindow>;
-  top_questions: DeflectionSnapshotQuestion[];
-  locked_questions: DeflectionSnapshotLockedQuestion[];
-  top_blind_spots?: DeflectionSnapshotBlindSpot[];
-  teaser: DeflectionSnapshotTeaser;
-};
+export * from './deflection-snapshot-contract';
 
 /** Path of the free snapshot endpoint for a request (appended to ATLAS_API_BASE_URL).
  *  account_id comes from the authenticated ATLAS scope — never passed here. */
@@ -89,7 +28,10 @@ export const DEMO_DEFLECTION_SNAPSHOT: DeflectionSnapshot = {
     generated: 12,
     drafted_answer_count: 9,
     no_proven_answer_count: 3,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 9,
     repeat_ticket_count: 1700,
+    non_repeat_ticket_count: 420,
     source_date_start: '2026-05-01',
     source_date_end: '2026-05-30',
     source_window_days: 30,
@@ -204,7 +146,10 @@ export const DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD: DeflectionSnapshot = {
     generated: DEMO_DEFLECTION_SNAPSHOT.summary.generated,
     drafted_answer_count: DEMO_DEFLECTION_SNAPSHOT.summary.generated,
     no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: DEMO_DEFLECTION_SNAPSHOT.summary.generated,
     repeat_ticket_count: DEMO_DEFLECTION_SNAPSHOT.summary.repeat_ticket_count,
+    non_repeat_ticket_count: DEMO_DEFLECTION_SNAPSHOT.summary.non_repeat_ticket_count,
   },
   top_blind_spots: [],
 };

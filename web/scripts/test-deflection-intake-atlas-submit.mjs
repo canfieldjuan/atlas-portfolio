@@ -60,17 +60,25 @@ function resetCalls() {
   consoleErrors = [];
 }
 
+function minimalSummary(summaryExtras = {}) {
+  return {
+    generated: 1,
+    drafted_answer_count: 1,
+    no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
+    repeat_ticket_count: 1,
+    non_repeat_ticket_count: 0,
+    ...summaryExtras,
+  };
+}
+
 function minimalSnapshot(summaryExtras = {}) {
   return {
-    summary: {
-      generated: 1,
-      drafted_answer_count: 1,
-      no_proven_answer_count: 0,
-      repeat_ticket_count: 1,
-      ...summaryExtras,
-    },
+    summary: minimalSummary(summaryExtras),
     top_questions: [],
     locked_questions: [],
+    top_blind_spots: [],
     teaser: { full_answer: null, previews: [] },
   };
 }
@@ -262,7 +270,10 @@ try {
       generated: 2,
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
+      support_ticket_resolution_evidence_present: true,
+      support_ticket_resolution_evidence_count: 1,
       repeat_ticket_count: 6,
+      non_repeat_ticket_count: 4,
       source_date_start: '2026-05-01',
       source_date_end: '2026-05-06',
       source_window_days: 6,
@@ -338,7 +349,10 @@ try {
     generated: 2,
     drafted_answer_count: 1,
     no_proven_answer_count: 1,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 6,
+    non_repeat_ticket_count: 4,
     source_date_start: '2026-05-01',
     source_date_end: '2026-05-06',
     source_window_days: 6,
@@ -410,7 +424,10 @@ try {
     generated: 1,
     drafted_answer_count: 1,
     no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 1,
+    non_repeat_ticket_count: 0,
   });
 
   resetCalls();
@@ -424,7 +441,10 @@ try {
     generated: 1,
     drafted_answer_count: 1,
     no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 1,
+    non_repeat_ticket_count: 0,
   });
 
   resetCalls();
@@ -439,7 +459,10 @@ try {
     generated: 1,
     drafted_answer_count: 1,
     no_proven_answer_count: 0,
+    support_ticket_resolution_evidence_present: true,
+    support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 1,
+    non_repeat_ticket_count: 0,
   });
 
   for (const badWindow of [
@@ -462,7 +485,10 @@ try {
       generated: 1,
       drafted_answer_count: 1,
       no_proven_answer_count: 0,
+      support_ticket_resolution_evidence_present: true,
+      support_ticket_resolution_evidence_count: 1,
       repeat_ticket_count: 1,
+      non_repeat_ticket_count: 0,
     });
   }
 
@@ -512,13 +538,21 @@ try {
   });
 
   resetCalls();
+  fetchPayload = minimalSnapshot();
+  delete fetchPayload.top_blind_spots;
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
   fetchPayload = {
-    summary: {
+    summary: minimalSummary({
       generated: 2,
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
       repeat_ticket_count: 2,
-    },
+    }),
     top_questions: [
       {
         rank: 1,
@@ -539,12 +573,12 @@ try {
 
   resetCalls();
   fetchPayload = {
-    summary: {
+    summary: minimalSummary({
       generated: 2,
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
       repeat_ticket_count: 2,
-    },
+    }),
     top_questions: [
       {
         rank: 1,
@@ -569,12 +603,7 @@ try {
 
   resetCalls();
   fetchPayload = {
-    summary: {
-      generated: 1,
-      drafted_answer_count: 1,
-      no_proven_answer_count: 0,
-      repeat_ticket_count: 1,
-    },
+    summary: minimalSummary(),
     top_questions: [
       {
         rank: 1,
@@ -584,6 +613,7 @@ try {
       },
     ],
     locked_questions: [],
+    top_blind_spots: [],
     teaser: { full_answer: null, previews: [] },
   };
   assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
@@ -593,12 +623,12 @@ try {
 
   resetCalls();
   fetchPayload = {
-    summary: {
+    summary: minimalSummary({
       generated: 2,
       drafted_answer_count: 1,
       no_proven_answer_count: 1,
       repeat_ticket_count: 2,
-    },
+    }),
     top_questions: [
       {
         rank: 1,
@@ -609,6 +639,7 @@ try {
       },
     ],
     locked_questions: [{ rank: 2, ticket_count: '1' }],
+    top_blind_spots: [],
     teaser: { full_answer: null, previews: [] },
   };
   assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
@@ -618,14 +649,10 @@ try {
 
   resetCalls();
   fetchPayload = {
-    summary: {
-      generated: 1,
-      drafted_answer_count: 1,
-      no_proven_answer_count: 0,
-      repeat_ticket_count: 1,
-    },
+    summary: minimalSummary(),
     top_questions: [],
     locked_questions: [],
+    top_blind_spots: [],
     teaser: {
       full_answer: {
         rank: 1,
