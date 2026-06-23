@@ -48,8 +48,9 @@ Slice phase: Production hardening
 The generator reads the ATLAS-generated
 `portfolio-ui/src/types/deflectionSnapshot.ts`, verifies the required generated
 markers and field tuples are present, maps ATLAS's internal type names to the
-stable portfolio import names, appends the local source-window helper alias,
-and writes `web/src/lib/deflection-snapshot-contract.ts`.
+stable portfolio import names, canonicalizes the mapped TypeScript through the
+TypeScript printer, appends the local source-window helper alias, and writes
+`web/src/lib/deflection-snapshot-contract.ts`.
 
 `web/src/lib/deflection-snapshot.ts` becomes a thin app wrapper: it re-exports
 the generated contract, keeps `deflectionSnapshotPath`, and keeps the demo
@@ -90,6 +91,7 @@ Parked hardening: none
 9. `npm --prefix web run build` - passed; Next compiled and type-checked successfully.
 10. `bash scripts/local_pr_review.sh` - passed; plan audits, drift advisory, dead-code baseline, Snapshot landing smoke, eslint, Next build, and whitespace all passed.
 11. `GITHUB_WORKSPACE=/home/juan-canfield/Desktop/atlas-portfolio-contract; npm --prefix web run check:deflection-snapshot-contract -- --source "$GITHUB_WORKSPACE/../Atlas/portfolio-ui/src/types/deflectionSnapshot.ts"` - passed after review fix; simulates the workflow's absolute `GITHUB_WORKSPACE` source path.
+12. `npm --prefix web run test:deflection-snapshot-contract-generator` - passed after normalization fix; compacted ATLAS source renders to the same committed contract.
 
 ## Estimated diff size
 

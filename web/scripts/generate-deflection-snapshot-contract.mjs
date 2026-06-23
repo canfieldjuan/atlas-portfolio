@@ -1,6 +1,7 @@
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const webRoot = dirname(scriptDir);
@@ -35,6 +36,7 @@ export function renderDeflectionSnapshotContract(sourceText) {
     (body, [from, to]) => body.replaceAll(from, to),
     sourceBody,
   );
+  const formattedBody = formatTypeScript(mappedBody);
 
   return [
     '/*',
@@ -44,7 +46,7 @@ export function renderDeflectionSnapshotContract(sourceText) {
     ' * Do not edit by hand; run npm --prefix web run generate:deflection-snapshot-contract.',
     ' */',
     '',
-    mappedBody,
+    formattedBody,
     '',
     'export type DeflectionSnapshotSourceWindow = {',
     '  source_date_start: string;',
@@ -53,6 +55,18 @@ export function renderDeflectionSnapshotContract(sourceText) {
     '};',
     '',
   ].join('\n');
+}
+
+function formatTypeScript(sourceText) {
+  const sourceFile = ts.createSourceFile(
+    'deflection-snapshot-contract.ts',
+    sourceText,
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.TS,
+  );
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  return printer.printFile(sourceFile).trim();
 }
 
 function validateSourceContract(sourceText) {
