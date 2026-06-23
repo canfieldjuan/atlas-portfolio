@@ -1,15 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuditIntakePayload, recordAuditIntake } from '@/lib/audit-intake';
 import { isAuditProjectInterest } from '@/lib/audit-routing';
+import {
+  consumeDeflectionIdentifierRateLimit,
+  consumeDeflectionRateLimit,
+  type DeflectionRateLimitConfig,
+} from '@/lib/deflection-rate-limit';
 
 export const runtime = 'nodejs';
+
+const AUDIT_CLIENT_RATE_LIMIT = {
+  scope: 'audit-intake-ip',
+  limit: 3,
+  windowMs: 10 * 60 * 1000,
+} satisfies DeflectionRateLimitConfig;
+const AUDIT_EMAIL_RATE_LIMIT = {
+  scope: 'audit-intake-email',
+  limit: 3,
+  windowMs: 10 * 60 * 1000,
+} satisfies DeflectionRateLimitConfig;
 
 function optionalText(value: unknown) {
   return typeof value === 'string' ? value.trim() : undefined;
 }
 
+function auditRateLimitResponse(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { ok: false, error: 'Too many audit requests. Please try again later.' },
+    {
+      status: 429,
+      headers: { 'Retry-After': String(retryAfterSeconds) },
+    }
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const clientRateLimit = consumeDeflectionRateLimit(
+      request.headers,
+      'audit',
+      AUDIT_CLIENT_RATE_LIMIT
+    );
+    if (!clientRateLimit.ok) {
+      return auditRateLimitResponse(clientRateLimit.retryAfterSeconds);
+    }
+
     const body = (await request.json().catch(() => null)) as AuditIntakePayload | null;
     if (!body) {
       return NextResponse.json(
@@ -101,6 +136,14 @@ export async function POST(request: NextRequest) {
         { ok: false, error: 'Invalid work email address.' },
         { status: 400 }
       );
+    }
+
+    const emailRateLimit = consumeDeflectionIdentifierRateLimit(
+      normalizedWorkEmail,
+      AUDIT_EMAIL_RATE_LIMIT
+    );
+    if (!emailRateLimit.ok) {
+      return auditRateLimitResponse(emailRateLimit.retryAfterSeconds);
     }
 
     const { requestId, deliveries, warnings } = await recordAuditIntake({
