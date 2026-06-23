@@ -16,12 +16,15 @@ Slice phase: Production hardening
 2. Reject a selected variant or ATLAS-authorized checkout amount that is not in
    `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` before
    calling Stripe.
-3. Extend the focused checkout tests to prove disallowed selected/authorized
+3. Preserve the previous runtime key-mode guard: live restricted keys are only
+   accepted in production.
+4. Extend the focused checkout tests to prove disallowed selected/authorized
    amounts return a failure result with zero Stripe calls.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Checkout-Runtime-Amount-Allowlist.md` — plan for this hardening slice.
+- `web/src/lib/deflection-checkout-requirements.js` — shared runtime key-mode and amount config resolver.
 - `web/src/lib/deflection-checkout.ts` — runtime amount allowlist enforcement.
 - `web/scripts/test-deflection-checkout.mjs` — regression coverage for pre-Stripe amount rejection.
 
@@ -40,6 +43,10 @@ without calling Stripe. If ATLAS authorizes an
 `amountCents` value outside the same allowlist, the helper also returns
 `not_configured` without calling Stripe. The existing post-create session check
 stays in place as a second guard against Stripe or Price configuration drift.
+
+The shared resolver also keeps runtime key-mode parity with preflight: production
+requires an `rk_live_` restricted key, while local/preview rejects `rk_live_` so a
+misconfigured non-production deploy cannot create live Checkout Sessions.
 
 ## Intentional
 
@@ -66,15 +73,17 @@ Parked hardening: none
   fail-closed checkout logs and `Deflection checkout tests passed.`
 - `npm --prefix web run test:deflection-checkout-env` — passed; printed
   `Deflection checkout env tests passed.`
-- `npm --prefix web run lint -- src/lib/deflection-checkout.ts scripts/test-deflection-checkout.mjs` — passed.
-- `rg -n "resolveDeflectionCheckoutRuntimeConfig|authorized amount is not allowed|allowedAmountsCents|calls.length, 0" web/src/lib/deflection-checkout.ts web/scripts/test-deflection-checkout.mjs web/plans/PR-Deflection-Checkout-Runtime-Amount-Allowlist.md` — confirmed the live helper calls the shared resolver, checks the authorized amount before Stripe, and the test asserts zero Stripe calls on fail-closed branches.
+- `npm --prefix web run lint -- src/lib/deflection-checkout.ts src/lib/deflection-checkout-requirements.js scripts/test-deflection-checkout.mjs` — passed.
+- `rg -n "live restricted key is not accepted outside production|rk_live_unit_restricted|resolveDeflectionCheckoutRuntimeConfig|authorized amount is not allowed|allowedAmountsCents|calls.length, 0" web/src/lib/deflection-checkout-requirements.js web/src/lib/deflection-checkout.ts web/scripts/test-deflection-checkout.mjs web/plans/PR-Deflection-Checkout-Runtime-Amount-Allowlist.md` — confirmed the live helper calls the shared resolver, checks the authorized amount before Stripe, preserves non-production live-key rejection, and the test asserts zero Stripe calls on fail-closed branches.
 - `bash scripts/local_pr_review.sh` — passed.
+- Review fix: preserved non-production `rk_live_` runtime rejection and added a Price ID to the regression fixture so it proves the key-mode guard instead of failing earlier.
 
 ## Estimated diff size
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~73 |
+| Plan doc | ~82 |
+| Runtime config resolver | ~6 |
 | Checkout helper | ~53 |
-| Checkout test | ~37 |
-| Total | ~163 |
+| Checkout test | ~38 |
+| Total | ~190 |

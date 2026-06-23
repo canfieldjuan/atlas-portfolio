@@ -470,6 +470,12 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
         message: 'live restricted key is required in production',
       };
     }
+    if (!isProduction && restrictedKey.startsWith('rk_live_')) {
+      return {
+        ok: false,
+        message: 'live restricted key is not accepted outside production',
+      };
+    }
     const priceId = configuredPriceIdForVariant(env, priceVariant);
     if (!priceId.ok) {
       return { ok: false, message: priceId.message };

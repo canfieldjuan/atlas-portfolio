@@ -429,6 +429,7 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     VERCEL_ENV: 'preview',
   });
   assert.deepEqual(
