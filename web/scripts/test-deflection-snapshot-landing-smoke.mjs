@@ -50,15 +50,22 @@ async function source(path) {
 async function loadSnapshotFixtures() {
   const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-snapshot-fixtures-'));
   const compiledPath = join(testDir, 'deflection-snapshot.cjs');
+  const compiledContractPath = join(testDir, 'deflection-snapshot-contract.js');
 
   try {
     const fixtureSource = await source('src/lib/deflection-snapshot.ts');
+    const contractSource = await source('src/lib/deflection-snapshot-contract.ts');
+    const compilerOptions = {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    };
     const compiled = ts.transpileModule(fixtureSource, {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        target: ts.ScriptTarget.ES2022,
-      },
+      compilerOptions,
     });
+    const compiledContract = ts.transpileModule(contractSource, {
+      compilerOptions,
+    });
+    await writeFile(compiledContractPath, compiledContract.outputText);
     await writeFile(compiledPath, compiled.outputText);
 
     const require = createRequire(compiledPath);

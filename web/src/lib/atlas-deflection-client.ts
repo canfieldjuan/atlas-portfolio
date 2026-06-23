@@ -248,7 +248,10 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
     typeof s.generated !== 'number' ||
     typeof s.drafted_answer_count !== 'number' ||
     typeof s.no_proven_answer_count !== 'number' ||
-    !isNonNegativeNumber(s.repeat_ticket_count)
+    typeof s.support_ticket_resolution_evidence_present !== 'boolean' ||
+    !isNonNegativeNumber(s.support_ticket_resolution_evidence_count) ||
+    !isNonNegativeNumber(s.repeat_ticket_count) ||
+    !isNonNegativeNumber(s.non_repeat_ticket_count)
   ) {
     return null;
   }
@@ -270,16 +273,14 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
     if (!parsedQuestion) return null;
     lockedQuestions.push(parsedQuestion);
   }
+  if (!Array.isArray(o.top_blind_spots)) {
+    return null;
+  }
   const blindSpots: DeflectionSnapshotBlindSpot[] = [];
-  if (o.top_blind_spots !== undefined) {
-    if (!Array.isArray(o.top_blind_spots)) {
-      return null;
-    }
-    for (const blindSpot of o.top_blind_spots) {
-      const parsedBlindSpot = parseBlindSpot(blindSpot);
-      if (!parsedBlindSpot) return null;
-      blindSpots.push(parsedBlindSpot);
-    }
+  for (const blindSpot of o.top_blind_spots) {
+    const parsedBlindSpot = parseBlindSpot(blindSpot);
+    if (!parsedBlindSpot) return null;
+    blindSpots.push(parsedBlindSpot);
   }
   const teaser = parseTeaser(o.teaser);
   if (!teaser) return null;
@@ -289,12 +290,15 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
       generated: s.generated,
       drafted_answer_count: s.drafted_answer_count,
       no_proven_answer_count: s.no_proven_answer_count,
+      support_ticket_resolution_evidence_present: s.support_ticket_resolution_evidence_present,
+      support_ticket_resolution_evidence_count: s.support_ticket_resolution_evidence_count,
       repeat_ticket_count: s.repeat_ticket_count,
+      non_repeat_ticket_count: s.non_repeat_ticket_count,
       ...(sourceWindow ?? {}),
     },
     top_questions: topQuestions,
     locked_questions: lockedQuestions,
-    ...(o.top_blind_spots === undefined ? {} : { top_blind_spots: blindSpots }),
+    top_blind_spots: blindSpots,
     teaser,
   };
 }
