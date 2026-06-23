@@ -49,7 +49,7 @@ jobs:
         run: npm --prefix web run test:test-enrollment-audit
 
       - name: Deflection Snapshot contract drift check
-        run: npm --prefix web run check:deflection-snapshot-contract -- --source _atlas_contract_source/portfolio-ui/src/types/deflectionSnapshot.ts
+        run: npm --prefix web run check:deflection-snapshot-contract -- --source "$GITHUB_WORKSPACE/_atlas_contract_source/portfolio-ui/src/types/deflectionSnapshot.ts"
 
       - name: Deflection Snapshot contract generator tests
         run: npm --prefix web run test:deflection-snapshot-contract-generator

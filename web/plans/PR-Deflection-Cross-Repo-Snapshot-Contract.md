@@ -81,7 +81,7 @@ Parked hardening: none
 
 1. `npm --prefix web ci` - passed; installed dependencies in the fresh worktree.
 2. `npm --prefix web run check:deflection-snapshot-contract -- --source /home/juan-canfield/Desktop/Atlas/portfolio-ui/src/types/deflectionSnapshot.ts` - passed; generated contract matches ATLAS.
-3. `npm --prefix web run test:deflection-snapshot-contract-generator` - passed; generator render, missing-marker failure, stale-output failure, and write mode are covered.
+3. `npm --prefix web run test:deflection-snapshot-contract-generator` - passed; generator render, missing-marker failure, mutated-source comparison drift failure, stale-output failure, and write mode are covered.
 4. `npm --prefix web run test:deflection-intake-atlas-submit` - passed; live parser accepts the generated Snapshot shape and rejects missing `top_blind_spots`.
 5. `npm --prefix web run test:deflection-results-state` - passed; route-state fixtures carry the generated Snapshot shape.
 6. `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed; demo fixtures still match the Snapshot landing contract.
@@ -89,6 +89,7 @@ Parked hardening: none
 8. `npm --prefix web run lint` - passed with no eslint errors.
 9. `npm --prefix web run build` - passed; Next compiled and type-checked successfully.
 10. `bash scripts/local_pr_review.sh` - passed; plan audits, drift advisory, dead-code baseline, Snapshot landing smoke, eslint, Next build, and whitespace all passed.
+11. `GITHUB_WORKSPACE=/home/juan-canfield/Desktop/atlas-portfolio-contract; npm --prefix web run check:deflection-snapshot-contract -- --source "$GITHUB_WORKSPACE/../Atlas/portfolio-ui/src/types/deflectionSnapshot.ts"` - passed after review fix; simulates the workflow's absolute `GITHUB_WORKSPACE` source path.
 
 ## Estimated diff size
 

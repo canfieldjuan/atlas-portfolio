@@ -121,6 +121,18 @@ try {
   await writeFile(outputPath, rendered, 'utf8');
   await generateDeflectionSnapshotContract({ check: true, outputPath, sourcePath });
 
+  const driftedSource = SOURCE_FIXTURE.replace(
+    'support_ticket_resolution_evidence_present: boolean;',
+    'support_ticket_resolution_evidence_present: string;',
+  );
+  await writeFile(sourcePath, driftedSource, 'utf8');
+  await assert.rejects(
+    () => generateDeflectionSnapshotContract({ check: true, outputPath, sourcePath }),
+    /is out of date/,
+    'check mode should reject a valid ATLAS source whose rendered contract drifts from the committed output',
+  );
+  await writeFile(sourcePath, SOURCE_FIXTURE, 'utf8');
+
   await writeFile(outputPath, rendered.replace('DeflectionSnapshotQuestion', 'StaleQuestion'), 'utf8');
   await assert.rejects(
     () => generateDeflectionSnapshotContract({ check: true, outputPath, sourcePath }),
