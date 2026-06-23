@@ -301,6 +301,9 @@ function ReportContentsPrimer({
         </div>
         <div className="border-t border-border/60 pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
           <dt className="text-foreground/45">Top opportunity score</dt>
+          <dd className="mt-1 text-xs leading-relaxed text-foreground/50">
+            Relative ranking signal: repeat volume weighted by failure-risk signals. Not a dollar figure or percentage.
+          </dd>
           <dd className="mt-1 font-mono text-foreground">
             {artifact.summary.top_opportunity_score}
           </dd>

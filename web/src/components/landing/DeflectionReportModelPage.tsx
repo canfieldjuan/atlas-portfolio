@@ -584,6 +584,9 @@ function RankedQuestions({ section }: { section?: DeflectionReportSection }) {
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
       <h2 className="text-xl font-semibold text-foreground">Ranked question opportunities</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
+        Opportunity is a relative ranking signal: repeat volume weighted by failure-risk signals. It is not a dollar figure or percentage.
+      </p>
       <div className="mt-4 overflow-x-auto rounded-xl border border-border">
         <table className="w-full min-w-[760px] border-collapse text-left text-sm">
           <thead className="bg-background/50 text-foreground">

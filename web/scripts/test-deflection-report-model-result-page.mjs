@@ -1176,6 +1176,14 @@ try {
   assert.ok(modelPageSource.includes('Backlog Table'), 'model page names the backlog table');
   assert.ok(modelPageSource.includes('data-smoke="backlogTable"'), 'backlog table keeps a stable smoke marker');
   assert.ok(
+    modelPageSource.includes('Opportunity is a relative ranking signal: repeat volume weighted by failure-risk signals.'),
+    'ranked questions explain opportunity score before the table',
+  );
+  assert.ok(
+    modelPageSource.includes('It is not a dollar figure or percentage.'),
+    'ranked questions keep opportunity score out of dollars and percentages',
+  );
+  assert.ok(
     modelPageSource.includes('const limit = Math.min(PRIORITY_FIX_QUEUE_LIMIT, requestedLimit)'),
     'priority queue clamps the result-page limit locally',
   );

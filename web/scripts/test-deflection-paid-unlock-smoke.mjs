@@ -443,6 +443,8 @@ function run(options, responses, deps = {}) {
   assertIncludes(source, "badge: 'FULL DEFLECTION REPORT'", 'paid report artifact copy');
   assertIncludes(source, "contentsLabel: 'Full audit contents'", 'paid report artifact copy');
   assertIncludes(source, "contentsLabel: 'Full report contents'", 'paid report artifact copy');
+  assertIncludes(source, 'Relative ranking signal: repeat volume weighted by failure-risk signals.', 'paid report opportunity score explanation');
+  assertIncludes(source, 'Not a dollar figure or percentage.', 'paid report opportunity score explanation');
   assertExcludes(source, 'FULL BACKLOG REPORT', 'paid report artifact copy');
   assertExcludes(source, 'Your complete Support Tax report is ready.', 'paid report artifact copy');
   assertExcludes(source, 'Paid report contents', 'paid report artifact copy');
