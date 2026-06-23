@@ -22,7 +22,7 @@ The route imports `consumeDeflectionRateLimit` and `consumeDeflectionIdentifierR
 
 ## Intentional
 
-This uses the existing best-effort per-process limiter because #313 explicitly says to avoid paid dependencies and reuse the current pattern. A distributed or edge limiter remains stronger, but is outside this no-cost slice.
+This uses the existing per-process limiter because #313 explicitly says to avoid paid dependencies and reuse the current pattern. That also widens the existing shared-store exhaustion surface to `/api/audit`: a spoofed-IP flood can fill the capped in-memory store until entries expire. A distributed or edge limiter remains stronger, but is outside this no-cost slice.
 
 This does not change audit form validation, delivery behavior, payload schema, or user-facing page copy.
 
@@ -36,12 +36,13 @@ Parked hardening: none
 
 - `npm --prefix web run test:deflection-rate-limit` — passed.
 - `rg -n "audit-intake-ip|audit-intake-email|Too many audit requests|recordAuditIntake|consumeDeflectionRateLimit|consumeDeflectionIdentifierRateLimit" web/src/app/api/audit/route.ts web/scripts/test-deflection-rate-limit.mjs web/plans/PR-Audit-Intake-Rate-Limit.md` — confirmed the audit route imports the existing limiter, declares IP/email scopes, returns the generic 429 copy, and checks the email bucket before `recordAuditIntake`.
+- `bash scripts/local_pr_review.sh` — passed.
 
 ## Estimated diff size
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan doc | ~48 |
+| Plan doc | ~51 |
 | Audit route | ~43 |
 | Rate-limit test | ~138 |
-| Total | ~229 |
+| Total | ~232 |
