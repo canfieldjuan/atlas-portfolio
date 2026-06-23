@@ -15,6 +15,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout ATLAS contract source
+        uses: actions/checkout@v4
+        with:
+          repository: canfieldjuan/ATLAS
+          path: _atlas_contract_source
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -41,6 +47,12 @@ jobs:
 
       - name: Test enrollment audit tests
         run: npm --prefix web run test:test-enrollment-audit
+
+      - name: Deflection Snapshot contract drift check
+        run: npm --prefix web run check:deflection-snapshot-contract -- --source "$GITHUB_WORKSPACE/_atlas_contract_source/portfolio-ui/src/types/deflectionSnapshot.ts"
+
+      - name: Deflection Snapshot contract generator tests
+        run: npm --prefix web run test:deflection-snapshot-contract-generator
 
       - name: Dead code baseline
         run: npm --prefix web run check:dead-code
