@@ -204,6 +204,21 @@ try {
     'https://juancanfield.com/systems/support-ticket-deflection/results/request-123?checkout=cancel',
   );
 
+  installFetchMock();
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD: 'price_standard123',
+  });
+  assert.deepEqual(
+    await createSession({
+      ...standardCheckout,
+      amountCents: variantAmountCents,
+    }),
+    { ok: false, reason: 'not_configured' },
+  );
+  assert.equal(calls.length, 0);
+
   installFetchMock({
     ...defaultStripeSession,
     amount_total: DEFLECTION_PARTNER_PRICE_VARIANT.amountCents,
@@ -263,9 +278,9 @@ try {
   });
   assert.deepEqual(
     await createSession(partnerCheckout, 'partner'),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'not_configured' },
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -276,10 +291,9 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'not_configured' },
   );
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -353,9 +367,9 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'not_configured' },
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -366,9 +380,9 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'not_configured' },
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({
@@ -401,6 +415,7 @@ try {
   resetEnv({
     ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
     ATLAS_ACCOUNT_ID: 'acct_unit',
+    STRIPE_DEFLECTION_REPORT_PRICE_ID: 'price_12345678',
     VERCEL_ENV: 'production',
   });
   assert.deepEqual(
@@ -453,9 +468,9 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: true, url: 'https://checkout.stripe.test/session' },
+    { ok: false, reason: 'not_configured' },
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 0);
 
   installFetchMock();
   resetEnv({

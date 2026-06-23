@@ -18,6 +18,7 @@ import {
   type DeflectionPriceVariantId,
   resolveDeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import * as checkoutRequirements from '@/lib/deflection-checkout-requirements';
 import type { DeflectionCheckoutAuthorization } from '@/lib/atlas-deflection-client';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
@@ -38,6 +39,7 @@ export type CheckoutResult =
 type StripeCheckoutConfig = {
   apiKey: string;
   accountId: string;
+  allowedAmountsCents: Set<number>;
 };
 
 type StripeCheckoutSessionResponse = {
@@ -46,41 +48,22 @@ type StripeCheckoutSessionResponse = {
   currency?: unknown;
 };
 
-function stripeConfig(): StripeCheckoutConfig | null {
-  const accountId = process.env.ATLAS_ACCOUNT_ID?.trim();
-  const restrictedKey = process.env.ATLAS_SAAS_STRIPE_RAK?.trim();
-  const legacyTestSecretKey = process.env.ATLAS_SAAS_STRIPE_SECRET_KEY?.trim();
-  const isProduction = (process.env.VERCEL_ENV || '').trim().toLowerCase() === 'production';
-  if (!accountId) return null;
-  if (restrictedKey) {
-    if (!restrictedKey.startsWith('rk_')) {
-      console.error('stripe checkout create: restricted key must start with rk_');
-      return null;
+type RuntimeCheckoutConfigResult =
+  | { ok: true; config: StripeCheckoutConfig }
+  | { ok: false; message: string };
+
+function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfig | null {
+  const result = checkoutRequirements.resolveDeflectionCheckoutRuntimeConfig(
+    process.env,
+    priceVariant,
+  ) as RuntimeCheckoutConfigResult;
+  if (!result.ok) {
+    if (result.message) {
+      console.error(`stripe checkout create: ${result.message}`);
     }
-    if (isProduction && !restrictedKey.startsWith('rk_live_')) {
-      console.error('stripe checkout create: live restricted key is required in production');
-      return null;
-    }
-    if (!isProduction && restrictedKey.startsWith('rk_live_')) {
-      console.error('stripe checkout create: live restricted key is not accepted outside production');
-      return null;
-    }
-    return { apiKey: restrictedKey, accountId };
-  }
-  if (!legacyTestSecretKey) return null;
-  if (isProduction) {
-    console.error('stripe checkout create: restricted key is required in production');
     return null;
   }
-  if (legacyTestSecretKey.startsWith('sk_live_')) {
-    console.error('stripe checkout create: full live secret key is not accepted');
-    return null;
-  }
-  if (!legacyTestSecretKey.startsWith('sk_test_')) {
-    console.error('stripe checkout create: fallback secret key must be test-mode');
-    return null;
-  }
-  return { apiKey: legacyTestSecretKey, accountId };
+  return result.config;
 }
 
 function isAllowedCheckoutSession(
@@ -131,7 +114,7 @@ export async function createDeflectionCheckoutSession(
   const priceVariant = resolveDeflectionPriceVariant(priceVariantId);
   if (!priceVariant) return { ok: false, reason: 'invalid_request' };
 
-  const config = stripeConfig();
+  const config = stripeConfig(priceVariant);
   if (!config) return { ok: false, reason: 'not_configured' };
   if (
     !REQUEST_ID_RE.test(requestId) ||
@@ -142,6 +125,10 @@ export async function createDeflectionCheckoutSession(
     !checkout.priceId
   ) {
     return { ok: false, reason: 'invalid_request' };
+  }
+  if (!config.allowedAmountsCents.has(checkout.amountCents)) {
+    console.error('stripe checkout create: authorized amount is not allowed');
+    return { ok: false, reason: 'not_configured' };
   }
 
   // The webhook is the trust path, so we don't need the session id echoed back —
