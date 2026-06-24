@@ -229,6 +229,21 @@ function projectedSection(section) {
       },
     };
   }
+  if (section.id === 'suppressed_repeat_review_queue') {
+    return {
+      ...section,
+      data: {
+        items: section.data.items.map((row) => ({
+          ...projectedActionItem(row),
+          suppression_reason: row.suppression_reason,
+          suppression_reason_label: row.suppression_reason_label,
+        })),
+        total_item_count: section.data.total_item_count,
+        default_limit: section.data.default_limit,
+        reason_counts: section.data.reason_counts,
+      },
+    };
+  }
   return section;
 }
 
@@ -376,6 +391,39 @@ function backlogTableSection(overrides = {}) {
   };
 }
 
+function suppressedRepeatReviewQueueSection(overrides = {}) {
+  return {
+    id: 'suppressed_repeat_review_queue',
+    title: 'Suppressed Repeat Review Queue',
+    priority: 41,
+    surfaces: ['web', 'export'],
+    default_limit: 25,
+    required_data: ['items', 'total_item_count', 'default_limit', 'reason_counts'],
+    snapshot_safe_fields: [],
+    data: {
+      total_item_count: 1,
+      default_limit: 25,
+      reason_counts: { too_low_volume: 1 },
+      items: [
+        actionItem({
+          rank: 4,
+          question: 'Can I change invoice contacts for a closed invoice?',
+          status: 'Review before promotion',
+          owner_lane: 'Operations',
+          recommended_action: 'Review whether this low-volume repeat belongs in the action queue.',
+          ticket_count: 2,
+          estimated_support_cost: 27,
+          priority_score: 35,
+          priority_drivers: ['suppressed_repeat', 'too_low_volume'],
+          suppression_reason: 'too_low_volume',
+          suppression_reason_label: 'Too low volume',
+        }),
+      ],
+    },
+    ...overrides,
+  };
+}
+
 function rankedQuestionsSection(overrides = {}) {
   return {
     id: 'ranked_questions',
@@ -456,6 +504,7 @@ function minimalModel(overrides = {}) {
       draftedResolutionsSection(),
       coveredRecurringSection(),
       backlogTableSection(),
+      suppressedRepeatReviewQueueSection(),
     ],
     ...overrides,
   };
@@ -787,6 +836,20 @@ try {
           total_item_count: 1,
         },
       }),
+      suppressedRepeatReviewQueueSection({
+        data: {
+          ...suppressedRepeatReviewQueueSection().data,
+          items: [
+            {
+              ...unsafeActionItem,
+              suppression_reason: 'too_low_volume',
+              suppression_reason_label: 'Too low volume',
+            },
+          ],
+          total_item_count: 1,
+          reason_counts: { too_low_volume: 1 },
+        },
+      }),
     ],
   });
   const projectedUnsafeModel = await fetchDeflectionReportModel('content-ops-unit-123');
@@ -796,7 +859,8 @@ try {
     section.id === 'top_unresolved_repeats' ||
     section.id === 'drafted_resolutions' ||
     section.id === 'already_covered_still_recurring' ||
-    section.id === 'backlog_table'
+    section.id === 'backlog_table' ||
+    section.id === 'suppressed_repeat_review_queue'
   ))) {
     const item = section.data.items[0];
     if (
@@ -813,7 +877,7 @@ try {
     assert.equal('top_evidence' in item, false);
     assert.equal('fix_type' in item, false);
     assert.equal('opportunity_score' in item, false);
-    assert.deepEqual(Object.keys(item).sort(), [
+    const expectedItemKeys = [
       'confidence',
       'csat_signal',
       'estimated_support_cost',
@@ -825,7 +889,14 @@ try {
       'recommended_action',
       'status',
       'ticket_count',
-    ].sort());
+    ];
+    if (section.id === 'suppressed_repeat_review_queue') {
+      expectedItemKeys.push('suppression_reason', 'suppression_reason_label');
+      assert.equal(item.suppression_reason, 'too_low_volume');
+      assert.equal(item.suppression_reason_label, 'Too low volume');
+      assert.deepEqual(section.data.reason_counts, { too_low_volume: 1 });
+    }
+    assert.deepEqual(Object.keys(item).sort(), expectedItemKeys.sort());
   }
 
   resetCalls();
@@ -1483,6 +1554,7 @@ try {
   assert.ok(modelPageSource.includes('Priority Fix Queue'), 'model page names the action queue');
   assert.ok(modelPageSource.includes("section.id === 'top_unresolved_repeats'"), 'model page renders top_unresolved_repeats sections');
   assert.ok(modelPageSource.includes('Top Unresolved Repeats'), 'model page names unresolved repeat actions');
+  assert.ok(modelPageSource.includes('Content gap'), 'model page frames unresolved repeats as content gaps');
   assert.ok(modelPageSource.includes('data-smoke="topUnresolvedRepeats"'), 'top unresolved repeats keeps a stable smoke marker');
   assert.ok(modelPageSource.includes("section.id === 'drafted_resolutions'"), 'model page renders drafted_resolutions sections');
   assert.ok(modelPageSource.includes('Drafted Resolutions'), 'model page names drafted resolution actions');
@@ -1492,7 +1564,15 @@ try {
     'model page renders already_covered_still_recurring sections',
   );
   assert.ok(modelPageSource.includes('Already Covered but Still Recurring'), 'model page names covered recurring actions');
+  assert.ok(modelPageSource.includes('Product or process gap'), 'model page frames covered recurring rows as product/process gaps');
   assert.ok(modelPageSource.includes('data-smoke="coveredRecurring"'), 'covered recurring keeps a stable smoke marker');
+  assert.ok(
+    modelPageSource.includes("section.id === 'suppressed_repeat_review_queue'"),
+    'model page renders suppressed_repeat_review_queue sections',
+  );
+  assert.ok(modelPageSource.includes('Suppressed Repeat Review Queue'), 'model page names the suppressed repeat review queue');
+  assert.ok(modelPageSource.includes('data-smoke="suppressedRepeatReviewQueue"'), 'suppressed queue keeps a stable smoke marker');
+  assert.ok(modelPageSource.includes('Hide reason'), 'suppressed queue exposes the hide reason column');
   assert.ok(modelPageSource.includes("section.id === 'backlog_table'"), 'model page renders backlog_table sections');
   assert.ok(modelPageSource.includes('Backlog Table'), 'model page names the backlog table');
   assert.ok(modelPageSource.includes('data-smoke="backlogTable"'), 'backlog table keeps a stable smoke marker');

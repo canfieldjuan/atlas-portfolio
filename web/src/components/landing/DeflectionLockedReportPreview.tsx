@@ -69,6 +69,11 @@ function csatSignal(value: unknown): string {
   return 'Insufficient data';
 }
 
+function suppressionReason(value: unknown): string {
+  const item = asRecord(value);
+  return text(item.suppression_reason_label) || text(item.suppression_reason).replace(/_/g, ' ') || 'Review reason';
+}
+
 function actionItem(section: DeflectionReportSection): Record<string, unknown> {
   return rows(asRecord(section.data).items)[0] ?? {};
 }
@@ -114,7 +119,7 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
   {
     id: 'top_unresolved_repeats',
     smoke: 'lockedPreviewTopUnresolvedRepeats',
-    eyebrow: 'Open repeat questions',
+    eyebrow: 'Content gap',
     heading: 'Top Unresolved Repeats',
     columns: ['Question/theme', 'Status', 'Repeats', 'Cost', 'CSAT', 'Owner lane', 'Action'],
     sample: (section) => {
@@ -153,7 +158,7 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
   {
     id: 'already_covered_still_recurring',
     smoke: 'lockedPreviewCoveredRecurring',
-    eyebrow: 'Still coming back',
+    eyebrow: 'Product or process gap',
     heading: 'Already Covered but Still Recurring',
     columns: ['Question/theme', 'Status', 'Repeats', 'Cost', 'CSAT', 'Owner lane', 'Signal', 'Next action'],
     sample: (section) => {
@@ -205,6 +210,26 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
         formatInteger(int(row.reopened_ticket_count)),
         formatInteger(int(row.negative_csat_ticket_count)),
         text(row.guidance),
+      ];
+    },
+  },
+  {
+    id: 'suppressed_repeat_review_queue',
+    smoke: 'lockedPreviewSuppressedRepeatReviewQueue',
+    eyebrow: 'Review queue',
+    heading: 'Suppressed Repeat Review Queue',
+    columns: ['Question/theme', 'Hide reason', 'Repeats', 'Cost', 'CSAT', 'Owner lane', 'Confidence', 'Review action'],
+    sample: (section) => {
+      const item = actionItem(section);
+      return [
+        text(item.question),
+        suppressionReason(item),
+        formatInteger(int(item.ticket_count)),
+        money(item.estimated_support_cost),
+        csatSignal(item.csat_signal),
+        text(item.owner_lane),
+        text(item.confidence),
+        text(item.recommended_action),
       ];
     },
   },
@@ -324,8 +349,8 @@ export function DeflectionLockedReportPreview({
             The Snapshot shows whether a deeper audit is warranted. The locked
             preview below shows the operating sections the full report expands:
             ranked fixes, unresolved repeats, drafted answers, recurring
-            covered issues, backlog rows, outcome diagnostics, and answer
-            evidence cards.
+            covered issues, suppressed-row review reasons, backlog rows,
+            outcome diagnostics, and answer evidence cards.
           </p>
         </div>
         <div className="grid gap-4">
