@@ -28,6 +28,243 @@ let fetchPayload = minimalModel();
 let fetchStatus = 200;
 let consoleErrors = [];
 
+const HOSTED_FIELD_SHAPES = {
+  already_covered_still_recurring: {
+    items: 'object_array',
+    top_item_count: 'scalar',
+  },
+  'already_covered_still_recurring.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+  },
+  'already_covered_still_recurring.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  backlog_table: {
+    items: 'object_array',
+    total_item_count: 'scalar',
+    default_limit: 'scalar',
+  },
+  'backlog_table.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+  },
+  'backlog_table.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  drafted_resolutions: {
+    items: 'object_array',
+    top_item_count: 'scalar',
+  },
+  'drafted_resolutions.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+  },
+  'drafted_resolutions.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  outcome_diagnostics: {
+    outcome_diagnostic_ticket_count: 'scalar',
+    outcome_risk_ticket_count: 'scalar',
+    reopened_ticket_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    rows: 'object_array',
+  },
+  'outcome_diagnostics.rows': {
+    question: 'scalar',
+    status_mix: 'scalar',
+    reopened_ticket_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    guidance: 'scalar',
+  },
+  priority_fix_queue: {
+    items: 'object_array',
+    status_counts: 'record',
+    result_page_limit: 'scalar',
+    pdf_limit: 'scalar',
+    backlog_limit: 'scalar',
+    support_cost_basis: 'object',
+  },
+  'priority_fix_queue.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+  },
+  'priority_fix_queue.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  'priority_fix_queue.support_cost_basis': {
+    status: 'scalar',
+  },
+  question_details: {
+    rows: 'object_array',
+  },
+  'question_details.rows': {
+    rank: 'scalar',
+    question: 'scalar',
+    customer_wording: 'scalar',
+    topic: 'scalar',
+    ticket_count: 'scalar',
+    weighted_frequency: 'scalar',
+    source_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    answer_status: 'scalar',
+    answer_evidence_status: 'scalar',
+    resolution_evidence_scope: 'scalar',
+    answer_linkage: 'scalar',
+    answer: 'scalar',
+    steps: 'scalar_array',
+    term_mappings: 'object_array',
+  },
+  'question_details.rows.term_mappings': {
+    customer_term: 'scalar',
+    documentation_term: 'scalar',
+    suggestion: 'scalar',
+    source_id_count: 'scalar',
+  },
+  ranked_questions: {
+    rows: 'object_array',
+  },
+  'ranked_questions.rows': {
+    rank: 'scalar',
+    question: 'scalar',
+    ticket_count: 'scalar',
+    weighted_frequency: 'scalar',
+    customer_wording: 'scalar',
+    estimated_support_cost: 'scalar',
+    opportunity_score: 'scalar',
+    answer_status: 'scalar',
+    source_proof: 'scalar',
+  },
+  seo_targets: {
+    phrases: 'scalar_array',
+    total_phrase_count: 'scalar',
+    displayed_phrase_count: 'scalar',
+    omitted_phrase_count: 'scalar',
+    limit: 'scalar',
+  },
+  support_tax: {
+    repeat_ticket_count: 'scalar',
+    non_repeat_ticket_count: 'scalar',
+    generated_question_count: 'scalar',
+    assisted_contact_cost: 'scalar',
+    estimated_support_cost: 'scalar',
+    source_date_window: 'object',
+    drafted_answer_count: 'scalar',
+    no_proven_answer_count: 'scalar',
+    ticket_source_count: 'scalar',
+    annualized_support_cost: 'scalar',
+    annualized_run_rate_support_cost: 'scalar',
+  },
+  'support_tax.source_date_window': {
+    source_date_start: 'scalar',
+    source_date_end: 'scalar',
+    source_window_days: 'scalar',
+  },
+  suppressed_repeat_review_queue: {
+    items: 'object_array',
+    total_item_count: 'scalar',
+    default_limit: 'scalar',
+    reason_counts: 'record',
+  },
+  'suppressed_repeat_review_queue.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+    review_key: 'scalar',
+    suppression_reason: 'scalar',
+    suppression_reason_label: 'scalar',
+  },
+  'suppressed_repeat_review_queue.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  top_unresolved_repeats: {
+    items: 'object_array',
+    top_item_count: 'scalar',
+    support_cost_basis: 'object',
+  },
+  'top_unresolved_repeats.items': {
+    rank: 'scalar',
+    question: 'scalar',
+    status: 'scalar',
+    owner_lane: 'scalar',
+    confidence: 'scalar',
+    recommended_action: 'scalar',
+    ticket_count: 'scalar',
+    estimated_support_cost: 'scalar',
+    priority_score: 'scalar',
+    priority_drivers: 'scalar_array',
+    csat_signal: 'object',
+  },
+  'top_unresolved_repeats.items.csat_signal': {
+    status: 'scalar',
+    csat_present_count: 'scalar',
+    negative_csat_ticket_count: 'scalar',
+    numeric_average: 'scalar',
+  },
+  'top_unresolved_repeats.support_cost_basis': {
+    status: 'scalar',
+  },
+};
+
 function resetStatusRoute({
   modelResult = { ok: false, reason: 'not_found' },
   artifactResult = { ok: false, reason: 'not_found' },
@@ -146,110 +383,53 @@ function actionItem(overrides = {}) {
   };
 }
 
-function projectedActionItem(row = actionItem()) {
-  return {
-    rank: row.rank,
-    question: row.question,
-    status: row.status,
-    owner_lane: row.owner_lane,
-    confidence: row.confidence,
-    recommended_action: row.recommended_action,
-    ticket_count: row.ticket_count,
-    estimated_support_cost: row.estimated_support_cost,
-    priority_score: row.priority_score,
-    priority_drivers: row.priority_drivers,
-    csat_signal: {
-      status: row.csat_signal.status,
-      csat_present_count: row.csat_signal.csat_present_count,
-      negative_csat_ticket_count: row.csat_signal.negative_csat_ticket_count,
-      numeric_average: row.csat_signal.numeric_average,
-    },
-  };
+function isRecord(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function projectedSupportCostBasis(section) {
-  return { status: section.data.support_cost_basis.status };
+function isHostedScalar(value) {
+  return (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  );
+}
+
+function projectHostedFields(data, ownerPath) {
+  const projected = {};
+  for (const [field, shape] of Object.entries(HOSTED_FIELD_SHAPES[ownerPath] ?? {})) {
+    if (!(field in data)) continue;
+    const value = data[field];
+    const nestedPath = `${ownerPath}.${field}`;
+    if (shape === 'scalar' && isHostedScalar(value)) {
+      projected[field] = value;
+    } else if (shape === 'scalar_array' && Array.isArray(value) && value.every(isHostedScalar)) {
+      projected[field] = value.slice();
+    } else if (shape === 'record' && isRecord(value)) {
+      projected[field] = Object.fromEntries(
+        Object.entries(value).filter(([, entryValue]) => isHostedScalar(entryValue)),
+      );
+    } else if (shape === 'object') {
+      if (value === null) {
+        projected[field] = null;
+      } else if (isRecord(value)) {
+        projected[field] = projectHostedFields(value, nestedPath);
+      }
+    } else if (shape === 'object_array' && Array.isArray(value)) {
+      projected[field] = value
+        .filter(isRecord)
+        .map((item) => projectHostedFields(item, nestedPath));
+    }
+  }
+  return projected;
 }
 
 function projectedSection(section) {
-  if (section.id === 'priority_fix_queue') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map(projectedActionItem),
-        status_counts: section.data.status_counts,
-        result_page_limit: section.data.result_page_limit,
-        pdf_limit: section.data.pdf_limit,
-        backlog_limit: section.data.backlog_limit,
-        support_cost_basis: projectedSupportCostBasis(section),
-      },
-    };
-  }
-  if (section.id === 'top_unresolved_repeats') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map(projectedActionItem),
-        top_item_count: section.data.top_item_count,
-        result_page_limit: section.data.result_page_limit,
-        pdf_limit: section.data.pdf_limit,
-        support_cost_basis: projectedSupportCostBasis(section),
-      },
-    };
-  }
-  if (section.id === 'drafted_resolutions') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map(projectedActionItem),
-        top_item_count: section.data.top_item_count,
-        result_page_limit: section.data.result_page_limit,
-        pdf_limit: section.data.pdf_limit,
-      },
-    };
-  }
-  if (section.id === 'already_covered_still_recurring') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map(projectedActionItem),
-        top_item_count: section.data.top_item_count,
-        result_page_limit: section.data.result_page_limit,
-        pdf_limit: section.data.pdf_limit,
-      },
-    };
-  }
-  if (section.id === 'backlog_table') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map(projectedActionItem),
-        total_item_count: section.data.total_item_count,
-        default_limit: section.data.default_limit,
-      },
-    };
-  }
-  if (section.id === 'suppressed_repeat_review_queue') {
-    return {
-      ...section,
-      data: {
-        items: section.data.items.map((row) => {
-          const item = {
-            ...projectedActionItem(row),
-            suppression_reason: row.suppression_reason,
-            suppression_reason_label: row.suppression_reason_label,
-          };
-          return typeof row.review_key === 'string'
-            ? { ...item, review_key: row.review_key }
-            : item;
-        }),
-        total_item_count: section.data.total_item_count,
-        default_limit: section.data.default_limit,
-        reason_counts: section.data.reason_counts,
-      },
-    };
-  }
-  return section;
+  return {
+    ...section,
+    data: projectHostedFields(section.data, section.id),
+  };
 }
 
 function priorityFixQueueSection(overrides = {}) {
@@ -487,10 +667,62 @@ function outcomeDiagnosticsSection(overrides = {}) {
       rows: [
         {
           question: 'How do I enable SSO for my team?',
-          status_mix: { reopened: 1 },
+          status_mix: 'reopened: 1',
           reopened_ticket_count: 1,
           negative_csat_ticket_count: 0,
           guidance: 'Review reopened outcomes before publishing.',
+        },
+      ],
+    },
+    ...overrides,
+  };
+}
+
+function questionDetailsSection(overrides = {}) {
+  return {
+    id: 'question_details',
+    title: 'Question Details',
+    priority: 80,
+    surfaces: ['web', 'export'],
+    default_limit: 10,
+    required_data: ['rows'],
+    snapshot_safe_fields: [
+      'rows.rank',
+      'rows.question',
+      'rows.answer_evidence_status',
+      'rows.resolution_evidence_scope',
+      'rows.weighted_frequency',
+      'rows.source_count',
+    ],
+    data: {
+      rows: [
+        {
+          rank: 1,
+          question: 'How do I enable SSO for my team?',
+          customer_wording: 'enable SSO',
+          topic: 'Authentication',
+          ticket_count: 7,
+          weighted_frequency: 7,
+          source_count: 4,
+          estimated_support_cost: 94.5,
+          answer_status: 'Draft ready',
+          answer_evidence_status: 'resolution_evidence',
+          resolution_evidence_scope: 'scoped',
+          answer_linkage: 'publishable_answer',
+          answer: 'Open Settings, then SSO.',
+          steps: ['Open Settings', 'Choose SSO'],
+          term_mappings: [
+            {
+              customer_term: 'SSO',
+              documentation_term: 'single sign-on',
+              suggestion: 'Use both terms in the help article.',
+              source_id_count: 4,
+              source_ids: ['zendesk-ticket-private'],
+            },
+          ],
+          source_ids: ['zendesk-ticket-private'],
+          evidence_quotes: ['raw customer quote'],
+          outcome_diagnostics: { raw: 'private diagnostic payload' },
         },
       ],
     },
@@ -563,6 +795,7 @@ try {
     [
       "exports.deflectionArtifactPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/artifact`;",
       "exports.deflectionReportModelPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/report-model`;",
+      `exports.DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = ${JSON.stringify(HOSTED_FIELD_SHAPES)};`,
       '',
     ].join('\n'),
   );
@@ -799,6 +1032,31 @@ try {
   });
 
   resetCalls();
+  const questionDetails = questionDetailsSection();
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), priorityFixQueueSection(), questionDetails],
+  });
+  const projectedQuestionDetailsModel = await fetchDeflectionReportModel('content-ops-unit-123');
+  assert.equal(projectedQuestionDetailsModel.ok, true);
+  const projectedQuestionDetails = projectedQuestionDetailsModel.model.sections.find(
+    (section) => section.id === 'question_details',
+  );
+  assert.ok(projectedQuestionDetails);
+  const projectedQuestionRow = projectedQuestionDetails.data.rows[0];
+  assert.equal(projectedQuestionRow.source_count, 4);
+  assert.equal('source_ids' in projectedQuestionRow, false);
+  assert.equal('evidence_quotes' in projectedQuestionRow, false);
+  assert.equal('outcome_diagnostics' in projectedQuestionRow, false);
+  assert.deepEqual(projectedQuestionRow.term_mappings, [
+    {
+      customer_term: 'SSO',
+      documentation_term: 'single sign-on',
+      suggestion: 'Use both terms in the help article.',
+      source_id_count: 4,
+    },
+  ]);
+
+  resetCalls();
   const unsafeActionItem = actionItem({
     recommended_title: 'Unsafe title should not reach page data',
     representative_phrasing: ['My token is raw-customer-phrase'],
@@ -875,8 +1133,8 @@ try {
       section.id === 'drafted_resolutions' ||
       section.id === 'already_covered_still_recurring'
     ) {
-      assert.equal(section.data.result_page_limit, 3);
-      assert.equal(section.data.pdf_limit, 10);
+      assert.equal('result_page_limit' in section.data, false);
+      assert.equal('pdf_limit' in section.data, false);
     }
     assert.equal('recommended_title' in item, false);
     assert.equal('representative_phrasing' in item, false);
@@ -1484,7 +1742,7 @@ try {
           rows: [
             {
               ...outcomeDiagnosticsSection().data.rows[0],
-              status_mix: 'reopened',
+              status_mix: { reopened: 1 },
             },
           ],
         },
@@ -1659,7 +1917,8 @@ try {
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
   assert.equal(modelPageSource.includes('top_evidence'), false, 'priority queue must not inline evidence snippets in S3A');
   assert.equal(modelPageSource.includes('evidence_quotes'), false, 'model page must not read raw evidence quotes');
-  assert.equal(modelPageSource.includes('source_ids.map'), false, 'model page must not render raw source IDs');
+  assert.equal(modelPageSource.includes('source_ids'), false, 'model page must not read raw source IDs');
+  assert.ok(modelPageSource.includes('int(row.source_count)'), 'model page uses hosted-safe source counts');
 
   async function readReportStatus(requestId = 'content-ops-unit-123') {
     const response = await reportStatusGET(
