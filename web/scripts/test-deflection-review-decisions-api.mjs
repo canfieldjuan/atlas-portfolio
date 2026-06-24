@@ -114,12 +114,14 @@ try {
       "exports.listDeflectionReviewDecisions = async (requestId) => {",
       "  const state = globalThis.__deflectionReviewDecisions;",
       "  state.calls.push({ kind: 'list', requestId });",
+      "  if (state.listError) throw state.listError;",
       "  return state.records;",
       '};',
       "exports.upsertDeflectionReviewDecision = async (input) => {",
       "  const state = globalThis.__deflectionReviewDecisions;",
       "  state.calls.push({ kind: 'upsert', input });",
       "  if (!state.configured) return null;",
+      "  if (state.upsertError) throw state.upsertError;",
       "  const record = { ...input, updatedAt: '2026-06-24T00:00:00.000Z' };",
       "  state.records = state.records.filter((row) => row.requestId !== input.requestId || row.reviewKey !== input.reviewKey);",
       "  state.records.unshift(record);",
@@ -199,6 +201,16 @@ try {
   const unconfigured = await POST(postRequest({ requestId: REQUEST_ID, reviewKey: REVIEW_KEY, decision: 'keep_suppressed' }));
   assert.equal(unconfigured.status, 503);
   assert.equal((await json(unconfigured)).error, 'Review decision storage is not configured.');
+
+  resetState({ listError: new Error('relation does not exist') });
+  const listFailure = await GET(getRequest());
+  assert.equal(listFailure.status, 503);
+  assert.equal((await json(listFailure)).error, 'Review decision storage is unavailable.');
+
+  resetState({ upsertError: new Error('connection reset') });
+  const writeFailure = await POST(postRequest({ requestId: REQUEST_ID, reviewKey: REVIEW_KEY, decision: 'keep_suppressed' }));
+  assert.equal(writeFailure.status, 503);
+  assert.equal((await json(writeFailure)).error, 'Review decision storage is unavailable.');
 
   resetState({ rateLimit: { ok: false, retryAfterSeconds: 9 } });
   const limited = await GET(getRequest());

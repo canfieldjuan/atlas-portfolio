@@ -64,6 +64,10 @@ function rateLimitResponse(retryAfterSeconds: number) {
   );
 }
 
+function storageUnavailableResponse() {
+  return NextResponse.json({ error: 'Review decision storage is unavailable.' }, { status: 503 });
+}
+
 export async function GET(request: Request) {
   const requestId = new URL(request.url).searchParams.get('requestId') ?? '';
   if (!REQUEST_ID_RE.test(requestId)) {
@@ -76,7 +80,12 @@ export async function GET(request: Request) {
   const access = await validateReportAccess(requestId);
   if (!access.ok) return access.response;
 
-  const decisions = await listDeflectionReviewDecisions(requestId);
+  let decisions;
+  try {
+    decisions = await listDeflectionReviewDecisions(requestId);
+  } catch {
+    return storageUnavailableResponse();
+  }
   return NextResponse.json({
     decisions: decisions.filter((decision) => access.reviewKeys.has(decision.reviewKey)),
     persistence: deflectionReviewDecisionDatabaseConfigured() ? 'configured' : 'unconfigured',
@@ -108,7 +117,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Review decision storage is not configured.' }, { status: 503 });
   }
 
-  const record = await upsertDeflectionReviewDecision({ requestId, reviewKey, decision });
+  let record;
+  try {
+    record = await upsertDeflectionReviewDecision({ requestId, reviewKey, decision });
+  } catch {
+    return storageUnavailableResponse();
+  }
   if (!record) {
     return NextResponse.json({ error: 'Review decision storage is not configured.' }, { status: 503 });
   }
