@@ -13,6 +13,7 @@ const routeUrl = new URL(
 );
 const statusRouteUrl = new URL('../src/app/api/deflection-report-status/route.ts', import.meta.url);
 const modelPageUrl = new URL('../src/components/landing/DeflectionReportModelPage.tsx', import.meta.url);
+const reviewDecisionControlUrl = new URL('../src/components/landing/DeflectionReviewDecisionControl.tsx', import.meta.url);
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
 const statusRouteCompiledPath = join(testDir, 'deflection-report-status-route.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
@@ -1561,6 +1562,7 @@ try {
   );
 
   const modelPageSource = await readFile(modelPageUrl, 'utf8');
+  const reviewDecisionControlSource = await readFile(reviewDecisionControlUrl, 'utf8');
   const partnerReportModelCopyBranch = extractPartnerReportModelCopyBranch(modelPageSource);
   assert.ok(modelPageSource.includes("section.surfaces.includes('web')"), 'model page filters to web sections');
   assert.ok(modelPageSource.includes('FULL RESOLUTION AUDIT'), 'public paid model page uses Resolution Audit badge copy');
@@ -1607,6 +1609,58 @@ try {
   assert.ok(modelPageSource.includes('Suppressed Repeat Review Queue'), 'model page names the suppressed repeat review queue');
   assert.ok(modelPageSource.includes('data-smoke="suppressedRepeatReviewQueue"'), 'suppressed queue keeps a stable smoke marker');
   assert.ok(modelPageSource.includes('Hide reason'), 'suppressed queue exposes the hide reason column');
+  assert.ok(
+    modelPageSource.includes("import { DeflectionReviewDecisionControl } from '@/components/landing/DeflectionReviewDecisionControl';"),
+    'model page imports the review-decision client island',
+  );
+  assert.ok(
+    modelPageSource.includes('<SuppressedRepeatReviewQueue key={section.id} section={section} requestId={requestId} />'),
+    'model page passes requestId into the suppressed queue',
+  );
+  assert.ok(
+    modelPageSource.includes('reviewKey={text(row.review_key)}'),
+    'suppressed queue passes only the hosted-safe review key into controls',
+  );
+  assert.ok(
+    modelPageSource.includes('recommendedAction={text(row.recommended_action)}'),
+    'suppressed queue preserves the model recommended action beside reviewer controls',
+  );
+  assert.equal(
+    modelPageSource.includes('review_key}</'),
+    false,
+    'model page must not render raw review keys as visible text',
+  );
+  assert.ok(reviewDecisionControlSource.includes("'use client';"), 'review-decision controls stay in a client component');
+  assert.ok(
+    reviewDecisionControlSource.includes('/api/deflection-review-decisions?requestId='),
+    'review-decision controls fetch saved decisions from the existing API',
+  );
+  assert.ok(
+    reviewDecisionControlSource.includes("method: 'POST'"),
+    'review-decision controls save decisions through the existing API',
+  );
+  assert.ok(
+    reviewDecisionControlSource.includes("decision: nextDecision"),
+    'review-decision controls send only the selected decision enum',
+  );
+  assert.ok(
+    reviewDecisionControlSource.includes("persistence === 'unconfigured'"),
+    'review-decision controls expose the unconfigured storage state without writing',
+  );
+  assert.ok(
+    reviewDecisionControlSource.includes('data-smoke="deflectionReviewDecisionControl"'),
+    'review-decision controls keep a stable smoke marker',
+  );
+  assert.equal(
+    reviewDecisionControlSource.includes('source_ids'),
+    false,
+    'review-decision controls must not consume raw source IDs',
+  );
+  assert.equal(
+    reviewDecisionControlSource.includes('evidence_quotes'),
+    false,
+    'review-decision controls must not consume raw evidence quotes',
+  );
   assert.ok(modelPageSource.includes("section.id === 'backlog_table'"), 'model page renders backlog_table sections');
   assert.ok(modelPageSource.includes('Backlog Table'), 'model page names the backlog table');
   assert.ok(modelPageSource.includes('data-smoke="backlogTable"'), 'backlog table keeps a stable smoke marker');

@@ -1,6 +1,7 @@
 import { CheckCircle2, CircleAlert, FileText, ListChecks, ShieldCheck } from 'lucide-react';
 import type { DeflectionReportSection, DeflectionStructuredReport } from '@/lib/deflection-report-contract';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
+import { DeflectionReviewDecisionControl } from '@/components/landing/DeflectionReviewDecisionControl';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
@@ -485,7 +486,7 @@ function CoveredRecurring({ section }: { section?: DeflectionReportSection }) {
   );
 }
 
-function SuppressedRepeatReviewQueue({ section }: { section?: DeflectionReportSection }) {
+function SuppressedRepeatReviewQueue({ section, requestId }: { section?: DeflectionReportSection; requestId: string }) {
   const data = asRecord(section?.data);
   const allItems = rows(data.items);
   const requestedLimit =
@@ -538,7 +539,7 @@ function SuppressedRepeatReviewQueue({ section }: { section?: DeflectionReportSe
             </thead>
             <tbody>
               {items.map((row) => (
-                <tr key={`${int(row.rank)}-${text(row.question)}-${text(row.suppression_reason)}`} className="border-t border-border/70">
+                <tr key={text(row.review_key) || `${int(row.rank)}-${text(row.question)}-${text(row.suppression_reason)}`} className="border-t border-border/70">
                   <td className="px-3 py-2">
                     <div className="font-medium leading-snug text-foreground">{text(row.question)}</div>
                     <div className="mt-1 text-xs leading-relaxed text-foreground/48">
@@ -555,7 +556,13 @@ function SuppressedRepeatReviewQueue({ section }: { section?: DeflectionReportSe
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
                   <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
                   <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
-                  <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
+                  <td className="px-3 py-2 leading-relaxed text-foreground/70">
+                    <DeflectionReviewDecisionControl
+                      requestId={requestId}
+                      reviewKey={text(row.review_key)}
+                      recommendedAction={text(row.recommended_action)}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -862,7 +869,7 @@ export function DeflectionReportModelPage({
             if (section.id === 'top_unresolved_repeats') return <TopUnresolvedRepeats key={section.id} section={section} />;
             if (section.id === 'drafted_resolutions') return <DraftedResolutions key={section.id} section={section} />;
             if (section.id === 'already_covered_still_recurring') return <CoveredRecurring key={section.id} section={section} />;
-            if (section.id === 'suppressed_repeat_review_queue') return <SuppressedRepeatReviewQueue key={section.id} section={section} />;
+            if (section.id === 'suppressed_repeat_review_queue') return <SuppressedRepeatReviewQueue key={section.id} section={section} requestId={requestId} />;
             if (section.id === 'backlog_table') return <BacklogTable key={section.id} section={section} />;
             if (section.id === 'outcome_diagnostics') return <OutcomeDiagnostics key={section.id} section={section} />;
             if (section.id === 'question_details') return <QuestionDetails key={section.id} section={section} />;
