@@ -117,6 +117,12 @@ function sortedKeys(value) {
   return Object.keys(value).sort();
 }
 
+function objectRows(value) {
+  return Array.isArray(value)
+    ? value.filter((row) => typeof row === 'object' && row !== null && !Array.isArray(row))
+    : [];
+}
+
 function assertTopLevelSnapshotKeys(snapshot, expectedKeys, name) {
   assert.deepEqual(sortedKeys(snapshot), expectedKeys, name);
 }
@@ -262,6 +268,9 @@ const groundTruth = JSON.parse(
   await source('plans/deflection-snapshot-report-groundtruth.json'),
 );
 const referenceSnapshot = groundTruth.snapshot;
+const reportModelShapeSectionsById = new Map(
+  groundTruth.report_model_shape.sections.map((section) => [section.id, section]),
+);
 const expectedSnapshotTopLevelKeys = [...groundTruth._meta.snapshot_top_level_keys].sort();
 const {
   DEMO_DEFLECTION_SNAPSHOT,
@@ -410,11 +419,43 @@ assert.deepEqual(
   lockedPreviewSectionIds,
   'Locked full-report demo should carry exactly the seven #371 paid-only preview sections in order.',
 );
+assert.equal(
+  reportModelShapeSectionsById.has('outcome_diagnostics'),
+  false,
+  'Generator-derived ground truth predates conditional outcome diagnostics; the generated contract guards that section.',
+);
 for (const sectionId of lockedPreviewSectionIds) {
   assert.ok(
     reportModelContractSource.includes(`"${sectionId}"`),
     `Generated paid report contract should still include ${sectionId}.`,
   );
+}
+for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
+  const generatedShape = reportModelShapeSectionsById.get(section.id);
+  if (!generatedShape) continue;
+  assert.deepEqual(
+    sortedKeys(section.data),
+    [...generatedShape.data_keys].sort(),
+    `${section.id} fixture data keys should match the generator-derived report model shape.`,
+  );
+  if (generatedShape.item_keys) {
+    const item = objectRows(section.data.items)[0];
+    assert.ok(item, `${section.id} should keep a representative locked item.`);
+    assert.deepEqual(
+      sortedKeys(item),
+      [...generatedShape.item_keys].sort(),
+      `${section.id} fixture item keys should match the generator-derived report model shape.`,
+    );
+  }
+  if (generatedShape.row_keys) {
+    const row = objectRows(section.data.rows)[0];
+    assert.ok(row, `${section.id} should keep a representative locked row.`);
+    assert.deepEqual(
+      sortedKeys(row),
+      [...generatedShape.row_keys].sort(),
+      `${section.id} fixture row keys should match the generator-derived report model shape.`,
+    );
+  }
 }
 for (const smokeMarker of lockedPreviewSmokeMarkers) {
   assert.ok(

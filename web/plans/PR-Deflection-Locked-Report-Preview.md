@@ -19,8 +19,9 @@ Slice phase: Product polish
 3. Show each paid-only section with its real section heading and column/field
    set, plus one representative locked row from the demo report.
 4. Add stable smoke markers for the locked preview and each section.
-5. Extend the Snapshot landing guard so the fixture section set, live markers,
-   and preview labels stay pinned to the generated paid-report shape.
+5. Extend the Snapshot landing guard so the fixture section set, generator-
+   derived section data keys, live markers, and preview labels stay pinned to
+   the generated paid-report shape.
 
 ### Files touched
 
@@ -48,7 +49,11 @@ fixture, renders them in #371's required order, and labels the block as a locked
 preview of the full Resolution Audit. It uses the same section headings and
 table/field labels as the real paid report page for the action queue sections,
 and field labels derived from the generated contract shape for the card-style
-diagnostic/detail sections.
+diagnostic/detail sections. The Snapshot smoke test also compares the fixture's
+section `data`, item, and row keys against the generator-derived
+`report_model_shape` in `web/plans/deflection-snapshot-report-groundtruth.json`
+where that shape exists; the newer conditional `outcome_diagnostics` section is
+pinned to the generated contract module instead.
 
 The Snapshot landing page imports the demo report fixture and renders the locked
 preview after `SnapshotArtifact`. The smoke script and test require a parent
@@ -81,6 +86,8 @@ Parked hardening: none.
   printed `Deflection Snapshot landing smoke tests passed.`
 - `npm --prefix web run lint -- src/components/landing/DeflectionLockedReportPreview.tsx src/components/landing/DeflectionSnapshotLandingPage.tsx src/lib/deflection-report-demo.ts scripts/smoke-deflection-snapshot-landing.mjs scripts/test-deflection-snapshot-landing-smoke.mjs`
   - PASS; no ESLint diagnostics.
+- `npm --prefix web run lint -- scripts/test-deflection-snapshot-landing-smoke.mjs`
+  - PASS; no ESLint diagnostics after the generator-shape guard update.
 - `npm --prefix web run build` - PASS; Next build completed. It printed the
   existing edge-runtime static-generation warning.
 - `git diff --check` - PASS.
@@ -92,9 +99,9 @@ Parked hardening: none.
 
 | Area | Estimate |
 | --- | ---: |
-| Plan doc | ~95 LOC |
+| Plan doc | ~107 LOC |
 | Demo report fixture | ~252 LOC |
 | Locked preview component | ~333 LOC |
 | Landing insertion | ~5 LOC |
-| Smoke/test guards | ~131 LOC |
-| Total | ~819 changed |
+| Smoke/test guards | ~172 LOC |
+| Total | ~868 changed |
