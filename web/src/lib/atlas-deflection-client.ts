@@ -964,7 +964,8 @@ function isSuppressedRepeatReviewQueueSection(data: Record<string, unknown>): bo
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!items.every((row) => (
     typeof row.suppression_reason === 'string' &&
-    typeof row.suppression_reason_label === 'string'
+    typeof row.suppression_reason_label === 'string' &&
+    typeof row.review_key === 'string'
   ))) {
     return false;
   }
@@ -1006,6 +1007,7 @@ function safeSuppressedActionItems(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value)
     ? value.filter(isPlainRecord).map((row) => ({
       ...safeActionItem(row),
+      review_key: row.review_key,
       suppression_reason: row.suppression_reason,
       suppression_reason_label: row.suppression_reason_label,
     }))

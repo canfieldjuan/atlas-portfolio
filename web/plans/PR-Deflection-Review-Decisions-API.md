@@ -17,6 +17,7 @@ Slice phase: Vertical slice
 5. Add a node runtime API route for reading/upserting decisions after validating the report is unlocked and the `review_key` exists in the current hosted-safe report model.
 6. Add a focused route smoke test covering invalid input, locked reports, unknown keys, successful upsert, and the no-customer-wording persistence boundary.
 7. Enroll the focused route smoke test in CI so the new `test:*` script cannot drift outside the pre-push workflow.
+8. Preserve `review_key` through the real ATLAS hosted-safe client projection so live reports populate the API's review-key allowlist.
 
 ### Files touched
 
@@ -24,9 +25,11 @@ Slice phase: Vertical slice
 - `web/package.json` — adds the focused test script.
 - `web/plans/PR-Deflection-Review-Decisions-API.md` — this plan.
 - `web/plans/deflection-snapshot-report-groundtruth.json` — locked preview shape ground truth.
+- `web/scripts/test-deflection-report-model-result-page.mjs` — real client projection coverage for `review_key`.
 - `web/scripts/test-deflection-review-decisions-api.mjs` — route-level smoke coverage.
 - `web/sql/003_deflection_review_decisions.sql` — persistence table.
 - `web/src/app/api/deflection-review-decisions/route.ts` — read/write API.
+- `web/src/lib/atlas-deflection-client.ts` — preserves hosted-safe review keys on suppressed review rows.
 - `web/src/lib/deflection-report-demo.ts` — sample model required-field alignment.
 - `web/src/lib/deflection-report-model-contract.ts` — regenerated ATLAS report contract.
 - `web/src/lib/deflection-review-decisions-database.ts` — lazy Neon persistence helpers.
@@ -35,7 +38,7 @@ Slice phase: Vertical slice
 
 The API accepts `requestId`, `reviewKey`, and `decision`. `requestId` uses the existing deflection request-id shape, `reviewKey` must match the ATLAS-generated `review_[24 hex chars]` shape, and `decision` is restricted to `keep_suppressed` or `promote_to_review`.
 
-Before any write, the route fetches the paid report model from ATLAS. Locked reports return `403`, missing reports return `404`, and upstream/config failures return `503`. A decision is accepted only when the requested key is present in `suppressed_repeat_review_queue.items[]`; this keeps Portfolio from persisting arbitrary keys or using customer wording as identity.
+Before any write, the route fetches the paid report model from ATLAS. Locked reports return `403`, missing reports return `404`, and upstream/config failures return `503`. The ATLAS client projection preserves `review_key` only for `suppressed_repeat_review_queue.items[]`, and a decision is accepted only when the requested key is present in that hosted-safe section; this keeps Portfolio from persisting arbitrary keys or using customer wording as identity.
 
 The database table stores the request ID, review key, decision, and timestamps. It intentionally does not store question text, source IDs, evidence, raw repeat keys, or cluster IDs.
 
@@ -62,6 +65,7 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed after updating the locked report-model ground truth for `review_key`.
 - `./node_modules/.bin/eslint src/app/api/deflection-review-decisions/route.ts src/lib/deflection-review-decisions-database.ts` from `web/` - passed.
 - `npm --prefix web run build` - passed.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
@@ -69,14 +73,16 @@ Parked hardening: none.
 |---|---:|
 | `.github/workflows/pre_push_audit.yml` | ~3 |
 | `web/package.json` | ~1 |
-| `web/plans/PR-Deflection-Review-Decisions-API.md` | ~82 |
+| `web/plans/PR-Deflection-Review-Decisions-API.md` | ~88 |
 | `web/plans/deflection-snapshot-report-groundtruth.json` | ~1 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~6 |
 | `web/scripts/test-deflection-review-decisions-api.mjs` | ~209 |
 | `web/sql/003_deflection_review_decisions.sql` | ~13 |
 | `web/src/app/api/deflection-review-decisions/route.ts` | ~116 |
+| `web/src/lib/atlas-deflection-client.ts` | ~4 |
 | `web/src/lib/deflection-report-demo.ts` | ~1 |
 | `web/src/lib/deflection-report-model-contract.ts` | ~5 |
 | `web/src/lib/deflection-review-decisions-database.ts` | ~131 |
-| **Total** | **~562** |
+| **Total** | **~578** |
 
 Soft cap note: over 400 LOC; kept as one PR because storage, access validation, and smoke coverage are the indivisible backend path for reviewer decisions.
