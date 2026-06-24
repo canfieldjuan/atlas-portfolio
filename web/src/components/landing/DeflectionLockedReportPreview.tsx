@@ -10,6 +10,12 @@ type PreviewConfig = {
   sample: (section: DeflectionReportSection) => string[];
 };
 
+const integerFormatter = new Intl.NumberFormat('en-US');
+
+function formatInteger(value: number): string {
+  return integerFormatter.format(value);
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -36,7 +42,7 @@ function int(value: unknown): number {
 
 function money(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value)
-    ? `$${Math.max(0, Math.round(value)).toLocaleString()}`
+    ? `$${formatInteger(Math.max(0, Math.round(value)))}`
     : '$0';
 }
 
@@ -44,7 +50,7 @@ function statusMix(value: unknown): string {
   const entries = Object.entries(asRecord(value))
     .flatMap(([status, count]) =>
       typeof count === 'number' && Number.isFinite(count) && count > 0
-        ? [`${status.replace(/_/g, ' ')}: ${Math.floor(count).toLocaleString()}`]
+        ? [`${status.replace(/_/g, ' ')}: ${formatInteger(Math.floor(count))}`]
         : [],
     );
   return entries.length > 0 ? entries.join(' / ') : 'No outcome mix';
@@ -56,7 +62,7 @@ function csatSignal(value: unknown): string {
   const presentCount = int(signal.csat_present_count);
   const average = signal.numeric_average;
   const status = text(signal.status);
-  if (negativeCount > 0) return `${negativeCount.toLocaleString()} negative CSAT`;
+  if (negativeCount > 0) return `${formatInteger(negativeCount)} negative CSAT`;
   if (typeof average === 'number' && Number.isFinite(average)) return `Avg ${average.toFixed(1)}`;
   if (status === 'present') return 'CSAT present';
   if (status === 'sparse' || presentCount > 0) return 'CSAT sparse';
@@ -92,15 +98,15 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
     sample: (section) => {
       const item = actionItem(section);
       return [
-        int(item.rank).toLocaleString(),
+        formatInteger(int(item.rank)),
         text(item.question),
         text(item.status),
-        int(item.ticket_count).toLocaleString(),
+        formatInteger(int(item.ticket_count)),
         money(item.estimated_support_cost),
         csatSignal(item.csat_signal),
         text(item.owner_lane),
         text(item.confidence),
-        int(item.priority_score).toLocaleString(),
+        formatInteger(int(item.priority_score)),
         text(item.recommended_action),
       ];
     },
@@ -116,7 +122,7 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
       return [
         text(item.question),
         text(item.status),
-        int(item.ticket_count).toLocaleString(),
+        formatInteger(int(item.ticket_count)),
         money(item.estimated_support_cost),
         csatSignal(item.csat_signal),
         text(item.owner_lane),
@@ -135,7 +141,7 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
       return [
         text(item.question),
         text(item.status),
-        int(item.ticket_count).toLocaleString(),
+        formatInteger(int(item.ticket_count)),
         money(item.estimated_support_cost),
         csatSignal(item.csat_signal),
         text(item.owner_lane),
@@ -155,7 +161,7 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
       return [
         text(item.question),
         text(item.status),
-        int(item.ticket_count).toLocaleString(),
+        formatInteger(int(item.ticket_count)),
         money(item.estimated_support_cost),
         csatSignal(item.csat_signal),
         text(item.owner_lane),
@@ -173,14 +179,14 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
     sample: (section) => {
       const item = actionItem(section);
       return [
-        int(item.rank).toLocaleString(),
+        formatInteger(int(item.rank)),
         text(item.question),
         text(item.status),
-        int(item.ticket_count).toLocaleString(),
+        formatInteger(int(item.ticket_count)),
         money(item.estimated_support_cost),
         csatSignal(item.csat_signal),
         text(item.owner_lane),
-        int(item.priority_score).toLocaleString(),
+        formatInteger(int(item.priority_score)),
         text(item.recommended_action),
       ];
     },
@@ -196,8 +202,8 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
       return [
         text(row.question),
         statusMix(row.status_mix),
-        int(row.reopened_ticket_count).toLocaleString(),
-        int(row.negative_csat_ticket_count).toLocaleString(),
+        formatInteger(int(row.reopened_ticket_count)),
+        formatInteger(int(row.negative_csat_ticket_count)),
         text(row.guidance),
       ];
     },
@@ -211,11 +217,11 @@ const PREVIEW_SECTIONS: PreviewConfig[] = [
     sample: (section) => {
       const row = diagnosticRow(section);
       return [
-        int(row.rank).toLocaleString(),
+        formatInteger(int(row.rank)),
         text(row.question),
         text(row.answer_status),
         text(row.resolution_evidence_scope).replace(/_/g, ' '),
-        int(row.source_count).toLocaleString(),
+        formatInteger(int(row.source_count)),
         text(row.answer),
       ];
     },
