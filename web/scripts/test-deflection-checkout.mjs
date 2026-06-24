@@ -291,9 +291,29 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: false, reason: 'not_configured' },
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_standard123');
+
+  installFetchMock({ ...defaultStripeSession, amount_total: variantAmountCents });
+  resetEnv({
+    ATLAS_SAAS_STRIPE_RAK: 'rk_test_unit_restricted',
+    ATLAS_ACCOUNT_ID: 'acct_unit',
+    ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS:
+      String(variantAmountCents),
+  });
+  assert.deepEqual(
+    await createSession({
+      ...standardCheckout,
+      amountCents: variantAmountCents,
+      priceId: 'price_atlas_newstandard123',
+    }),
+    { ok: true, url: 'https://checkout.stripe.test/session' },
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.get('line_items[0][price]'), 'price_atlas_newstandard123');
+  assert.equal(calls[0].body.get('metadata[price_amount_cents]'), String(variantAmountCents));
 
   installFetchMock();
   resetEnv({
@@ -380,9 +400,9 @@ try {
   });
   assert.deepEqual(
     await createSession(),
-    { ok: false, reason: 'not_configured' },
+    { ok: true, url: 'https://checkout.stripe.test/session' },
   );
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
 
   installFetchMock();
   resetEnv({

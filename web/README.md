@@ -163,13 +163,13 @@ ADMIN_INTAKE_TOKEN=
 
 The deflection results page creates one-time Stripe Checkout Sessions from a
 server route. Configure a restricted Stripe API key with the minimum Checkout
-Sessions write permission:
+Sessions permission needed for the hosted route:
 
 ```text
 ATLAS_SAAS_STRIPE_RAK=
 ATLAS_ACCOUNT_ID=
-STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=
 STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=
+STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=
 STRIPE_DEFLECTION_REPORT_PRICE_ID=
 ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS=
 DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN=
@@ -177,25 +177,29 @@ DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS=
 ```
 
 `ATLAS_SAAS_STRIPE_SECRET_KEY` remains a test-mode fallback for local/preview
-validation and can still use inline test `price_data` when the Price ID is not
-set. `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` is the preferred Price ID for
-the current `standard` variant; `STRIPE_DEFLECTION_REPORT_PRICE_ID` remains a
-legacy fallback for that same variant. `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER`
-configures the `$1,000` partner URL variant. Full live `sk_live_` keys are
-rejected; production should use an `rk_live_` restricted key plus the configured
-`price_...` values.
+validation. For the standard public checkout, ATLAS authorization supplies the
+actual Stripe `price_...` ID, amount, and currency used to create the Checkout
+Session; portfolio then verifies the authorized amount against the allowed
+amount set and verifies Stripe's returned Session amount/currency before
+returning the redirect URL. `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` and
+`STRIPE_DEFLECTION_REPORT_PRICE_ID` are legacy/local-preflight values for the
+old standard catalog path, not the source of the standard charge. Keep them set
+until the final #194 runbook/smoke slice retires or renames the old preflight.
+`STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER` configures the `$1,000` partner URL
+variant. Full live `sk_live_` keys are rejected; production should use an
+`rk_live_` restricted key.
 Production deployments reject test-mode fallback keys and require an `rk_live_`
 restricted key path.
 
-The configured Price must be active, `usd`, and have a `unit_amount` that is in
-the same comma-separated cent allowlist configured on ATLAS:
+The ATLAS-authorized standard Price must be active, `usd`, and have a
+`unit_amount` in the comma-separated cent allowlist configured on both sides:
 `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS`. If the
-partner variant is enabled, configure both portfolio and ATLAS with
-`150000,100000` before traffic sees the partner Price ID. If the allowlist env is
-omitted, the portfolio defaults to the current full-report amount only. The
-checkout route validates Stripe's returned `amount_total` and `currency` before
-returning the Stripe redirect URL, so a mismatched Price fails closed before the
-customer leaves the results page.
+partner variant is enabled later, configure both portfolio and ATLAS with each
+live amount before traffic sees the partner Price ID. If the allowlist env is
+omitted, the portfolio defaults to the historical standard amount only. The
+checkout route validates Stripe's returned `amount_total` and `currency` against
+ATLAS authorization before returning the Stripe redirect URL, so a mismatched
+Price fails closed before the customer leaves the results page.
 
 Partner pricing is eligibility-gated with
 `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` for legacy direct bearer links, or
