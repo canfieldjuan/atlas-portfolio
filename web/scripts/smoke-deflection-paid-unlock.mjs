@@ -43,6 +43,7 @@ Usage:
 Options:
   --attempt-id <id>           Explicit Checkout attempt id (default: generated)
   --base-url <url>            Hosted portfolio base URL (default: ${DEFAULT_BASE_URL})
+  --checkout-url <url>        Existing Stripe Checkout URL to wait on instead of creating one
   --max-wait-ms <ms>          Unlock polling timeout (default: ${DEFAULT_MAX_WAIT_MS})
   --poll-ms <ms>              Unlock polling interval (default: ${DEFAULT_POLL_MS})
   --vercel-curl               Route hosted requests through "vercel curl"
@@ -305,6 +306,8 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
   const pollMs = parsePositiveInteger(options.pollMs, DEFAULT_POLL_MS);
   const allowLiveCheckout = options.allowLiveCheckout === true;
   const requireUnlocked = options.requireUnlocked === true;
+  const providedCheckoutUrl = String(options.checkoutUrl || '').trim();
+  const providedCheckout = providedCheckoutUrl ? classifyCheckoutUrl(providedCheckoutUrl) : null;
 
   if (!REQUEST_ID_RE.test(requestId)) {
     return { ok: false, error: 'Paid unlock smoke request id is invalid.', apiCalls: false };
@@ -317,6 +320,9 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
   }
   if (!maxWaitMs || !pollMs) {
     return { ok: false, error: 'Paid unlock smoke wait options are invalid.', apiCalls: false };
+  }
+  if (providedCheckoutUrl && !providedCheckout) {
+    return { ok: false, error: 'Paid unlock smoke Checkout URL is invalid.', apiCalls: false };
   }
 
   const firstStatus = await readStatus(fetchImpl, baseUrl, requestId);
@@ -339,9 +345,20 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
         requireUnlocked,
       };
     }
-    checkout = await createCheckout(fetchImpl, baseUrl, requestId, attemptId);
-    if (!checkout.ok) {
-      return { ...checkout, ok: false, stage: 'checkout', apiCalls: true, requestId, attemptId };
+    if (providedCheckout) {
+      checkout = {
+        ok: true,
+        alreadyPaid: false,
+        checkoutUrl: providedCheckout.url,
+        checkoutMode: providedCheckout.mode,
+        checkoutSource: 'provided',
+      };
+    } else {
+      checkout = await createCheckout(fetchImpl, baseUrl, requestId, attemptId);
+      if (!checkout.ok) {
+        return { ...checkout, ok: false, stage: 'checkout', apiCalls: true, requestId, attemptId };
+      }
+      checkout.checkoutSource = 'created';
     }
     if (checkout.checkoutMode === 'live' && !allowLiveCheckout) {
       return {
@@ -408,6 +425,7 @@ export async function runDeflectionPaidUnlockSmoke(options, deps = {}) {
     initialStatus: firstStatus.status,
     checkoutMode: checkout?.checkoutMode,
     checkoutUrl: checkout?.checkoutUrl,
+    checkoutSource: checkout?.checkoutSource,
     requireUnlocked,
     unlockPolls,
     resultsUrl: render.url,
@@ -438,6 +456,11 @@ async function main() {
       apiCalls: false,
     });
   }
+  if (isBareFlag(parsed, '--checkout-url')) {
+    fail('Refusing to continue without --checkout-url <url>.', outputJson, {
+      apiCalls: false,
+    });
+  }
 
   const baseUrl = parsed.values.get('--base-url') || DEFAULT_BASE_URL;
   const useVercelCurl = parsed.flags.has('--vercel-curl');
@@ -450,6 +473,7 @@ async function main() {
     requestId: parsed.values.get('--request-id'),
     attemptId: parsed.values.get('--attempt-id'),
     baseUrl,
+    checkoutUrl: parsed.values.get('--checkout-url'),
     maxWaitMs: parsed.values.get('--max-wait-ms'),
     pollMs: parsed.values.get('--poll-ms'),
     allowLiveCheckout: parsed.flags.has('--allow-live-checkout'),

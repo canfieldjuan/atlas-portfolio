@@ -217,6 +217,27 @@ function run(options, responses, deps = {}) {
 }
 
 {
+  const { result, fetchImpl, awaitingPayment } = await run(
+    { checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_existing' },
+    [
+      { status: 200, body: { status: 'locked' } },
+      { status: 200, body: { status: 'unlocked' } },
+      { status: 200, kind: 'html', body: PAID_HTML },
+    ],
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.initialStatus, 'locked');
+  assert.equal(result.checkoutMode, 'test');
+  assert.equal(result.checkoutSource, 'provided');
+  assert.equal(result.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_existing');
+  assert.equal(result.unlockPolls, 1);
+  assert.equal(fetchImpl.calls.length, 3);
+  assert.equal(fetchImpl.calls.some((call) => call.init.method === 'POST'), false);
+  assert.equal(awaitingPayment.length, 1);
+  assert.equal(awaitingPayment[0].artifact.checkoutUrl, 'https://checkout.stripe.com/c/pay/cs_test_existing');
+}
+
+{
   const { result, fetchImpl } = await run({}, [
     { status: 200, body: { status: 'locked' } },
     { status: 200, body: { url: 'https://checkout.stripe.com/c/pay/cs_live_unit' } },

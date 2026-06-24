@@ -11,6 +11,54 @@ deflection funnel:
 It is for test-mode go-live validation. Do not use a live Checkout Session for
 this smoke.
 
+## Standard price-change runbook
+
+Use this path when changing the standard Resolution Audit price. Stripe Price
+amounts are effectively immutable for this funnel: if the desired amount already
+has a one-time Stripe Price, reuse that `price_...` ID; if the amount is new,
+create one new one-time Price and switch config to that new ID. Do not plan on
+editing an existing Stripe Price amount.
+
+Update the two places that must agree:
+
+1. ATLAS standard charge terms:
+   - `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_PRICE_ID`
+   - `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_AMOUNT_CENTS`
+   - `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_CURRENCY`
+   - `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS`
+2. Portfolio amount safety mirror:
+   - `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS`
+
+Do not edit portfolio copy or `NEXT_PUBLIC...` display amounts for a standard
+price change. The public display reads the non-secret ATLAS pricing terms, and
+checkout creation uses the ATLAS-authorized `price_id`, amount, and currency.
+The portfolio allowed amount set is still required as the local fail-closed
+mirror of the ATLAS webhook gate.
+
+After deploying the config change, run the standard price-chain smoke against a
+locked report in the same Stripe mode you intend to validate:
+
+```bash
+npm --prefix web run smoke:deflection-standard-price-chain -- \
+  --request-id "$REQUEST_ID" \
+  --base-url "$PREVIEW_URL" \
+  --expect-mode test \
+  --json \
+  --output /tmp/deflection-standard-price-chain.json
+```
+
+For protected Vercel previews, add `--vercel-curl --vercel-deployment "$PREVIEW_URL"`.
+The smoke reads the hosted standard pricing terms, verifies that amount is in
+the local portfolio allowlist env, creates one hosted Checkout Session,
+retrieves that same Session from Stripe, confirms its amount/currency/metadata,
+then waits for the real webhook unlock and paid render. If the smoke returns a
+Checkout URL, complete the test-mode payment in a browser while the command
+polls.
+
+Only use `--allow-live-checkout` for an explicit production live-purchase
+validation that you intend to complete. Without that flag, the smoke refuses
+`cs_live_...` URLs before polling.
+
 ## Prerequisites
 
 - ATLAS is deployed with the current Stripe webhook signing secret. During
@@ -27,9 +75,12 @@ this smoke.
 
   Production must have `ATLAS_SAAS_STRIPE_RAK=rk_live_...`,
   `ATLAS_ACCOUNT_ID`, and
-  `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=price_...` for the current
-  `standard` variant. `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...` remains a
-  legacy fallback for that same variant. The partner URL variant also requires
+  access to ATLAS checkout authorization. The standard checkout charge comes
+  from ATLAS `price_id` / amount terms; the older
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD=price_...` and
+  `STRIPE_DEFLECTION_REPORT_PRICE_ID=price_...` env names remain legacy
+  preflight values until the old local catalog path is retired. The partner URL
+  variant also requires
   `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER=price_...` and a `100000` allowed
   amount in both portfolio and ATLAS. Partner intake links must include a valid
   `partnerToken`; use
@@ -43,11 +94,11 @@ this smoke.
   checkout. If
   `ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS` is
   set, it must match the ATLAS amount allowlist; otherwise the portfolio
-  defaults to the current full-report amount only. After the RAK is stored as a
-  Vercel sensitive env var, `vercel env pull` will not reveal its value again;
-  use the hosted Checkout smoke after redeploy to prove the deployed values can
-  create the expected sessions. These commands stop at Checkout Session
-  creation; they do not complete payment or unlock a report.
+  defaults to the historical full-report amount only. The standard price-chain
+  smoke requires this env to be explicit so a price-change proof cannot pass on
+  an implicit default. After the RAK is stored as a Vercel sensitive env var,
+  `vercel env pull` will not reveal its value again; run the smoke from a secure
+  shell that has the restricted key or test fallback key available.
 
   ```bash
   npm --prefix web run smoke:deflection-hosted-checkout -- \
@@ -121,13 +172,11 @@ is the Checkout Session metadata:
 }
 ```
 
-The fixture must create or confirm a Checkout Session for:
+  The fixture must create or confirm a Checkout Session for:
 
-- amount: `150000` for the standard variant; `100000` for the partner variant
-  when partner checkout is enabled
-- currency: `usd`
-- amount allowlist: default full-report amount only unless both ATLAS and
-  portfolio are configured with the same comma-separated cent values
+- amount: the active ATLAS standard pricing terms `amount_cents`
+- currency: the active ATLAS standard pricing terms currency
+- amount allowlist: the same comma-separated cent values in ATLAS and portfolio
 - API version: `2026-05-27.dahlia`
 - event delivered to the deployed ATLAS `/webhooks/stripe` endpoint:
   `checkout.session.completed`
@@ -142,14 +191,17 @@ After the fixture runs, keep polling with the smoke command. It should observe:
 
 The final results page must include all paid markers:
 
-- `FULL DEFLECTION REPORT`
-- `Your paid report is ready to review.`
-- `Report summary`
-- `Drill-down cards`
+- `FULL RESOLUTION AUDIT` or `FULL DEFLECTION REPORT`
+- `Your Resolution Audit is ready.` or `Your Deflection Report is ready.`
+- `Full audit contents`, `Full report contents`, `Full audit dashboard`, or
+  `Full report dashboard`
+- `Your Help-Desk SEO Targeting List` or `Help-desk SEO targeting list`
+- `Publishable Help-Center Copy` or `Ranked question opportunities`
+- `Reviewer guidance` or `Top publishable answers and gaps`
 
 It must not include the locked CTA marker:
 
-- `Unlock your full Backlog Report`
+- `Unlock your full Resolution Audit`
 
 For production post-payment validation, use `--require-unlocked` so the smoke
 fails closed if the webhook has not unlocked the report yet. This mode verifies
