@@ -76,6 +76,26 @@ const currentReport = {
 
 {
   const current = normalizeKnipReport({
+    issues: [
+      ...currentReport.issues,
+      {
+        file: 'src/lib/deflection-report-model-contract.ts',
+        exports: [{ name: 'DEFLECTION_REPORT_SECTION_IDS' }],
+        types: [{ name: 'DeflectionStructuredReport' }],
+        files: [{ name: 'src/lib/deflection-report-model-contract.ts' }],
+      },
+    ],
+  });
+  const diff = diffFindings(normalizeBaseline(baselineJson), current);
+  assert.deepEqual(
+    diff.added.map((finding) => `${finding.type}:${finding.file}:${finding.name}`),
+    ['files:src/lib/deflection-report-model-contract.ts:src/lib/deflection-report-model-contract.ts'],
+    'generated contract export/type findings are ignored, but file-orphan findings still fail',
+  );
+}
+
+{
+  const current = normalizeKnipReport({
     issues: [currentReport.issues[0]],
   });
   const diff = diffFindings(normalizeBaseline(baselineJson), current);

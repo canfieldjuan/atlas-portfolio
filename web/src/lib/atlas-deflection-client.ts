@@ -12,7 +12,6 @@ import {
 import {
   deflectionArtifactPath,
   deflectionReportModelPath,
-  type DeflectionReportSection,
   type DeflectionStructuredReport,
   type FAQDeflectionReportArtifact,
   type TicketFAQItem,
@@ -348,6 +347,17 @@ export type ArtifactFetchResult =
 export type ReportModelFetchResult =
   | { ok: true; model: DeflectionStructuredReport }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
+
+type ParsedReportSection = {
+  id: string;
+  title: string;
+  priority: number;
+  surfaces: string[];
+  default_limit: number | null;
+  required_data: string[];
+  snapshot_safe_fields: string[];
+  data: Record<string, unknown>;
+};
 
 export type DeflectionCheckoutAuthorization = {
   amountCents: number;
@@ -834,18 +844,35 @@ function requireNonNegativeNumbers(
 function isOptionalSourceWindow(value: unknown): boolean {
   if (value === null) return true;
   if (!isPlainRecord(value)) return false;
+  const start = value.source_date_start;
+  const end = value.source_date_end;
+  const days = value.source_window_days;
+  if (
+    !(start === null || typeof start === 'string') ||
+    !(end === null || typeof end === 'string') ||
+    !(days === null || isNonNegativeFiniteNumber(days))
+  ) {
+    return false;
+  }
+  if (start === null || end === null || days === null) {
+    return true;
+  }
   return (
-    typeof value.source_date_start === 'string' &&
-    typeof value.source_date_end === 'string' &&
-    isNonNegativeFiniteNumber(value.source_window_days)
+    typeof start === 'string' &&
+    typeof end === 'string' &&
+    isNonNegativeFiniteNumber(days)
   );
 }
 
-function isStringRows(value: unknown, keys: string[]): boolean {
+function isOutcomeDiagnosticRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
     isPlainRecord(row) &&
-    keys.every((key) => typeof row[key] === 'string')
+    typeof row.question === 'string' &&
+    isPriorityStatusCounts(row.status_mix) &&
+    isNonNegativeFiniteNumber(row.reopened_ticket_count) &&
+    isNonNegativeFiniteNumber(row.negative_csat_ticket_count) &&
+    typeof row.guidance === 'string'
   ));
 }
 
@@ -856,9 +883,12 @@ function isRankedQuestionRows(value: unknown): boolean {
     isFiniteNumber(row.rank) &&
     typeof row.question === 'string' &&
     isNonNegativeFiniteNumber(row.ticket_count) &&
+    isFiniteNumber(row.weighted_frequency) &&
+    typeof row.customer_wording === 'string' &&
     isNonNegativeFiniteNumber(row.estimated_support_cost) &&
     isFiniteNumber(row.opportunity_score) &&
-    typeof row.answer_status === 'string'
+    typeof row.answer_status === 'string' &&
+    typeof row.source_proof === 'string'
   ));
 }
 
@@ -894,6 +924,8 @@ function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
   if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  if (!isNonNegativeInteger(data.pdf_limit)) return false;
   return isPrioritySupportCostBasis(data.support_cost_basis);
 }
 
@@ -901,14 +933,18 @@ function isDraftedResolutionsSection(data: Record<string, unknown>): boolean {
   const items = data.items;
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
-  return data.top_item_count === items.length;
+  if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  return isNonNegativeInteger(data.pdf_limit);
 }
 
 function isCoveredRecurringSection(data: Record<string, unknown>): boolean {
   const items = data.items;
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
-  return data.top_item_count === items.length;
+  if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  return isNonNegativeInteger(data.pdf_limit);
 }
 
 function isBacklogTableSection(data: Record<string, unknown>): boolean {
@@ -970,7 +1006,7 @@ function safeStatusCounts(value: unknown): Record<string, number> {
   );
 }
 
-function constructSafeActionSection(section: DeflectionReportSection): DeflectionReportSection {
+function constructSafeActionSection(section: ParsedReportSection): ParsedReportSection {
   const data = section.data;
   if (section.id === 'priority_fix_queue') {
     return {
@@ -991,6 +1027,8 @@ function constructSafeActionSection(section: DeflectionReportSection): Deflectio
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
         support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
       },
     };
@@ -1001,6 +1039,8 @@ function constructSafeActionSection(section: DeflectionReportSection): Deflectio
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
       },
     };
   }
@@ -1010,6 +1050,8 @@ function constructSafeActionSection(section: DeflectionReportSection): Deflectio
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
       },
     };
   }
@@ -1041,7 +1083,7 @@ function isQuestionDetailRows(value: unknown): boolean {
   ));
 }
 
-function validateWebReportSection(section: DeflectionReportSection): boolean {
+function validateWebReportSection(section: ParsedReportSection): boolean {
   const data = section.data;
   if (section.id === 'support_tax') {
     return (
@@ -1055,10 +1097,6 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
         'no_proven_answer_count',
         'ticket_source_count',
       ]) &&
-      (
-        isNonNegativeFiniteNumber(data.annualized_support_cost) ||
-        isNonNegativeFiniteNumber(data.annualized_run_rate_support_cost)
-      ) &&
       isOptionalSourceWindow(data.source_date_window)
     );
   }
@@ -1109,7 +1147,7 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
         'reopened_ticket_count',
         'negative_csat_ticket_count',
       ]) &&
-      isStringRows(data.rows, ['question', 'status_mix', 'guidance'])
+      isOutcomeDiagnosticRows(data.rows)
     );
   }
   if (section.id === 'question_details') {
@@ -1118,7 +1156,7 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   return true;
 }
 
-function constructWebReportSection(section: DeflectionReportSection): DeflectionReportSection | null {
+function constructWebReportSection(section: ParsedReportSection): ParsedReportSection | null {
   if (!validateWebReportSection(section)) return null;
   if (
     section.id === 'priority_fix_queue' ||
@@ -1132,10 +1170,11 @@ function constructWebReportSection(section: DeflectionReportSection): Deflection
   return section;
 }
 
-function parseReportSection(value: unknown): DeflectionReportSection | null {
+function parseReportSection(value: unknown): ParsedReportSection | null {
   if (!isPlainRecord(value)) return null;
   const surfaces = parseStringList(value.surfaces);
   const requiredData = parseStringList(value.required_data);
+  const snapshotSafeFields = parseStringList(value.snapshot_safe_fields);
   const data = value.data;
   if (
     typeof value.id !== 'string' ||
@@ -1144,6 +1183,7 @@ function parseReportSection(value: unknown): DeflectionReportSection | null {
     !Number.isFinite(value.priority) ||
     !surfaces ||
     !requiredData ||
+    !snapshotSafeFields ||
     !(value.default_limit === null || isNonNegativeFiniteNumber(value.default_limit)) ||
     !isPlainRecord(data)
   ) {
@@ -1159,6 +1199,7 @@ function parseReportSection(value: unknown): DeflectionReportSection | null {
     surfaces,
     default_limit: value.default_limit,
     required_data: requiredData,
+    snapshot_safe_fields: snapshotSafeFields,
     data,
   };
 }
@@ -1173,7 +1214,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
   ) {
     return null;
   }
-  const sections: DeflectionReportSection[] = [];
+  const sections: ParsedReportSection[] = [];
   for (const section of value.sections) {
     const surfaces = isPlainRecord(section) ? parseStringList(section.surfaces) : null;
     const isWebSection = surfaces?.includes('web') === true;
@@ -1193,7 +1234,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
     schema_version: 'deflection.v1',
     title: value.title,
     summary: value.summary,
-    sections,
+    sections: sections as DeflectionStructuredReport['sections'],
   };
 }
 
