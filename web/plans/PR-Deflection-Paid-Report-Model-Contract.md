@@ -37,6 +37,9 @@ Slice phase: Production hardening
 7. Teach the dead-code baseline checker to ignore only generated contract
    export/type metadata from the paid report-model contract file while still
    failing if that generated file itself becomes orphaned.
+8. Align paid report-model parser validation with the generated contract for
+   optional support-tax fields, nullable source windows, ranked question rows,
+   outcome diagnostics rows, and projected action-section limits.
 
 ### Files touched
 
@@ -76,6 +79,9 @@ The dead-code checker filters `exports` and `types` findings for the generated
 paid report-model contract file because that file intentionally publishes
 future-facing contract metadata. It does not filter `files` findings, so the
 generated file still has to be imported through the report contract module.
+The parser validates the generated row shapes before casting and preserves
+generated required data on safe action-section projections, while continuing to
+strip raw evidence/source fields from buyer-facing page payloads.
 
 ## Intentional
 
@@ -103,6 +109,8 @@ Parked hardening: none.
 - `npm --prefix web run test:deflection-snapshot-contract-generator`
   - passed.
 - `npm --prefix web run test:deflection-report-model-result-page`
+  - passed before PR open and after review-fix parser alignment.
+- `npm --prefix web run lint -- src/lib/atlas-deflection-client.ts scripts/test-deflection-report-model-result-page.mjs`
   - passed.
 - `npm --prefix web run check:deflection-contracts -- --source /home/juan-canfield/Desktop/Atlas/portfolio-ui/src/types/deflectionSnapshot.ts --report-model-source /home/juan-canfield/Desktop/Atlas/portfolio-ui/src/types/deflectionReportModel.ts`
   - passed.
@@ -118,16 +126,16 @@ Parked hardening: none.
 
 | File | LOC |
 |---|---:|
-| `web/plans/PR-Deflection-Paid-Report-Model-Contract.md` | ~80 |
-| `.github/workflows/pre_push_audit.yml` | ~2 |
+| `web/plans/PR-Deflection-Paid-Report-Model-Contract.md` | ~139 |
+| `.github/workflows/pre_push_audit.yml` | ~6 |
 | `web/package.json` | ~2 |
-| `web/scripts/generate-deflection-snapshot-contract.mjs` | ~120 |
-| `web/scripts/test-deflection-snapshot-contract-generator.mjs` | ~140 |
-| `web/scripts/test-deflection-report-model-result-page.mjs` | ~15 |
-| `web/scripts/check-knip-baseline.mjs` | ~20 |
-| `web/scripts/test-knip-baseline.mjs` | ~25 |
-| `web/src/lib/atlas-deflection-client.ts` | ~27 |
-| `web/src/lib/deflection-report-contract.ts` | ~10 |
+| `web/scripts/generate-deflection-snapshot-contract.mjs` | ~149 |
+| `web/scripts/test-deflection-snapshot-contract-generator.mjs` | ~105 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~327 |
+| `web/scripts/check-knip-baseline.mjs` | ~21 |
+| `web/scripts/test-knip-baseline.mjs` | ~20 |
+| `web/src/lib/atlas-deflection-client.ts` | ~81 |
+| `web/src/lib/deflection-report-contract.ts` | ~17 |
 | `web/src/lib/deflection-snapshot-contract.ts` | ~2 |
-| `web/src/lib/deflection-report-model-contract.ts` | ~650 |
-| **Total** | **~1093** |
+| `web/src/lib/deflection-report-model-contract.ts` | ~512 |
+| **Total** | **~1381** |

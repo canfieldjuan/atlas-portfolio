@@ -191,6 +191,8 @@ function projectedSection(section) {
       data: {
         items: section.data.items.map(projectedActionItem),
         top_item_count: section.data.top_item_count,
+        result_page_limit: section.data.result_page_limit,
+        pdf_limit: section.data.pdf_limit,
         support_cost_basis: projectedSupportCostBasis(section),
       },
     };
@@ -201,6 +203,8 @@ function projectedSection(section) {
       data: {
         items: section.data.items.map(projectedActionItem),
         top_item_count: section.data.top_item_count,
+        result_page_limit: section.data.result_page_limit,
+        pdf_limit: section.data.pdf_limit,
       },
     };
   }
@@ -210,6 +214,8 @@ function projectedSection(section) {
       data: {
         items: section.data.items.map(projectedActionItem),
         top_item_count: section.data.top_item_count,
+        result_page_limit: section.data.result_page_limit,
+        pdf_limit: section.data.pdf_limit,
       },
     };
   }
@@ -266,10 +272,12 @@ function topUnresolvedRepeatsSection(overrides = {}) {
     priority: 36,
     surfaces: ['web', 'pdf'],
     default_limit: 3,
-    required_data: ['items', 'top_item_count', 'support_cost_basis'],
+    required_data: ['items', 'top_item_count', 'result_page_limit', 'pdf_limit', 'support_cost_basis'],
     snapshot_safe_fields: ['items.rank', 'items.question', 'items.ticket_count'],
     data: {
       top_item_count: 1,
+      result_page_limit: 3,
+      pdf_limit: 10,
       support_cost_basis: {
         assisted_contact_cost: 13.5,
         formula: 'ticket_count * assisted_contact_cost',
@@ -289,10 +297,12 @@ function draftedResolutionsSection(overrides = {}) {
     priority: 37,
     surfaces: ['web', 'pdf'],
     default_limit: 3,
-    required_data: ['items', 'top_item_count'],
+    required_data: ['items', 'top_item_count', 'result_page_limit', 'pdf_limit'],
     snapshot_safe_fields: [],
     data: {
       top_item_count: 1,
+      result_page_limit: 3,
+      pdf_limit: 10,
       items: [
         actionItem({
           rank: 1,
@@ -312,10 +322,12 @@ function coveredRecurringSection(overrides = {}) {
     priority: 38,
     surfaces: ['web', 'pdf'],
     default_limit: 3,
-    required_data: ['items', 'top_item_count'],
+    required_data: ['items', 'top_item_count', 'result_page_limit', 'pdf_limit'],
     snapshot_safe_fields: [],
     data: {
       top_item_count: 1,
+      result_page_limit: 3,
+      pdf_limit: 10,
       items: [
         actionItem({
           rank: 1,
@@ -358,6 +370,74 @@ function backlogTableSection(overrides = {}) {
           estimated_support_cost: 40.5,
           priority_score: 76,
         }),
+      ],
+    },
+    ...overrides,
+  };
+}
+
+function rankedQuestionsSection(overrides = {}) {
+  return {
+    id: 'ranked_questions',
+    title: 'Ranked Questions',
+    priority: 30,
+    surfaces: ['web', 'pdf'],
+    default_limit: 25,
+    required_data: ['rows'],
+    snapshot_safe_fields: [
+      'rows.rank',
+      'rows.question',
+      'rows.ticket_count',
+      'rows.weighted_frequency',
+      'rows.customer_wording',
+    ],
+    data: {
+      rows: [
+        {
+          rank: 1,
+          question: 'How do I enable SSO for my team?',
+          ticket_count: 7,
+          weighted_frequency: 7,
+          customer_wording: 'enable SSO for my team',
+          estimated_support_cost: 94.5,
+          opportunity_score: 88,
+          answer_status: 'Needs answer',
+          source_proof: '7 source tickets',
+        },
+      ],
+    },
+    ...overrides,
+  };
+}
+
+function outcomeDiagnosticsSection(overrides = {}) {
+  return {
+    id: 'outcome_diagnostics',
+    title: 'Outcome Diagnostics',
+    priority: 70,
+    surfaces: ['web', 'pdf'],
+    default_limit: 25,
+    required_data: [
+      'outcome_diagnostic_ticket_count',
+      'outcome_risk_ticket_count',
+      'reopened_ticket_count',
+      'negative_csat_ticket_count',
+      'rows',
+    ],
+    snapshot_safe_fields: [],
+    data: {
+      outcome_diagnostic_ticket_count: 1,
+      outcome_risk_ticket_count: 1,
+      reopened_ticket_count: 1,
+      negative_csat_ticket_count: 0,
+      rows: [
+        {
+          question: 'How do I enable SSO for my team?',
+          status_mix: { reopened: 1 },
+          reopened_ticket_count: 1,
+          negative_csat_ticket_count: 0,
+          guidance: 'Review reopened outcomes before publishing.',
+        },
       ],
     },
     ...overrides,
@@ -616,6 +696,54 @@ try {
   });
 
   resetCalls();
+  const supportTaxWithoutAnnualized = supportTaxSection();
+  delete supportTaxWithoutAnnualized.data.annualized_support_cost;
+  delete supportTaxWithoutAnnualized.data.annualized_run_rate_support_cost;
+  fetchPayload = minimalModel({
+    sections: [supportTaxWithoutAnnualized, priorityFixQueueSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({ sections: [supportTaxWithoutAnnualized, priorityFixQueueSection()] }),
+  });
+
+  resetCalls();
+  const supportTaxWithUnknownWindow = supportTaxSection({
+    source_date_window: {
+      source_date_start: null,
+      source_date_end: null,
+      source_window_days: null,
+    },
+  });
+  fetchPayload = minimalModel({
+    sections: [supportTaxWithUnknownWindow, priorityFixQueueSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({ sections: [supportTaxWithUnknownWindow, priorityFixQueueSection()] }),
+  });
+
+  resetCalls();
+  const rankedQuestions = rankedQuestionsSection();
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), priorityFixQueueSection(), rankedQuestions],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({ sections: [supportTaxSection(), priorityFixQueueSection(), rankedQuestions] }),
+  });
+
+  resetCalls();
+  const outcomeDiagnostics = outcomeDiagnosticsSection();
+  fetchPayload = minimalModel({
+    sections: [supportTaxSection(), priorityFixQueueSection(), outcomeDiagnostics],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({ sections: [supportTaxSection(), priorityFixQueueSection(), outcomeDiagnostics] }),
+  });
+
+  resetCalls();
   const unsafeActionItem = actionItem({
     recommended_title: 'Unsafe title should not reach page data',
     representative_phrasing: ['My token is raw-customer-phrase'],
@@ -671,6 +799,14 @@ try {
     section.id === 'backlog_table'
   ))) {
     const item = section.data.items[0];
+    if (
+      section.id === 'top_unresolved_repeats' ||
+      section.id === 'drafted_resolutions' ||
+      section.id === 'already_covered_still_recurring'
+    ) {
+      assert.equal(section.data.result_page_limit, 3);
+      assert.equal(section.data.pdf_limit, 10);
+    }
     assert.equal('recommended_title' in item, false);
     assert.equal('representative_phrasing' in item, false);
     assert.equal('source_ids' in item, false);
@@ -716,7 +852,100 @@ try {
 
   resetCalls();
   fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection({
+        source_date_window: {
+          source_date_start: '2026-05-01',
+          source_date_end: null,
+          source_window_days: 15,
+        },
+      }),
+      priorityFixQueueSection(),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({
+      sections: [
+        supportTaxSection({
+          source_date_window: {
+            source_date_start: '2026-05-01',
+            source_date_end: null,
+            source_window_days: 15,
+          },
+        }),
+        priorityFixQueueSection(),
+      ],
+    }),
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection({
+        source_date_window: {
+          source_date_start: 17,
+          source_date_end: null,
+          source_window_days: null,
+        },
+      }),
+      priorityFixQueueSection(),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
     sections: [supportTaxSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      rankedQuestionsSection({
+        data: {
+          ...rankedQuestionsSection().data,
+          rows: [
+            {
+              ...rankedQuestionsSection().data.rows[0],
+              source_proof: undefined,
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      rankedQuestionsSection({
+        data: {
+          ...rankedQuestionsSection().data,
+          rows: [
+            {
+              ...rankedQuestionsSection().data.rows[0],
+              weighted_frequency: undefined,
+            },
+          ],
+        },
+      }),
+    ],
   });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: false,
@@ -734,6 +963,60 @@ try {
             ...priorityFixQueueSection().data.support_cost_basis,
             status: 17,
           },
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      topUnresolvedRepeatsSection({
+        data: {
+          ...topUnresolvedRepeatsSection().data,
+          result_page_limit: undefined,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      draftedResolutionsSection({
+        data: {
+          ...draftedResolutionsSection().data,
+          pdf_limit: undefined,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      coveredRecurringSection({
+        data: {
+          ...coveredRecurringSection().data,
+          result_page_limit: undefined,
         },
       }),
     ],
@@ -1076,6 +1359,29 @@ try {
           ...backlogTableSection().data,
           items: [actionItem({ priority_score: '84' })],
           total_item_count: 1,
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      outcomeDiagnosticsSection({
+        data: {
+          ...outcomeDiagnosticsSection().data,
+          rows: [
+            {
+              ...outcomeDiagnosticsSection().data.rows[0],
+              status_mix: 'reopened',
+            },
+          ],
         },
       }),
     ],

@@ -844,18 +844,35 @@ function requireNonNegativeNumbers(
 function isOptionalSourceWindow(value: unknown): boolean {
   if (value === null) return true;
   if (!isPlainRecord(value)) return false;
+  const start = value.source_date_start;
+  const end = value.source_date_end;
+  const days = value.source_window_days;
+  if (
+    !(start === null || typeof start === 'string') ||
+    !(end === null || typeof end === 'string') ||
+    !(days === null || isNonNegativeFiniteNumber(days))
+  ) {
+    return false;
+  }
+  if (start === null || end === null || days === null) {
+    return true;
+  }
   return (
-    typeof value.source_date_start === 'string' &&
-    typeof value.source_date_end === 'string' &&
-    isNonNegativeFiniteNumber(value.source_window_days)
+    typeof start === 'string' &&
+    typeof end === 'string' &&
+    isNonNegativeFiniteNumber(days)
   );
 }
 
-function isStringRows(value: unknown, keys: string[]): boolean {
+function isOutcomeDiagnosticRows(value: unknown): boolean {
   if (!Array.isArray(value)) return false;
   return value.every((row) => (
     isPlainRecord(row) &&
-    keys.every((key) => typeof row[key] === 'string')
+    typeof row.question === 'string' &&
+    isPriorityStatusCounts(row.status_mix) &&
+    isNonNegativeFiniteNumber(row.reopened_ticket_count) &&
+    isNonNegativeFiniteNumber(row.negative_csat_ticket_count) &&
+    typeof row.guidance === 'string'
   ));
 }
 
@@ -866,9 +883,12 @@ function isRankedQuestionRows(value: unknown): boolean {
     isFiniteNumber(row.rank) &&
     typeof row.question === 'string' &&
     isNonNegativeFiniteNumber(row.ticket_count) &&
+    isFiniteNumber(row.weighted_frequency) &&
+    typeof row.customer_wording === 'string' &&
     isNonNegativeFiniteNumber(row.estimated_support_cost) &&
     isFiniteNumber(row.opportunity_score) &&
-    typeof row.answer_status === 'string'
+    typeof row.answer_status === 'string' &&
+    typeof row.source_proof === 'string'
   ));
 }
 
@@ -904,6 +924,8 @@ function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
   if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  if (!isNonNegativeInteger(data.pdf_limit)) return false;
   return isPrioritySupportCostBasis(data.support_cost_basis);
 }
 
@@ -911,14 +933,18 @@ function isDraftedResolutionsSection(data: Record<string, unknown>): boolean {
   const items = data.items;
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
-  return data.top_item_count === items.length;
+  if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  return isNonNegativeInteger(data.pdf_limit);
 }
 
 function isCoveredRecurringSection(data: Record<string, unknown>): boolean {
   const items = data.items;
   if (!Array.isArray(items) || !isActionItemRows(items)) return false;
   if (!isNonNegativeInteger(data.top_item_count)) return false;
-  return data.top_item_count === items.length;
+  if (data.top_item_count !== items.length) return false;
+  if (!isNonNegativeInteger(data.result_page_limit)) return false;
+  return isNonNegativeInteger(data.pdf_limit);
 }
 
 function isBacklogTableSection(data: Record<string, unknown>): boolean {
@@ -1001,6 +1027,8 @@ function constructSafeActionSection(section: ParsedReportSection): ParsedReportS
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
         support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
       },
     };
@@ -1011,6 +1039,8 @@ function constructSafeActionSection(section: ParsedReportSection): ParsedReportS
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
       },
     };
   }
@@ -1020,6 +1050,8 @@ function constructSafeActionSection(section: ParsedReportSection): ParsedReportS
       data: {
         items: safeActionItems(data.items),
         top_item_count: data.top_item_count,
+        result_page_limit: data.result_page_limit,
+        pdf_limit: data.pdf_limit,
       },
     };
   }
@@ -1065,10 +1097,6 @@ function validateWebReportSection(section: ParsedReportSection): boolean {
         'no_proven_answer_count',
         'ticket_source_count',
       ]) &&
-      (
-        isNonNegativeFiniteNumber(data.annualized_support_cost) ||
-        isNonNegativeFiniteNumber(data.annualized_run_rate_support_cost)
-      ) &&
       isOptionalSourceWindow(data.source_date_window)
     );
   }
@@ -1119,7 +1147,7 @@ function validateWebReportSection(section: ParsedReportSection): boolean {
         'reopened_ticket_count',
         'negative_csat_ticket_count',
       ]) &&
-      isStringRows(data.rows, ['question', 'status_mix', 'guidance'])
+      isOutcomeDiagnosticRows(data.rows)
     );
   }
   if (section.id === 'question_details') {
