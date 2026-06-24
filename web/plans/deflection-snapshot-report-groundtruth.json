@@ -376,6 +376,44 @@
         ]
       },
       {
+        "id": "suppressed_repeat_review_queue",
+        "title": "Suppressed Repeat Review Queue",
+        "snapshot_safe_fields": [],
+        "data_keys": [
+          "default_limit",
+          "items",
+          "reason_counts",
+          "total_item_count"
+        ],
+        "row_keys": null,
+        "item_keys": [
+          "cluster_id",
+          "confidence",
+          "csat_signal",
+          "estimated_support_cost",
+          "fix_type",
+          "identity_basis",
+          "identity_confidence",
+          "opportunity_score",
+          "owner_lane",
+          "priority_drivers",
+          "priority_score",
+          "question",
+          "rank",
+          "recommended_action",
+          "recommended_title",
+          "repeat_key",
+          "representative_phrasing",
+          "status",
+          "suppression_reason",
+          "suppression_reason_label",
+          "support_cost_formula",
+          "support_cost_source",
+          "ticket_count",
+          "top_evidence"
+        ]
+      },
+      {
         "id": "question_details",
         "title": "Question Details and Evidence",
         "snapshot_safe_fields": [

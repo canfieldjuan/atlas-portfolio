@@ -28,6 +28,7 @@ const MARKER_KEYS = [
   'lockedPreviewCoveredRecurring',
   'lockedPreviewBacklogTable',
   'lockedPreviewOutcomeDiagnostics',
+  'lockedPreviewSuppressedRepeatReviewQueue',
   'lockedPreviewQuestionDetails',
   'snapshotFirst',
   'finalSnapshotAsk',
@@ -53,6 +54,7 @@ const GOOD_HTML = [
   '<article data-smoke="lockedPreviewCoveredRecurring">Any covered preview</article>',
   '<article data-smoke="lockedPreviewBacklogTable">Any backlog preview</article>',
   '<article data-smoke="lockedPreviewOutcomeDiagnostics">Any outcome preview</article>',
+  '<article data-smoke="lockedPreviewSuppressedRepeatReviewQueue">Any suppressed preview</article>',
   '<article data-smoke="lockedPreviewQuestionDetails">Any detail preview</article>',
   '</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
@@ -284,6 +286,7 @@ const lockedPreviewSectionIds = [
   'already_covered_still_recurring',
   'backlog_table',
   'outcome_diagnostics',
+  'suppressed_repeat_review_queue',
   'question_details',
 ];
 const lockedPreviewSmokeMarkers = [
@@ -293,6 +296,7 @@ const lockedPreviewSmokeMarkers = [
   'lockedPreviewCoveredRecurring',
   'lockedPreviewBacklogTable',
   'lockedPreviewOutcomeDiagnostics',
+  'lockedPreviewSuppressedRepeatReviewQueue',
   'lockedPreviewQuestionDetails',
 ];
 
@@ -417,7 +421,7 @@ assert.ok(
 assert.deepEqual(
   DEMO_DEFLECTION_REPORT_MODEL.sections.map((section) => section.id),
   lockedPreviewSectionIds,
-  'Locked full-report demo should carry exactly the seven #371 paid-only preview sections in order.',
+  'Locked full-report demo should carry exactly the eight paid-only preview sections in order.',
 );
 assert.equal(
   reportModelShapeSectionsById.has('outcome_diagnostics'),
@@ -486,9 +490,11 @@ for (const label of [
   'Already Covered but Still Recurring',
   'Backlog Table',
   'Resolution outcome diagnostics',
+  'Suppressed Repeat Review Queue',
   'Top publishable answers and gaps',
   'Question/theme',
   'Status',
+  'Hide reason',
   'Repeats',
   'Cost',
   'CSAT',

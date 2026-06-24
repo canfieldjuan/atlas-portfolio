@@ -955,6 +955,25 @@ function isBacklogTableSection(data: Record<string, unknown>): boolean {
   return isNonNegativeInteger(data.default_limit);
 }
 
+function isReasonCounts(value: unknown): boolean {
+  return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
+}
+
+function isSuppressedRepeatReviewQueueSection(data: Record<string, unknown>): boolean {
+  const items = data.items;
+  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
+  if (!items.every((row) => (
+    typeof row.suppression_reason === 'string' &&
+    typeof row.suppression_reason_label === 'string'
+  ))) {
+    return false;
+  }
+  if (!isNonNegativeInteger(data.total_item_count)) return false;
+  if (data.total_item_count < items.length) return false;
+  if (!isNonNegativeInteger(data.default_limit)) return false;
+  return isReasonCounts(data.reason_counts);
+}
+
 function safeActionItem(row: Record<string, unknown>): Record<string, unknown> {
   const csatSignal = row.csat_signal as Record<string, unknown>;
   return {
@@ -983,6 +1002,16 @@ function safeActionItems(value: unknown): Record<string, unknown>[] {
     : [];
 }
 
+function safeSuppressedActionItems(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value)
+    ? value.filter(isPlainRecord).map((row) => ({
+      ...safeActionItem(row),
+      suppression_reason: row.suppression_reason,
+      suppression_reason_label: row.suppression_reason_label,
+    }))
+    : [];
+}
+
 function isPrioritySupportCostBasis(value: unknown): boolean {
   return isPlainRecord(value) && typeof value.status === 'string';
 }
@@ -1004,6 +1033,10 @@ function safeStatusCounts(value: unknown): Record<string, number> {
       isNonNegativeInteger(entry[1])
     )),
   );
+}
+
+function safeReasonCounts(value: unknown): Record<string, number> {
+  return safeStatusCounts(value);
 }
 
 function constructSafeActionSection(section: ParsedReportSection): ParsedReportSection {
@@ -1062,6 +1095,17 @@ function constructSafeActionSection(section: ParsedReportSection): ParsedReportS
         items: safeActionItems(data.items),
         total_item_count: data.total_item_count,
         default_limit: data.default_limit,
+      },
+    };
+  }
+  if (section.id === 'suppressed_repeat_review_queue') {
+    return {
+      ...section,
+      data: {
+        items: safeSuppressedActionItems(data.items),
+        total_item_count: data.total_item_count,
+        default_limit: data.default_limit,
+        reason_counts: safeReasonCounts(data.reason_counts),
       },
     };
   }
@@ -1139,6 +1183,9 @@ function validateWebReportSection(section: ParsedReportSection): boolean {
   if (section.id === 'backlog_table') {
     return isBacklogTableSection(data);
   }
+  if (section.id === 'suppressed_repeat_review_queue') {
+    return isSuppressedRepeatReviewQueueSection(data);
+  }
   if (section.id === 'outcome_diagnostics') {
     return (
       requireNonNegativeNumbers(data, [
@@ -1163,7 +1210,8 @@ function constructWebReportSection(section: ParsedReportSection): ParsedReportSe
     section.id === 'top_unresolved_repeats' ||
     section.id === 'drafted_resolutions' ||
     section.id === 'already_covered_still_recurring' ||
-    section.id === 'backlog_table'
+    section.id === 'backlog_table' ||
+    section.id === 'suppressed_repeat_review_queue'
   ) {
     return constructSafeActionSection(section);
   }
