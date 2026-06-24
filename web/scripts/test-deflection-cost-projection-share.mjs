@@ -9,6 +9,12 @@ const projectionSource = read('src/components/landing/DeflectionSupportTaxProjec
 const resultsSource = read('src/components/landing/DeflectionResultsPage.tsx');
 const landingSource = read('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const snapshotSource = read('src/lib/deflection-snapshot.ts');
+const snapshotArtifactIndex = landingSource.indexOf('function SnapshotArtifact');
+const projectionMarkerIndex = landingSource.indexOf(
+  'data-smoke="supportTaxProjection assistedContactCost valueAnchor"',
+  snapshotArtifactIndex,
+);
+const topResolutionsIndex = landingSource.indexOf('Top Proven Resolutions', snapshotArtifactIndex);
 
 assert(
   projectionSource.includes('export function DeflectionSupportTaxProjection'),
@@ -54,6 +60,18 @@ assert(
     landingSource.includes('assistedContactCost={assistedContactCost}') &&
     landingSource.includes('onAssistedContactCostChange={setAssistedContactCost}'),
   'Snapshot landing preview should share one assisted-contact cost state with the projection.',
+);
+assert.equal(
+  landingSource.includes('function CostProofBand'),
+  false,
+  'Snapshot landing page should not render the Support Tax projection as a separate post-Snapshot band.',
+);
+assert(
+  snapshotArtifactIndex !== -1 &&
+    projectionMarkerIndex !== -1 &&
+    topResolutionsIndex !== -1 &&
+    projectionMarkerIndex < topResolutionsIndex,
+  'Snapshot artifact should render the Support Tax projection inside the artifact before the resolution rows.',
 );
 assert(
   landingSource.includes('function snapshotCostBasisLabel') &&

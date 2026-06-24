@@ -180,50 +180,15 @@ function HeroProofStrip({
   );
 }
 
-function CostProofBand({
-  snapshot,
-  assistedContactCost,
-  onAssistedContactCostChange,
-}: {
-  snapshot: DeflectionSnapshot;
-  assistedContactCost: number;
-  onAssistedContactCostChange: (value: number) => void;
-}) {
-  return (
-    <section
-      data-smoke="supportTaxProjection assistedContactCost valueAnchor"
-      className="section-band section-band-muted mt-16"
-    >
-      <div className="mx-auto max-w-6xl">
-        <DeflectionSupportTaxProjection
-          repeatTicketCount={snapshot.summary.repeat_ticket_count}
-          assistedContactCost={assistedContactCost}
-          sourceWindow={snapshotSourceWindow(snapshot)}
-          onAssistedContactCostChange={onAssistedContactCostChange}
-          subjectLabel="The repeat tickets in this sample"
-          valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}
-          action={{
-            kind: 'link',
-            href: INTAKE_HREF,
-            label: CTA_LABEL,
-            helper:
-              'See whether your own queue has enough repeat volume to justify deeper drafting.',
-          }}
-        />
-      </div>
-    </section>
-  );
-}
-
-
-
 function SnapshotArtifact({
   snapshot,
   assistedContactCost,
+  onAssistedContactCostChange,
   showTeaser = true,
 }: {
   snapshot: DeflectionSnapshot;
   assistedContactCost: number;
+  onAssistedContactCostChange: (value: number) => void;
   showTeaser?: boolean;
 }) {
   const {
@@ -307,6 +272,27 @@ function SnapshotArtifact({
             </div>
           ))}
         </div>
+      </div>
+
+      <div
+        data-smoke="supportTaxProjection assistedContactCost valueAnchor"
+        className="mb-8"
+      >
+        <DeflectionSupportTaxProjection
+          repeatTicketCount={summary.repeat_ticket_count}
+          assistedContactCost={assistedContactCost}
+          sourceWindow={snapshotSourceWindow(snapshot)}
+          onAssistedContactCostChange={onAssistedContactCostChange}
+          subjectLabel="The repeat tickets in this sample"
+          valueAnchor={snapshotValueAnchor(snapshot, assistedContactCost)}
+          action={{
+            kind: 'link',
+            href: INTAKE_HREF,
+            label: CTA_LABEL,
+            helper:
+              'See whether your own queue has enough repeat volume to justify deeper drafting.',
+          }}
+        />
       </div>
 
       <div className="mt-8 mb-2">
@@ -518,15 +504,10 @@ export function DeflectionSnapshotLandingPage() {
           <SnapshotArtifact
             snapshot={DEMO_DEFLECTION_SNAPSHOT}
             assistedContactCost={assistedContactCost}
+            onAssistedContactCostChange={setAssistedContactCost}
           />
         </div>
       </section>
-
-      <CostProofBand
-        snapshot={DEMO_DEFLECTION_SNAPSHOT}
-        assistedContactCost={assistedContactCost}
-        onAssistedContactCostChange={setAssistedContactCost}
-      />
 
       <section className="section-band section-band-muted">
         <div className="mx-auto max-w-6xl">
