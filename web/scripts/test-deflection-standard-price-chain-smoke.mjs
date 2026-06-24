@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { runDeflectionStandardPriceChainSmoke } from './smoke-deflection-standard-price-chain.mjs';
 
 const REQUEST_ID = 'content-ops-unit-123';
@@ -93,6 +94,54 @@ async function run(options = {}, portfolioResponses = [], stripeResponses = [], 
     },
   );
   return { result, fetchImpl, stripeFetchImpl, awaitingPayment };
+}
+
+{
+  const source = await readFile(
+    new URL('./smoke-deflection-standard-price-chain.mjs', import.meta.url),
+    'utf8',
+  );
+  assert(
+    source.includes('const logProgress = outputJson ? console.error : console.log;'),
+    'JSON mode should keep interim progress prompts off stdout',
+  );
+  assert(
+    source.includes("if (!fallbackKey.startsWith('sk_test_'))"),
+    'full live secret keys should not be accepted as fallback Stripe read keys',
+  );
+}
+
+{
+  const { result, fetchImpl, stripeFetchImpl } = await run(
+    { env: { [ALLOWED_AMOUNT_ENV]: '180000' } },
+    [
+      { status: 200, body: termsBody() },
+    ],
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'stripe_env');
+  assert.equal(
+    result.error,
+    'ATLAS_SAAS_STRIPE_RAK or ATLAS_SAAS_STRIPE_SECRET_KEY is required to read the Stripe Session.',
+  );
+  assert.equal(fetchImpl.calls.length, 1);
+  assert.equal(stripeFetchImpl.calls.length, 0);
+}
+
+{
+  const { result, fetchImpl, stripeFetchImpl } = await run(
+    { env: { [ALLOWED_AMOUNT_ENV]: '180000', ATLAS_SAAS_STRIPE_SECRET_KEY: 'sk_live_unit' } },
+    [
+      { status: 200, body: termsBody() },
+    ],
+  );
+
+  assert.equal(result.ok, false);
+  assert.equal(result.stage, 'stripe_env');
+  assert.equal(result.error, 'ATLAS_SAAS_STRIPE_SECRET_KEY must start with sk_test_.');
+  assert.equal(fetchImpl.calls.length, 1);
+  assert.equal(stripeFetchImpl.calls.length, 0);
 }
 
 {

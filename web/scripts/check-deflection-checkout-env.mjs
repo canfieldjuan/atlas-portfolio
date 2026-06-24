@@ -41,17 +41,17 @@ Production requires:
   ATLAS_ACCOUNT_ID=<account-id>
   ${ATLAS_API_BASE_URL_ENV}=https://...
   ${ATLAS_SERVICE_TOKEN_ENV}=<ATLAS service token>
-  ${STANDARD_PRICE_ID_ENV}=price_... (preferred)
-  ${LEGACY_PRICE_ID_ENV}=price_... (legacy fallback)
+  ${STANDARD_PRICE_ID_ENV}=price_... (legacy standard preflight value; optional)
+  ${LEGACY_PRICE_ID_ENV}=price_... (legacy standard fallback; optional)
   ${PARTNER_PRICE_ID_ENV}=price_... (partner variant)
-  ${STANDARD_AMOUNT_CENTS_ENV}=150000 (optional; defaults to 150000)
+  ${STANDARD_AMOUNT_CENTS_ENV}=150000 (legacy local standard amount; optional)
   ${PARTNER_AMOUNT_CENTS_ENV}=100000 (optional; defaults to 100000)
   ${PARTNER_ACCESS_TOKEN_ENV}=<long random token> (direct partner links)
   ${PARTNER_SIGNING_SECRETS_ENV}=<old,current> (signed expiring partner links)
-  ${ALLOWED_AMOUNT_CENTS_ENV}=150000[,100000...] (required to include 100000 when partner is configured)
+  ${ALLOWED_AMOUNT_CENTS_ENV}=180000[,100000...] (must include the ATLAS standard amount and any live partner amount)
 
 Preview/development/local accept:
-  ATLAS_SAAS_STRIPE_RAK=rk_test_... plus ${STANDARD_PRICE_ID_ENV}=price_...
+  ATLAS_SAAS_STRIPE_RAK=rk_test_...
   or ATLAS_SAAS_STRIPE_SECRET_KEY=sk_test_... as the legacy test-mode fallback.`);
 }
 

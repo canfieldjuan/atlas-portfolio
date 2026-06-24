@@ -293,7 +293,6 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
   for (const error of classified.priceAmounts.errors) {
     addInvalid(invalid, error);
   }
-  const standardAmountCents = classified.priceAmounts.amounts.standard;
   const partnerAmountCents = classified.priceAmounts.amounts.partner;
   addInvalidPriceId(
     invalid,
@@ -310,21 +309,6 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
       invalid,
       DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV,
       classified.legacyPriceId,
-    );
-  }
-  if (
-    classified.priceId &&
-    DEFLECTION_CHECKOUT_PRICE_ID_RE.test(classified.priceId) &&
-    classified.allowedAmounts.ok &&
-    classified.priceAmounts.ok &&
-    !classified.allowedAmounts.amounts.includes(standardAmountCents)
-  ) {
-    addInvalid(
-      invalid,
-      amountRequiredError(
-        standardAmountCents,
-        `${DEFLECTION_CHECKOUT_STANDARD_PRICE_ID_ENV} or ${DEFLECTION_CHECKOUT_LEGACY_PRICE_ID_ENV} is configured`,
-      ),
     );
   }
   if (
@@ -353,9 +337,6 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
       addInvalid(invalid, 'ATLAS_SAAS_STRIPE_RAK must start with rk_live_ in production.');
     }
 
-    if (!classified.priceId) {
-      addMissing(missing, DEFLECTION_CHECKOUT_PRICE_ID_MISSING_NAME);
-    }
     if (!classified.partnerPriceId) {
       addMissing(missing, DEFLECTION_CHECKOUT_PARTNER_PRICE_ID_ENV);
     }
@@ -387,30 +368,11 @@ function validateDeflectionCheckoutEnv(env, options = {}) {
       if (classified.rak.startsWith('rk_live_')) {
         addInvalid(invalid, 'Non-production checkout env must not use an rk_live_ key.');
       }
-      if (!classified.priceId) {
-        addMissing(missing, DEFLECTION_CHECKOUT_PRICE_ID_MISSING_NAME);
-      }
     } else if (classified.legacySecret) {
       if (!classified.legacySecret.startsWith('sk_test_')) {
         addInvalid(
           invalid,
           'ATLAS_SAAS_STRIPE_SECRET_KEY fallback must be sk_test_ outside production.',
-        );
-      }
-      if (
-        !classified.priceId &&
-        classified.allowedAmounts.ok &&
-        classified.priceAmounts.ok &&
-        !classified.allowedAmounts.amounts.includes(
-          standardAmountCents,
-        )
-      ) {
-        addInvalid(
-          invalid,
-          amountRequiredError(
-            standardAmountCents,
-            'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data',
-          ),
         );
       }
     } else {

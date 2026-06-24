@@ -12,8 +12,8 @@ This slice closes that gap without widening into partner checkout, A/B pricing,
 or arbitrary multi-arm pricing.
 
 The diff is over the 400 LOC soft cap because the runbook, the reusable
-paid-unlock hook, the new full-chain smoke, and its focused tests need to land
-together for the operator proof to be meaningful.
+paid-unlock hook, the new full-chain smoke, checkout preflight alignment, and
+focused tests need to land together for the operator proof to be meaningful.
 
 ## Scope (this PR)
 
@@ -29,7 +29,10 @@ Slice phase: Production hardening
    reuse an existing one-time Stripe Price when possible, create a new Price ID
    for a new amount, update ATLAS charge terms plus the portfolio allowed amount
    set, then run the preflight/smoke.
-4. Enroll the focused smoke tests in the CI audit list.
+4. Align checkout env preflight with the ATLAS-authorized standard price path so
+   it no longer rejects a new standard amount just because legacy local standard
+   env/default values still exist.
+5. Enroll the focused smoke tests in the CI audit list.
 
 ### Files touched
 
@@ -39,6 +42,14 @@ Slice phase: Production hardening
   add the standard price-change runbook and retire stale fixed-amount guidance.
 - `web/package.json` -- expose the standard price-chain smoke and its focused
   test script.
+- `web/README.md` -- clarify that legacy standard Price envs are optional
+  diagnostics and the standard smoke requires an explicit amount mirror.
+- `web/src/lib/deflection-checkout-requirements.js` -- stop requiring legacy
+  local standard Price ID / amount membership in checkout env preflight.
+- `web/scripts/check-deflection-checkout-env.mjs` -- update preflight usage text
+  for ATLAS-authorized standard pricing.
+- `web/scripts/test-deflection-checkout-env.mjs` -- cover standard preflight
+  without legacy local standard price config.
 - `web/scripts/smoke-deflection-paid-unlock.mjs` -- allow waiting on a supplied
   Checkout URL without creating another Session.
 - `web/scripts/smoke-deflection-standard-price-chain.mjs` -- new consolidated
@@ -54,8 +65,10 @@ Slice phase: Production hardening
 
 The new smoke reads the public portfolio standard pricing proxy, requires the
 portfolio allowed amount set env to be present locally, and fails before
-Checkout creation if the ATLAS terms amount is not in that set. It then reuses
-`runDeflectionHostedCheckoutSmoke()` with `priceVariant=standard` and
+Checkout creation if the ATLAS terms amount is not in that set. It also checks
+the local Stripe Session read key before creating Checkout so a missing local
+credential cannot leave an unnecessary hosted Checkout Session behind. It then
+reuses `runDeflectionHostedCheckoutSmoke()` with `priceVariant=standard` and
 `--require-checkout-session` to create the hosted Checkout Session.
 
 After extracting the `cs_test_...` or `cs_live_...` Session ID from the returned
@@ -72,6 +85,12 @@ paid-unlock smoke keeps its existing safety posture: it refuses live Checkout
 URLs unless explicitly allowed, waits for the real webhook unlock, then verifies
 the paid hosted result page markers.
 
+The checkout env preflight still validates Stripe key mode, ATLAS connectivity
+env, partner Price ID config, partner eligibility config, allowed amount syntax,
+and partner amount membership. It no longer treats the legacy local standard
+Price ID or local standard display amount as required for the standard charge
+path because ATLAS now supplies the standard `price_id`, amount, and currency.
+
 ## Intentional
 
 - This smoke requires the portfolio allowed amount env to be explicit. The
@@ -83,16 +102,16 @@ the paid hosted result page markers.
   webhook path.
 - This does not make partner checkout public or add variant-aware ATLAS
   authorization. Partner and A/B pricing stay deferred.
-- This does not remove legacy standard price env names from the older preflight.
-  The runbook points operators at the new standard chain smoke for the
-  configured standard-price proof.
+- Legacy standard price env names are not deleted. If present, malformed values
+  still fail preflight, but the standard path no longer requires them or uses
+  them as the standard charge authority.
 
 ## Deferred
 
 - Generic A/B or cohort pricing.
 - Public partner checkout until ATLAS exposes variant-aware authorization.
-- Optional cleanup of legacy local standard price env naming in the older
-  checkout env preflight.
+- Optional cleanup of legacy local standard price env naming after old operator
+  artifacts no longer reference those names.
 
 Parked hardening: none.
 
@@ -100,6 +119,10 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-paid-unlock-smoke` -- passed
   (`Deflection paid unlock smoke tests passed.`).
+- `npm --prefix web run test:deflection-checkout-env` -- passed
+  (`Deflection checkout env tests passed.`).
+- `npm --prefix web run test:deflection-checkout` -- passed
+  (`Deflection checkout tests passed.`).
 - `npm --prefix web run test:deflection-standard-price-chain-smoke` -- passed
   (`Deflection standard price-chain smoke tests passed.`).
 - `node web/scripts/audit-test-enrollment.mjs` -- passed; all 33 `test:*`
@@ -124,9 +147,13 @@ Parked hardening: none.
 | `.github/workflows/pre_push_audit.yml` | ~3 |
 | `web/docs/landing-page-framework/deflection-paid-unlock-go-live-smoke.md` | ~90 |
 | `web/package.json` | ~2 |
+| `web/README.md` | ~14 |
+| `web/src/lib/deflection-checkout-requirements.js` | ~38 |
+| `web/scripts/check-deflection-checkout-env.mjs` | ~10 |
 | `web/scripts/smoke-deflection-paid-unlock.mjs` | ~30 |
-| `web/scripts/smoke-deflection-standard-price-chain.mjs` | ~578 |
+| `web/scripts/smoke-deflection-standard-price-chain.mjs` | ~616 |
+| `web/scripts/test-deflection-checkout-env.mjs` | ~61 |
 | `web/scripts/test-deflection-paid-unlock-smoke.mjs` | ~21 |
-| `web/scripts/test-deflection-standard-price-chain-smoke.mjs` | ~203 |
-| `web/plans/PR-Deflection-Standard-Price-Chain-Smoke.md` | ~120 |
-| **Total** | **~1,047** |
+| `web/scripts/test-deflection-standard-price-chain-smoke.mjs` | ~252 |
+| `web/plans/PR-Deflection-Standard-Price-Chain-Smoke.md` | ~150 |
+| **Total** | **~1,287** |

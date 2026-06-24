@@ -191,8 +191,8 @@ function stripeApiKey(env) {
     return { ok: true, key: restrictedKey, keySource: 'ATLAS_SAAS_STRIPE_RAK' };
   }
   if (fallbackKey) {
-    if (!fallbackKey.startsWith('sk_')) {
-      return { ok: false, error: 'ATLAS_SAAS_STRIPE_SECRET_KEY must start with sk_.' };
+    if (!fallbackKey.startsWith('sk_test_')) {
+      return { ok: false, error: 'ATLAS_SAAS_STRIPE_SECRET_KEY must start with sk_test_.' };
     }
     return { ok: true, key: fallbackKey, keySource: 'ATLAS_SAAS_STRIPE_SECRET_KEY' };
   }
@@ -337,6 +337,20 @@ export async function runDeflectionStandardPriceChainSmoke(options, deps = {}) {
     };
   }
 
+  const apiKey = stripeApiKey(env);
+  if (!apiKey.ok) {
+    return {
+      ok: false,
+      error: apiKey.error,
+      stage: 'stripe_env',
+      apiCalls: true,
+      requestId,
+      attemptId,
+      terms: terms.terms,
+      allowedAmountsCents: allowedAmounts.amounts,
+    };
+  }
+
   const checkout = await runDeflectionHostedCheckoutSmoke({
     requestId,
     attemptId,
@@ -371,21 +385,6 @@ export async function runDeflectionStandardPriceChainSmoke(options, deps = {}) {
       ok: false,
       error: 'Refusing to verify and wait on a live-mode Stripe Checkout Session.',
       stage: 'checkout_mode',
-      apiCalls: true,
-      requestId,
-      attemptId,
-      checkoutUrl: checkout.checkoutUrl,
-      checkoutMode: checkoutSession.mode,
-      terms: terms.terms,
-    };
-  }
-
-  const apiKey = stripeApiKey(env);
-  if (!apiKey.ok) {
-    return {
-      ok: false,
-      error: apiKey.error,
-      stage: 'stripe_env',
       apiCalls: true,
       requestId,
       attemptId,
@@ -527,6 +526,7 @@ async function main() {
       deployment: parsed.values.get('--vercel-deployment') || baseUrl,
     })
     : undefined;
+  const logProgress = outputJson ? console.error : console.log;
   const result = await runDeflectionStandardPriceChainSmoke({
     requestId: parsed.values.get('--request-id'),
     attemptId: parsed.values.get('--attempt-id'),
@@ -538,8 +538,8 @@ async function main() {
   }, {
     ...(fetchImpl ? { fetchImpl } : {}),
     onAwaitingPayment: async (artifact) => {
-      console.log(`${artifact.checkoutMode === 'live' ? 'Live' : 'Test'}-mode Checkout URL: ${artifact.checkoutUrl}`);
-      console.log('Complete payment in another window; polling for unlock...');
+      logProgress(`${artifact.checkoutMode === 'live' ? 'Live' : 'Test'}-mode Checkout URL: ${artifact.checkoutUrl}`);
+      logProgress('Complete payment in another window; polling for unlock...');
       if (outputPath) {
         await writeJsonArtifact(outputPath, {
           ok: true,
