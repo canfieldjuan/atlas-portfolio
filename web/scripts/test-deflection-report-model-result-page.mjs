@@ -235,6 +235,7 @@ function projectedSection(section) {
       data: {
         items: section.data.items.map((row) => ({
           ...projectedActionItem(row),
+          review_key: row.review_key,
           suppression_reason: row.suppression_reason,
           suppression_reason_label: row.suppression_reason_label,
         })),
@@ -415,6 +416,7 @@ function suppressedRepeatReviewQueueSection(overrides = {}) {
           estimated_support_cost: 27,
           priority_score: 35,
           priority_drivers: ['suppressed_repeat', 'too_low_volume'],
+          review_key: 'review_0123456789abcdef01234567',
           suppression_reason: 'too_low_volume',
           suppression_reason_label: 'Too low volume',
         }),
@@ -842,6 +844,7 @@ try {
           items: [
             {
               ...unsafeActionItem,
+              review_key: 'review_abcdef0123456789abcdef01',
               suppression_reason: 'too_low_volume',
               suppression_reason_label: 'Too low volume',
             },
@@ -891,7 +894,8 @@ try {
       'ticket_count',
     ];
     if (section.id === 'suppressed_repeat_review_queue') {
-      expectedItemKeys.push('suppression_reason', 'suppression_reason_label');
+      expectedItemKeys.push('review_key', 'suppression_reason', 'suppression_reason_label');
+      assert.equal(item.review_key, 'review_abcdef0123456789abcdef01');
       assert.equal(item.suppression_reason, 'too_low_volume');
       assert.equal(item.suppression_reason_label, 'Too low volume');
       assert.deepEqual(section.data.reason_counts, { too_low_volume: 1 });
