@@ -750,7 +750,7 @@ function QuestionDetails({ section }: { section?: DeflectionReportSection }) {
       <h2 className="text-xl font-semibold text-foreground">Top publishable answers and gaps</h2>
       <div className="mt-4 grid gap-4">
         {detailRows.map((row) => {
-          const sourceCount = texts(row.source_ids).length;
+          const sourceCount = int(row.source_count);
           const steps = texts(row.steps);
           const publishable = text(row.answer_linkage) === 'publishable_answer';
           return (
