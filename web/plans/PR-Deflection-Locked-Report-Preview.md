@@ -84,7 +84,9 @@ Parked hardening: none.
 - `npm --prefix web run build` - PASS; Next build completed. It printed the
   existing edge-runtime static-generation warning.
 - `git diff --check` - PASS.
-- `bash scripts/local_pr_review.sh` - PASS.
+- `bash scripts/local_pr_review.sh` - PASS; plan audits, drift audit, dead-code
+  baseline, Snapshot landing smoke, ESLint, Next build, and `git diff --check`
+  all passed.
 
 ## Estimated diff size
 
@@ -95,4 +97,4 @@ Parked hardening: none.
 | Locked preview component | ~333 LOC |
 | Landing insertion | ~5 LOC |
 | Smoke/test guards | ~131 LOC |
-| Total | ~816 changed |
+| Total | ~819 changed |
