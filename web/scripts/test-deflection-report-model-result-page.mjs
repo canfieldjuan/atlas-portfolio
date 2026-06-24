@@ -233,12 +233,16 @@ function projectedSection(section) {
     return {
       ...section,
       data: {
-        items: section.data.items.map((row) => ({
-          ...projectedActionItem(row),
-          review_key: row.review_key,
-          suppression_reason: row.suppression_reason,
-          suppression_reason_label: row.suppression_reason_label,
-        })),
+        items: section.data.items.map((row) => {
+          const item = {
+            ...projectedActionItem(row),
+            suppression_reason: row.suppression_reason,
+            suppression_reason_label: row.suppression_reason_label,
+          };
+          return typeof row.review_key === 'string'
+            ? { ...item, review_key: row.review_key }
+            : item;
+        }),
         total_item_count: section.data.total_item_count,
         default_limit: section.data.default_limit,
         reason_counts: section.data.reason_counts,
@@ -902,6 +906,32 @@ try {
     }
     assert.deepEqual(Object.keys(item).sort(), expectedItemKeys.sort());
   }
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection(),
+      suppressedRepeatReviewQueueSection({
+        data: {
+          ...suppressedRepeatReviewQueueSection().data,
+          items: [
+            {
+              ...suppressedRepeatReviewQueueSection().data.items[0],
+              review_key: undefined,
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  const legacySuppressedQueueModel = await fetchDeflectionReportModel('content-ops-unit-123');
+  assert.equal(legacySuppressedQueueModel.ok, true);
+  const legacySuppressedQueue = legacySuppressedQueueModel.model.sections.find(
+    (section) => section.id === 'suppressed_repeat_review_queue',
+  );
+  assert.ok(legacySuppressedQueue);
+  assert.equal('review_key' in legacySuppressedQueue.data.items[0], false);
 
   resetCalls();
   fetchPayload = minimalModel({

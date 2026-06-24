@@ -181,7 +181,7 @@ export const DEMO_DEFLECTION_REPORT_MODEL: DeflectionStructuredReport = {
         rows: [
           {
             question: 'Why did the password reset email not arrive?',
-            status_mix: { reopened: 5, negative_csat: 2 },
+            status_mix: '5 reopened, 2 negative CSAT',
             reopened_ticket_count: 5,
             negative_csat_ticket_count: 2,
             guidance: 'Review the reset-email workflow before publishing more documentation.',
