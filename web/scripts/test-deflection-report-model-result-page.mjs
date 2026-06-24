@@ -13,8 +13,10 @@ const routeUrl = new URL(
 );
 const statusRouteUrl = new URL('../src/app/api/deflection-report-status/route.ts', import.meta.url);
 const modelPageUrl = new URL('../src/components/landing/DeflectionReportModelPage.tsx', import.meta.url);
+const reportContractUrl = new URL('../src/lib/deflection-report-model-contract.ts', import.meta.url);
 const compiledPath = join(testDir, 'atlas-deflection-client.cjs');
 const statusRouteCompiledPath = join(testDir, 'deflection-report-status-route.cjs');
+const reportContractCompiledPath = join(testDir, 'deflection-report-model-contract.cjs');
 const libStubDir = join(testDir, 'node_modules', '@', 'lib');
 const blobStubDir = join(testDir, 'node_modules', '@vercel', 'blob');
 const nextStubDir = join(testDir, 'node_modules', 'next');
@@ -786,6 +788,17 @@ try {
   await mkdir(libStubDir, { recursive: true });
   await mkdir(blobStubDir, { recursive: true });
   await mkdir(nextStubDir, { recursive: true });
+  const reportContractSource = await readFile(reportContractUrl, 'utf8');
+  const compiledReportContract = ts.transpileModule(reportContractSource, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    },
+  });
+  await writeFile(reportContractCompiledPath, compiledReportContract.outputText);
+  const {
+    DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT,
+  } = createRequire(reportContractCompiledPath)(reportContractCompiledPath);
   await writeFile(
     join(libStubDir, 'deflection-snapshot.js'),
     "exports.deflectionSnapshotPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/snapshot`;\n",
@@ -796,6 +809,7 @@ try {
       "exports.deflectionArtifactPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/artifact`;",
       "exports.deflectionReportModelPath = (id) => `/api/v1/content-ops/deflection-reports/${encodeURIComponent(id)}/report-model`;",
       `exports.DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = ${JSON.stringify(HOSTED_FIELD_SHAPES)};`,
+      `exports.DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = ${JSON.stringify(DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT)};`,
       '',
     ].join('\n'),
   );
@@ -919,7 +933,7 @@ try {
   });
 
   resetCalls();
-  fetchPayload = minimalModel({ sections: [supportTaxSection({ repeat_ticket_count: '7' })] });
+  fetchPayload = minimalModel({ sections: [supportTaxSection({ repeat_ticket_count: { count: 7 } })] });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: false,
     reason: 'error',
@@ -932,7 +946,7 @@ try {
       priorityFixQueueSection({
         data: {
           ...priorityFixQueueSection().data,
-          result_page_limit: 1.9,
+          status_counts: { 'Needs answer': { count: 1 } },
         },
       }),
     ],
@@ -1012,6 +1026,18 @@ try {
   });
 
   resetCalls();
+  const supportTaxWithNullWindow = supportTaxSection({
+    source_date_window: null,
+  });
+  fetchPayload = minimalModel({
+    sections: [supportTaxWithNullWindow, priorityFixQueueSection()],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: true,
+    model: projectedModel({ sections: [supportTaxWithNullWindow, priorityFixQueueSection()] }),
+  });
+
+  resetCalls();
   const rankedQuestions = rankedQuestionsSection();
   fetchPayload = minimalModel({
     sections: [supportTaxSection(), priorityFixQueueSection(), rankedQuestions],
@@ -1055,6 +1081,105 @@ try {
       source_id_count: 4,
     },
   ]);
+
+  resetCalls();
+  fetchPayload = minimalModel({ sections: [supportTaxSection({ repeat_ticket_count: '7' })] });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  const missingQuestionItem = actionItem();
+  delete missingQuestionItem.question;
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [missingQuestionItem],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [actionItem({ csat_signal: null })],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          support_cost_basis: 'benchmark_only',
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: [
+            {
+              ...actionItem(),
+              priority_drivers: ['repeat_volume', { reason: 'missing_answer' }],
+            },
+          ],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = minimalModel({
+    sections: [
+      supportTaxSection(),
+      priorityFixQueueSection({
+        data: {
+          ...priorityFixQueueSection().data,
+          items: ['not an action item'],
+        },
+      }),
+    ],
+  });
+  assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
 
   resetCalls();
   const unsafeActionItem = actionItem({
@@ -1184,12 +1309,10 @@ try {
     ],
   });
   const legacySuppressedQueueModel = await fetchDeflectionReportModel('content-ops-unit-123');
-  assert.equal(legacySuppressedQueueModel.ok, true);
-  const legacySuppressedQueue = legacySuppressedQueueModel.model.sections.find(
-    (section) => section.id === 'suppressed_repeat_review_queue',
-  );
-  assert.ok(legacySuppressedQueue);
-  assert.equal('review_key' in legacySuppressedQueue.data.items[0], false);
+  assert.deepEqual(legacySuppressedQueueModel, {
+    ok: false,
+    reason: 'error',
+  });
 
   resetCalls();
   fetchPayload = minimalModel({
@@ -1201,7 +1324,7 @@ try {
           items: [
             {
               ...priorityFixQueueSection().data.items[0],
-              priority_score: '84',
+              priority_score: { score: 84 },
             },
           ],
         },
@@ -1246,11 +1369,7 @@ try {
   fetchPayload = minimalModel({
     sections: [
       supportTaxSection({
-        source_date_window: {
-          source_date_start: 17,
-          source_date_end: null,
-          source_window_days: null,
-        },
+        source_date_window: '2026-05-01 to 2026-05-15',
       }),
       priorityFixQueueSection(),
     ],
@@ -1280,7 +1399,7 @@ try {
           rows: [
             {
               ...rankedQuestionsSection().data.rows[0],
-              source_proof: undefined,
+              source_proof: { label: 'source-backed' },
             },
           ],
         },
@@ -1303,7 +1422,7 @@ try {
           rows: [
             {
               ...rankedQuestionsSection().data.rows[0],
-              weighted_frequency: undefined,
+              weighted_frequency: { value: 0.7 },
             },
           ],
         },
@@ -1324,7 +1443,7 @@ try {
           ...priorityFixQueueSection().data,
           support_cost_basis: {
             ...priorityFixQueueSection().data.support_cost_basis,
-            status: 17,
+            status: { label: 'benchmark_only' },
           },
         },
       }),
@@ -1343,7 +1462,7 @@ try {
       topUnresolvedRepeatsSection({
         data: {
           ...topUnresolvedRepeatsSection().data,
-          result_page_limit: undefined,
+          support_cost_basis: ['benchmark_only'],
         },
       }),
     ],
@@ -1361,7 +1480,7 @@ try {
       draftedResolutionsSection({
         data: {
           ...draftedResolutionsSection().data,
-          pdf_limit: undefined,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1379,7 +1498,7 @@ try {
       coveredRecurringSection({
         data: {
           ...coveredRecurringSection().data,
-          result_page_limit: undefined,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1396,7 +1515,7 @@ try {
       priorityFixQueueSection({
         data: {
           ...priorityFixQueueSection().data,
-          status_counts: { 'Needs answer': '2' },
+          status_counts: { 'Needs answer': { count: 2 } },
         },
       }),
     ],
@@ -1416,7 +1535,7 @@ try {
           items: [
             {
               ...priorityFixQueueSection().data.items[0],
-              rank: 1.9,
+              rank: { value: 1.9 },
             },
           ],
         },
@@ -1438,7 +1557,7 @@ try {
           items: [
             {
               ...priorityFixQueueSection().data.items[0],
-              rank: -1,
+              question: { value: 'How do I enable SSO for my team?' },
             },
           ],
         },
@@ -1462,7 +1581,7 @@ try {
               ...priorityFixQueueSection().data.items[0],
               csat_signal: {
                 ...priorityFixQueueSection().data.items[0].csat_signal,
-                negative_csat_ticket_count: '3',
+                negative_csat_ticket_count: { count: 3 },
               },
             },
           ],
@@ -1483,7 +1602,7 @@ try {
       topUnresolvedRepeatsSection({
         data: {
           ...topUnresolvedRepeatsSection().data,
-          top_item_count: '1',
+          top_item_count: { count: 1 },
         },
       }),
     ],
@@ -1501,7 +1620,7 @@ try {
       topUnresolvedRepeatsSection({
         data: {
           ...topUnresolvedRepeatsSection().data,
-          top_item_count: 2,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1519,7 +1638,7 @@ try {
       topUnresolvedRepeatsSection({
         data: {
           ...topUnresolvedRepeatsSection().data,
-          items: [actionItem({ priority_score: '84' })],
+          items: [actionItem({ priority_score: { score: 84 } })],
         },
       }),
     ],
@@ -1539,7 +1658,7 @@ try {
           ...topUnresolvedRepeatsSection().data,
           support_cost_basis: {
             ...topUnresolvedRepeatsSection().data.support_cost_basis,
-            status: 17,
+            status: { label: 'benchmark_only' },
           },
         },
       }),
@@ -1558,7 +1677,7 @@ try {
       draftedResolutionsSection({
         data: {
           ...draftedResolutionsSection().data,
-          top_item_count: '1',
+          top_item_count: { count: 1 },
         },
       }),
     ],
@@ -1576,7 +1695,7 @@ try {
       draftedResolutionsSection({
         data: {
           ...draftedResolutionsSection().data,
-          top_item_count: 2,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1594,7 +1713,7 @@ try {
       draftedResolutionsSection({
         data: {
           ...draftedResolutionsSection().data,
-          items: [actionItem({ priority_score: '84' })],
+          items: [actionItem({ priority_score: { score: 84 } })],
         },
       }),
     ],
@@ -1612,7 +1731,7 @@ try {
       coveredRecurringSection({
         data: {
           ...coveredRecurringSection().data,
-          top_item_count: '1',
+          top_item_count: { count: 1 },
         },
       }),
     ],
@@ -1630,7 +1749,7 @@ try {
       coveredRecurringSection({
         data: {
           ...coveredRecurringSection().data,
-          top_item_count: 2,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1648,7 +1767,7 @@ try {
       coveredRecurringSection({
         data: {
           ...coveredRecurringSection().data,
-          items: [actionItem({ priority_score: '84' })],
+          items: [actionItem({ priority_score: { score: 84 } })],
         },
       }),
     ],
@@ -1666,7 +1785,7 @@ try {
       backlogTableSection({
         data: {
           ...backlogTableSection().data,
-          total_item_count: '2',
+          total_item_count: { count: 2 },
         },
       }),
     ],
@@ -1684,7 +1803,7 @@ try {
       backlogTableSection({
         data: {
           ...backlogTableSection().data,
-          total_item_count: 1,
+          items: ['not an action item'],
         },
       }),
     ],
@@ -1702,7 +1821,7 @@ try {
       backlogTableSection({
         data: {
           ...backlogTableSection().data,
-          default_limit: '25',
+          default_limit: { count: 25 },
         },
       }),
     ],
@@ -1720,7 +1839,7 @@ try {
       backlogTableSection({
         data: {
           ...backlogTableSection().data,
-          items: [actionItem({ priority_score: '84' })],
+          items: [actionItem({ priority_score: { score: 84 } })],
           total_item_count: 1,
         },
       }),
