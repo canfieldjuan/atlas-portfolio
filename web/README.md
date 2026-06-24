@@ -182,9 +182,9 @@ actual Stripe `price_...` ID, amount, and currency used to create the Checkout
 Session; portfolio then verifies the authorized amount against the allowed
 amount set and verifies Stripe's returned Session amount/currency before
 returning the redirect URL. `STRIPE_DEFLECTION_REPORT_PRICE_ID_STANDARD` and
-`STRIPE_DEFLECTION_REPORT_PRICE_ID` are legacy/local-preflight values for the
-old standard catalog path, not the source of the standard charge. Keep them set
-until the final #194 runbook/smoke slice retires or renames the old preflight.
+`STRIPE_DEFLECTION_REPORT_PRICE_ID` are legacy/local diagnostic values for the
+old standard catalog path, not the source of the standard charge, and the
+standard preflight no longer requires them.
 `STRIPE_DEFLECTION_REPORT_PRICE_ID_PARTNER` configures the `$1,000` partner URL
 variant. Full live `sk_live_` keys are rejected; production should use an
 `rk_live_` restricted key.
@@ -197,9 +197,11 @@ The ATLAS-authorized standard Price must be active, `usd`, and have a
 partner variant is enabled later, configure both portfolio and ATLAS with each
 live amount before traffic sees the partner Price ID. If the allowlist env is
 omitted, the portfolio defaults to the historical standard amount only. The
-checkout route validates Stripe's returned `amount_total` and `currency` against
-ATLAS authorization before returning the Stripe redirect URL, so a mismatched
-Price fails closed before the customer leaves the results page.
+standard price-chain smoke requires this env to be explicit so a price change
+proves the ATLAS amount is mirrored locally. The checkout route validates
+Stripe's returned `amount_total` and `currency` against ATLAS authorization
+before returning the Stripe redirect URL, so a mismatched Price fails closed
+before the customer leaves the results page.
 
 Partner pricing is eligibility-gated with
 `DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN` for legacy direct bearer links, or

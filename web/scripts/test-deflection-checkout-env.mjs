@@ -21,19 +21,12 @@ const PARTNER_SIGNING_SECRETS_ENV = 'DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS';
 const LEGACY_PRICE_ID_ENV = 'STRIPE_DEFLECTION_REPORT_PRICE_ID';
 const PARTNER_CREDENTIAL_ENV =
   `${PARTNER_ACCESS_TOKEN_ENV} or ${PARTNER_SIGNING_SECRETS_ENV}`;
-const PRICE_ID_MISSING_NAME = `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV}`;
 const ALLOWED_AMOUNT_CENTS_ENV =
   'ATLAS_SAAS_STRIPE_CONTENT_OPS_DEFLECTION_REPORT_ALLOWED_AMOUNT_CENTS';
 const STANDARD_AMOUNT_CENTS_ENV =
   checkoutRequirements.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV;
 const PARTNER_AMOUNT_CENTS_ENV =
   checkoutRequirements.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV;
-const LEGACY_INLINE_AMOUNT_ERROR =
-  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
-  'ATLAS_SAAS_STRIPE_SECRET_KEY fallback uses inline test price_data.';
-const STANDARD_ALLOWED_AMOUNT_ERROR =
-  `${ALLOWED_AMOUNT_CENTS_ENV} must include ${DEFAULT_ALLOWED_AMOUNT_CENTS} when ` +
-  `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV} is configured.`;
 const PARTNER_ALLOWED_AMOUNT_ERROR =
   `${ALLOWED_AMOUNT_CENTS_ENV} must include ${PARTNER_ALLOWED_AMOUNT_CENTS} when ` +
   `${PARTNER_PRICE_ID_ENV} is configured.`;
@@ -64,10 +57,6 @@ function withProductionPartnerSigningSecret(env) {
     ...env,
     [PARTNER_SIGNING_SECRETS_ENV]: 'partner_unit_signing_secret',
   };
-}
-
-function amountRequiredError(amountCents, reason) {
-  return `${ALLOWED_AMOUNT_CENTS_ENV} must include ${amountCents} when ${reason}.`;
 }
 
 {
@@ -146,7 +135,6 @@ assert(
     withProductionPartnerSigningSecret({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
-      [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [ALLOWED_AMOUNT_CENTS_ENV]: PRODUCTION_ALLOWED_AMOUNTS,
     }),
@@ -157,6 +145,7 @@ assert(
   assert.deepEqual(result.invalid, []);
   assert.equal(result.keyModes[PARTNER_ACCESS_TOKEN_ENV], 'missing');
   assert.equal(result.keyModes[PARTNER_SIGNING_SECRETS_ENV], 'configured');
+  assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'missing');
   assert(result.present.includes(PARTNER_SIGNING_SECRETS_ENV));
 }
 
@@ -353,6 +342,28 @@ assert(
     withProductionPartnerAccessToken({
       ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
       ATLAS_ACCOUNT_ID: 'acct_unit',
+      [PARTNER_PRICE_ID_ENV]: 'price_partner123',
+      [STANDARD_AMOUNT_CENTS_ENV]: String(CUSTOM_STANDARD_AMOUNT_CENTS),
+      [ALLOWED_AMOUNT_CENTS_ENV]:
+        `${CUSTOM_STANDARD_AMOUNT_CENTS}, ${PARTNER_ALLOWED_AMOUNT_CENTS}`,
+    }),
+    'production',
+  );
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
+  assert.equal(result.keyModes[STANDARD_PRICE_ID_ENV], 'missing');
+  assert.deepEqual(result.allowedAmountsCents, [
+    CUSTOM_STANDARD_AMOUNT_CENTS,
+    PARTNER_ALLOWED_AMOUNT_CENTS,
+  ]);
+}
+
+{
+  const result = validate(
+    withProductionPartnerAccessToken({
+      ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+      ATLAS_ACCOUNT_ID: 'acct_unit',
       [STANDARD_PRICE_ID_ENV]: 'price_standard123',
       [PARTNER_PRICE_ID_ENV]: 'price_partner123',
       [STANDARD_AMOUNT_CENTS_ENV]: String(CUSTOM_STANDARD_AMOUNT_CENTS),
@@ -360,14 +371,9 @@ assert(
     }),
     'production',
   );
-  assert.equal(result.ok, false);
+  assert.equal(result.ok, true);
   assert.deepEqual(result.missing, []);
-  assert.deepEqual(result.invalid, [
-    amountRequiredError(
-      CUSTOM_STANDARD_AMOUNT_CENTS,
-      `${STANDARD_PRICE_ID_ENV} or ${LEGACY_PRICE_ID_ENV} is configured`,
-    ),
-  ]);
+  assert.deepEqual(result.invalid, []);
   assert.deepEqual(result.configuredPriceAmountsCents, {
     standard: CUSTOM_STANDARD_AMOUNT_CENTS,
     partner: PARTNER_ALLOWED_AMOUNT_CENTS,
@@ -423,9 +429,9 @@ assert(
     }),
     'production',
   );
-  assert.equal(result.ok, false);
+  assert.equal(result.ok, true);
   assert.deepEqual(result.missing, []);
-  assert.deepEqual(result.invalid, [STANDARD_ALLOWED_AMOUNT_ERROR]);
+  assert.deepEqual(result.invalid, []);
 }
 
 {
@@ -518,8 +524,8 @@ assert(
     'production',
   );
   assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, [PRICE_ID_MISSING_NAME, PARTNER_PRICE_ID_ENV]);
-  assert(result.errors.includes(`Missing ${PRICE_ID_MISSING_NAME}.`));
+  assert.deepEqual(result.missing, [PARTNER_PRICE_ID_ENV]);
+  assert(!result.errors.some((error) => error.includes(STANDARD_PRICE_ID_ENV)));
 }
 
 {
@@ -574,8 +580,9 @@ assert(
     },
     'local',
   );
-  assert.equal(result.ok, false);
-  assert.deepEqual(result.missing, [PRICE_ID_MISSING_NAME]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.invalid, []);
 }
 
 {
@@ -602,9 +609,9 @@ assert(
     },
     'preview',
   );
-  assert.equal(result.ok, false);
+  assert.equal(result.ok, true);
   assert.deepEqual(result.missing, []);
-  assert.deepEqual(result.invalid, [LEGACY_INLINE_AMOUNT_ERROR]);
+  assert.deepEqual(result.invalid, []);
 }
 
 {
