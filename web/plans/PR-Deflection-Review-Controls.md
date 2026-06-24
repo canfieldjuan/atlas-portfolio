@@ -13,6 +13,7 @@ Slice phase: Vertical slice
 3. Fetch saved decisions from `/api/deflection-review-decisions?requestId=...` and display the current saved state.
 4. POST `keep_suppressed` or `promote_to_review` decisions to the existing API with pending, saved, unconfigured, and error states.
 5. Extend the existing report-model result-page smoke test for the UI/API wiring without adding a new test script.
+6. Add review-requested a11y polish for announced save status, clearer button names, and distinct error styling.
 
 ### Files touched
 
@@ -25,7 +26,7 @@ Slice phase: Vertical slice
 
 `DeflectionReportModelPage` keeps rendering the report model as a server component. For the `suppressed_repeat_review_queue` section, it now passes `requestId` to `SuppressedRepeatReviewQueue`, and each row passes its hosted-safe `review_key` into a small client component.
 
-The client component fetches the current decision list once per `requestId` using the existing `/api/deflection-review-decisions` route, finds the matching row decision locally, and posts updates back to that route. It never displays the `review_key`, source IDs, evidence quotes, or raw customer identifiers; the key is used only as the opaque API handle. If storage is unconfigured or the API fails, the controls stay visible but disabled with a status message.
+The client component fetches the current decision list once per `requestId` using the existing `/api/deflection-review-decisions` route, finds the matching row decision locally, and posts updates back to that route. It never displays the `review_key`, source IDs, evidence quotes, or raw customer identifiers; the key is used only as the opaque API handle. If storage is unconfigured or the API fails, the controls stay visible but disabled with an announced status message and distinct error styling.
 
 ## Intentional
 
@@ -55,6 +56,8 @@ Parked hardening: none
 |---|---:|
 | `web/plans/PR-Deflection-Review-Controls.md` | ~60 |
 | `web/src/components/landing/DeflectionReportModelPage.tsx` | ~15 |
-| `web/src/components/landing/DeflectionReviewDecisionControl.tsx` | ~265 |
+| `web/src/components/landing/DeflectionReviewDecisionControl.tsx` | ~283 |
 | `web/scripts/test-deflection-report-model-result-page.mjs` | ~55 |
-| Total | ~395 |
+| Total | ~413 |
+
+Soft cap note: over 400 LOC because review-requested a11y polish belongs to the same hosted-control surface.

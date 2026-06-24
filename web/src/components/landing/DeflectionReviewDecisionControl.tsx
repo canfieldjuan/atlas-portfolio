@@ -18,6 +18,7 @@ type DecisionViewState = {
   decision: DeflectionReviewDecision | null;
   persistence: PersistenceState;
   message: string;
+  messageTone: 'neutral' | 'error';
 };
 
 type DecisionRecord = {
@@ -113,6 +114,7 @@ export function DeflectionReviewDecisionControl({
     decision: null,
     persistence: 'configured',
     message: 'Loading saved decision...',
+    messageTone: 'neutral',
   });
 
   useEffect(() => {
@@ -128,6 +130,7 @@ export function DeflectionReviewDecisionControl({
           decision: loaded.decisions.get(reviewKey) ?? null,
           persistence: loaded.persistence,
           message: loaded.persistence === 'unconfigured' ? 'Decision storage is not configured.' : 'Ready for review.',
+          messageTone: loaded.persistence === 'unconfigured' ? 'error' : 'neutral',
         });
       })
       .catch((error: unknown) => {
@@ -138,6 +141,7 @@ export function DeflectionReviewDecisionControl({
           decision: null,
           persistence: 'configured',
           message: error instanceof Error ? error.message : 'Review decisions unavailable.',
+          messageTone: 'error',
         });
       });
 
@@ -168,6 +172,7 @@ export function DeflectionReviewDecisionControl({
       decision,
       persistence,
       message: 'Saving decision...',
+      messageTone: 'neutral',
     });
     try {
       const response = await fetch('/api/deflection-review-decisions', {
@@ -193,6 +198,7 @@ export function DeflectionReviewDecisionControl({
         decision: nextDecision,
         persistence,
         message: `Saved: ${decisionLabel(nextDecision)}.`,
+        messageTone: 'neutral',
       });
     } catch (error) {
       setViewState({
@@ -201,6 +207,7 @@ export function DeflectionReviewDecisionControl({
         decision,
         persistence,
         message: error instanceof Error ? error.message : 'Decision was not saved.',
+        messageTone: 'error',
       });
     }
   }
@@ -213,19 +220,25 @@ export function DeflectionReviewDecisionControl({
     persistence === 'unconfigured';
   const keepSelected = decision === 'keep_suppressed';
   const promoteSelected = decision === 'promote_to_review';
+  const messageTone = !reviewKey ? 'error' : viewState.loadedFor === currentKey ? viewState.messageTone : 'neutral';
   const statusMessage = loadState === 'ready' && decision && message === 'Ready for review.'
     ? decisionLabel(decision)
     : message;
+  const statusClassName = messageTone === 'error'
+    ? 'text-red-300'
+    : 'text-foreground/50';
 
   return (
     <div className="min-w-[220px]" data-smoke="deflectionReviewDecisionControl">
       {recommendedAction ? (
         <p className="text-xs leading-relaxed text-foreground/58">{recommendedAction}</p>
       ) : null}
-      <div className="mt-2 flex flex-wrap gap-2" aria-describedby={statusId}>
+      <div className="mt-2 flex flex-wrap gap-2">
         <button
           type="button"
           aria-pressed={keepSelected}
+          aria-label="Keep suppressed"
+          aria-describedby={statusId}
           disabled={disabled}
           title="Keep suppressed"
           onClick={() => saveDecision('keep_suppressed')}
@@ -241,6 +254,8 @@ export function DeflectionReviewDecisionControl({
         <button
           type="button"
           aria-pressed={promoteSelected}
+          aria-label="Promote to review"
+          aria-describedby={statusId}
           disabled={disabled}
           title="Promote to review"
           onClick={() => saveDecision('promote_to_review')}
@@ -254,7 +269,12 @@ export function DeflectionReviewDecisionControl({
           Promote
         </button>
       </div>
-      <p id={statusId} className="mt-2 flex items-center gap-1.5 text-[11px] leading-relaxed text-foreground/50">
+      <p
+        id={statusId}
+        role="status"
+        aria-live="polite"
+        className={`mt-2 flex items-center gap-1.5 text-[11px] leading-relaxed ${statusClassName}`}
+      >
         {loadState === 'loading' || loadState === 'saving' ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
         <span>{statusMessage}</span>
       </p>
