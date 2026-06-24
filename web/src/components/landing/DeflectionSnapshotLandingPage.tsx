@@ -25,10 +25,12 @@ import {
   type DeflectionSnapshot,
   type DeflectionSnapshotSourceWindow,
 } from '@/lib/deflection-snapshot';
+import { DEMO_DEFLECTION_REPORT_MODEL } from '@/lib/deflection-report-demo';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
   formatDeflectionWholeUsd,
 } from '@/lib/deflection-pricing';
+import { DeflectionLockedReportPreview } from './DeflectionLockedReportPreview';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
 import { SupportTicketCsvIntakeForm } from './SupportTicketCsvIntakeForm';
 
@@ -508,6 +510,8 @@ export function DeflectionSnapshotLandingPage() {
           />
         </div>
       </section>
+
+      <DeflectionLockedReportPreview model={DEMO_DEFLECTION_REPORT_MODEL} />
 
       <section className="section-band section-band-muted">
         <div className="mx-auto max-w-6xl">

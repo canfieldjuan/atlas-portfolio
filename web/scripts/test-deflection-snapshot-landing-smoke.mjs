@@ -21,6 +21,14 @@ const MARKER_KEYS = [
   'assistedContactCost',
   'valueAnchor',
   'blindSpots',
+  'lockedReportPreview',
+  'lockedPreviewPriorityFixQueue',
+  'lockedPreviewTopUnresolvedRepeats',
+  'lockedPreviewDraftedResolutions',
+  'lockedPreviewCoveredRecurring',
+  'lockedPreviewBacklogTable',
+  'lockedPreviewOutcomeDiagnostics',
+  'lockedPreviewQuestionDetails',
   'snapshotFirst',
   'finalSnapshotAsk',
   'ctaLabel',
@@ -38,6 +46,15 @@ const GOOD_HTML = [
   '</section>',
   '<section data-smoke="supportTaxProjection assistedContactCost valueAnchor">Any value band</section>',
   '<section data-smoke="blindSpots">Any blind spots section</section>',
+  '<section data-smoke="lockedReportPreview">',
+  '<article data-smoke="lockedPreviewPriorityFixQueue">Any priority preview</article>',
+  '<article data-smoke="lockedPreviewTopUnresolvedRepeats">Any unresolved preview</article>',
+  '<article data-smoke="lockedPreviewDraftedResolutions">Any drafted preview</article>',
+  '<article data-smoke="lockedPreviewCoveredRecurring">Any covered preview</article>',
+  '<article data-smoke="lockedPreviewBacklogTable">Any backlog preview</article>',
+  '<article data-smoke="lockedPreviewOutcomeDiagnostics">Any outcome preview</article>',
+  '<article data-smoke="lockedPreviewQuestionDetails">Any detail preview</article>',
+  '</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
   '<a data-smoke="ctaLabel" href="/systems/support-ticket-deflection/intake">Any CTA</a>',
   '</main>',
@@ -66,6 +83,27 @@ async function loadSnapshotFixtures() {
       compilerOptions,
     });
     await writeFile(compiledContractPath, compiledContract.outputText);
+    await writeFile(compiledPath, compiled.outputText);
+
+    const require = createRequire(compiledPath);
+    return require(compiledPath);
+  } finally {
+    await rm(testDir, { force: true, recursive: true });
+  }
+}
+
+async function loadReportFixture() {
+  const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-report-fixtures-'));
+  const compiledPath = join(testDir, 'deflection-report-demo.cjs');
+
+  try {
+    const fixtureSource = await source('src/lib/deflection-report-demo.ts');
+    const compiled = ts.transpileModule(fixtureSource, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      },
+    });
     await writeFile(compiledPath, compiled.outputText);
 
     const require = createRequire(compiledPath);
@@ -214,6 +252,9 @@ function assertResultFields(result, expected, name) {
 
 const snapshotLandingSource = await source('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
+const lockedPreviewSource = await source('src/components/landing/DeflectionLockedReportPreview.tsx');
+const reportModelPageSource = await source('src/components/landing/DeflectionReportModelPage.tsx');
+const reportModelContractSource = await source('src/lib/deflection-report-model-contract.ts');
 const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
 const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
 const submitCtaIndex = intakeFormSource.indexOf('data-smoke="resolutionReportCta submitCta"');
@@ -226,6 +267,25 @@ const {
   DEMO_DEFLECTION_SNAPSHOT,
   DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,
 } = await loadSnapshotFixtures();
+const { DEMO_DEFLECTION_REPORT_MODEL } = await loadReportFixture();
+const lockedPreviewSectionIds = [
+  'priority_fix_queue',
+  'top_unresolved_repeats',
+  'drafted_resolutions',
+  'already_covered_still_recurring',
+  'backlog_table',
+  'outcome_diagnostics',
+  'question_details',
+];
+const lockedPreviewSmokeMarkers = [
+  'lockedPreviewPriorityFixQueue',
+  'lockedPreviewTopUnresolvedRepeats',
+  'lockedPreviewDraftedResolutions',
+  'lockedPreviewCoveredRecurring',
+  'lockedPreviewBacklogTable',
+  'lockedPreviewOutcomeDiagnostics',
+  'lockedPreviewQuestionDetails',
+];
 
 assert.equal(
   groundTruth._meta.top_blind_spots_emitted,
@@ -334,6 +394,69 @@ assert.ok(
   snapshotLandingSource.includes('data-smoke="blindSpots"'),
   'Snapshot landing blind-spots section should keep a stable smoke marker.',
 );
+assert.ok(
+  snapshotLandingSource.includes('DEMO_DEFLECTION_REPORT_MODEL') &&
+    snapshotLandingSource.includes('<DeflectionLockedReportPreview'),
+  'Snapshot landing should render the locked full-report preview from the demo report fixture.',
+);
+assert.ok(
+  snapshotLandingSource.indexOf('<SnapshotArtifact') !== -1 &&
+    snapshotLandingSource.indexOf('<DeflectionLockedReportPreview') !== -1 &&
+    snapshotLandingSource.indexOf('<SnapshotArtifact') < snapshotLandingSource.indexOf('<DeflectionLockedReportPreview'),
+  'Locked full-report preview should render after the Snapshot artifact.',
+);
+assert.deepEqual(
+  DEMO_DEFLECTION_REPORT_MODEL.sections.map((section) => section.id),
+  lockedPreviewSectionIds,
+  'Locked full-report demo should carry exactly the seven #371 paid-only preview sections in order.',
+);
+for (const sectionId of lockedPreviewSectionIds) {
+  assert.ok(
+    reportModelContractSource.includes(`"${sectionId}"`),
+    `Generated paid report contract should still include ${sectionId}.`,
+  );
+}
+for (const smokeMarker of lockedPreviewSmokeMarkers) {
+  assert.ok(
+    lockedPreviewSource.includes(smokeMarker),
+    `Locked preview component should keep ${smokeMarker} marker.`,
+  );
+}
+for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
+  const data = section.data;
+  if ('items' in data) {
+    assert.ok(data.items.length > 0, `${section.id} should keep a representative locked item.`);
+    for (const item of data.items) {
+      assert.deepEqual(item.top_evidence, [], `${section.id} demo item should not carry public evidence quotes.`);
+    }
+  }
+  if ('rows' in data) {
+    assert.ok(data.rows.length > 0, `${section.id} should keep a representative locked row.`);
+    for (const row of data.rows) {
+      if ('source_ids' in row) assert.deepEqual(row.source_ids, [], `${section.id} demo row should not carry source IDs.`);
+      if ('evidence_quotes' in row) assert.deepEqual(row.evidence_quotes, [], `${section.id} demo row should not carry evidence quotes.`);
+    }
+  }
+}
+for (const label of [
+  'Priority Fix Queue',
+  'Top Unresolved Repeats',
+  'Drafted Resolutions',
+  'Already Covered but Still Recurring',
+  'Backlog Table',
+  'Resolution outcome diagnostics',
+  'Top publishable answers and gaps',
+  'Question/theme',
+  'Status',
+  'Repeats',
+  'Cost',
+  'CSAT',
+  'Owner lane',
+  'Next action',
+]) {
+  assert.ok(reportModelPageSource.includes(label), `Paid report page should still own label: ${label}`);
+  assert.ok(lockedPreviewSource.includes(label), `Locked preview should mirror paid report label: ${label}`);
+}
 assert.ok(
   snapshotLandingSource.includes('Estimated Support Tax') &&
     snapshotLandingSource.includes('Repeat Contacts') &&
