@@ -404,6 +404,7 @@
           "recommended_title",
           "repeat_key",
           "representative_phrasing",
+          "review_key",
           "status",
           "suppression_reason",
           "suppression_reason_label",

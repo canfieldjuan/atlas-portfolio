@@ -204,6 +204,7 @@ export const DEMO_DEFLECTION_REPORT_MODEL: DeflectionStructuredReport = {
             rank: 4,
             repeat_key: 'closed-invoice-contact-change',
             cluster_id: 'cluster-closed-invoice-contact-change',
+            review_key: 'review_0123456789abcdef01234567',
             question: 'Can I change invoice contacts for a closed invoice?',
             status: 'Review before promotion',
             owner_lane: 'Operations',
