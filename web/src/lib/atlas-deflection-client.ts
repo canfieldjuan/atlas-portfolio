@@ -355,6 +355,13 @@ export type DeflectionCheckoutAuthorization = {
   priceId: string;
 };
 
+export type DeflectionStandardPricingTerms = {
+  variant: 'standard';
+  status: 'configured';
+  amountCents: number;
+  currency: string;
+};
+
 type CheckoutAuthorizationFailureReason =
   | 'not_configured'
   | 'not_found'
@@ -365,6 +372,10 @@ type CheckoutAuthorizationFailureReason =
 export type CheckoutAuthorizationResult =
   | { ok: true; checkout: DeflectionCheckoutAuthorization }
   | { ok: false; reason: CheckoutAuthorizationFailureReason };
+
+export type StandardPricingTermsResult =
+  | { ok: true; terms: DeflectionStandardPricingTerms }
+  | { ok: false; reason: 'not_configured' | 'unavailable' | 'error' };
 
 export type DeflectionSubmitResult =
   | { ok: true; requestId: string }
@@ -386,6 +397,8 @@ export type DeflectionSubmitInput = {
 };
 
 const DEFLECTION_SUBMIT_PATH = '/api/v1/content-ops/deflection-reports/submit';
+const DEFLECTION_STANDARD_PRICING_TERMS_PATH =
+  '/api/v1/content-ops/deflection-reports/pricing/standard';
 const DEFLECTION_REPORT_SEARCH_LIMIT = 5;
 const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
   zendesk: 'zendesk',
@@ -584,6 +597,30 @@ function parseCheckoutAuthorization(v: unknown): DeflectionCheckoutAuthorization
   return null;
 }
 
+function parseStandardPricingTerms(v: unknown): DeflectionStandardPricingTerms | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const terms = v as Record<string, unknown>;
+  const amountCents = terms.amount_cents;
+  const currency = terms.currency;
+  if (
+    terms.variant === 'standard' &&
+    terms.status === 'configured' &&
+    typeof amountCents === 'number' &&
+    Number.isSafeInteger(amountCents) &&
+    amountCents > 0 &&
+    typeof currency === 'string' &&
+    /^[a-zA-Z]{3}$/.test(currency)
+  ) {
+    return {
+      variant: 'standard',
+      status: 'configured',
+      amountCents,
+      currency: currency.trim().toLowerCase(),
+    };
+  }
+  return null;
+}
+
 function checkoutAuthorizationConflictReason(
   value: unknown,
 ): CheckoutAuthorizationFailureReason {
@@ -592,6 +629,44 @@ function checkoutAuthorizationConflictReason(
   if (typeof detail !== 'string') return 'unavailable';
   if (detail.toLowerCase().includes('already paid')) return 'already_paid';
   return 'unavailable';
+}
+
+export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPricingTermsResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${DEFLECTION_STANDARD_PRICING_TERMS_PATH}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 503) return { ok: false, reason: 'not_configured' };
+    if (!res.ok) {
+      console.error(`deflection standard pricing terms fetch failed: HTTP ${res.status}`);
+      return { ok: false, reason: 'unavailable' };
+    }
+    const terms = parseStandardPricingTerms(await res.json());
+    if (!terms) {
+      console.error('deflection standard pricing terms fetch: upstream shape rejected');
+      return { ok: false, reason: 'error' };
+    }
+    return { ok: true, terms };
+  } catch (err) {
+    console.error(
+      'deflection standard pricing terms fetch error:',
+      err instanceof Error ? err.message : err,
+    );
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function authorizeDeflectionCheckout(

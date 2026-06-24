@@ -125,14 +125,17 @@ export function DeflectionResultsPage({
   const [finalizingTimedOut, setFinalizingTimedOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const resultsViewTracked = useRef(false);
+  const priceUnavailable = priceVariant.priceUnavailable === true;
   const unlockLabel = finalizing
     ? copy.finalizingLabel
     : finalizingTimedOut
       ? 'Payment received'
       : loading
         ? 'Starting checkout...'
-        : `Unlock the ${copy.fullArtifactName} - ${fullReportPriceLabel}`;
-  const unlockDisabled = loading || finalizing || finalizingTimedOut;
+        : priceUnavailable
+          ? fullReportPriceLabel
+          : `Unlock the ${copy.fullArtifactName} - ${fullReportPriceLabel}`;
+  const unlockDisabled = loading || finalizing || finalizingTimedOut || priceUnavailable;
 
   const trackedResultsContext = useMemo(
     () =>
@@ -203,6 +206,10 @@ export function DeflectionResultsPage({
   // the results page re-probes GET /artifact and renders the paid audit/report
   // once unlocked. `alreadyPaid` means the webhook already landed — just reload.
   async function handleUnlock() {
+    if (priceUnavailable) {
+      setError('Full audit pricing is temporarily unavailable. Please try again later.');
+      return;
+    }
     setLoading(true);
     setError(null);
     trackFaqReportUnlockClicked(trackedResultsContext);

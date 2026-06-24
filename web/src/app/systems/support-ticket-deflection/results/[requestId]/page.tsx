@@ -9,6 +9,7 @@ import {
   fetchDeflectionSnapshot,
   fetchDeflectionArtifact,
   fetchDeflectionReportModel,
+  fetchDeflectionStandardPricingTerms,
   type ReportModelFetchResult,
 } from '@/lib/atlas-deflection-client';
 import {
@@ -20,6 +21,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
   type DeflectionPriceVariant,
+  withDeflectionStandardPriceDisplayTerms,
 } from '@/lib/deflection-pricing';
 import {
   getGapReportPriceVariantByReportRequestId,
@@ -139,6 +141,17 @@ async function getResultsPriceVariant(
   );
 }
 
+async function getResultsDisplayPriceVariant(
+  priceVariant: DeflectionPriceVariant,
+): Promise<DeflectionPriceVariant> {
+  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
+  const result = await fetchDeflectionStandardPricingTerms();
+  return withDeflectionStandardPriceDisplayTerms(
+    priceVariant,
+    result.ok ? result.terms : null,
+  );
+}
+
 export default async function DeflectionResultsRoute({ params, searchParams }: PageProps) {
   const { requestId } = await params;
   const query = searchParams ? await searchParams : undefined;
@@ -165,7 +178,8 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   if (snapshotState.kind === 'not_found') notFound();
   if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
   const snapshot: DeflectionSnapshot = snapshotState.snapshot;
-  const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
+  const checkoutPriceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
+  const priceVariant = await getResultsDisplayPriceVariant(checkoutPriceVariant);
   const analyticsContext = await getResultsAnalyticsContext(requestId);
   return (
     <DeflectionResultsPage

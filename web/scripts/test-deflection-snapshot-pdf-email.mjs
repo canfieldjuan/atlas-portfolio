@@ -15,7 +15,7 @@ try {
     [
       'exports.DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD = 13.5;',
       "exports.DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL = '$13.50';",
-      "exports.DEFLECTION_FULL_REPORT_PRICE_LABEL = '$1,500';",
+      "exports.DEFLECTION_PRICE_UNAVAILABLE_LABEL = 'Price unavailable';",
       'exports.formatDeflectionWholeUsd = (value) => `$${Math.round(value).toLocaleString("en-US")}`;',
       '',
     ].join('\n'),
@@ -151,7 +151,7 @@ try {
   assert.equal(partnerAttachment.filename, 'deflection-snapshot-partner-co.pdf');
   assert.match(partnerPdfText, /Deflection Snapshot/);
   assert.match(partnerPdfText, /full Deflection Report markdown/);
-  assert.match(partnerPdfText, /\$1,500 Full Deflection Report locked preview/);
+  assert.match(partnerPdfText, /Full Deflection Report locked preview - Price unavailable/);
   assert.doesNotMatch(partnerPdfText, /audit/i);
 
   const contentRichSnapshot = {

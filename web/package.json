@@ -51,6 +51,7 @@
     "test:deflection-ga-path-redaction": "node scripts/test-deflection-ga-path-redaction.mjs",
     "test:deflection-hosted-checkout-smoke": "node scripts/test-deflection-hosted-checkout-smoke.mjs",
     "test:deflection-hosted-results-smoke": "node scripts/test-deflection-hosted-results-smoke.mjs",
+    "test:deflection-atlas-price-display": "node scripts/test-deflection-atlas-price-display.mjs",
     "test:deflection-report-model-result-page": "node scripts/test-deflection-report-model-result-page.mjs",
     "test:deflection-intake-atlas-submit": "node scripts/test-deflection-intake-atlas-submit.mjs",
     "test:deflection-legacy-results-redirect": "node scripts/test-deflection-legacy-results-redirect.mjs",

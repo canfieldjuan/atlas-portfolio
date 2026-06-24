@@ -2,7 +2,7 @@ import type { DeflectionSnapshot } from './deflection-snapshot';
 import {
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL,
   DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD,
-  DEFLECTION_FULL_REPORT_PRICE_LABEL,
+  DEFLECTION_PRICE_UNAVAILABLE_LABEL,
   formatDeflectionWholeUsd,
 } from './deflection-pricing';
 
@@ -159,7 +159,7 @@ export function buildDeflectionSnapshotPdfLines(input: DeflectionSnapshotPdfInpu
   }
 
   if (snapshot.locked_questions.length > 0) {
-    lines.push('', `${DEFLECTION_FULL_REPORT_PRICE_LABEL} ${paidArtifactName} locked preview`);
+    lines.push('', `${paidArtifactName} locked preview - ${DEFLECTION_PRICE_UNAVAILABLE_LABEL}`);
     for (const question of snapshot.locked_questions.slice(0, 8)) {
       addWrapped(
         lines,
