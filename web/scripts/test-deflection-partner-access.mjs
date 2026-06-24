@@ -259,8 +259,16 @@ try {
 
   const partnerClient = await readFile(partnerClientUrl, 'utf8');
   assert.ok(
-    partnerClient.includes('DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel'),
-    'partner client falls back to standard pricing without token access',
+    !partnerClient.includes('DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel'),
+    'partner client does not leak the retired public default price fallback',
+  );
+  assert.ok(
+    partnerClient.includes("href: '/systems/support-ticket-deflection/intake'"),
+    'partner client sends unsigned visitors through the standard intake path',
+  );
+  assert.ok(
+    partnerClient.includes('standardPriceSource: undefined'),
+    'partner client keeps validated partner pricing out of the standard ATLAS price hydrator',
   );
   assert.ok(
     partnerClient.includes('priceVariant: DEFLECTION_PARTNER_PRICE_VARIANT.id'),

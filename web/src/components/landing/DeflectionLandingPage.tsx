@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AnimatedCard,
   Pipeline,
@@ -16,6 +16,7 @@ import {
 } from './LandingPrimitives';
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 import { SupportTaxMiniCalculator } from '@/components/deflection-demo/SupportTaxMiniCalculator';
+import { DEFLECTION_PRICE_UNAVAILABLE_LABEL } from '@/lib/deflection-pricing';
 
 // ── Config type ────────────────────────────────────────────────────────────
 
@@ -119,6 +120,43 @@ export function DeflectionLandingPage({
   bare?: boolean;
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [standardPriceLabel, setStandardPriceLabel] = useState(
+    DEFLECTION_PRICE_UNAVAILABLE_LABEL,
+  );
+  const pricingTiers = useMemo(
+    () =>
+      config.pricing.tiers.map((tier) =>
+        tier.standardPriceSource === 'atlas'
+          ? { ...tier, price: standardPriceLabel }
+          : tier,
+      ),
+    [config.pricing.tiers, standardPriceLabel],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStandardPrice() {
+      try {
+        const res = await fetch('/api/deflection-pricing/standard', {
+          cache: 'no-store',
+        });
+        const data = (await res.json()) as { price_label?: unknown };
+        if (!cancelled && res.ok && typeof data.price_label === 'string') {
+          setStandardPriceLabel(data.price_label);
+          return;
+        }
+      } catch {
+        // Keep the safe unavailable display.
+      }
+      if (!cancelled) setStandardPriceLabel(DEFLECTION_PRICE_UNAVAILABLE_LABEL);
+    }
+
+    void loadStandardPrice();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <>
@@ -311,7 +349,7 @@ export function DeflectionLandingPage({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-            {config.pricing.tiers.map((tier, index) => (
+            {pricingTiers.map((tier, index) => (
               <PricingTierCard key={tier.id} tier={tier} index={index} />
             ))}
           </div>

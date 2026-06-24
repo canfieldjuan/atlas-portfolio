@@ -23,6 +23,12 @@ export type DeflectionPriceVariant = {
   amountUsd: number;
   amountCents: number;
   priceLabel: string;
+  priceUnavailable?: boolean;
+};
+
+export type DeflectionStandardPriceDisplayTerms = {
+  amountCents: number;
+  currency: string;
 };
 
 const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
@@ -38,12 +44,28 @@ const benchmarkUsdFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
+export const DEFLECTION_PRICE_UNAVAILABLE_LABEL = 'Price unavailable';
+
 export function formatDeflectionWholeUsd(value: number) {
   return wholeUsdFormatter.format(value);
 }
 
 export function formatDeflectionBenchmarkUsd(value: number) {
   return benchmarkUsdFormatter.format(value);
+}
+
+export function formatDeflectionPriceLabel(amountCents: number, currency = 'usd') {
+  const normalizedCurrency = currency.trim().toUpperCase();
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: normalizedCurrency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amountCents / 100);
+  } catch {
+    return DEFLECTION_PRICE_UNAVAILABLE_LABEL;
+  }
 }
 
 export const DEFLECTION_ASSISTED_CONTACT_BENCHMARK_LABEL =
@@ -73,6 +95,34 @@ export const DEFLECTION_FULL_REPORT_PRICE_USD =
 export const DEFLECTION_FULL_REPORT_PRICE_CENTS =
   DEFLECTION_DEFAULT_PRICE_VARIANT.amountCents;
 
+export function withDeflectionStandardPriceUnavailable(
+  priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
+): DeflectionPriceVariant {
+  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
+  return {
+    ...priceVariant,
+    amountUsd: 0,
+    amountCents: 0,
+    priceLabel: DEFLECTION_PRICE_UNAVAILABLE_LABEL,
+    priceUnavailable: true,
+  };
+}
+
+export function withDeflectionStandardPriceDisplayTerms(
+  priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
+  terms: DeflectionStandardPriceDisplayTerms | null,
+): DeflectionPriceVariant {
+  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
+  if (!terms) return withDeflectionStandardPriceUnavailable(priceVariant);
+  return {
+    ...priceVariant,
+    amountUsd: terms.currency.toLowerCase() === 'usd' ? terms.amountCents / 100 : 0,
+    amountCents: terms.amountCents,
+    priceLabel: formatDeflectionPriceLabel(terms.amountCents, terms.currency),
+    priceUnavailable: false,
+  };
+}
+
 export function resolveDeflectionPriceVariant(value: unknown): DeflectionPriceVariant | null {
   if (value === undefined || value === null) return DEFLECTION_DEFAULT_PRICE_VARIANT;
   if (typeof value !== 'string') return null;
@@ -82,5 +132,5 @@ export function resolveDeflectionPriceVariant(value: unknown): DeflectionPriceVa
 }
 
 export const DEFLECTION_FULL_REPORT_PRICE_LABEL =
-  DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel;
+  DEFLECTION_PRICE_UNAVAILABLE_LABEL;
 export const DEFLECTION_SNAPSHOT_FULL_REPORT_OFFER_LABEL = `Free snapshot · ${DEFLECTION_FULL_REPORT_PRICE_LABEL} full report`;

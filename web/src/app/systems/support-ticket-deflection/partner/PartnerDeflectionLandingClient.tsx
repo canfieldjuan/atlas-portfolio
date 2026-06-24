@@ -6,7 +6,6 @@ import {
 } from '@/components/landing/LandingPrimitives';
 import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
 import {
-  DEFLECTION_DEFAULT_PRICE_VARIANT,
   DEFLECTION_PARTNER_PRICE_VARIANT,
 } from '@/lib/deflection-pricing';
 import { generateFaqJsonLd } from '@/lib/seo';
@@ -96,13 +95,13 @@ function partnerPricingTiers(
     if (!hasPartnerAccess) {
       return {
         ...partnerTier,
-        price: DEFLECTION_DEFAULT_PRICE_VARIANT.priceLabel,
         href: '/systems/support-ticket-deflection/intake',
       };
     }
     return {
       ...partnerTier,
       price: DEFLECTION_PARTNER_PRICE_VARIANT.priceLabel,
+      standardPriceSource: undefined,
       href: intakeHref,
       badge: 'FIRST 5 DESIGN PARTNERS',
       note: 'Partner price for the first 5 design partners, early teams that collaborate on direction and are OK sharing anonymized patterns as a case study.',
