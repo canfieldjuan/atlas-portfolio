@@ -97,9 +97,90 @@ export const DEFLECTION_REPORT_MODEL_SCHEMA_VERSION = "deflection.v1" as const;
 
 export const DEFLECTION_REPORT_SECTION_IDS = ["support_tax", "priority_fix_queue", "complete_evidence"] as const;
 
+export const DEFLECTION_REPORT_SUPPORT_TAX_FIELDS = ["repeat_ticket_count", "source_date_window", "annualized_support_cost"] as const;
+
+export const DEFLECTION_REPORT_SUPPORT_TAX_HOSTED_CONSUMER_SAFE_FIELDS = ["repeat_ticket_count", "source_date_window", "annualized_support_cost"] as const;
+
+export const DEFLECTION_REPORT_SUPPORT_TAX_SOURCE_DATE_WINDOW_HOSTED_CONSUMER_SAFE_FIELDS = ["source_date_start", "source_date_end", "source_window_days"] as const;
+
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_FIELDS = ["items", "result_page_limit"] as const;
 
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "result_page_limit", "status_counts", "support_cost_basis"] as const;
+
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "priority_score", "priority_drivers", "csat_signal"] as const;
+
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "numeric_average"] as const;
+
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_SUPPORT_COST_BASIS_HOSTED_CONSUMER_SAFE_FIELDS = ["status"] as const;
+
 export const DEFLECTION_REPORT_COMPLETE_EVIDENCE_FIELDS = ["source_id_count", "evidence_row_count"] as const;
+
+export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
+  "support_tax": {
+    "repeat_ticket_count": "scalar",
+    "source_date_window": "object",
+    "annualized_support_cost": "scalar",
+  },
+  "support_tax.source_date_window": {
+    "source_date_start": "scalar",
+    "source_date_end": "scalar",
+    "source_window_days": "scalar",
+  },
+  "priority_fix_queue": {
+    "items": "object_array",
+    "result_page_limit": "scalar",
+    "status_counts": "record",
+    "support_cost_basis": "object",
+  },
+  "priority_fix_queue.items": {
+    "question": "scalar",
+    "priority_score": "scalar",
+    "priority_drivers": "scalar_array",
+    "csat_signal": "object",
+  },
+  "priority_fix_queue.items.csat_signal": {
+    "status": "scalar",
+    "numeric_average": "scalar",
+  },
+  "priority_fix_queue.support_cost_basis": {
+    "status": "scalar",
+  },
+} as const;
+
+export type DeflectionReportSupportTaxSourceDateWindow = {
+  source_date_start: string | null;
+  source_date_end: string | null;
+  source_window_days: number | null;
+};
+
+export type DeflectionReportSupportTaxData = {
+  repeat_ticket_count: number;
+  source_date_window: DeflectionReportSupportTaxSourceDateWindow | null;
+  annualized_support_cost?: number;
+};
+
+export type DeflectionReportPriorityFixQueueCsatSignal = {
+  status: string;
+  numeric_average: number | null;
+};
+
+export type DeflectionReportPriorityFixQueueSupportCostBasis = {
+  status: string;
+};
+
+export type DeflectionReportPriorityFixQueueItem = {
+  question: string;
+  priority_score: number;
+  priority_drivers: string[];
+  csat_signal: DeflectionReportPriorityFixQueueCsatSignal;
+};
+
+export type DeflectionReportPriorityFixQueueData = {
+  items: DeflectionReportPriorityFixQueueItem[];
+  result_page_limit: number;
+  status_counts: Record<string, number>;
+  support_cost_basis: DeflectionReportPriorityFixQueueSupportCostBasis;
+};
 
 export type DeflectionReportSection = {
   id: string;
@@ -158,6 +239,26 @@ assert.ok(
 assert.ok(
   reportModelRendered.includes('DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_FIELDS'),
   'report-model render should preserve generated section field metadata',
+);
+assert.ok(
+  reportModelRendered.includes('export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {'),
+  'report-model render should append the richer hosted admission contract',
+);
+assert.ok(
+  reportModelRendered.includes('"source_date_window": {\n      "shape": "object",\n      "required": true,\n      "nullable": true'),
+  'nullable hosted objects should stay nullable in the generated admission contract',
+);
+assert.ok(
+  reportModelRendered.includes('"csat_signal": {\n      "shape": "object",\n      "required": true,\n      "nullable": false'),
+  'non-nullable hosted objects should reject null in the generated admission contract',
+);
+assert.ok(
+  reportModelRendered.includes('"annualized_support_cost": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "number"'),
+  'optional hosted scalars should stay optional in the generated admission contract',
+);
+assert.ok(
+  reportModelRendered.includes('"question": {\n      "shape": "scalar",\n      "required": true,\n      "nullable": false,\n      "value": "string"'),
+  'required hosted row fields should stay required in the generated admission contract',
 );
 
 assert.throws(

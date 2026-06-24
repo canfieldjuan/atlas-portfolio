@@ -10,6 +10,8 @@ import {
   type DeflectionSnapshotTeaser,
 } from '@/lib/deflection-snapshot';
 import {
+  DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT,
+  DEFLECTION_REPORT_HOSTED_FIELD_SHAPES,
   deflectionArtifactPath,
   deflectionReportModelPath,
   type DeflectionStructuredReport,
@@ -826,401 +828,144 @@ function isNonNegativeFiniteNumber(value: unknown): value is number {
   return isFiniteNumber(value) && value >= 0;
 }
 
-function isNonNegativeInteger(value: unknown): value is number {
-  return isNonNegativeFiniteNumber(value) && Number.isInteger(value);
-}
-
-function isPositiveInteger(value: unknown): value is number {
-  return isFiniteNumber(value) && Number.isInteger(value) && value > 0;
-}
-
-function requireNonNegativeNumbers(
-  data: Record<string, unknown>,
-  keys: string[],
-): boolean {
-  return keys.every((key) => isNonNegativeFiniteNumber(data[key]));
-}
-
-function isOptionalSourceWindow(value: unknown): boolean {
-  if (value === null) return true;
-  if (!isPlainRecord(value)) return false;
-  const start = value.source_date_start;
-  const end = value.source_date_end;
-  const days = value.source_window_days;
-  if (
-    !(start === null || typeof start === 'string') ||
-    !(end === null || typeof end === 'string') ||
-    !(days === null || isNonNegativeFiniteNumber(days))
-  ) {
-    return false;
-  }
-  if (start === null || end === null || days === null) {
-    return true;
-  }
+function isHostedScalar(value: unknown): value is string | number | boolean | null {
   return (
-    typeof start === 'string' &&
-    typeof end === 'string' &&
-    isNonNegativeFiniteNumber(days)
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
   );
 }
 
-function isOutcomeDiagnosticRows(value: unknown): boolean {
-  if (!Array.isArray(value)) return false;
-  return value.every((row) => (
-    isPlainRecord(row) &&
-    typeof row.question === 'string' &&
-    isPriorityStatusCounts(row.status_mix) &&
-    isNonNegativeFiniteNumber(row.reopened_ticket_count) &&
-    isNonNegativeFiniteNumber(row.negative_csat_ticket_count) &&
-    typeof row.guidance === 'string'
-  ));
-}
+type HostedFieldContract = {
+  shape: string;
+  required: boolean;
+  nullable: boolean;
+  value?: string;
+};
 
-function isRankedQuestionRows(value: unknown): boolean {
-  if (!Array.isArray(value)) return false;
-  return value.every((row) => (
-    isPlainRecord(row) &&
-    isFiniteNumber(row.rank) &&
-    typeof row.question === 'string' &&
-    isNonNegativeFiniteNumber(row.ticket_count) &&
-    isFiniteNumber(row.weighted_frequency) &&
-    typeof row.customer_wording === 'string' &&
-    isNonNegativeFiniteNumber(row.estimated_support_cost) &&
-    isFiniteNumber(row.opportunity_score) &&
-    typeof row.answer_status === 'string' &&
-    typeof row.source_proof === 'string'
-  ));
-}
-
-function isActionItemRows(value: unknown): boolean {
-  if (!Array.isArray(value)) return false;
-  return value.every((row) => (
-    isPlainRecord(row) &&
-    isPositiveInteger(row.rank) &&
-    typeof row.question === 'string' &&
-    typeof row.status === 'string' &&
-    typeof row.owner_lane === 'string' &&
-    typeof row.fix_type === 'string' &&
-    typeof row.confidence === 'string' &&
-    typeof row.recommended_action === 'string' &&
-    isNonNegativeFiniteNumber(row.ticket_count) &&
-    isNonNegativeFiniteNumber(row.estimated_support_cost) &&
-    isFiniteNumber(row.opportunity_score) &&
-    isNonNegativeFiniteNumber(row.priority_score) &&
-    parseStringList(row.priority_drivers) !== null &&
-    isPlainRecord(row.csat_signal) &&
-    typeof row.csat_signal.status === 'string' &&
-    isNonNegativeFiniteNumber(row.csat_signal.negative_csat_ticket_count) &&
-    isNonNegativeFiniteNumber(row.csat_signal.csat_present_count) &&
-    (
-      row.csat_signal.numeric_average === null ||
-      isFiniteNumber(row.csat_signal.numeric_average)
+function hostedFieldShapes(ownerPath: string): Record<string, string> {
+  const shapes = (DEFLECTION_REPORT_HOSTED_FIELD_SHAPES as Record<string, unknown>)[ownerPath];
+  return isPlainRecord(shapes)
+    ? Object.fromEntries(
+      Object.entries(shapes).filter((entry): entry is [string, string] => (
+        typeof entry[0] === 'string' && typeof entry[1] === 'string'
+      )),
     )
-  ));
+    : {};
 }
 
-function isTopUnresolvedRepeatsSection(data: Record<string, unknown>): boolean {
-  const items = data.items;
-  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
-  if (!isNonNegativeInteger(data.top_item_count)) return false;
-  if (data.top_item_count !== items.length) return false;
-  if (!isNonNegativeInteger(data.result_page_limit)) return false;
-  if (!isNonNegativeInteger(data.pdf_limit)) return false;
-  return isPrioritySupportCostBasis(data.support_cost_basis);
-}
-
-function isDraftedResolutionsSection(data: Record<string, unknown>): boolean {
-  const items = data.items;
-  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
-  if (!isNonNegativeInteger(data.top_item_count)) return false;
-  if (data.top_item_count !== items.length) return false;
-  if (!isNonNegativeInteger(data.result_page_limit)) return false;
-  return isNonNegativeInteger(data.pdf_limit);
-}
-
-function isCoveredRecurringSection(data: Record<string, unknown>): boolean {
-  const items = data.items;
-  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
-  if (!isNonNegativeInteger(data.top_item_count)) return false;
-  if (data.top_item_count !== items.length) return false;
-  if (!isNonNegativeInteger(data.result_page_limit)) return false;
-  return isNonNegativeInteger(data.pdf_limit);
-}
-
-function isBacklogTableSection(data: Record<string, unknown>): boolean {
-  const items = data.items;
-  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
-  if (!isNonNegativeInteger(data.total_item_count)) return false;
-  if (data.total_item_count < items.length) return false;
-  return isNonNegativeInteger(data.default_limit);
-}
-
-function isReasonCounts(value: unknown): boolean {
-  return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
-}
-
-function isSuppressedRepeatReviewQueueSection(data: Record<string, unknown>): boolean {
-  const items = data.items;
-  if (!Array.isArray(items) || !isActionItemRows(items)) return false;
-  if (!items.every((row) => (
-    typeof row.suppression_reason === 'string' &&
-    typeof row.suppression_reason_label === 'string'
-  ))) {
-    return false;
-  }
-  if (!isNonNegativeInteger(data.total_item_count)) return false;
-  if (data.total_item_count < items.length) return false;
-  if (!isNonNegativeInteger(data.default_limit)) return false;
-  return isReasonCounts(data.reason_counts);
-}
-
-function safeActionItem(row: Record<string, unknown>): Record<string, unknown> {
-  const csatSignal = row.csat_signal as Record<string, unknown>;
-  return {
-    rank: row.rank,
-    question: row.question,
-    status: row.status,
-    owner_lane: row.owner_lane,
-    confidence: row.confidence,
-    recommended_action: row.recommended_action,
-    ticket_count: row.ticket_count,
-    estimated_support_cost: row.estimated_support_cost,
-    priority_score: row.priority_score,
-    priority_drivers: parseStringList(row.priority_drivers) ?? [],
-    csat_signal: {
-      status: csatSignal.status,
-      csat_present_count: csatSignal.csat_present_count,
-      negative_csat_ticket_count: csatSignal.negative_csat_ticket_count,
-      numeric_average: csatSignal.numeric_average,
-    },
-  };
-}
-
-function safeActionItems(value: unknown): Record<string, unknown>[] {
-  return Array.isArray(value)
-    ? value.filter(isPlainRecord).map(safeActionItem)
-    : [];
-}
-
-function safeSuppressedActionItems(value: unknown): Record<string, unknown>[] {
-  return Array.isArray(value)
-    ? value.filter(isPlainRecord).map((row) => {
-      const item = {
-        ...safeActionItem(row),
-        suppression_reason: row.suppression_reason,
-        suppression_reason_label: row.suppression_reason_label,
-      };
-      return typeof row.review_key === 'string'
-        ? { ...item, review_key: row.review_key }
-        : item;
-    })
-    : [];
-}
-
-function isPrioritySupportCostBasis(value: unknown): boolean {
-  return isPlainRecord(value) && typeof value.status === 'string';
-}
-
-function safeSupportCostBasis(value: unknown): Record<string, unknown> {
-  const basis = isPlainRecord(value) ? value : {};
-  return { status: basis.status };
-}
-
-function isPriorityStatusCounts(value: unknown): boolean {
-  return isPlainRecord(value) && Object.values(value).every(isNonNegativeInteger);
-}
-
-function safeStatusCounts(value: unknown): Record<string, number> {
-  if (!isPlainRecord(value)) return {};
-  return Object.fromEntries(
-    Object.entries(value).filter((entry): entry is [string, number] => (
-      typeof entry[0] === 'string' &&
-      isNonNegativeInteger(entry[1])
-    )),
+function isHostedFieldContract(value: unknown): value is HostedFieldContract {
+  return (
+    isPlainRecord(value) &&
+    typeof value.shape === 'string' &&
+    typeof value.required === 'boolean' &&
+    typeof value.nullable === 'boolean' &&
+    (
+      value.value === undefined ||
+      typeof value.value === 'string'
+    )
   );
 }
 
-function safeReasonCounts(value: unknown): Record<string, number> {
-  return safeStatusCounts(value);
+function hostedFieldContracts(ownerPath: string): Record<string, HostedFieldContract> {
+  const contracts = (DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT as Record<string, unknown>)[ownerPath];
+  return isPlainRecord(contracts)
+    ? Object.fromEntries(
+      Object.entries(contracts).filter((entry): entry is [string, HostedFieldContract] => (
+        typeof entry[0] === 'string' && isHostedFieldContract(entry[1])
+      )),
+    )
+    : {};
 }
 
-function constructSafeActionSection(section: ParsedReportSection): ParsedReportSection {
-  const data = section.data;
-  if (section.id === 'priority_fix_queue') {
-    return {
-      ...section,
-      data: {
-        items: safeActionItems(data.items),
-        status_counts: safeStatusCounts(data.status_counts),
-        result_page_limit: data.result_page_limit,
-        pdf_limit: data.pdf_limit,
-        backlog_limit: data.backlog_limit,
-        support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
-      },
-    };
+function validateHostedScalarValue(value: unknown, contract: HostedFieldContract): boolean {
+  if (value === null) {
+    return contract.nullable;
   }
-  if (section.id === 'top_unresolved_repeats') {
-    return {
-      ...section,
-      data: {
-        items: safeActionItems(data.items),
-        top_item_count: data.top_item_count,
-        result_page_limit: data.result_page_limit,
-        pdf_limit: data.pdf_limit,
-        support_cost_basis: safeSupportCostBasis(data.support_cost_basis),
-      },
-    };
+  if (contract.value === 'string') {
+    return typeof value === 'string';
   }
-  if (section.id === 'drafted_resolutions') {
-    return {
-      ...section,
-      data: {
-        items: safeActionItems(data.items),
-        top_item_count: data.top_item_count,
-        result_page_limit: data.result_page_limit,
-        pdf_limit: data.pdf_limit,
-      },
-    };
+  if (contract.value === 'number') {
+    return typeof value === 'number' && Number.isFinite(value);
   }
-  if (section.id === 'already_covered_still_recurring') {
-    return {
-      ...section,
-      data: {
-        items: safeActionItems(data.items),
-        top_item_count: data.top_item_count,
-        result_page_limit: data.result_page_limit,
-        pdf_limit: data.pdf_limit,
-      },
-    };
+  if (contract.value === 'boolean') {
+    return typeof value === 'boolean';
   }
-  if (section.id === 'backlog_table') {
-    return {
-      ...section,
-      data: {
-        items: safeActionItems(data.items),
-        total_item_count: data.total_item_count,
-        default_limit: data.default_limit,
-      },
-    };
-  }
-  if (section.id === 'suppressed_repeat_review_queue') {
-    return {
-      ...section,
-      data: {
-        items: safeSuppressedActionItems(data.items),
-        total_item_count: data.total_item_count,
-        default_limit: data.default_limit,
-        reason_counts: safeReasonCounts(data.reason_counts),
-      },
-    };
-  }
-  return section;
+  return isHostedScalar(value);
 }
 
-function isQuestionDetailRows(value: unknown): boolean {
-  if (!Array.isArray(value)) return false;
-  return value.every((row) => (
-    isPlainRecord(row) &&
-    isFiniteNumber(row.rank) &&
-    typeof row.question === 'string' &&
-    isNonNegativeFiniteNumber(row.ticket_count) &&
-    typeof row.answer_status === 'string' &&
-    typeof row.answer_linkage === 'string' &&
-    typeof row.answer === 'string' &&
-    parseStringList(row.steps) !== null &&
-    parseStringList(row.source_ids) !== null
-  ));
+function validateHostedValue(value: unknown, ownerPath: string, contract: HostedFieldContract): boolean {
+  if (value === null) {
+    return contract.nullable;
+  }
+  const shape = contract.shape;
+  if (shape === 'scalar') {
+    return validateHostedScalarValue(value, contract);
+  }
+  if (shape === 'scalar_array') {
+    return Array.isArray(value) && value.every((item) => validateHostedScalarValue(item, contract));
+  }
+  if (shape === 'record') {
+    return isPlainRecord(value) && Object.values(value).every((item) => validateHostedScalarValue(item, contract));
+  }
+  if (shape === 'object') {
+    return isPlainRecord(value) && validateHostedFields(value, ownerPath);
+  }
+  if (shape === 'object_array') {
+    return Array.isArray(value) && value.every((item) => (
+      isPlainRecord(item) && validateHostedFields(item, ownerPath)
+    ));
+  }
+  return false;
 }
 
-function validateWebReportSection(section: ParsedReportSection): boolean {
-  const data = section.data;
-  if (section.id === 'support_tax') {
-    return (
-      requireNonNegativeNumbers(data, [
-        'repeat_ticket_count',
-        'non_repeat_ticket_count',
-        'generated_question_count',
-        'assisted_contact_cost',
-        'estimated_support_cost',
-        'drafted_answer_count',
-        'no_proven_answer_count',
-        'ticket_source_count',
-      ]) &&
-      isOptionalSourceWindow(data.source_date_window)
-    );
+function validateHostedFields(data: Record<string, unknown>, ownerPath: string): boolean {
+  return Object.entries(hostedFieldContracts(ownerPath)).every(([field, contract]) => {
+    if (!(field in data)) {
+      return !contract.required;
+    }
+    return validateHostedValue(data[field], `${ownerPath}.${field}`, contract);
+  });
+}
+
+function projectHostedFields(data: Record<string, unknown>, ownerPath: string): Record<string, unknown> {
+  const projected: Record<string, unknown> = {};
+  for (const [field, shape] of Object.entries(hostedFieldShapes(ownerPath))) {
+    if (!(field in data)) continue;
+    const value = data[field];
+    const nestedPath = `${ownerPath}.${field}`;
+    if (shape === 'scalar' && isHostedScalar(value)) {
+      projected[field] = value;
+    } else if (shape === 'scalar_array' && Array.isArray(value) && value.every(isHostedScalar)) {
+      projected[field] = value.slice();
+    } else if (shape === 'record' && isPlainRecord(value)) {
+      projected[field] = Object.fromEntries(
+        Object.entries(value).filter((entry): entry is [string, string | number | boolean | null] => (
+          isHostedScalar(entry[1])
+        )),
+      );
+    } else if (shape === 'object') {
+      if (value === null) {
+        projected[field] = null;
+      } else if (isPlainRecord(value)) {
+        projected[field] = projectHostedFields(value, nestedPath);
+      }
+    } else if (shape === 'object_array' && Array.isArray(value)) {
+      projected[field] = value
+        .filter(isPlainRecord)
+        .map((item) => projectHostedFields(item, nestedPath));
+    }
   }
-  if (section.id === 'source_file') {
-    return typeof data.source_label === 'string';
-  }
-  if (section.id === 'seo_targets') {
-    return (
-      parseStringList(data.phrases) !== null &&
-      requireNonNegativeNumbers(data, [
-        'total_phrase_count',
-        'displayed_phrase_count',
-        'omitted_phrase_count',
-        'limit',
-      ])
-    );
-  }
-  if (section.id === 'ranked_questions') {
-    return isRankedQuestionRows(data.rows);
-  }
-  if (section.id === 'priority_fix_queue') {
-    return (
-      isActionItemRows(data.items) &&
-      isPriorityStatusCounts(data.status_counts) &&
-      isNonNegativeInteger(data.result_page_limit) &&
-      isNonNegativeInteger(data.pdf_limit) &&
-      isNonNegativeInteger(data.backlog_limit) &&
-      isPrioritySupportCostBasis(data.support_cost_basis)
-    );
-  }
-  if (section.id === 'top_unresolved_repeats') {
-    return isTopUnresolvedRepeatsSection(data);
-  }
-  if (section.id === 'drafted_resolutions') {
-    return isDraftedResolutionsSection(data);
-  }
-  if (section.id === 'already_covered_still_recurring') {
-    return isCoveredRecurringSection(data);
-  }
-  if (section.id === 'backlog_table') {
-    return isBacklogTableSection(data);
-  }
-  if (section.id === 'suppressed_repeat_review_queue') {
-    return isSuppressedRepeatReviewQueueSection(data);
-  }
-  if (section.id === 'outcome_diagnostics') {
-    return (
-      requireNonNegativeNumbers(data, [
-        'outcome_diagnostic_ticket_count',
-        'outcome_risk_ticket_count',
-        'reopened_ticket_count',
-        'negative_csat_ticket_count',
-      ]) &&
-      isOutcomeDiagnosticRows(data.rows)
-    );
-  }
-  if (section.id === 'question_details') {
-    return isQuestionDetailRows(data.rows);
-  }
-  return true;
+  return projected;
 }
 
 function constructWebReportSection(section: ParsedReportSection): ParsedReportSection | null {
-  if (!validateWebReportSection(section)) return null;
-  if (
-    section.id === 'priority_fix_queue' ||
-    section.id === 'top_unresolved_repeats' ||
-    section.id === 'drafted_resolutions' ||
-    section.id === 'already_covered_still_recurring' ||
-    section.id === 'backlog_table' ||
-    section.id === 'suppressed_repeat_review_queue'
-  ) {
-    return constructSafeActionSection(section);
-  }
-  return section;
+  if (!validateHostedFields(section.data, section.id)) return null;
+  return {
+    ...section,
+    data: projectHostedFields(section.data, section.id),
+  };
 }
 
 function parseReportSection(value: unknown): ParsedReportSection | null {

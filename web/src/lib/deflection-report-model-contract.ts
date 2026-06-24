@@ -853,3 +853,1091 @@ export type DeflectionStructuredReport = {
     summary: Record<string, unknown>;
     sections: DeflectionReportSection[];
 };
+
+export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
+  "already_covered_still_recurring": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "top_item_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "backlog_table": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "total_item_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "default_limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "drafted_resolutions": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "top_item_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "outcome_diagnostics": {
+    "outcome_diagnostic_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "outcome_risk_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "reopened_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "rows": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "priority_fix_queue": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "status_counts": {
+      "shape": "record",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "result_page_limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "pdf_limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "backlog_limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "support_cost_basis": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "question_details": {
+    "rows": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "ranked_questions": {
+    "rows": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "seo_targets": {
+    "phrases": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "total_phrase_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "displayed_phrase_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "omitted_phrase_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "support_tax": {
+    "repeat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "non_repeat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "generated_question_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "assisted_contact_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "source_date_window": {
+      "shape": "object",
+      "required": true,
+      "nullable": true
+    },
+    "drafted_answer_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "no_proven_answer_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "ticket_source_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "annualized_support_cost": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "number"
+    },
+    "annualized_run_rate_support_cost": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "suppressed_repeat_review_queue": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "total_item_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "default_limit": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "reason_counts": {
+      "shape": "record",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "top_unresolved_repeats": {
+    "items": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    },
+    "top_item_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "support_cost_basis": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "already_covered_still_recurring.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "backlog_table.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "drafted_resolutions.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "outcome_diagnostics.rows": {
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status_mix": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "reopened_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "guidance": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
+  "priority_fix_queue.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "priority_fix_queue.support_cost_basis": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
+  "question_details.rows": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "customer_wording": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "topic": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "weighted_frequency": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "source_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "answer_status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "answer_evidence_status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "resolution_evidence_scope": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "answer_linkage": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "answer": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "steps": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "term_mappings": {
+      "shape": "object_array",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "ranked_questions.rows": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "weighted_frequency": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "customer_wording": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "opportunity_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "answer_status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "source_proof": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
+  "support_tax.source_date_window": {
+    "source_date_start": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "string"
+    },
+    "source_date_end": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "string"
+    },
+    "source_window_days": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "suppressed_repeat_review_queue.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    },
+    "review_key": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "suppression_reason": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "suppression_reason_label": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
+  "top_unresolved_repeats.items": {
+    "rank": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "question": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "owner_lane": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "confidence": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "recommended_action": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "estimated_support_cost": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_score": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "priority_drivers": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_signal": {
+      "shape": "object",
+      "required": true,
+      "nullable": false
+    }
+  },
+  "top_unresolved_repeats.support_cost_basis": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
+  "already_covered_still_recurring.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "backlog_table.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "drafted_resolutions.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "priority_fix_queue.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "question_details.rows.term_mappings": {
+    "customer_term": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "documentation_term": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "suggestion": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "source_id_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    }
+  },
+  "suppressed_repeat_review_queue.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  },
+  "top_unresolved_repeats.items.csat_signal": {
+    "status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "csat_present_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "negative_csat_ticket_count": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "number"
+    },
+    "numeric_average": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": true,
+      "value": "number"
+    }
+  }
+} as const;
