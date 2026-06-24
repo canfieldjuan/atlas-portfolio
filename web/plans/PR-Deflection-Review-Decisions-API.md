@@ -16,9 +16,11 @@ Slice phase: Vertical slice
 4. Add lazy Neon persistence helpers for listing and upserting review decisions.
 5. Add a node runtime API route for reading/upserting decisions after validating the report is unlocked and the `review_key` exists in the current hosted-safe report model.
 6. Add a focused route smoke test covering invalid input, locked reports, unknown keys, successful upsert, and the no-customer-wording persistence boundary.
+7. Enroll the focused route smoke test in CI so the new `test:*` script cannot drift outside the pre-push workflow.
 
 ### Files touched
 
+- `.github/workflows/pre_push_audit.yml` — enrolls the focused API test script in CI.
 - `web/package.json` — adds the focused test script.
 - `web/plans/PR-Deflection-Review-Decisions-API.md` — this plan.
 - `web/plans/deflection-snapshot-report-groundtruth.json` — locked preview shape ground truth.
@@ -54,6 +56,7 @@ Parked hardening: none.
 
 - `npm --prefix web run generate:deflection-contracts -- --report-model-source /home/juan-canfield/Desktop/Atlas/worktrees/deflection-suppressed-repeat-review-queue/portfolio-ui/src/types/deflectionReportModel.ts` - passed.
 - `npm --prefix web run test:deflection-review-decisions` - passed.
+- `node web/scripts/audit-test-enrollment.mjs` - passed after enrolling `test:deflection-review-decisions` in CI.
 - `npm --prefix web run check:deflection-contracts -- --report-model-source /home/juan-canfield/Desktop/Atlas/worktrees/deflection-suppressed-repeat-review-queue/portfolio-ui/src/types/deflectionReportModel.ts` - passed.
 - `npm --prefix web run test:deflection-report-model-result-page` - passed.
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed after updating the locked report-model ground truth for `review_key`.
@@ -64,8 +67,9 @@ Parked hardening: none.
 
 | File | LOC |
 |---|---:|
+| `.github/workflows/pre_push_audit.yml` | ~3 |
 | `web/package.json` | ~1 |
-| `web/plans/PR-Deflection-Review-Decisions-API.md` | ~78 |
+| `web/plans/PR-Deflection-Review-Decisions-API.md` | ~82 |
 | `web/plans/deflection-snapshot-report-groundtruth.json` | ~1 |
 | `web/scripts/test-deflection-review-decisions-api.mjs` | ~209 |
 | `web/sql/003_deflection_review_decisions.sql` | ~13 |
@@ -73,6 +77,6 @@ Parked hardening: none.
 | `web/src/lib/deflection-report-demo.ts` | ~1 |
 | `web/src/lib/deflection-report-model-contract.ts` | ~5 |
 | `web/src/lib/deflection-review-decisions-database.ts` | ~131 |
-| **Total** | **~555** |
+| **Total** | **~562** |
 
 Soft cap note: over 400 LOC; kept as one PR because storage, access validation, and smoke coverage are the indivisible backend path for reviewer decisions.
