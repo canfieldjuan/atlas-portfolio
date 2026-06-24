@@ -80,6 +80,7 @@ export function renderDeflectionReportModelContract(sourceText) {
   validateReportModelSourceContract(sourceText);
   const sourceBody = sourceText.replace(/^\/\*[\s\S]*?\*\/\s*/, '').trim();
   const formattedBody = formatTypeScript(sourceBody);
+  const hostedFieldContract = renderReportHostedFieldContract(sourceText);
 
   return [
     '/*',
@@ -90,6 +91,8 @@ export function renderDeflectionReportModelContract(sourceText) {
     ' */',
     '',
     formattedBody,
+    '',
+    hostedFieldContract,
     '',
   ].join('\n');
 }
@@ -104,6 +107,239 @@ function formatTypeScript(sourceText) {
   );
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
   return printer.printFile(sourceFile).trim();
+}
+
+function renderReportHostedFieldContract(sourceText) {
+  const sourceFile = ts.createSourceFile(
+    'deflectionReportModel.ts',
+    sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  const shapeMap = extractConstObject(sourceFile, 'DEFLECTION_REPORT_HOSTED_FIELD_SHAPES');
+  const typeFields = collectTypeFields(sourceFile);
+  const pathTypes = new Map();
+  const contract = {};
+  for (const ownerPath of Object.keys(shapeMap)) {
+    if (!ownerPath.includes('.')) {
+      pathTypes.set(ownerPath, `DeflectionReport${pascalCase(ownerPath)}Data`);
+    }
+  }
+  for (const ownerPath of Object.keys(shapeMap).sort(compareOwnerPaths)) {
+    const ownerType = pathTypes.get(ownerPath);
+    const fields = typeFields.get(ownerType);
+    if (!fields) {
+      throw new Error(`Could not resolve hosted report owner type for ${ownerPath}: ${ownerType || '<missing>'}`);
+    }
+    contract[ownerPath] = {};
+    for (const [field, shape] of Object.entries(shapeMap[ownerPath])) {
+      const fieldInfo = fields.get(field);
+      if (!fieldInfo) {
+        throw new Error(`Could not resolve hosted report field ${ownerPath}.${field} on ${ownerType}`);
+      }
+      contract[ownerPath][field] = hostedFieldContractFor(shape, fieldInfo.type, !fieldInfo.optional);
+      const nestedTypeName = nestedOwnerTypeName(shape, fieldInfo.type);
+      if (nestedTypeName) {
+        pathTypes.set(`${ownerPath}.${field}`, nestedTypeName);
+      }
+    }
+  }
+  return `export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = ${JSON.stringify(contract, null, 2)} as const;`;
+}
+
+function compareOwnerPaths(left, right) {
+  const depth = left.split('.').length - right.split('.').length;
+  return depth || left.localeCompare(right);
+}
+
+function extractConstObject(sourceFile, constName) {
+  let found = null;
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (declaration.name.getText(sourceFile) === constName) {
+        found = declaration.initializer;
+      }
+    }
+  }
+  found = unwrapExpression(found);
+  if (!found || !ts.isObjectLiteralExpression(found)) {
+    throw new Error(`Could not find object literal ${constName} in ATLAS report-model contract source.`);
+  }
+  return objectLiteralToPlain(found, sourceFile);
+}
+
+function objectLiteralToPlain(node, sourceFile) {
+  const result = {};
+  for (const property of node.properties) {
+    if (!ts.isPropertyAssignment(property)) {
+      throw new Error('Unsupported hosted field contract property in ATLAS source.');
+    }
+    const name = propertyNameText(property.name, sourceFile);
+    const initializer = unwrapExpression(property.initializer);
+    if (ts.isObjectLiteralExpression(initializer)) {
+      result[name] = objectLiteralToPlain(initializer, sourceFile);
+    } else if (ts.isStringLiteralLike(initializer)) {
+      result[name] = initializer.text;
+    } else {
+      throw new Error(`Unsupported hosted field contract value for ${name}.`);
+    }
+  }
+  return result;
+}
+
+function unwrapExpression(node) {
+  let current = node;
+  while (
+    current &&
+    (
+      ts.isAsExpression(current) ||
+      ts.isTypeAssertionExpression(current) ||
+      ts.isParenthesizedExpression(current)
+    )
+  ) {
+    current = current.expression;
+  }
+  return current;
+}
+
+function propertyNameText(name, sourceFile) {
+  if (ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+  throw new Error(`Unsupported property name: ${name.getText(sourceFile)}`);
+}
+
+function collectTypeFields(sourceFile) {
+  const fieldsByType = new Map();
+  for (const statement of sourceFile.statements) {
+    if (!ts.isTypeAliasDeclaration(statement) || !ts.isTypeLiteralNode(statement.type)) {
+      continue;
+    }
+    const fields = new Map();
+    for (const member of statement.type.members) {
+      if (!ts.isPropertySignature(member) || !member.type) continue;
+      fields.set(propertyNameText(member.name, sourceFile), {
+        optional: Boolean(member.questionToken),
+        type: analyzeTypeNode(member.type, sourceFile),
+      });
+    }
+    fieldsByType.set(statement.name.text, fields);
+  }
+  return fieldsByType;
+}
+
+function analyzeTypeNode(node, sourceFile) {
+  if (ts.isUnionTypeNode(node)) {
+    const nonNullTypes = node.types.filter((part) => (
+      !isNullTypeNode(part) &&
+      !isUndefinedTypeNode(part)
+    ));
+    const analyzed = analyzeTypeNode(nonNullTypes[0] || node.types[0], sourceFile);
+    return {
+      ...analyzed,
+      nullable: node.types.some(isNullTypeNode),
+    };
+  }
+  if (ts.isArrayTypeNode(node)) {
+    return {
+      kind: 'array',
+      nullable: false,
+      element: analyzeTypeNode(node.elementType, sourceFile),
+    };
+  }
+  if (ts.isTypeReferenceNode(node)) {
+    const typeName = node.typeName.getText(sourceFile);
+    if (typeName === 'Record' && node.typeArguments?.length === 2) {
+      return {
+        kind: 'record',
+        nullable: false,
+        value: analyzeTypeNode(node.typeArguments[1], sourceFile),
+      };
+    }
+    return {
+      kind: 'object',
+      nullable: false,
+      typeName,
+    };
+  }
+  if (node.kind === ts.SyntaxKind.StringKeyword) {
+    return { kind: 'scalar', nullable: false, value: 'string' };
+  }
+  if (node.kind === ts.SyntaxKind.NumberKeyword) {
+    return { kind: 'scalar', nullable: false, value: 'number' };
+  }
+  if (node.kind === ts.SyntaxKind.BooleanKeyword) {
+    return { kind: 'scalar', nullable: false, value: 'boolean' };
+  }
+  if (ts.isLiteralTypeNode(node)) {
+    const literal = node.literal;
+    if (ts.isStringLiteralLike(literal)) {
+      return { kind: 'scalar', nullable: false, value: 'string' };
+    }
+    if (ts.isNumericLiteral(literal)) {
+      return { kind: 'scalar', nullable: false, value: 'number' };
+    }
+    if (literal.kind === ts.SyntaxKind.TrueKeyword || literal.kind === ts.SyntaxKind.FalseKeyword) {
+      return { kind: 'scalar', nullable: false, value: 'boolean' };
+    }
+  }
+  return { kind: 'unknown', nullable: false, value: 'scalar' };
+}
+
+function isNullTypeNode(node) {
+  return (
+    node.kind === ts.SyntaxKind.NullKeyword ||
+    (ts.isLiteralTypeNode(node) && node.literal.kind === ts.SyntaxKind.NullKeyword)
+  );
+}
+
+function isUndefinedTypeNode(node) {
+  return (
+    node.kind === ts.SyntaxKind.UndefinedKeyword ||
+    (ts.isLiteralTypeNode(node) && node.literal.kind === ts.SyntaxKind.UndefinedKeyword)
+  );
+}
+
+function hostedFieldContractFor(shape, typeInfo, required) {
+  const contract = {
+    shape,
+    required,
+    nullable: Boolean(typeInfo.nullable),
+  };
+  const scalarValue = scalarValueForShape(shape, typeInfo);
+  if (scalarValue) {
+    contract.value = scalarValue;
+  }
+  return contract;
+}
+
+function scalarValueForShape(shape, typeInfo) {
+  if (shape === 'scalar') {
+    return typeInfo.value || 'scalar';
+  }
+  if (shape === 'scalar_array') {
+    return typeInfo.element?.value || 'scalar';
+  }
+  if (shape === 'record') {
+    return typeInfo.value?.value || 'scalar';
+  }
+  return null;
+}
+
+function nestedOwnerTypeName(shape, typeInfo) {
+  if (shape === 'object') {
+    return typeInfo.typeName || null;
+  }
+  if (shape === 'object_array') {
+    return typeInfo.element?.typeName || null;
+  }
+  return null;
+}
+
+function pascalCase(value) {
+  return value.split('_').map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`).join('');
 }
 
 function validateSnapshotSourceContract(sourceText) {
