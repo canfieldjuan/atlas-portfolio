@@ -444,6 +444,8 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
   const accountId = clean(env.ATLAS_ACCOUNT_ID);
   const environment = normalizeEnvironment(options.environment || env.VERCEL_ENV);
   const isProduction = environment === 'production';
+  const requiresLocalVariantConfig =
+    priceVariant.id !== pricingCatalog.DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
   if (!accountId) {
     return { ok: false, message: '' };
   }
@@ -454,11 +456,13 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
   if (!allowedAmounts.ok) {
     return { ok: false, message: 'configured allowed amount list is invalid' };
   }
-  const priceAmounts = pricingCatalog.configuredDeflectionPriceAmounts(env);
-  if (!priceAmounts.ok) {
-    return { ok: false, message: 'configured price amount is invalid' };
-  }
   const allowedAmountsCents = new Set(allowedAmounts.amounts);
+  if (requiresLocalVariantConfig) {
+    const priceAmounts = pricingCatalog.configuredDeflectionPriceAmounts(env);
+    if (!priceAmounts.ok) {
+      return { ok: false, message: 'configured price amount is invalid' };
+    }
+  }
 
   if (restrictedKey) {
     if (!restrictedKey.startsWith('rk_')) {
@@ -476,25 +480,26 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
         message: 'live restricted key is not accepted outside production',
       };
     }
-    const priceId = configuredPriceIdForVariant(env, priceVariant);
-    if (!priceId.ok) {
-      return { ok: false, message: priceId.message };
-    }
-    if (!priceId.priceId) {
-      return {
-        ok: false,
-        message: 'configured price id is required for selected variant',
-      };
-    }
-    if (!allowedAmountsCents.has(priceVariant.amountCents)) {
-      return { ok: false, message: 'selected variant amount is not allowed' };
+    if (requiresLocalVariantConfig) {
+      const priceId = configuredPriceIdForVariant(env, priceVariant);
+      if (!priceId.ok) {
+        return { ok: false, message: priceId.message };
+      }
+      if (!priceId.priceId) {
+        return {
+          ok: false,
+          message: 'configured price id is required for selected variant',
+        };
+      }
+      if (!allowedAmountsCents.has(priceVariant.amountCents)) {
+        return { ok: false, message: 'selected variant amount is not allowed' };
+      }
     }
     return {
       ok: true,
       config: {
         apiKey: restrictedKey,
         accountId,
-        priceId: priceId.priceId,
         allowedAmountsCents,
       },
     };
@@ -513,12 +518,14 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
     return { ok: false, message: 'fallback secret key must be test-mode' };
   }
 
-  const fallbackPriceId = configuredPriceIdForVariant(env, priceVariant);
-  if (!fallbackPriceId.ok) {
-    return { ok: false, message: fallbackPriceId.message };
-  }
-  if (!allowedAmountsCents.has(priceVariant.amountCents)) {
-    return { ok: false, message: 'selected variant amount is not allowed' };
+  if (requiresLocalVariantConfig) {
+    const fallbackPriceId = configuredPriceIdForVariant(env, priceVariant);
+    if (!fallbackPriceId.ok) {
+      return { ok: false, message: fallbackPriceId.message };
+    }
+    if (!allowedAmountsCents.has(priceVariant.amountCents)) {
+      return { ok: false, message: 'selected variant amount is not allowed' };
+    }
   }
 
   return {
@@ -526,7 +533,6 @@ function resolveDeflectionCheckoutRuntimeConfig(env, priceVariant, options = {})
     config: {
       apiKey: legacyTestSecretKey,
       accountId,
-      priceId: fallbackPriceId.priceId,
       allowedAmountsCents,
     },
   };
