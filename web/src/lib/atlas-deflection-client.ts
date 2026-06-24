@@ -12,7 +12,6 @@ import {
 import {
   deflectionArtifactPath,
   deflectionReportModelPath,
-  type DeflectionReportSection,
   type DeflectionStructuredReport,
   type FAQDeflectionReportArtifact,
   type TicketFAQItem,
@@ -348,6 +347,17 @@ export type ArtifactFetchResult =
 export type ReportModelFetchResult =
   | { ok: true; model: DeflectionStructuredReport }
   | { ok: false; reason: 'not_configured' | 'locked' | 'not_found' | 'error' };
+
+type ParsedReportSection = {
+  id: string;
+  title: string;
+  priority: number;
+  surfaces: string[];
+  default_limit: number | null;
+  required_data: string[];
+  snapshot_safe_fields: string[];
+  data: Record<string, unknown>;
+};
 
 export type DeflectionCheckoutAuthorization = {
   amountCents: number;
@@ -970,7 +980,7 @@ function safeStatusCounts(value: unknown): Record<string, number> {
   );
 }
 
-function constructSafeActionSection(section: DeflectionReportSection): DeflectionReportSection {
+function constructSafeActionSection(section: ParsedReportSection): ParsedReportSection {
   const data = section.data;
   if (section.id === 'priority_fix_queue') {
     return {
@@ -1041,7 +1051,7 @@ function isQuestionDetailRows(value: unknown): boolean {
   ));
 }
 
-function validateWebReportSection(section: DeflectionReportSection): boolean {
+function validateWebReportSection(section: ParsedReportSection): boolean {
   const data = section.data;
   if (section.id === 'support_tax') {
     return (
@@ -1118,7 +1128,7 @@ function validateWebReportSection(section: DeflectionReportSection): boolean {
   return true;
 }
 
-function constructWebReportSection(section: DeflectionReportSection): DeflectionReportSection | null {
+function constructWebReportSection(section: ParsedReportSection): ParsedReportSection | null {
   if (!validateWebReportSection(section)) return null;
   if (
     section.id === 'priority_fix_queue' ||
@@ -1132,10 +1142,11 @@ function constructWebReportSection(section: DeflectionReportSection): Deflection
   return section;
 }
 
-function parseReportSection(value: unknown): DeflectionReportSection | null {
+function parseReportSection(value: unknown): ParsedReportSection | null {
   if (!isPlainRecord(value)) return null;
   const surfaces = parseStringList(value.surfaces);
   const requiredData = parseStringList(value.required_data);
+  const snapshotSafeFields = parseStringList(value.snapshot_safe_fields);
   const data = value.data;
   if (
     typeof value.id !== 'string' ||
@@ -1144,6 +1155,7 @@ function parseReportSection(value: unknown): DeflectionReportSection | null {
     !Number.isFinite(value.priority) ||
     !surfaces ||
     !requiredData ||
+    !snapshotSafeFields ||
     !(value.default_limit === null || isNonNegativeFiniteNumber(value.default_limit)) ||
     !isPlainRecord(data)
   ) {
@@ -1159,6 +1171,7 @@ function parseReportSection(value: unknown): DeflectionReportSection | null {
     surfaces,
     default_limit: value.default_limit,
     required_data: requiredData,
+    snapshot_safe_fields: snapshotSafeFields,
     data,
   };
 }
@@ -1173,7 +1186,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
   ) {
     return null;
   }
-  const sections: DeflectionReportSection[] = [];
+  const sections: ParsedReportSection[] = [];
   for (const section of value.sections) {
     const surfaces = isPlainRecord(section) ? parseStringList(section.surfaces) : null;
     const isWebSection = surfaces?.includes('web') === true;
@@ -1193,7 +1206,7 @@ function parseReportModel(value: unknown): DeflectionStructuredReport | null {
     schema_version: 'deflection.v1',
     title: value.title,
     summary: value.summary,
-    sections,
+    sections: sections as DeflectionStructuredReport['sections'],
   };
 }
 

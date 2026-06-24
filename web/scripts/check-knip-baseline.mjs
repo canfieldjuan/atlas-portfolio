@@ -22,6 +22,10 @@ const ISSUE_TYPES = [
 
 const webRoot = fileURLToPath(new URL('..', import.meta.url));
 const baselineUrl = new URL('../knip-baseline.json', import.meta.url);
+const GENERATED_CONTRACT_EXPORT_FILES = new Set([
+  'src/lib/deflection-report-model-contract.ts',
+]);
+const GENERATED_CONTRACT_EXPORT_TYPES = new Set(['exports', 'types']);
 
 function findingKey(finding) {
   return `${finding.type}\u0000${finding.file}\u0000${finding.name}`;
@@ -41,6 +45,17 @@ function uniqueSorted(findings) {
     unique.push(finding);
   }
   return unique;
+}
+
+function isIgnoredGeneratedContractFinding(finding) {
+  return (
+    GENERATED_CONTRACT_EXPORT_FILES.has(finding.file) &&
+    GENERATED_CONTRACT_EXPORT_TYPES.has(finding.type)
+  );
+}
+
+function filterIgnoredFindings(findings) {
+  return findings.filter((finding) => !isIgnoredGeneratedContractFinding(finding));
 }
 
 function normalizeFinding(raw, context) {
@@ -72,7 +87,9 @@ export function normalizeBaseline(raw) {
   if (!Array.isArray(raw.issues)) {
     throw new Error('Baseline must contain an issues array.');
   }
-  return uniqueSorted(raw.issues.map((finding, index) => normalizeFinding(finding, `Baseline issue ${index}`)));
+  return filterIgnoredFindings(
+    uniqueSorted(raw.issues.map((finding, index) => normalizeFinding(finding, `Baseline issue ${index}`))),
+  );
 }
 
 export function normalizeKnipReport(report) {
@@ -102,7 +119,7 @@ export function normalizeKnipReport(report) {
     }
   });
 
-  return uniqueSorted(findings);
+  return filterIgnoredFindings(uniqueSorted(findings));
 }
 
 export function diffFindings(baseline, current) {

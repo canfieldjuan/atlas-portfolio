@@ -79,6 +79,15 @@ function supportTaxSection(dataOverrides = {}) {
       'no_proven_answer_count',
       'ticket_source_count',
     ],
+    snapshot_safe_fields: [
+      'repeat_ticket_count',
+      'non_repeat_ticket_count',
+      'generated_question_count',
+      'drafted_answer_count',
+      'no_proven_answer_count',
+      'ticket_source_count',
+      'source_date_window',
+    ],
     data: {
       repeat_ticket_count: 7,
       non_repeat_ticket_count: 3,
@@ -107,6 +116,7 @@ function exportOnlySection(overrides = {}) {
     surfaces: ['export'],
     default_limit: null,
     required_data: ['evidence_row_count'],
+    snapshot_safe_fields: [],
     data: { evidence_row_count: 42 },
     ...overrides,
   };
@@ -231,6 +241,7 @@ function priorityFixQueueSection(overrides = {}) {
       'backlog_limit',
       'support_cost_basis',
     ],
+    snapshot_safe_fields: [],
     data: {
       result_page_limit: 3,
       pdf_limit: 10,
@@ -256,6 +267,7 @@ function topUnresolvedRepeatsSection(overrides = {}) {
     surfaces: ['web', 'pdf'],
     default_limit: 3,
     required_data: ['items', 'top_item_count', 'support_cost_basis'],
+    snapshot_safe_fields: ['items.rank', 'items.question', 'items.ticket_count'],
     data: {
       top_item_count: 1,
       support_cost_basis: {
@@ -278,6 +290,7 @@ function draftedResolutionsSection(overrides = {}) {
     surfaces: ['web', 'pdf'],
     default_limit: 3,
     required_data: ['items', 'top_item_count'],
+    snapshot_safe_fields: [],
     data: {
       top_item_count: 1,
       items: [
@@ -300,6 +313,7 @@ function coveredRecurringSection(overrides = {}) {
     surfaces: ['web', 'pdf'],
     default_limit: 3,
     required_data: ['items', 'top_item_count'],
+    snapshot_safe_fields: [],
     data: {
       top_item_count: 1,
       items: [
@@ -329,6 +343,7 @@ function backlogTableSection(overrides = {}) {
     surfaces: ['web', 'pdf', 'export'],
     default_limit: 25,
     required_data: ['items', 'total_item_count', 'default_limit'],
+    snapshot_safe_fields: [],
     data: {
       total_item_count: 2,
       default_limit: 25,
