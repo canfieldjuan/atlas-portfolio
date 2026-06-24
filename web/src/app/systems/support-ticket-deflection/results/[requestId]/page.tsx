@@ -178,15 +178,15 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   if (snapshotState.kind === 'not_found') notFound();
   if (snapshotState.kind === 'unavailable') return <DeflectionResultsUnavailablePage />;
   const snapshot: DeflectionSnapshot = snapshotState.snapshot;
-  const checkoutPriceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
-  const priceVariant = await getResultsDisplayPriceVariant(checkoutPriceVariant);
+  const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
+  const displayPriceVariant = await getResultsDisplayPriceVariant(priceVariant);
   const analyticsContext = await getResultsAnalyticsContext(requestId);
   return (
     <DeflectionResultsPage
       snapshot={snapshot}
       requestId={requestId}
       checkoutStatus={checkoutStatus(query?.checkout)}
-      priceVariant={priceVariant}
+      priceVariant={displayPriceVariant}
       analyticsContext={analyticsContext}
     />
   );

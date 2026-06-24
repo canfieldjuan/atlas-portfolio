@@ -104,6 +104,8 @@ Parked hardening: none.
 
 - `npm --prefix web run test:deflection-atlas-price-display` — passed
   (`Deflection ATLAS price display tests passed.`).
+- `npm --prefix web run test:deflection-report-model-result-page` — passed
+  (`Deflection report-model result page tests passed.`).
 - `npm --prefix web run test:deflection-snapshot-pdf-email` — passed
   (`Resolution Audit Snapshot PDF email tests passed.`).
 - `npm --prefix web run test:deflection-partner-access` — passed
@@ -146,8 +148,8 @@ Parked hardening: none.
 | `web/scripts/test-deflection-snapshot-pdf-email.mjs` | ~4 |
 | `web/scripts/test-deflection-atlas-price-display.mjs` | ~193 |
 | `web/package.json` | ~1 |
-| `web/plans/PR-Deflection-Atlas-Price-Display.md` | ~154 |
-| **Total** | **~612** |
+| `web/plans/PR-Deflection-Atlas-Price-Display.md` | ~156 |
+| **Total** | **~614** |
 
 This is above the 400 LOC soft cap because the buyer-facing display path needs
 one server parser, one browser-safe proxy, landing/results/PDF wiring, and
