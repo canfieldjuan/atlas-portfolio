@@ -1116,6 +1116,32 @@ try {
   ]);
 
   resetCalls();
+  {
+    const legacyQuestionRow = { ...questionDetailsSection().data.rows[0] };
+    delete legacyQuestionRow.evidence_tier;
+    fetchPayload = minimalModel({
+      sections: [
+        supportTaxSection(),
+        priorityFixQueueSection(),
+        questionDetailsSection({
+          data: {
+            ...questionDetailsSection().data,
+            rows: [legacyQuestionRow],
+          },
+        }),
+      ],
+    });
+    const legacyQuestionDetailsModel = await fetchDeflectionReportModel('content-ops-unit-123');
+    assert.equal(legacyQuestionDetailsModel.ok, true);
+    const legacyQuestionRowProjected = legacyQuestionDetailsModel.model.sections.find(
+      (section) => section.id === 'question_details',
+    ).data.rows[0];
+    assert.equal('evidence_tier' in legacyQuestionRowProjected, false);
+    assert.equal('source_ids' in legacyQuestionRowProjected, false);
+    assert.equal('evidence_quotes' in legacyQuestionRowProjected, false);
+  }
+
+  resetCalls();
   fetchPayload = minimalModel({ sections: [supportTaxSection({ repeat_ticket_count: '7' })] });
   assert.deepEqual(await fetchDeflectionReportModel('content-ops-unit-123'), {
     ok: false,

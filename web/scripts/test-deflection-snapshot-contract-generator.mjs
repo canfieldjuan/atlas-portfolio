@@ -117,6 +117,12 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_SUPPORT_COST_BASIS_HOSTED_CONS
 
 export const DEFLECTION_REPORT_COMPLETE_EVIDENCE_FIELDS = ["source_id_count", "evidence_row_count"] as const;
 
+export const DEFLECTION_REPORT_QUESTION_DETAILS_FIELDS = ["rows"] as const;
+
+export const DEFLECTION_REPORT_QUESTION_DETAILS_HOSTED_CONSUMER_SAFE_FIELDS = ["rows"] as const;
+
+export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "evidence_tier", "answer_status"] as const;
+
 export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
   "support_tax": {
     "repeat_ticket_count": "scalar",
@@ -154,6 +160,14 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
   },
   "priority_fix_queue.support_cost_basis": {
     "status": "scalar",
+  },
+  "question_details": {
+    "rows": "object_array",
+  },
+  "question_details.rows": {
+    "question": "scalar",
+    "evidence_tier": "scalar",
+    "answer_status": "scalar",
   },
 } as const;
 
@@ -199,6 +213,16 @@ export type DeflectionReportPriorityFixQueueData = {
   result_page_limit: number;
   status_counts: Record<string, number>;
   support_cost_basis: DeflectionReportPriorityFixQueueSupportCostBasis;
+};
+
+export type DeflectionReportQuestionDetailsRow = {
+  question: string;
+  evidence_tier: string;
+  answer_status: string;
+};
+
+export type DeflectionReportQuestionDetailsData = {
+  rows: DeflectionReportQuestionDetailsRow[];
 };
 
 export type DeflectionReportSection = {
@@ -295,6 +319,11 @@ assert.ok(
 assert.ok(
   requiredOwnerMetadataRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
   'owner routing signals should stay optional for legacy hosted action rows even when source types require them',
+);
+assert.ok(
+  reportModelRendered.includes('"question_details.rows": {\n    "question": {\n      "shape": "scalar",\n      "required": true') &&
+    reportModelRendered.includes('"evidence_tier": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "string"'),
+  'question-details evidence tiers should stay optional for legacy hosted rows',
 );
 assert.ok(
   reportModelRendered.includes('"priority_fix_queue.items.routing_signals": {'),

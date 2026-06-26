@@ -1654,7 +1654,7 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
     },
     "evidence_tier": {
       "shape": "scalar",
-      "required": true,
+      "required": false,
       "nullable": false,
       "value": "string"
     },
