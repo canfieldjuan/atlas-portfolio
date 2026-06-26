@@ -9,6 +9,16 @@ const baseActionItem = {
   question: 'How do I export invoice attribution for finance?',
   status: 'Needs answer',
   owner_lane: 'Help Center',
+  evidence_tier: 'csv_customer_text',
+  routing_signals: {
+    group: ['Billing Support'],
+    assignee: [],
+    tags: ['billing', 'export', 'invoice'],
+    brand: [],
+    organization: [],
+    product_area: ['Billing'],
+    custom_product_area: [],
+  },
   fix_type: 'create_missing_answer',
   csat_signal: {
     status: 'sparse',
