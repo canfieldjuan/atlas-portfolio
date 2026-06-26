@@ -12,7 +12,7 @@ Slice phase: Vertical slice
 
 1. Regenerate `web/src/lib/deflection-report-model-contract.ts` from the updated ATLAS generated report-model contract.
 2. Render evidence tier and compact routing cues in the paid result-page owner-lane cell wherever action rows already show owner, repeats, and cost.
-3. Reframe unresolved-repeat copy from a docs-only queue to routeable product, content, or support friction.
+3. Reframe unresolved-repeat copy from a docs-only queue to routable product, content, or support friction.
 4. Keep locked/free snapshot behavior unchanged and paid-field-free.
 5. Update parser/generator tests and demo data so evidence tiers and routing signals survive hosted paid parsing while raw evidence/source IDs remain excluded.
 
@@ -29,7 +29,7 @@ Slice phase: Vertical slice
 
 The generated contract now admits `evidence_tier` and nested `routing_signals` objects on hosted-safe paid action rows. The paid page adds a shared `OwnerEvidenceCell` that keeps the existing table shape but expands the owner lane cell with an evidence label and the first available routing cue, preferring product area, custom product area, group, tags, brand, organization, then assignee.
 
-The unresolved-repeat copy now tells buyers to treat the queue as routeable product, content, or support friction. It does not infer an exact UI path or root cause from CSV data.
+The unresolved-repeat copy now tells buyers to treat the queue as routable product, content, or support friction. It does not infer an exact UI path or root cause from CSV data.
 
 ## Intentional
 

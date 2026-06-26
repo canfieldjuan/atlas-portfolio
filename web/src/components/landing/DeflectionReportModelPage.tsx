@@ -313,7 +313,7 @@ function TopUnresolvedRepeats({ section }: { section?: DeflectionReportSection }
       </div>
       <h2 className="mt-3 text-xl font-semibold text-foreground">Top Unresolved Repeats</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
-        These high-volume questions have no proven answer in the uploaded ticket history. Treat this as routeable
+        These high-volume questions have no proven answer in the uploaded ticket history. Treat this as routable
         product, content, or support friction: write missing guidance when documentation is enough, or route the
         problem to the owner lane when the product or workflow is creating repeat demand.
       </p>
