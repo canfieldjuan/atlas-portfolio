@@ -160,6 +160,7 @@ const HOSTED_FIELD_SHAPES = {
     estimated_support_cost: 'scalar',
     answer_status: 'scalar',
     answer_evidence_status: 'scalar',
+    evidence_tier: 'scalar',
     resolution_evidence_scope: 'scalar',
     answer_linkage: 'scalar',
     answer: 'scalar',
@@ -739,6 +740,7 @@ function questionDetailsSection(overrides = {}) {
           estimated_support_cost: 94.5,
           answer_status: 'Draft ready',
           answer_evidence_status: 'resolution_evidence',
+          evidence_tier: 'csv_full_thread_resolution_evidence',
           resolution_evidence_scope: 'scoped',
           answer_linkage: 'publishable_answer',
           answer: 'Open Settings, then SSO.',
@@ -1100,6 +1102,7 @@ try {
   assert.ok(projectedQuestionDetails);
   const projectedQuestionRow = projectedQuestionDetails.data.rows[0];
   assert.equal(projectedQuestionRow.source_count, 4);
+  assert.equal(projectedQuestionRow.evidence_tier, 'csv_full_thread_resolution_evidence');
   assert.equal('source_ids' in projectedQuestionRow, false);
   assert.equal('evidence_quotes' in projectedQuestionRow, false);
   assert.equal('outcome_diagnostics' in projectedQuestionRow, false);

@@ -261,6 +261,7 @@ export const DEMO_DEFLECTION_REPORT_MODEL: DeflectionStructuredReport = {
             estimated_support_cost: 1134,
             answer_status: 'Publishable answer found',
             answer_evidence_status: 'agent_backed',
+            evidence_tier: 'csv_full_thread_resolution_evidence',
             resolution_evidence_scope: 'specific_steps',
             answer_linkage: 'publishable_answer',
             answer: 'Use the billing export menu, select attribution fields, and download the finance CSV.',
