@@ -22,6 +22,7 @@ Slice phase: Vertical slice
 - `web/src/lib/deflection-report-model-contract.ts` - regenerated ATLAS paid report-model contract.
 - `web/src/components/landing/DeflectionReportModelPage.tsx` - paid result page evidence/routing rendering and copy.
 - `web/src/lib/deflection-report-demo.ts` - demo report item metadata matching the generated contract.
+- `web/plans/deflection-snapshot-report-groundtruth.json` - locked-preview report-model shape ground truth.
 - `web/scripts/test-deflection-report-model-result-page.mjs` - parser/page source coverage for evidence tier, routing cues, and non-leakage.
 - `web/scripts/test-deflection-snapshot-contract-generator.mjs` - generator fixture coverage for nested routing-signal shapes.
 
@@ -50,6 +51,7 @@ Parked hardening: none.
 
 - `node web/scripts/test-deflection-snapshot-contract-generator.mjs` - passed.
 - `node web/scripts/test-deflection-report-model-result-page.mjs` - passed.
+- `node web/scripts/test-deflection-snapshot-landing-smoke.mjs` - shape assertions reached the CLI smoke branch, then hit the existing Windows `C:\C:\...` file-URL spawn issue; CI runs this smoke on Ubuntu.
 - `node --input-type=module -e "import('./web/scripts/generate-deflection-snapshot-contract.mjs').then((m) => m.main(['--check','--source','.../ATLAS-main/portfolio-ui/src/types/deflectionSnapshot.ts','--report-model-source','.../ATLAS-main/portfolio-ui/src/types/deflectionReportModel.ts']));"` - passed; portfolio generated contracts match ATLAS.
 - `web/node_modules/.bin/tsc.cmd -p web/tsconfig.json --noEmit` with bundled Node on `PATH` - passed.
 - `web/node_modules/.bin/eslint.cmd src/components/landing/DeflectionReportModelPage.tsx src/lib/deflection-report-demo.ts scripts/test-deflection-report-model-result-page.mjs scripts/test-deflection-snapshot-contract-generator.mjs` from `web/` - passed.
@@ -61,7 +63,8 @@ Parked hardening: none.
 
 | Area | Approx LOC |
 |---|---:|
-| Plan | ~47 |
-| Paid page/demo/tests | ~140 |
+| Plan | ~49 |
+| Paid page/demo/tests | ~143 |
 | Generated contract | ~492 |
-| Total | ~679 |
+| Ground truth | ~14 |
+| Total | ~698 |
