@@ -71,41 +71,24 @@ function priorityDriverLabel(value: string): string {
   return value.replace(/_/g, ' ');
 }
 
-const ROUTING_SIGNAL_LABELS: Array<[string, string]> = [
-  ['product_area', 'Product area'],
-  ['custom_product_area', 'Custom area'],
-  ['group', 'Group'],
-  ['tags', 'Tags'],
-  ['brand', 'Brand'],
-  ['organization', 'Org'],
-  ['assignee', 'Assignee'],
-];
-
 function evidenceTierLabel(value: unknown): string {
   const tier = text(value);
   if (tier === 'csv_customer_text') return 'CSV customer text';
   if (tier === 'csv_index_metadata_only') return 'CSV index metadata only';
   if (tier === 'csv_full_thread_resolution_evidence') return 'CSV full-thread resolution evidence';
-  return tier ? tier.replace(/_/g, ' ') : 'Evidence unknown';
-}
-
-function routingSignalCue(value: unknown): string {
-  const signals = asRecord(value);
-  for (const [key, label] of ROUTING_SIGNAL_LABELS) {
-    const values = texts(signals[key]).slice(0, 3);
-    if (values.length > 0) return `${label}: ${values.join(' / ')}`;
-  }
-  return 'No routing metadata';
+  return tier ? tier.replace(/_/g, ' ') : 'Unknown';
 }
 
 function OwnerEvidenceCell({ row }: { row: Record<string, unknown> }) {
+  const evidenceTier = text(row.evidence_tier);
   return (
     <td className="px-3 py-2 text-foreground/70">
       <div>{text(row.owner_lane) || 'Unknown'}</div>
-      <div className="mt-1 text-xs leading-relaxed text-foreground/45">
-        Evidence: {evidenceTierLabel(row.evidence_tier)}
-      </div>
-      <div className="mt-1 text-xs leading-relaxed text-foreground/45">{routingSignalCue(row.routing_signals)}</div>
+      {evidenceTier ? (
+        <div className="mt-1 text-xs leading-relaxed text-foreground/45">
+          Evidence: {evidenceTierLabel(evidenceTier)}
+        </div>
+      ) : null}
     </td>
   );
 }

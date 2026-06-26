@@ -278,10 +278,7 @@ const ACTION_ITEM_OWNER_PATHS = [
 ];
 const ROUTING_SIGNALS_SHAPE = {
   group: 'scalar_array',
-  assignee: 'scalar_array',
   tags: 'scalar_array',
-  brand: 'scalar_array',
-  organization: 'scalar_array',
   product_area: 'scalar_array',
   custom_product_area: 'scalar_array',
 };
@@ -1326,14 +1323,36 @@ try {
     assert.equal(item.evidence_tier, 'csv_customer_text');
     assert.deepEqual(item.routing_signals, {
       group: ['Authentication Support'],
-      assignee: [],
       tags: ['login', 'mfa'],
-      brand: [],
-      organization: [],
       product_area: ['Authentication'],
       custom_product_area: [],
     });
     assert.deepEqual(Object.keys(item).sort(), expectedItemKeys.sort());
+  }
+
+  resetCalls();
+  {
+    const legacyItem = { ...priorityFixQueueSection().data.items[0] };
+    delete legacyItem.evidence_tier;
+    delete legacyItem.routing_signals;
+    fetchPayload = minimalModel({
+      sections: [
+        supportTaxSection(),
+        priorityFixQueueSection({
+          data: {
+            ...priorityFixQueueSection().data,
+            items: [legacyItem],
+          },
+        }),
+      ],
+    });
+    const legacyModel = await fetchDeflectionReportModel('content-ops-unit-123');
+    assert.equal(legacyModel.ok, true);
+    const legacyProjectedItem = legacyModel.model.sections.find(
+      (section) => section.id === 'priority_fix_queue',
+    ).data.items[0];
+    assert.equal('evidence_tier' in legacyProjectedItem, false);
+    assert.equal('routing_signals' in legacyProjectedItem, false);
   }
 
   resetCalls();
@@ -2134,7 +2153,7 @@ try {
   );
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
   assert.ok(modelPageSource.includes('evidenceTierLabel'), 'model page renders paid evidence tiers');
-  assert.ok(modelPageSource.includes('routingSignalCue'), 'model page renders paid routing cues');
+  assert.equal(modelPageSource.includes('routingSignalCue'), false, 'model page does not render raw routing cues');
   assert.ok(
     modelPageSource.includes('product, content, or support friction'),
     'unresolved repeat copy routes beyond a docs-only queue',

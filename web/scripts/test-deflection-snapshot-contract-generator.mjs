@@ -185,8 +185,8 @@ export type DeflectionReportPriorityFixQueueSupportCostBasis = {
 export type DeflectionReportPriorityFixQueueItem = {
   question: string;
   owner_lane: string;
-  evidence_tier: string;
-  routing_signals: DeflectionReportPriorityFixQueueRoutingSignals;
+  evidence_tier?: string;
+  routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;
   priority_score: number;
   priority_drivers: string[];
   csat_signal: DeflectionReportPriorityFixQueueCsatSignal;
@@ -278,15 +278,15 @@ assert.ok(
   'required hosted row fields should stay required in the generated admission contract',
 );
 assert.ok(
-  reportModelRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": true,\n      "nullable": false'),
-  'nested hosted routing signals should be admitted as required objects',
+  reportModelRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
+  'nested hosted routing signals should be admitted as optional objects',
 );
 assert.ok(
   reportModelRendered.includes('"priority_fix_queue.items.routing_signals": {'),
   'nested hosted routing signal shapes should be preserved',
 );
 assert.ok(
-  reportModelRendered.includes('routing_signals: DeflectionReportPriorityFixQueueRoutingSignals;'),
+  reportModelRendered.includes('routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;'),
   'nested routing signal types should stay wired into action items',
 );
 
