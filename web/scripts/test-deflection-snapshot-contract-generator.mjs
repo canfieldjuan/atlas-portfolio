@@ -109,7 +109,7 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = 
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "owner_lane", "evidence_tier", "routing_signals", "priority_score", "priority_drivers", "csat_signal"] as const;
 
-export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["group", "tags"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "numeric_average"] as const;
 
@@ -144,8 +144,9 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
     "csat_signal": "object",
   },
   "priority_fix_queue.items.routing_signals": {
-    "group": "scalar_array",
     "tags": "scalar_array",
+    "product_area": "scalar_array",
+    "custom_product_area": "scalar_array",
   },
   "priority_fix_queue.items.csat_signal": {
     "status": "scalar",
@@ -174,8 +175,9 @@ export type DeflectionReportPriorityFixQueueCsatSignal = {
 };
 
 export type DeflectionReportPriorityFixQueueRoutingSignals = {
-  group: string[];
   tags: string[];
+  product_area: string[];
+  custom_product_area: string[];
 };
 
 export type DeflectionReportPriorityFixQueueSupportCostBasis = {

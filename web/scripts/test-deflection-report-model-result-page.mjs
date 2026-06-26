@@ -277,7 +277,6 @@ const ACTION_ITEM_OWNER_PATHS = [
   'top_unresolved_repeats.items',
 ];
 const ROUTING_SIGNALS_SHAPE = {
-  group: 'scalar_array',
   tags: 'scalar_array',
   product_area: 'scalar_array',
   custom_product_area: 'scalar_array',
@@ -1322,7 +1321,6 @@ try {
     }
     assert.equal(item.evidence_tier, 'csv_customer_text');
     assert.deepEqual(item.routing_signals, {
-      group: ['Authentication Support'],
       tags: ['login', 'mfa'],
       product_area: ['Authentication'],
       custom_product_area: [],
