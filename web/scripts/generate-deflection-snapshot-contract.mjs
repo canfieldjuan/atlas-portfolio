@@ -158,7 +158,10 @@ function compareOwnerPaths(left, right) {
 }
 
 function isLegacyOwnerMetadataField(ownerPath, field) {
-  return ownerPath.endsWith('.items') && (field === 'evidence_tier' || field === 'routing_signals');
+  if (ownerPath.endsWith('.items') && (field === 'evidence_tier' || field === 'routing_signals')) {
+    return true;
+  }
+  return ownerPath === 'question_details.rows' && field === 'evidence_tier';
 }
 
 function extractConstObject(sourceFile, constName) {
