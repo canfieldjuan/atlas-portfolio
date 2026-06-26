@@ -138,7 +138,11 @@ function renderReportHostedFieldContract(sourceText) {
       if (!fieldInfo) {
         throw new Error(`Could not resolve hosted report field ${ownerPath}.${field} on ${ownerType}`);
       }
-      contract[ownerPath][field] = hostedFieldContractFor(shape, fieldInfo.type, !fieldInfo.optional);
+      contract[ownerPath][field] = hostedFieldContractFor(
+        shape,
+        fieldInfo.type,
+        !fieldInfo.optional && !isLegacyOwnerMetadataField(ownerPath, field),
+      );
       const nestedTypeName = nestedOwnerTypeName(shape, fieldInfo.type);
       if (nestedTypeName) {
         pathTypes.set(`${ownerPath}.${field}`, nestedTypeName);
@@ -151,6 +155,10 @@ function renderReportHostedFieldContract(sourceText) {
 function compareOwnerPaths(left, right) {
   const depth = left.split('.').length - right.split('.').length;
   return depth || left.localeCompare(right);
+}
+
+function isLegacyOwnerMetadataField(ownerPath, field) {
+  return ownerPath.endsWith('.items') && (field === 'evidence_tier' || field === 'routing_signals');
 }
 
 function extractConstObject(sourceFile, constName) {

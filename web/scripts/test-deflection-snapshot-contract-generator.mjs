@@ -222,6 +222,11 @@ export type DeflectionStructuredReport = {
 const rendered = renderDeflectionSnapshotContract(SOURCE_FIXTURE);
 const compactRendered = renderDeflectionSnapshotContract(SOURCE_FIXTURE.replace(/\s+/g, ' '));
 const reportModelRendered = renderDeflectionReportModelContract(REPORT_MODEL_SOURCE_FIXTURE);
+const requiredOwnerMetadataRendered = renderDeflectionReportModelContract(
+  REPORT_MODEL_SOURCE_FIXTURE
+    .replace('evidence_tier?: string;', 'evidence_tier: string;')
+    .replace('routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;', 'routing_signals: DeflectionReportPriorityFixQueueRoutingSignals;'),
+);
 assert.equal(
   compactRendered,
   rendered,
@@ -282,6 +287,14 @@ assert.ok(
 assert.ok(
   reportModelRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
   'nested hosted routing signals should be admitted as optional objects',
+);
+assert.ok(
+  requiredOwnerMetadataRendered.includes('"evidence_tier": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "string"'),
+  'owner evidence tier should stay optional for legacy hosted action rows even when source types require it',
+);
+assert.ok(
+  requiredOwnerMetadataRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
+  'owner routing signals should stay optional for legacy hosted action rows even when source types require them',
 );
 assert.ok(
   reportModelRendered.includes('"priority_fix_queue.items.routing_signals": {'),

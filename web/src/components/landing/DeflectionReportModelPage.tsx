@@ -79,14 +79,34 @@ function evidenceTierLabel(value: unknown): string {
   return tier ? tier.replace(/_/g, ' ') : 'Unknown';
 }
 
+function routingSignalCue(value: unknown): string {
+  const signals = asRecord(value);
+  const safeFields: Array<[string, string]> = [
+    ['product_area', 'Product area'],
+    ['custom_product_area', 'Product area'],
+    ['tags', 'Tags'],
+  ];
+  for (const [field, label] of safeFields) {
+    const values = texts(signals[field]).slice(0, 3);
+    if (values.length > 0) return `${label}: ${values.join(' / ')}`;
+  }
+  return '';
+}
+
 function OwnerEvidenceCell({ row }: { row: Record<string, unknown> }) {
   const evidenceTier = text(row.evidence_tier);
+  const routingCue = routingSignalCue(row.routing_signals);
   return (
     <td className="px-3 py-2 text-foreground/70">
       <div>{text(row.owner_lane) || 'Unknown'}</div>
       {evidenceTier ? (
         <div className="mt-1 text-xs leading-relaxed text-foreground/45">
           Evidence: {evidenceTierLabel(evidenceTier)}
+        </div>
+      ) : null}
+      {routingCue ? (
+        <div className="mt-1 text-xs leading-relaxed text-foreground/45">
+          Route cue: {routingCue}
         </div>
       ) : null}
     </td>

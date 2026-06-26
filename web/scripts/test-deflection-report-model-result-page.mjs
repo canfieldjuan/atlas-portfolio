@@ -1357,6 +1357,32 @@ try {
   }
 
   resetCalls();
+  {
+    const legacySuppressedItem = { ...suppressedRepeatReviewQueueSection().data.items[0] };
+    delete legacySuppressedItem.evidence_tier;
+    delete legacySuppressedItem.routing_signals;
+    fetchPayload = minimalModel({
+      sections: [
+        supportTaxSection(),
+        priorityFixQueueSection(),
+        suppressedRepeatReviewQueueSection({
+          data: {
+            ...suppressedRepeatReviewQueueSection().data,
+            items: [legacySuppressedItem],
+          },
+        }),
+      ],
+    });
+    const legacySuppressedModel = await fetchDeflectionReportModel('content-ops-unit-123');
+    assert.equal(legacySuppressedModel.ok, true);
+    const legacySuppressedProjectedItem = legacySuppressedModel.model.sections.find(
+      (section) => section.id === 'suppressed_repeat_review_queue',
+    ).data.items[0];
+    assert.equal('evidence_tier' in legacySuppressedProjectedItem, false);
+    assert.equal('routing_signals' in legacySuppressedProjectedItem, false);
+  }
+
+  resetCalls();
   fetchPayload = minimalModel({
     sections: [
       supportTaxSection(),
@@ -2154,7 +2180,17 @@ try {
   );
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
   assert.ok(modelPageSource.includes('evidenceTierLabel'), 'model page renders paid evidence tiers');
-  assert.equal(modelPageSource.includes('routingSignalCue'), false, 'model page does not render raw routing cues');
+  assert.ok(modelPageSource.includes('routingSignalCue'), 'model page renders buyer-safe routing cues');
+  assert.ok(
+    modelPageSource.includes("['product_area', 'Product area']") &&
+      modelPageSource.includes("['custom_product_area', 'Product area']") &&
+      modelPageSource.includes("['tags', 'Tags']"),
+    'routing cues are limited to issue-semantic fields',
+  );
+  assert.equal(modelPageSource.includes("['assignee'"), false, 'model page must not render assignee routing cues');
+  assert.equal(modelPageSource.includes("['organization'"), false, 'model page must not render org routing cues');
+  assert.equal(modelPageSource.includes("['brand'"), false, 'model page must not render brand routing cues');
+  assert.equal(modelPageSource.includes("['group'"), false, 'model page must not render group routing cues');
   assert.ok(
     modelPageSource.includes('product, content, or support friction'),
     'unresolved repeat copy routes beyond a docs-only queue',

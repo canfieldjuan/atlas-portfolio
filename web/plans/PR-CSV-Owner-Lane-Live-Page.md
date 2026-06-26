@@ -23,12 +23,13 @@ Slice phase: Vertical slice
 - `web/src/components/landing/DeflectionReportModelPage.tsx` - paid result page evidence/routing rendering and copy.
 - `web/src/lib/deflection-report-demo.ts` - demo report item metadata matching the generated contract.
 - `web/plans/deflection-snapshot-report-groundtruth.json` - locked-preview report-model shape ground truth.
+- `web/scripts/generate-deflection-snapshot-contract.mjs` - hosted admission compatibility for legacy owner metadata.
 - `web/scripts/test-deflection-report-model-result-page.mjs` - parser/page source coverage for evidence tier, routing cues, and non-leakage.
 - `web/scripts/test-deflection-snapshot-contract-generator.mjs` - generator fixture coverage for nested routing-signal shapes.
 
 ## Mechanism
 
-The generated contract now admits `evidence_tier` and nested `routing_signals` objects on hosted-safe paid action rows. The paid page adds a shared `OwnerEvidenceCell` that keeps the existing table shape but expands the owner lane cell with an evidence label and the first available routing cue, preferring product area, custom product area, group, tags, brand, organization, then assignee.
+The generated contract now admits `evidence_tier` and nested `routing_signals` objects on hosted-safe paid action rows, while the hosted admission contract keeps those owner-metadata fields optional for legacy `deflection.v1` rows. The paid page adds a shared `OwnerEvidenceCell` that keeps the existing table shape but expands the owner lane cell with an evidence label and the first available issue-semantic routing cue from product area, custom product area, or tags.
 
 The unresolved-repeat copy now tells buyers to treat the queue as routable product, content, or support friction. It does not infer an exact UI path or root cause from CSV data.
 
@@ -36,7 +37,7 @@ The unresolved-repeat copy now tells buyers to treat the queue as routable produ
 
 - Locked/free snapshot pages are not changed in this slice.
 - The page does not show source IDs, raw quotes, `top_evidence`, or exact UI root-cause language.
-- The routing cue is compact and uses only the safe metadata ATLAS exposes.
+- The routing cue is compact and excludes identity-bearing group, assignee, brand, and organization values.
 - No new API route is added; the existing report-model parser consumes the regenerated hosted contract.
 
 ## Deferred
@@ -63,8 +64,8 @@ Parked hardening: none.
 
 | Area | Approx LOC |
 |---|---:|
-| Plan | ~49 |
-| Paid page/demo/tests | ~143 |
-| Generated contract | ~492 |
+| Plan | ~52 |
+| Paid page/demo/tests | ~190 |
+| Generator/contract | ~506 |
 | Ground truth | ~14 |
-| Total | ~698 |
+| Total | ~762 |
