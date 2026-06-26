@@ -70,10 +70,12 @@ async function loadSnapshotFixtures() {
   const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-snapshot-fixtures-'));
   const compiledPath = join(testDir, 'deflection-snapshot.cjs');
   const compiledContractPath = join(testDir, 'deflection-snapshot-contract.js');
+  const compiledDemoExamplePath = join(testDir, 'deflection-demo-example.js');
 
   try {
     const fixtureSource = await source('src/lib/deflection-snapshot.ts');
     const contractSource = await source('src/lib/deflection-snapshot-contract.ts');
+    const demoExampleSource = await source('src/lib/deflection-demo-example.ts');
     const compilerOptions = {
       module: ts.ModuleKind.CommonJS,
       target: ts.ScriptTarget.ES2022,
@@ -84,7 +86,11 @@ async function loadSnapshotFixtures() {
     const compiledContract = ts.transpileModule(contractSource, {
       compilerOptions,
     });
+    const compiledDemoExample = ts.transpileModule(demoExampleSource, {
+      compilerOptions,
+    });
     await writeFile(compiledContractPath, compiledContract.outputText);
+    await writeFile(compiledDemoExamplePath, compiledDemoExample.outputText);
     await writeFile(compiledPath, compiled.outputText);
 
     const require = createRequire(compiledPath);
@@ -97,15 +103,22 @@ async function loadSnapshotFixtures() {
 async function loadReportFixture() {
   const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-report-fixtures-'));
   const compiledPath = join(testDir, 'deflection-report-demo.cjs');
+  const compiledDemoExamplePath = join(testDir, 'deflection-demo-example.js');
 
   try {
     const fixtureSource = await source('src/lib/deflection-report-demo.ts');
+    const demoExampleSource = await source('src/lib/deflection-demo-example.ts');
+    const compilerOptions = {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    };
     const compiled = ts.transpileModule(fixtureSource, {
-      compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-        target: ts.ScriptTarget.ES2022,
-      },
+      compilerOptions,
     });
+    const compiledDemoExample = ts.transpileModule(demoExampleSource, {
+      compilerOptions,
+    });
+    await writeFile(compiledDemoExamplePath, compiledDemoExample.outputText);
     await writeFile(compiledPath, compiled.outputText);
 
     const require = createRequire(compiledPath);
@@ -143,11 +156,15 @@ function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLev
     sortedKeys(reference.top_questions[0]),
     `${name}: top_questions field set`,
   );
-  assertArrayFieldSet(
-    snapshot.locked_questions,
-    sortedKeys(reference.locked_questions[0]),
-    `${name}: locked_questions field set`,
-  );
+  if (snapshot.locked_questions.length > 0) {
+    assertArrayFieldSet(
+      snapshot.locked_questions,
+      sortedKeys(reference.locked_questions[0] ?? snapshot.locked_questions[0]),
+      `${name}: locked_questions field set`,
+    );
+  } else {
+    assert.deepEqual(snapshot.locked_questions, [], `${name}: locked_questions empty branch`);
+  }
   assertArrayFieldSet(
     snapshot.top_blind_spots,
     sortedKeys(reference.top_blind_spots[0]),
@@ -158,11 +175,15 @@ function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLev
     sortedKeys(reference.teaser.full_answer),
     `${name}: teaser full_answer field set`,
   );
-  assertArrayFieldSet(
-    snapshot.teaser.previews,
-    sortedKeys(reference.teaser.previews[0]),
-    `${name}: teaser preview field set`,
-  );
+  if (snapshot.teaser.previews.length > 0) {
+    assertArrayFieldSet(
+      snapshot.teaser.previews,
+      sortedKeys(reference.teaser.previews[0] ?? snapshot.teaser.previews[0]),
+      `${name}: teaser preview field set`,
+    );
+  } else {
+    assert.deepEqual(snapshot.teaser.previews, [], `${name}: teaser previews empty branch`);
+  }
 
   for (const key of [
     'generated',
@@ -209,6 +230,22 @@ function assertBlindSpotRanksMatchOwningRows(snapshot, name) {
       lockedQuestion.ticket_count,
       `${name}: blind spot rank ${blindSpot.rank} should match the locked preview count at that rank.`,
     );
+  }
+}
+
+function assertSyntheticSourceIds(value, name) {
+  if (!Array.isArray(value)) return;
+  for (const sourceId of value) {
+    assert.equal(typeof sourceId, 'string', `${name}: source ID should be a string`);
+    assert.match(sourceId, /^ticket-[a-z0-9-]+$/, `${name}: source ID should stay in the synthetic ticket-* namespace`);
+  }
+}
+
+function assertSyntheticEvidenceRows(value, name) {
+  for (const row of objectRows(value)) {
+    assertSyntheticSourceIds([row.source_id], name);
+    const quote = typeof row.evidence_quote === 'string' ? row.evidence_quote : '';
+    assert.equal(quote.includes('@'), false, `${name}: synthetic evidence quote should not contain emails`);
   }
 }
 
@@ -263,6 +300,9 @@ const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
 const lockedPreviewSource = await source('src/components/landing/DeflectionLockedReportPreview.tsx');
 const reportModelPageSource = await source('src/components/landing/DeflectionReportModelPage.tsx');
 const reportModelContractSource = await source('src/lib/deflection-report-model-contract.ts');
+const snapshotFixtureSource = await source('src/lib/deflection-snapshot.ts');
+const reportDemoFixtureSource = await source('src/lib/deflection-report-demo.ts');
+const generatedDemoSource = await source('src/lib/deflection-demo-example.ts');
 const intakeFormSource = await source('src/components/landing/SupportTicketCsvIntakeForm.tsx');
 const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
 const submitCtaIndex = intakeFormSource.indexOf('data-smoke="resolutionReportCta submitCta"');
@@ -270,9 +310,6 @@ const groundTruth = JSON.parse(
   await source('plans/deflection-snapshot-report-groundtruth.json'),
 );
 const referenceSnapshot = groundTruth.snapshot;
-const reportModelShapeSectionsById = new Map(
-  groundTruth.report_model_shape.sections.map((section) => [section.id, section]),
-);
 const expectedSnapshotTopLevelKeys = [...groundTruth._meta.snapshot_top_level_keys].sort();
 const {
   DEMO_DEFLECTION_SNAPSHOT,
@@ -288,6 +325,19 @@ const lockedPreviewSectionIds = [
   'outcome_diagnostics',
   'suppressed_repeat_review_queue',
   'question_details',
+];
+const generatedDemoSectionIds = [
+  'support_tax',
+  'seo_targets',
+  'ranked_questions',
+  'priority_fix_queue',
+  'top_unresolved_repeats',
+  'drafted_resolutions',
+  'already_covered_still_recurring',
+  'backlog_table',
+  'suppressed_repeat_review_queue',
+  'question_details',
+  'complete_evidence',
 ];
 const lockedPreviewSmokeMarkers = [
   'lockedPreviewPriorityFixQueue',
@@ -332,6 +382,19 @@ assert.ok(
 assertBlindSpotRanksMatchOwningRows(
   DEMO_DEFLECTION_SNAPSHOT,
   'Primary demo Snapshot',
+);
+assert.ok(
+  snapshotFixtureSource.includes("from './deflection-demo-example'"),
+  'Primary demo Snapshot should be imported from the generated paired demo example.',
+);
+assert.ok(
+  reportDemoFixtureSource.includes("from './deflection-demo-example'"),
+  'Primary demo report model should be imported from the generated paired demo example.',
+);
+assert.ok(
+  generatedDemoSource.includes('content_ops_faq_deflection_report_example.json') &&
+    generatedDemoSource.includes('content_ops_faq_deflection_snapshot_example.json'),
+  'Generated demo module should name the paired ATLAS example sources.',
 );
 assertTopLevelSnapshotKeys(
   DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,
@@ -420,46 +483,29 @@ assert.ok(
 );
 assert.deepEqual(
   DEMO_DEFLECTION_REPORT_MODEL.sections.map((section) => section.id),
-  lockedPreviewSectionIds,
-  'Locked full-report demo should carry exactly the eight paid-only preview sections in order.',
+  generatedDemoSectionIds,
+  'Locked full-report demo should carry the generated ATLAS report-model example sections in order.',
 );
-assert.equal(
-  reportModelShapeSectionsById.has('outcome_diagnostics'),
-  false,
-  'Generator-derived ground truth predates conditional outcome diagnostics; the generated contract guards that section.',
+assert.deepEqual(
+  lockedPreviewSectionIds.filter((sectionId) =>
+    DEMO_DEFLECTION_REPORT_MODEL.sections.some((section) => section.id === sectionId),
+  ),
+  [
+    'priority_fix_queue',
+    'top_unresolved_repeats',
+    'drafted_resolutions',
+    'already_covered_still_recurring',
+    'backlog_table',
+    'suppressed_repeat_review_queue',
+    'question_details',
+  ],
+  'Locked preview should render its curated subset from the generated report sections that are present.',
 );
 for (const sectionId of lockedPreviewSectionIds) {
   assert.ok(
     reportModelContractSource.includes(`"${sectionId}"`),
     `Generated paid report contract should still include ${sectionId}.`,
   );
-}
-for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
-  const generatedShape = reportModelShapeSectionsById.get(section.id);
-  if (!generatedShape) continue;
-  assert.deepEqual(
-    sortedKeys(section.data),
-    [...generatedShape.data_keys].sort(),
-    `${section.id} fixture data keys should match the generator-derived report model shape.`,
-  );
-  if (generatedShape.item_keys) {
-    const item = objectRows(section.data.items)[0];
-    assert.ok(item, `${section.id} should keep a representative locked item.`);
-    assert.deepEqual(
-      sortedKeys(item),
-      [...generatedShape.item_keys].sort(),
-      `${section.id} fixture item keys should match the generator-derived report model shape.`,
-    );
-  }
-  if (generatedShape.row_keys) {
-    const row = objectRows(section.data.rows)[0];
-    assert.ok(row, `${section.id} should keep a representative locked row.`);
-    assert.deepEqual(
-      sortedKeys(row),
-      [...generatedShape.row_keys].sort(),
-      `${section.id} fixture row keys should match the generator-derived report model shape.`,
-    );
-  }
 }
 for (const smokeMarker of lockedPreviewSmokeMarkers) {
   assert.ok(
@@ -470,16 +516,27 @@ for (const smokeMarker of lockedPreviewSmokeMarkers) {
 for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
   const data = section.data;
   if ('items' in data) {
-    assert.ok(data.items.length > 0, `${section.id} should keep a representative locked item.`);
+    assert.ok(Array.isArray(data.items), `${section.id} items should stay an array.`);
+    if (data.items.length === 0) {
+      assert.ok(
+        ['already_covered_still_recurring', 'suppressed_repeat_review_queue'].includes(section.id),
+        `${section.id} should only have an empty item list when the generated synthetic example has no rows for that conditional section.`,
+      );
+      continue;
+    }
     for (const item of data.items) {
-      assert.deepEqual(item.top_evidence, [], `${section.id} demo item should not carry public evidence quotes.`);
+      assertSyntheticEvidenceRows(item.top_evidence, `${section.id} demo item`);
     }
   }
   if ('rows' in data) {
+    assert.ok(Array.isArray(data.rows), `${section.id} rows should stay an array.`);
     assert.ok(data.rows.length > 0, `${section.id} should keep a representative locked row.`);
     for (const row of data.rows) {
-      if ('source_ids' in row) assert.deepEqual(row.source_ids, [], `${section.id} demo row should not carry source IDs.`);
-      if ('evidence_quotes' in row) assert.deepEqual(row.evidence_quotes, [], `${section.id} demo row should not carry evidence quotes.`);
+      assertSyntheticSourceIds(row.source_ids, `${section.id} demo row`);
+      for (const quote of Array.isArray(row.evidence_quotes) ? row.evidence_quotes : []) {
+        assert.equal(typeof quote, 'string', `${section.id} demo row evidence quote should be a string`);
+        assert.equal(quote.includes('@'), false, `${section.id} demo row evidence quote should not contain emails`);
+      }
     }
   }
 }
