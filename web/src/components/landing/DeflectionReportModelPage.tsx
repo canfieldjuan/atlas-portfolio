@@ -71,6 +71,48 @@ function priorityDriverLabel(value: string): string {
   return value.replace(/_/g, ' ');
 }
 
+function evidenceTierLabel(value: unknown): string {
+  const tier = text(value);
+  if (tier === 'csv_customer_text') return 'CSV customer text';
+  if (tier === 'csv_index_metadata_only') return 'CSV index metadata only';
+  if (tier === 'csv_full_thread_resolution_evidence') return 'CSV full-thread resolution evidence';
+  return tier ? tier.replace(/_/g, ' ') : 'Unknown';
+}
+
+function routingSignalCue(value: unknown): string {
+  const signals = asRecord(value);
+  const safeFields: Array<[string, string]> = [
+    ['product_area', 'Product area'],
+    ['custom_product_area', 'Product area'],
+    ['tags', 'Tags'],
+  ];
+  for (const [field, label] of safeFields) {
+    const values = texts(signals[field]).slice(0, 3);
+    if (values.length > 0) return `${label}: ${values.join(' / ')}`;
+  }
+  return '';
+}
+
+function OwnerEvidenceCell({ row }: { row: Record<string, unknown> }) {
+  const evidenceTier = text(row.evidence_tier);
+  const routingCue = routingSignalCue(row.routing_signals);
+  return (
+    <td className="px-3 py-2 text-foreground/70">
+      <div>{text(row.owner_lane) || 'Unknown'}</div>
+      {evidenceTier ? (
+        <div className="mt-1 text-xs leading-relaxed text-foreground/45">
+          Evidence: {evidenceTierLabel(evidenceTier)}
+        </div>
+      ) : null}
+      {routingCue ? (
+        <div className="mt-1 text-xs leading-relaxed text-foreground/45">
+          Route cue: {routingCue}
+        </div>
+      ) : null}
+    </td>
+  );
+}
+
 function suppressionReasonLabel(row: Record<string, unknown>): string {
   return text(row.suppression_reason_label) || text(row.suppression_reason).replace(/_/g, ' ') || 'Review reason';
 }
@@ -250,7 +292,7 @@ function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
                   <td className="px-3 py-2 font-mono text-foreground/70">{int(row.priority_score).toLocaleString()}</td>
                   <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
@@ -291,8 +333,9 @@ function TopUnresolvedRepeats({ section }: { section?: DeflectionReportSection }
       </div>
       <h2 className="mt-3 text-xl font-semibold text-foreground">Top Unresolved Repeats</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
-        These high-volume questions have no proven answer in the uploaded ticket history. Treat this as the docs queue:
-        write the missing answer or route the problem for resolution before publishing.
+        These high-volume questions have no proven answer in the uploaded ticket history. Treat this as routable
+        product, content, or support friction: write missing guidance when documentation is enough, or route the
+        problem to the owner lane when the product or workflow is creating repeat demand.
       </p>
 
       {items.length > 0 ? (
@@ -324,7 +367,7 @@ function TopUnresolvedRepeats({ section }: { section?: DeflectionReportSection }
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
                 </tr>
               ))}
@@ -393,7 +436,7 @@ function DraftedResolutions({ section }: { section?: DeflectionReportSection }) 
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
                   <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
                 </tr>
@@ -463,7 +506,7 @@ function CoveredRecurring({ section }: { section?: DeflectionReportSection }) {
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 text-foreground/70">
                     {texts(row.priority_drivers).slice(0, 3).map(priorityDriverLabel).join(' / ')}
                   </td>
@@ -554,7 +597,7 @@ function SuppressedRepeatReviewQueue({ section, requestId }: { section?: Deflect
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 text-foreground/70">{text(row.confidence) || 'Unknown'}</td>
                   <td className="px-3 py-2 leading-relaxed text-foreground/70">
                     <DeflectionReviewDecisionControl
@@ -634,7 +677,7 @@ function BacklogTable({ section }: { section?: DeflectionReportSection }) {
                   <td className="px-3 py-2 text-foreground/70">{int(row.ticket_count).toLocaleString()}</td>
                   <td className="px-3 py-2 text-foreground/70">{money(row.estimated_support_cost)}</td>
                   <td className="px-3 py-2 text-foreground/70">{csatSignalLabel(row.csat_signal)}</td>
-                  <td className="px-3 py-2 text-foreground/70">{text(row.owner_lane) || 'Unknown'}</td>
+                  <OwnerEvidenceCell row={row} />
                   <td className="px-3 py-2 font-mono text-foreground/70">{int(row.priority_score).toLocaleString()}</td>
                   <td className="px-3 py-2 leading-relaxed text-foreground/70">{text(row.recommended_action)}</td>
                 </tr>

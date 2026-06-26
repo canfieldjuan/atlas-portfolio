@@ -107,7 +107,9 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_FIELDS = ["items", "result_pag
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "result_page_limit", "status_counts", "support_cost_basis"] as const;
 
-export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "owner_lane", "evidence_tier", "routing_signals", "priority_score", "priority_drivers", "csat_signal"] as const;
+
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "numeric_average"] as const;
 
@@ -134,9 +136,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
   },
   "priority_fix_queue.items": {
     "question": "scalar",
+    "owner_lane": "scalar",
+    "evidence_tier": "scalar",
+    "routing_signals": "object",
     "priority_score": "scalar",
     "priority_drivers": "scalar_array",
     "csat_signal": "object",
+  },
+  "priority_fix_queue.items.routing_signals": {
+    "tags": "scalar_array",
+    "product_area": "scalar_array",
+    "custom_product_area": "scalar_array",
   },
   "priority_fix_queue.items.csat_signal": {
     "status": "scalar",
@@ -164,12 +174,21 @@ export type DeflectionReportPriorityFixQueueCsatSignal = {
   numeric_average: number | null;
 };
 
+export type DeflectionReportPriorityFixQueueRoutingSignals = {
+  tags: string[];
+  product_area: string[];
+  custom_product_area: string[];
+};
+
 export type DeflectionReportPriorityFixQueueSupportCostBasis = {
   status: string;
 };
 
 export type DeflectionReportPriorityFixQueueItem = {
   question: string;
+  owner_lane: string;
+  evidence_tier?: string;
+  routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;
   priority_score: number;
   priority_drivers: string[];
   csat_signal: DeflectionReportPriorityFixQueueCsatSignal;
@@ -203,6 +222,11 @@ export type DeflectionStructuredReport = {
 const rendered = renderDeflectionSnapshotContract(SOURCE_FIXTURE);
 const compactRendered = renderDeflectionSnapshotContract(SOURCE_FIXTURE.replace(/\s+/g, ' '));
 const reportModelRendered = renderDeflectionReportModelContract(REPORT_MODEL_SOURCE_FIXTURE);
+const requiredOwnerMetadataRendered = renderDeflectionReportModelContract(
+  REPORT_MODEL_SOURCE_FIXTURE
+    .replace('evidence_tier?: string;', 'evidence_tier: string;')
+    .replace('routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;', 'routing_signals: DeflectionReportPriorityFixQueueRoutingSignals;'),
+);
 assert.equal(
   compactRendered,
   rendered,
@@ -259,6 +283,26 @@ assert.ok(
 assert.ok(
   reportModelRendered.includes('"question": {\n      "shape": "scalar",\n      "required": true,\n      "nullable": false,\n      "value": "string"'),
   'required hosted row fields should stay required in the generated admission contract',
+);
+assert.ok(
+  reportModelRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
+  'nested hosted routing signals should be admitted as optional objects',
+);
+assert.ok(
+  requiredOwnerMetadataRendered.includes('"evidence_tier": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "string"'),
+  'owner evidence tier should stay optional for legacy hosted action rows even when source types require it',
+);
+assert.ok(
+  requiredOwnerMetadataRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
+  'owner routing signals should stay optional for legacy hosted action rows even when source types require them',
+);
+assert.ok(
+  reportModelRendered.includes('"priority_fix_queue.items.routing_signals": {'),
+  'nested hosted routing signal shapes should be preserved',
+);
+assert.ok(
+  reportModelRendered.includes('routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;'),
+  'nested routing signal types should stay wired into action items',
 );
 
 assert.throws(

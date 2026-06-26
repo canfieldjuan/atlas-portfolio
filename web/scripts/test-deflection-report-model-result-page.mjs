@@ -160,6 +160,7 @@ const HOSTED_FIELD_SHAPES = {
     estimated_support_cost: 'scalar',
     answer_status: 'scalar',
     answer_evidence_status: 'scalar',
+    evidence_tier: 'scalar',
     resolution_evidence_scope: 'scalar',
     answer_linkage: 'scalar',
     answer: 'scalar',
@@ -268,6 +269,25 @@ const HOSTED_FIELD_SHAPES = {
   },
 };
 
+const ACTION_ITEM_OWNER_PATHS = [
+  'already_covered_still_recurring.items',
+  'backlog_table.items',
+  'drafted_resolutions.items',
+  'priority_fix_queue.items',
+  'suppressed_repeat_review_queue.items',
+  'top_unresolved_repeats.items',
+];
+const ROUTING_SIGNALS_SHAPE = {
+  tags: 'scalar_array',
+  product_area: 'scalar_array',
+  custom_product_area: 'scalar_array',
+};
+for (const ownerPath of ACTION_ITEM_OWNER_PATHS) {
+  HOSTED_FIELD_SHAPES[ownerPath].evidence_tier = 'scalar';
+  HOSTED_FIELD_SHAPES[ownerPath].routing_signals = 'object';
+  HOSTED_FIELD_SHAPES[`${ownerPath}.routing_signals`] = { ...ROUTING_SIGNALS_SHAPE };
+}
+
 function resetStatusRoute({
   modelResult = { ok: false, reason: 'not_found' },
   artifactResult = { ok: false, reason: 'not_found' },
@@ -368,6 +388,16 @@ function actionItem(overrides = {}) {
     question: 'How do I enable SSO for my team?',
     status: 'Needs answer',
     owner_lane: 'Help Center',
+    evidence_tier: 'csv_customer_text',
+    routing_signals: {
+      group: ['Authentication Support'],
+      assignee: [],
+      tags: ['login', 'mfa'],
+      brand: [],
+      organization: [],
+      product_area: ['Authentication'],
+      custom_product_area: [],
+    },
     fix_type: 'create_missing_answer',
     confidence: 'medium',
     recommended_action: 'Write and approve the missing answer.',
@@ -710,6 +740,7 @@ function questionDetailsSection(overrides = {}) {
           estimated_support_cost: 94.5,
           answer_status: 'Draft ready',
           answer_evidence_status: 'resolution_evidence',
+          evidence_tier: 'csv_full_thread_resolution_evidence',
           resolution_evidence_scope: 'scoped',
           answer_linkage: 'publishable_answer',
           answer: 'Open Settings, then SSO.',
@@ -1071,6 +1102,7 @@ try {
   assert.ok(projectedQuestionDetails);
   const projectedQuestionRow = projectedQuestionDetails.data.rows[0];
   assert.equal(projectedQuestionRow.source_count, 4);
+  assert.equal(projectedQuestionRow.evidence_tier, 'csv_full_thread_resolution_evidence');
   assert.equal('source_ids' in projectedQuestionRow, false);
   assert.equal('evidence_quotes' in projectedQuestionRow, false);
   assert.equal('outcome_diagnostics' in projectedQuestionRow, false);
@@ -1272,12 +1304,14 @@ try {
       'confidence',
       'csat_signal',
       'estimated_support_cost',
+      'evidence_tier',
       'owner_lane',
       'priority_drivers',
       'priority_score',
       'question',
       'rank',
       'recommended_action',
+      'routing_signals',
       'status',
       'ticket_count',
     ];
@@ -1288,7 +1322,64 @@ try {
       assert.equal(item.suppression_reason_label, 'Too low volume');
       assert.deepEqual(section.data.reason_counts, { too_low_volume: 1 });
     }
+    assert.equal(item.evidence_tier, 'csv_customer_text');
+    assert.deepEqual(item.routing_signals, {
+      tags: ['login', 'mfa'],
+      product_area: ['Authentication'],
+      custom_product_area: [],
+    });
     assert.deepEqual(Object.keys(item).sort(), expectedItemKeys.sort());
+  }
+
+  resetCalls();
+  {
+    const legacyItem = { ...priorityFixQueueSection().data.items[0] };
+    delete legacyItem.evidence_tier;
+    delete legacyItem.routing_signals;
+    fetchPayload = minimalModel({
+      sections: [
+        supportTaxSection(),
+        priorityFixQueueSection({
+          data: {
+            ...priorityFixQueueSection().data,
+            items: [legacyItem],
+          },
+        }),
+      ],
+    });
+    const legacyModel = await fetchDeflectionReportModel('content-ops-unit-123');
+    assert.equal(legacyModel.ok, true);
+    const legacyProjectedItem = legacyModel.model.sections.find(
+      (section) => section.id === 'priority_fix_queue',
+    ).data.items[0];
+    assert.equal('evidence_tier' in legacyProjectedItem, false);
+    assert.equal('routing_signals' in legacyProjectedItem, false);
+  }
+
+  resetCalls();
+  {
+    const legacySuppressedItem = { ...suppressedRepeatReviewQueueSection().data.items[0] };
+    delete legacySuppressedItem.evidence_tier;
+    delete legacySuppressedItem.routing_signals;
+    fetchPayload = minimalModel({
+      sections: [
+        supportTaxSection(),
+        priorityFixQueueSection(),
+        suppressedRepeatReviewQueueSection({
+          data: {
+            ...suppressedRepeatReviewQueueSection().data,
+            items: [legacySuppressedItem],
+          },
+        }),
+      ],
+    });
+    const legacySuppressedModel = await fetchDeflectionReportModel('content-ops-unit-123');
+    assert.equal(legacySuppressedModel.ok, true);
+    const legacySuppressedProjectedItem = legacySuppressedModel.model.sections.find(
+      (section) => section.id === 'suppressed_repeat_review_queue',
+    ).data.items[0];
+    assert.equal('evidence_tier' in legacySuppressedProjectedItem, false);
+    assert.equal('routing_signals' in legacySuppressedProjectedItem, false);
   }
 
   resetCalls();
@@ -2088,6 +2179,23 @@ try {
     'priority queue must keep the section marker visible for explicit zero caps',
   );
   assert.ok(modelPageSource.includes('priority_score'), 'priority queue renders the deterministic score');
+  assert.ok(modelPageSource.includes('evidenceTierLabel'), 'model page renders paid evidence tiers');
+  assert.ok(modelPageSource.includes('routingSignalCue'), 'model page renders buyer-safe routing cues');
+  assert.ok(
+    modelPageSource.includes("['product_area', 'Product area']") &&
+      modelPageSource.includes("['custom_product_area', 'Product area']") &&
+      modelPageSource.includes("['tags', 'Tags']"),
+    'routing cues are limited to issue-semantic fields',
+  );
+  assert.equal(modelPageSource.includes("['assignee'"), false, 'model page must not render assignee routing cues');
+  assert.equal(modelPageSource.includes("['organization'"), false, 'model page must not render org routing cues');
+  assert.equal(modelPageSource.includes("['brand'"), false, 'model page must not render brand routing cues');
+  assert.equal(modelPageSource.includes("['group'"), false, 'model page must not render group routing cues');
+  assert.ok(
+    modelPageSource.includes('product, content, or support friction'),
+    'unresolved repeat copy routes beyond a docs-only queue',
+  );
+  assert.equal(modelPageSource.includes('docs queue'), false, 'unresolved repeat copy must not be docs-only');
   assert.equal(modelPageSource.includes('top_evidence'), false, 'priority queue must not inline evidence snippets in S3A');
   assert.equal(modelPageSource.includes('evidence_quotes'), false, 'model page must not read raw evidence quotes');
   assert.equal(modelPageSource.includes('source_ids'), false, 'model page must not read raw source IDs');

@@ -35,43 +35,48 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_REQUIRED_DATA = ["items", "sta
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "status_counts", "result_page_limit", "pdf_limit", "backlog_limit", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_SUPPORT_COST_BASIS_HOSTED_CONSUMER_SAFE_FIELDS = ["status"] as const;
-export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_FIELDS = ["items", "top_item_count", "result_page_limit", "pdf_limit", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_REQUIRED_DATA = ["items", "top_item_count", "result_page_limit", "pdf_limit", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_SNAPSHOT_SAFE_FIELDS = ["items.rank", "items.question", "items.ticket_count"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "top_item_count", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_SUPPORT_COST_BASIS_HOSTED_CONSUMER_SAFE_FIELDS = ["status"] as const;
-export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
+export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_FIELDS = ["items", "top_item_count", "result_page_limit", "pdf_limit"] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_REQUIRED_DATA = ["items", "top_item_count", "result_page_limit", "pdf_limit"] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "top_item_count"] as const;
-export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
+export const DEFLECTION_REPORT_DRAFTED_RESOLUTIONS_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_FIELDS = ["items", "top_item_count", "result_page_limit", "pdf_limit"] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_REQUIRED_DATA = ["items", "top_item_count", "result_page_limit", "pdf_limit"] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "top_item_count"] as const;
-export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
+export const DEFLECTION_REPORT_ALREADY_COVERED_STILL_RECURRING_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_FIELDS = ["items", "total_item_count", "default_limit"] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_REQUIRED_DATA = ["items", "total_item_count", "default_limit"] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "total_item_count", "default_limit"] as const;
-export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
+export const DEFLECTION_REPORT_BACKLOG_TABLE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_OUTCOME_DIAGNOSTICS_FIELDS = ["outcome_diagnostic_ticket_count", "outcome_risk_ticket_count", "reopened_ticket_count", "negative_csat_ticket_count", "rows"] as const;
 export const DEFLECTION_REPORT_OUTCOME_DIAGNOSTICS_REQUIRED_DATA = ["outcome_diagnostic_ticket_count", "outcome_risk_ticket_count", "reopened_ticket_count", "negative_csat_ticket_count", "rows"] as const;
 export const DEFLECTION_REPORT_OUTCOME_DIAGNOSTICS_SNAPSHOT_SAFE_FIELDS = [] as const;
@@ -82,17 +87,18 @@ export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_FIELDS = ["items",
 export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_REQUIRED_DATA = ["items", "total_item_count", "default_limit", "reason_counts"] as const;
 export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "total_item_count", "default_limit", "reason_counts"] as const;
-export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal", "review_key", "suppression_reason", "suppression_reason_label"] as const;
+export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal", "review_key", "suppression_reason", "suppression_reason_label"] as const;
 export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_CSAT_SIGNAL_HOSTED_CONSUMER_SAFE_FIELDS = ["status", "csat_present_count", "negative_csat_ticket_count", "numeric_average"] as const;
+export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_TOP_EVIDENCE_HOSTED_CONSUMER_SAFE_FIELDS = [] as const;
-export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence", "review_key", "suppression_reason", "suppression_reason_label"] as const;
+export const DEFLECTION_REPORT_SUPPRESSED_REPEAT_REVIEW_QUEUE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "evidence_tier", "routing_signals", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence", "review_key", "suppression_reason", "suppression_reason_label"] as const;
 export const DEFLECTION_REPORT_QUESTION_DETAILS_FIELDS = ["rows"] as const;
 export const DEFLECTION_REPORT_QUESTION_DETAILS_REQUIRED_DATA = ["rows"] as const;
 export const DEFLECTION_REPORT_QUESTION_DETAILS_SNAPSHOT_SAFE_FIELDS = ["rows.rank", "rows.question", "rows.answer_evidence_status", "rows.resolution_evidence_scope", "rows.weighted_frequency", "rows.source_count"] as const;
 export const DEFLECTION_REPORT_QUESTION_DETAILS_HOSTED_CONSUMER_SAFE_FIELDS = ["rows"] as const;
-export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "customer_wording", "topic", "ticket_count", "weighted_frequency", "source_count", "estimated_support_cost", "answer_status", "answer_evidence_status", "resolution_evidence_scope", "answer_linkage", "answer", "steps", "term_mappings"] as const;
+export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "customer_wording", "topic", "ticket_count", "weighted_frequency", "source_count", "estimated_support_cost", "answer_status", "answer_evidence_status", "evidence_tier", "resolution_evidence_scope", "answer_linkage", "answer", "steps", "term_mappings"] as const;
 export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_TERM_MAPPINGS_HOSTED_CONSUMER_SAFE_FIELDS = ["customer_term", "documentation_term", "suggestion", "source_id_count"] as const;
-export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_FIELDS = ["rank", "question", "customer_wording", "topic", "ticket_count", "weighted_frequency", "source_count", "estimated_support_cost", "answer_status", "answer_evidence_status", "resolution_evidence_scope", "answer_linkage", "answer", "steps", "term_mappings", "source_ids", "evidence_quotes", "outcome_diagnostics"] as const;
+export const DEFLECTION_REPORT_QUESTION_DETAILS_ROWS_FIELDS = ["rank", "question", "customer_wording", "topic", "ticket_count", "weighted_frequency", "source_count", "estimated_support_cost", "answer_status", "answer_evidence_status", "evidence_tier", "resolution_evidence_scope", "answer_linkage", "answer", "steps", "term_mappings", "source_ids", "evidence_quotes", "outcome_diagnostics"] as const;
 export const DEFLECTION_REPORT_COMPLETE_EVIDENCE_FIELDS = ["question_count", "evidence_row_count", "source_id_count", "surfaces"] as const;
 export const DEFLECTION_REPORT_COMPLETE_EVIDENCE_REQUIRED_DATA = ["question_count", "evidence_row_count", "source_id_count", "surfaces"] as const;
 export const DEFLECTION_REPORT_COMPLETE_EVIDENCE_SNAPSHOT_SAFE_FIELDS = [] as const;
@@ -107,6 +113,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -121,6 +129,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
     },
+    "already_covered_still_recurring.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
+    },
     "backlog_table": {
         "items": "object_array",
         "total_item_count": "scalar",
@@ -131,6 +144,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -145,6 +160,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
     },
+    "backlog_table.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
+    },
     "drafted_resolutions": {
         "items": "object_array",
         "top_item_count": "scalar",
@@ -154,6 +174,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -167,6 +189,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "csat_present_count": "scalar",
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
+    },
+    "drafted_resolutions.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
     },
     "outcome_diagnostics": {
         "outcome_diagnostic_ticket_count": "scalar",
@@ -195,6 +222,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -208,6 +237,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "csat_present_count": "scalar",
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
+    },
+    "priority_fix_queue.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
     },
     "priority_fix_queue.support_cost_basis": {
         "status": "scalar",
@@ -226,6 +260,7 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "estimated_support_cost": "scalar",
         "answer_status": "scalar",
         "answer_evidence_status": "scalar",
+        "evidence_tier": "scalar",
         "resolution_evidence_scope": "scalar",
         "answer_linkage": "scalar",
         "answer": "scalar",
@@ -288,6 +323,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -305,6 +342,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
     },
+    "suppressed_repeat_review_queue.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
+    },
     "top_unresolved_repeats": {
         "items": "object_array",
         "top_item_count": "scalar",
@@ -315,6 +357,8 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "question": "scalar",
         "status": "scalar",
         "owner_lane": "scalar",
+        "evidence_tier": "scalar",
+        "routing_signals": "object",
         "confidence": "scalar",
         "recommended_action": "scalar",
         "ticket_count": "scalar",
@@ -328,6 +372,11 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
         "csat_present_count": "scalar",
         "negative_csat_ticket_count": "scalar",
         "numeric_average": "scalar",
+    },
+    "top_unresolved_repeats.items.routing_signals": {
+        "tags": "scalar_array",
+        "product_area": "scalar_array",
+        "custom_product_area": "scalar_array",
     },
     "top_unresolved_repeats.support_cost_basis": {
         "status": "scalar",
@@ -447,6 +496,15 @@ export type DeflectionReportPriorityFixQueueCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportPriorityFixQueueRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportPriorityFixQueueTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -460,6 +518,8 @@ export type DeflectionReportPriorityFixQueueItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier?: string;
+    routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportPriorityFixQueueCsatSignal;
     confidence: string;
@@ -505,6 +565,15 @@ export type DeflectionReportTopUnresolvedRepeatsCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportTopUnresolvedRepeatsRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportTopUnresolvedRepeatsTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -518,6 +587,8 @@ export type DeflectionReportTopUnresolvedRepeatsItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier?: string;
+    routing_signals?: DeflectionReportTopUnresolvedRepeatsRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportTopUnresolvedRepeatsCsatSignal;
     confidence: string;
@@ -556,6 +627,15 @@ export type DeflectionReportDraftedResolutionsCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportDraftedResolutionsRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportDraftedResolutionsTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -569,6 +649,8 @@ export type DeflectionReportDraftedResolutionsItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier?: string;
+    routing_signals?: DeflectionReportDraftedResolutionsRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportDraftedResolutionsCsatSignal;
     confidence: string;
@@ -606,6 +688,15 @@ export type DeflectionReportAlreadyCoveredStillRecurringCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportAlreadyCoveredStillRecurringRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportAlreadyCoveredStillRecurringTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -619,6 +710,8 @@ export type DeflectionReportAlreadyCoveredStillRecurringItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier?: string;
+    routing_signals?: DeflectionReportAlreadyCoveredStillRecurringRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportAlreadyCoveredStillRecurringCsatSignal;
     confidence: string;
@@ -656,6 +749,15 @@ export type DeflectionReportBacklogTableCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportBacklogTableRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportBacklogTableTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -669,6 +771,8 @@ export type DeflectionReportBacklogTableItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier?: string;
+    routing_signals?: DeflectionReportBacklogTableRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportBacklogTableCsatSignal;
     confidence: string;
@@ -729,6 +833,15 @@ export type DeflectionReportSuppressedRepeatReviewQueueCsatSignal = {
     negative_csat_ticket_count: number;
     numeric_average: number | null;
 };
+export type DeflectionReportSuppressedRepeatReviewQueueRoutingSignals = {
+    group: string[];
+    assignee: string[];
+    tags: string[];
+    brand: string[];
+    organization: string[];
+    product_area: string[];
+    custom_product_area: string[];
+};
 export type DeflectionReportSuppressedRepeatReviewQueueTopEvidence = {
     source_id: string;
     evidence_quote: string;
@@ -742,6 +855,8 @@ export type DeflectionReportSuppressedRepeatReviewQueueItem = {
     question: string;
     status: string;
     owner_lane: string;
+    evidence_tier: string;
+    routing_signals: DeflectionReportSuppressedRepeatReviewQueueRoutingSignals;
     fix_type: string;
     csat_signal: DeflectionReportSuppressedRepeatReviewQueueCsatSignal;
     confidence: string;
@@ -793,6 +908,7 @@ export type DeflectionReportQuestionDetailsRow = {
     estimated_support_cost: number;
     answer_status: string;
     answer_evidence_status: string;
+    evidence_tier: string;
     resolution_evidence_scope: string;
     answer_linkage: string;
     answer: string;
@@ -1148,6 +1264,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "nullable": false,
       "value": "string"
     },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
+    },
     "confidence": {
       "shape": "scalar",
       "required": true,
@@ -1215,6 +1342,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "nullable": false,
       "value": "string"
     },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
+    },
     "confidence": {
       "shape": "scalar",
       "required": true,
@@ -1281,6 +1419,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "required": true,
       "nullable": false,
       "value": "string"
+    },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
     },
     "confidence": {
       "shape": "scalar",
@@ -1380,6 +1529,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "required": true,
       "nullable": false,
       "value": "string"
+    },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
     },
     "confidence": {
       "shape": "scalar",
@@ -1487,6 +1647,12 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "value": "string"
     },
     "answer_evidence_status": {
+      "shape": "scalar",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "evidence_tier": {
       "shape": "scalar",
       "required": true,
       "nullable": false,
@@ -1623,6 +1789,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "nullable": false,
       "value": "string"
     },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
+    },
     "confidence": {
       "shape": "scalar",
       "required": true,
@@ -1708,6 +1885,17 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "nullable": false,
       "value": "string"
     },
+    "evidence_tier": {
+      "shape": "scalar",
+      "required": false,
+      "nullable": false,
+      "value": "string"
+    },
+    "routing_signals": {
+      "shape": "object",
+      "required": false,
+      "nullable": false
+    },
     "confidence": {
       "shape": "scalar",
       "required": true,
@@ -1784,6 +1972,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "value": "number"
     }
   },
+  "already_covered_still_recurring.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
   "backlog_table.items.csat_signal": {
     "status": {
       "shape": "scalar",
@@ -1808,6 +2016,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "required": true,
       "nullable": true,
       "value": "number"
+    }
+  },
+  "backlog_table.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
     }
   },
   "drafted_resolutions.items.csat_signal": {
@@ -1836,6 +2064,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "value": "number"
     }
   },
+  "drafted_resolutions.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
   "priority_fix_queue.items.csat_signal": {
     "status": {
       "shape": "scalar",
@@ -1860,6 +2108,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "required": true,
       "nullable": true,
       "value": "number"
+    }
+  },
+  "priority_fix_queue.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
     }
   },
   "question_details.rows.term_mappings": {
@@ -1914,6 +2182,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "value": "number"
     }
   },
+  "suppressed_repeat_review_queue.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    }
+  },
   "top_unresolved_repeats.items.csat_signal": {
     "status": {
       "shape": "scalar",
@@ -1938,6 +2226,26 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_CONTRACT = {
       "required": true,
       "nullable": true,
       "value": "number"
+    }
+  },
+  "top_unresolved_repeats.items.routing_signals": {
+    "tags": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
+    },
+    "custom_product_area": {
+      "shape": "scalar_array",
+      "required": true,
+      "nullable": false,
+      "value": "string"
     }
   }
 } as const;
