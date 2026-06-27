@@ -44,6 +44,12 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 - Effort: M
 - Category: security
 - Found during: PR-Deflection-Teaser-Rank-Copy.
+- Resolved high-severity portion: PR-Web-Dependency-Audit-Burndown updates
+  `next`, `eslint-config-next`, and compatible transitive packages so
+  `npm --prefix web audit --audit-level=high` passes. Full audit still reports
+  two moderate `next` -> vendored `postcss` findings; npm's only suggested fix
+  is a breaking downgrade to `next@9.3.3`, so keep those parked until Next ships
+  a compatible patched dependency.
 
 ## 2026-06-01
 
