@@ -68,7 +68,7 @@ Ran locally:
 - `npm --prefix web run test:deflection-snapshot-landing-smoke` - passed.
 - `npm --prefix web run build` - passed.
 - `git diff --check` - passed.
-- `bash scripts/local_pr_review.sh` - pending until committed; the local review script requires a clean worktree.
+- `bash scripts/local_pr_review.sh` - passed.
 
 ## Estimated diff size
 
