@@ -1,0 +1,5 @@
+Contact: mailto:juan@juancanfield.com
+Contact: https://juancanfield.com/security
+Policy: https://juancanfield.com/security
+Preferred-Languages: en
+Expires: 2027-06-27T00:00:00Z

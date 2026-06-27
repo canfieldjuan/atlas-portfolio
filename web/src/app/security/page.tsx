@@ -11,6 +11,7 @@ import {
   ClipboardList,
   FileCheck2,
   CircleDashed,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
@@ -134,6 +135,49 @@ export default function SecurityPage() {
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.description}</p>
               </div>
             ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.29 }}
+          className="glass rounded-xl p-8 border border-border mb-12"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <Mail className="w-5 h-5 text-primary" />
+            <h2 className="text-2xl font-semibold text-foreground">Report a Vulnerability</h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
+            <div>
+              <p className="text-sm text-foreground/65 leading-relaxed mb-4">
+                If you find a security issue in the website, API routes, checkout flow,
+                admin intake, or support-ticket CSV/report path, report it privately
+                instead of opening a public GitHub issue.
+              </p>
+              <a
+                href="mailto:juan@juancanfield.com?subject=Security%20report%20for%20juancanfield.com"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                juan@juancanfield.com
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-5">
+              <h3 className="text-base font-semibold text-foreground mb-2">Safe report contents</h3>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Include the affected URL or route, reproduction steps using non-sensitive
+                test data, and the expected impact. Remove secrets, payment data,
+                customer CSV content, and private tokens from screenshots or logs.
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-foreground/45">
+                A standard disclosure pointer is also available at{' '}
+                <Link href="/.well-known/security.txt" className="text-primary hover:text-primary/80 transition-colors">
+                  /.well-known/security.txt
+                </Link>
+                .
+              </p>
+            </div>
           </div>
         </motion.section>
 
