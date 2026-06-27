@@ -9,12 +9,14 @@ const projectionSource = read('src/components/landing/DeflectionSupportTaxProjec
 const resultsSource = read('src/components/landing/DeflectionResultsPage.tsx');
 const landingSource = read('src/components/landing/DeflectionSnapshotLandingPage.tsx');
 const snapshotSource = read('src/lib/deflection-snapshot.ts');
+const generatedDemoSource = read('src/lib/deflection-demo-example.ts');
 const snapshotArtifactIndex = landingSource.indexOf('function SnapshotArtifact');
 const projectionMarkerIndex = landingSource.indexOf(
   'data-smoke="supportTaxProjection assistedContactCost valueAnchor"',
   snapshotArtifactIndex,
 );
 const topResolutionsIndex = landingSource.indexOf('Top Proven Resolutions', snapshotArtifactIndex);
+const demoSnapshot = parseGeneratedJsonExport(generatedDemoSource, 'DEMO_DEFLECTION_SNAPSHOT');
 
 assert(
   projectionSource.includes('export function DeflectionSupportTaxProjection'),
@@ -83,10 +85,22 @@ assert(
   'Snapshot landing page should bridge the higher-volume representative sample to the cost value frame without mislabeling slider-adjusted costs as the Gartner benchmark.',
 );
 assert(
-  snapshotSource.includes('repeat_ticket_count: 1700') &&
-    snapshotSource.includes('ticket_count: 310') &&
-    snapshotSource.includes('source_count: 310'),
-  'Representative snapshot fixture should use higher support volume while keeping the benchmark contact-cost default.',
+  snapshotSource.includes("from './deflection-demo-example'"),
+  'Representative snapshot fixture should come from the generated ATLAS demo example.',
+);
+assert(
+  demoSnapshot.summary.repeat_ticket_count >= 300 &&
+    demoSnapshot.top_questions[0].ticket_count >= 90 &&
+    demoSnapshot.top_questions[0].weighted_frequency === demoSnapshot.top_questions[0].ticket_count,
+  'Representative snapshot fixture should preserve a high-volume generated Support Tax while keeping ticket and weighted counts coherent.',
 );
 
 console.log('Deflection cost projection sharing guard passed.');
+
+function parseGeneratedJsonExport(source, name) {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^export const ${escapedName} = JSON\\.parse\\((.*)\\) as `, 'm');
+  const match = source.match(pattern);
+  assert(match, `${name} should be exported as generated JSON.parse payload.`);
+  return JSON.parse(JSON.parse(match[1]));
+}

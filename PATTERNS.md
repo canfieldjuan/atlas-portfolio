@@ -13,6 +13,21 @@ Deferred **product/code risk** from a slice lives in `HARDENING.md`, not here.
 
 ---
 
+## 2026-06-27
+
+### OPEN — Regenerated fixtures keep leaving stale consumer assertions
+Report/demo fixture regeneration has repeatedly updated a generated artifact
+while a consumer test still asserted old literal counts, labels, or section
+presence. CI catches the stale consumer after the fact, but the fix keeps
+landing reactively instead of as part of the fixture change.
+**Impact:** generated fixture slices look green locally until a downstream
+consumer test runs, slowing small PR flow and making the same review finding
+recur.
+**Convention:** any slice that regenerates a public demo/report fixture must add
+or update property-derived assertions in every direct consumer it affects
+(counts from fixture arrays, visible sections from non-empty rows, proven rows
+from evidence/teaser markers), not hardcoded old literals.
+
 ## 2026-05-23
 
 ### MOVED — Atlas deflection-search go-live gate → `HARDENING.md`
