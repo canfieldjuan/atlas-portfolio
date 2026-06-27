@@ -237,7 +237,11 @@ function assertSyntheticSourceIds(value, name) {
   if (!Array.isArray(value)) return;
   for (const sourceId of value) {
     assert.equal(typeof sourceId, 'string', `${name}: source ID should be a string`);
-    assert.match(sourceId, /^ticket-[a-z0-9-]+$/, `${name}: source ID should stay in the synthetic ticket-* namespace`);
+    assert.match(
+      sourceId,
+      /^synthetic-[a-z0-9-]+-\d{4}$/,
+      `${name}: source ID should stay in the synthetic ATLAS demo namespace`,
+    );
   }
 }
 
@@ -335,6 +339,7 @@ const generatedDemoSectionIds = [
   'drafted_resolutions',
   'already_covered_still_recurring',
   'backlog_table',
+  'outcome_diagnostics',
   'suppressed_repeat_review_queue',
   'question_details',
   'complete_evidence',
@@ -496,6 +501,7 @@ assert.deepEqual(
     'drafted_resolutions',
     'already_covered_still_recurring',
     'backlog_table',
+    'outcome_diagnostics',
     'suppressed_repeat_review_queue',
     'question_details',
   ],
