@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import ts from 'typescript';
+import { ownerCostCards, visibleBacklogRows } from '../src/lib/deflection-owner-cost-summary.mjs';
 
 const testDir = await mkdtemp(join(tmpdir(), 'atlas-deflection-report-model-'));
 const sourceUrl = new URL('../src/lib/atlas-deflection-client.ts', import.meta.url);
@@ -609,6 +610,37 @@ function backlogTableSection(overrides = {}) {
   };
 }
 
+function ownerCostSummaryFixtureSection() {
+  const visibleLaneItems = [
+    ['Content', 100, 10],
+    ['Product', 90, 9],
+    ['Policy', 80, 8],
+    ['Operations', 70, 7],
+    ['Support enablement', 60, 6],
+    ['Engineering', 50, 5],
+    ['Billing ops', 40, 4],
+  ].map(([owner_lane, estimated_support_cost, ticket_count], index) => actionItem({
+    rank: index + 1,
+    owner_lane,
+    estimated_support_cost,
+    ticket_count,
+  }));
+  const hiddenHighCostItem = actionItem({
+    rank: 8,
+    owner_lane: 'Hidden high-cost lane',
+    estimated_support_cost: 1000,
+    ticket_count: 100,
+  });
+  return backlogTableSection({
+    data: {
+      ...backlogTableSection().data,
+      total_item_count: 8,
+      default_limit: 7,
+      items: [...visibleLaneItems, hiddenHighCostItem],
+    },
+  });
+}
+
 function suppressedRepeatReviewQueueSection(overrides = {}) {
   return {
     id: 'suppressed_repeat_review_queue',
@@ -902,6 +934,38 @@ try {
   const require = createRequire(compiledPath);
   const { fetchDeflectionReportModel } = require(compiledPath);
   const { GET: reportStatusGET } = require(statusRouteCompiledPath);
+
+  {
+    const ownerFixture = ownerCostSummaryFixtureSection();
+    const shownRows = visibleBacklogRows(ownerFixture);
+    assert.equal(shownRows.length, 7, 'owner summary uses the same default_limit slice as the backlog table');
+    assert.equal(
+      shownRows.some((row) => row.owner_lane === 'Hidden high-cost lane'),
+      false,
+      'owner summary excludes rows hidden by the backlog table limit',
+    );
+    const ownerCards = ownerCostCards(shownRows);
+    assert.deepEqual(
+      ownerCards.map((row) => row.ownerLane),
+      ['Content', 'Product', 'Policy', 'Operations', 'Support enablement', 'Engineering', 'Other (1 lane)'],
+      'owner summary keeps the top six lanes and buckets remaining shown lanes',
+    );
+    assert.equal(
+      ownerCards.reduce((total, row) => total + row.estimatedSupportCost, 0),
+      490,
+      'owner summary totals tie out to shown backlog rows only',
+    );
+    assert.equal(
+      ownerCards.at(-1).estimatedSupportCost,
+      40,
+      'other owner lane preserves omitted shown-row cost',
+    );
+    assert.equal(
+      ownerCards.reduce((total, row) => total + row.ticketCount, 0),
+      shownRows.reduce((total, row) => total + row.ticket_count, 0),
+      'owner summary ticket totals tie out to shown backlog rows',
+    );
+  }
 
   resetEnv({
     ATLAS_API_BASE_URL: 'https://atlas.example.com/',
@@ -2200,8 +2264,8 @@ try {
     'covered recurring clamps the result-page limit locally',
   );
   assert.ok(
-    modelPageSource.includes('const limit = Math.min(BACKLOG_TABLE_LIMIT, requestedLimit)'),
-    'backlog table clamps the result-page limit locally',
+    modelPageSource.includes('const items = visibleBacklogRows(section);'),
+    'backlog table uses the shared visible-row clamp',
   );
   assert.ok(
     modelPageSource.includes('nonNegativeIntOrNull(data.result_page_limit) ??'),

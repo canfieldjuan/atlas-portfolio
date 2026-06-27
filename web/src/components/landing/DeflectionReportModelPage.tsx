@@ -7,6 +7,7 @@ import {
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import { ownerCostCards, visibleBacklogRows } from '@/lib/deflection-owner-cost-summary.mjs';
 import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
 
 const RANKED_ROW_LIMIT = 25;
@@ -15,7 +16,6 @@ const TOP_UNRESOLVED_REPEATS_LIMIT = 3;
 const DRAFTED_RESOLUTIONS_LIMIT = 3;
 const COVERED_RECURRING_LIMIT = 3;
 const SUPPRESSED_REVIEW_QUEUE_LIMIT = 10;
-const BACKLOG_TABLE_LIMIT = 25;
 const OUTCOME_DIAGNOSTIC_LIMIT = 25;
 const QUESTION_DETAIL_LIMIT = 10;
 const SEO_TARGET_LIMIT = 20;
@@ -211,35 +211,9 @@ function SupportTaxSummary({
   );
 }
 
-type OwnerCostRow = {
-  ownerLane: string;
-  estimatedSupportCost: number;
-  ticketCount: number;
-  rowCount: number;
-};
-
-function ownerCostRows(section?: DeflectionReportSection): OwnerCostRow[] {
-  const ownerRows = new Map<string, OwnerCostRow>();
-  for (const row of rows(asRecord(section?.data).items)) {
-    const ownerLane = text(row.owner_lane) || 'Unknown';
-    const existing = ownerRows.get(ownerLane) ?? {
-      ownerLane,
-      estimatedSupportCost: 0,
-      ticketCount: 0,
-      rowCount: 0,
-    };
-    existing.estimatedSupportCost += typeof row.estimated_support_cost === 'number' && Number.isFinite(row.estimated_support_cost)
-      ? Math.max(0, row.estimated_support_cost)
-      : 0;
-    existing.ticketCount += int(row.ticket_count);
-    existing.rowCount += 1;
-    ownerRows.set(ownerLane, existing);
-  }
-  return Array.from(ownerRows.values()).sort((a, b) => b.estimatedSupportCost - a.estimatedSupportCost);
-}
-
 function OwnerCostSummary({ section }: { section?: DeflectionReportSection }) {
-  const ownerRows = ownerCostRows(section).slice(0, 6);
+  const shownBacklogRows = visibleBacklogRows(section);
+  const ownerRows = ownerCostCards(shownBacklogRows);
   if (ownerRows.length === 0) return null;
 
   const totalCost = ownerRows.reduce((total, row) => total + row.estimatedSupportCost, 0);
@@ -697,12 +671,7 @@ function SuppressedRepeatReviewQueue({ section, requestId }: { section?: Deflect
 function BacklogTable({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const allItems = rows(data.items);
-  const requestedLimit =
-    nonNegativeIntOrNull(data.default_limit) ??
-    nonNegativeIntOrNull(section?.default_limit) ??
-    BACKLOG_TABLE_LIMIT;
-  const limit = Math.min(BACKLOG_TABLE_LIMIT, requestedLimit);
-  const items = allItems.slice(0, limit);
+  const items = visibleBacklogRows(section);
   const totalItemCount = Math.max(int(data.total_item_count), allItems.length);
 
   return (
