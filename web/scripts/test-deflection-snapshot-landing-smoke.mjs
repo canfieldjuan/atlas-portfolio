@@ -194,12 +194,15 @@ function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLev
   }
 }
 
-function assertBlindSpotRanksMatchOwningRows(snapshot, name) {
+function assertBlindSpotRanksMatchOwningRows(snapshot, reportModel, name) {
   const topQuestionsByRank = new Map(
     snapshot.top_questions.map((question) => [question.rank, question]),
   );
-  const lockedQuestionsByRank = new Map(
-    snapshot.locked_questions.map((question) => [question.rank, question]),
+  const rankedRows =
+    reportModel.sections.find((section) => section.id === 'ranked_questions')?.data
+      ?.rows ?? [];
+  const rankedRowsByRank = new Map(
+    objectRows(rankedRows).map((row) => [row.rank, row]),
   );
 
   for (const blindSpot of snapshot.top_blind_spots) {
@@ -218,15 +221,20 @@ function assertBlindSpotRanksMatchOwningRows(snapshot, name) {
       continue;
     }
 
-    const lockedQuestion = lockedQuestionsByRank.get(blindSpot.rank);
+    const rankedRow = rankedRowsByRank.get(blindSpot.rank);
     assert.ok(
-      lockedQuestion,
-      `${name}: blind spot rank ${blindSpot.rank} should map to a visible top question or locked preview rank.`,
+      rankedRow,
+      `${name}: blind spot rank ${blindSpot.rank} should map to a ranked report row.`,
+    );
+    assert.equal(
+      blindSpot.question,
+      rankedRow.question,
+      `${name}: blind spot rank ${blindSpot.rank} should match the ranked report question.`,
     );
     assert.equal(
       blindSpot.ticket_count,
-      lockedQuestion.ticket_count,
-      `${name}: blind spot rank ${blindSpot.rank} should match the locked preview count at that rank.`,
+      rankedRow.ticket_count,
+      `${name}: blind spot rank ${blindSpot.rank} should match the ranked report count.`,
     );
   }
 }
@@ -383,6 +391,7 @@ assert.ok(
 );
 assertBlindSpotRanksMatchOwningRows(
   DEMO_DEFLECTION_SNAPSHOT,
+  DEMO_DEFLECTION_REPORT_MODEL,
   'Primary demo Snapshot',
 );
 assert.ok(
