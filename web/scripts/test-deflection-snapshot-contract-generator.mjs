@@ -252,8 +252,44 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
   report_model: {
     schema_version: 'deflection.v1',
     title: 'Synthetic demo report',
-    summary: { generated: 2, repeat_ticket_count: 4 },
+    summary: {
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+      repeat_ticket_count: 4,
+      non_repeat_ticket_count: 0,
+      source_date_start: '2026-05-01',
+      source_date_end: '2026-05-30',
+      source_window_days: 30,
+    },
     sections: [
+      {
+        id: 'ranked_questions',
+        title: 'Ranked Question Opportunities',
+        priority: 30,
+        surfaces: ['web'],
+        default_limit: null,
+        required_data: ['rows'],
+        snapshot_safe_fields: ['rows.rank', 'rows.question', 'rows.ticket_count', 'rows.weighted_frequency', 'rows.customer_wording'],
+        data: {
+          rows: [
+            {
+              rank: 1,
+              question: 'How do I export attribution reports?',
+              customer_wording: 'How do I export attribution reports?',
+              ticket_count: 2,
+              weighted_frequency: 2,
+            },
+            {
+              rank: 2,
+              question: 'How do I enable SSO for my team?',
+              customer_wording: 'How do I enable SSO for my team?',
+              ticket_count: 2,
+              weighted_frequency: 2,
+            },
+          ],
+        },
+      },
       {
         id: 'priority_fix_queue',
         title: 'Priority Fix Queue',
@@ -287,6 +323,9 @@ const DEMO_SNAPSHOT_EXAMPLE_FIXTURE = JSON.stringify({
     support_ticket_resolution_evidence_count: 1,
     repeat_ticket_count: 4,
     non_repeat_ticket_count: 0,
+    source_date_start: '2026-05-01',
+    source_date_end: '2026-05-30',
+    source_window_days: 30,
   },
   top_questions: [
     {
@@ -445,8 +484,44 @@ assert.throws(
     reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
     snapshotExampleText: JSON.stringify({ summary: {} }),
   }),
-  /missing required field top_questions/,
+  /summary\.generated must be a finite number/,
   'demo example validation should fail closed when the paired snapshot projection is incomplete',
+);
+assert.throws(
+  () => renderDeflectionDemoExample({
+    reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
+    snapshotExampleText: JSON.stringify({
+      ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE),
+      top_questions: null,
+    }),
+  }),
+  /top_questions must be an array/,
+  'demo example validation should fail closed when a required Snapshot list has the wrong shape',
+);
+assert.throws(
+  () => renderDeflectionDemoExample({
+    reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
+    snapshotExampleText: JSON.stringify({
+      ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE),
+      summary: {
+        ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE).summary,
+        generated: 3,
+      },
+    }),
+  }),
+  /summary\.generated must match report_model\.summary\.generated/,
+  'demo example validation should fail closed when summary counts do not match the report model',
+);
+assert.throws(
+  () => renderDeflectionDemoExample({
+    reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
+    snapshotExampleText: DEMO_SNAPSHOT_EXAMPLE_FIXTURE.replace(
+      'How do I export attribution reports?',
+      'How do I export CSV reports?',
+    ),
+  }),
+  /top_questions rank 1 question must match ranked_questions/,
+  'demo example validation should fail closed when top-question text drifts from the paired report model',
 );
 
 const testDir = await mkdtemp(join(tmpdir(), 'deflection-snapshot-contract-generator-'));
@@ -536,7 +611,9 @@ try {
   );
   await writeFile(reportModelOutputPath, reportModelRendered, 'utf8');
 
-  const driftedDemoSnapshot = DEMO_SNAPSHOT_EXAMPLE_FIXTURE.replace('How do I export attribution reports?', 'How do I export CSV reports?');
+  const driftedDemoReport = DEMO_REPORT_EXAMPLE_FIXTURE.replaceAll('How do I export attribution reports?', 'How do I export CSV reports?');
+  const driftedDemoSnapshot = DEMO_SNAPSHOT_EXAMPLE_FIXTURE.replaceAll('How do I export attribution reports?', 'How do I export CSV reports?');
+  await writeFile(demoReportSourcePath, driftedDemoReport, 'utf8');
   await writeFile(demoSnapshotSourcePath, driftedDemoSnapshot, 'utf8');
   await assert.rejects(
     () => generateDeflectionDemoExample({
@@ -548,6 +625,7 @@ try {
     /is out of date/,
     'demo check mode should reject ATLAS example drift from the committed generated module',
   );
+  await writeFile(demoReportSourcePath, DEMO_REPORT_EXAMPLE_FIXTURE, 'utf8');
   await writeFile(demoSnapshotSourcePath, DEMO_SNAPSHOT_EXAMPLE_FIXTURE, 'utf8');
 
   await writeFile(demoExampleOutputPath, demoExampleRendered.replace('Synthetic demo report', 'Stale demo report'), 'utf8');

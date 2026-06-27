@@ -77,6 +77,15 @@ function snapshotCostProof(snapshot: DeflectionSnapshot, assistedContactCost: nu
   };
 }
 
+function provenQuestionRanks(snapshot: DeflectionSnapshot) {
+  return new Set(
+    [
+      snapshot.teaser.full_answer?.rank,
+      ...snapshot.teaser.previews.map((preview) => preview.rank),
+    ].filter((rank): rank is number => typeof rank === 'number'),
+  );
+}
+
 function snapshotCostBasisLabel(assistedContactCost: number) {
   return assistedContactCost === DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD
     ? 'At the Gartner benchmark'
@@ -204,6 +213,10 @@ function SnapshotArtifact({
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
   );
+  const provenRanks = provenQuestionRanks(snapshot);
+  const provenQuestions = top_questions.filter((question) =>
+    provenRanks.has(question.rank),
+  );
   const lockedRanks = locked_questions.map((question) => question.rank);
   const firstLockedRank =
     lockedRanks.length > 0
@@ -237,11 +250,15 @@ function SnapshotArtifact({
         ? `${formatInteger(teaser.full_answer.source_count)} source tickets`
         : 'No scoped draft in this sample',
     },
-    {
-      label: 'Remaining backlog',
-      value: formatInteger(locked_questions.length),
-      detail: 'rank and volume previewed',
-    },
+    ...(locked_questions.length > 0
+      ? [
+          {
+            label: 'Remaining backlog',
+            value: formatInteger(locked_questions.length),
+            detail: 'rank and volume previewed',
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -297,14 +314,18 @@ function SnapshotArtifact({
         />
       </div>
 
-      <div className="mt-8 mb-2">
-        <h3 className="text-lg font-semibold text-foreground">Top Proven Resolutions</h3>
-        <p className="mt-1 text-sm text-foreground/60">Repeat tickets with consistent, extractable team answers.</p>
-      </div>
-      <DeflectionTopQuestionRows
-        questions={top_questions}
-        assistedContactCost={assistedContactCost}
-      />
+      {provenQuestions.length > 0 && (
+        <>
+          <div className="mt-8 mb-2">
+            <h3 className="text-lg font-semibold text-foreground">Top Proven Resolutions</h3>
+            <p className="mt-1 text-sm text-foreground/60">Repeat tickets with consistent, extractable team answers.</p>
+          </div>
+          <DeflectionTopQuestionRows
+            questions={provenQuestions}
+            assistedContactCost={assistedContactCost}
+          />
+        </>
+      )}
 
       {top_blind_spots.length > 0 && (
         <div data-smoke="blindSpots" className="mt-6 rounded-md border border-amber-500/20 bg-amber-500/[0.04] p-4">
@@ -329,20 +350,22 @@ function SnapshotArtifact({
       )}
 
       <div className="mt-6 grid gap-3 md:grid-cols-2">
-        <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
-            <Lock className="h-4 w-4 text-foreground/40" />
-            {lockedRangeLabel}
+        {locked_questions.length > 0 && (
+          <div className="rounded-md border border-dashed border-border bg-white/45 p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
+              <Lock className="h-4 w-4 text-foreground/40" />
+              {lockedRangeLabel}
+            </div>
+            <DeflectionLockedQuestionRows
+              questions={locked_questions}
+              assistedContactCost={assistedContactCost}
+            />
+            <p className="mt-3 text-sm leading-relaxed text-foreground/62">
+              Counts and cost estimates stay visible here; the complete
+              report adds the remaining question text and source trails.
+            </p>
           </div>
-          <DeflectionLockedQuestionRows
-            questions={locked_questions}
-            assistedContactCost={assistedContactCost}
-          />
-          <p className="mt-3 text-sm leading-relaxed text-foreground/62">
-            Counts and cost estimates stay visible here; the complete
-            report adds the remaining question text and source trails.
-          </p>
-        </div>
+        )}
         <div className="rounded-md border border-border bg-white/62 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Search className="h-4 w-4 text-primary" />

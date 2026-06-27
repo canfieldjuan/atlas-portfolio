@@ -257,6 +257,13 @@ function sectionById(model: DeflectionStructuredReport, id: string) {
   return model.sections.find((section) => section.id === id);
 }
 
+function hasPreviewRows(section: DeflectionReportSection): boolean {
+  const data = asRecord(section.data);
+  if (Array.isArray(data.items)) return rows(data.items).length > 0;
+  if (Array.isArray(data.rows)) return rows(data.rows).length > 0;
+  return true;
+}
+
 function LockedSectionPreview({
   config,
   section,
@@ -329,7 +336,7 @@ export function DeflectionLockedReportPreview({
 }) {
   const sections = PREVIEW_SECTIONS.flatMap((config) => {
     const section = sectionById(model, config.id);
-    return section ? [{ config, section }] : [];
+    return section && hasPreviewRows(section) ? [{ config, section }] : [];
   });
 
   if (sections.length === 0) return null;

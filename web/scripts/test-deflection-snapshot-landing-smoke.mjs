@@ -28,7 +28,6 @@ const MARKER_KEYS = [
   'lockedPreviewCoveredRecurring',
   'lockedPreviewBacklogTable',
   'lockedPreviewOutcomeDiagnostics',
-  'lockedPreviewSuppressedRepeatReviewQueue',
   'lockedPreviewQuestionDetails',
   'snapshotFirst',
   'finalSnapshotAsk',
@@ -54,7 +53,6 @@ const GOOD_HTML = [
   '<article data-smoke="lockedPreviewCoveredRecurring">Any covered preview</article>',
   '<article data-smoke="lockedPreviewBacklogTable">Any backlog preview</article>',
   '<article data-smoke="lockedPreviewOutcomeDiagnostics">Any outcome preview</article>',
-  '<article data-smoke="lockedPreviewSuppressedRepeatReviewQueue">Any suppressed preview</article>',
   '<article data-smoke="lockedPreviewQuestionDetails">Any detail preview</article>',
   '</section>',
   '<section data-smoke="snapshotFirst finalSnapshotAsk">Any final ask</section>',
@@ -351,7 +349,6 @@ const lockedPreviewSmokeMarkers = [
   'lockedPreviewCoveredRecurring',
   'lockedPreviewBacklogTable',
   'lockedPreviewOutcomeDiagnostics',
-  'lockedPreviewSuppressedRepeatReviewQueue',
   'lockedPreviewQuestionDetails',
 ];
 
@@ -427,6 +424,16 @@ assert.equal(
 assert.ok(
   snapshotLandingSource.includes('Top Proven Resolutions'),
   'Snapshot artifact should still show the proven-resolution rows below the inline form.',
+);
+assert.ok(
+  snapshotLandingSource.includes('const provenQuestions = top_questions.filter') &&
+    snapshotLandingSource.includes('questions={provenQuestions}'),
+  'Snapshot artifact should render only teaser-proven rows under Top Proven Resolutions.',
+);
+assert.ok(
+  snapshotLandingSource.includes('locked_questions.length > 0') &&
+    snapshotLandingSource.includes("label: 'Remaining backlog'"),
+  'Snapshot artifact should hide the remaining-backlog metric and locked preview when no locked rows exist.',
 );
 assert.ok(
   snapshotLandingSource.includes("sourceOffer: 'support-ticket-deflection-intake'"),
@@ -519,6 +526,10 @@ for (const smokeMarker of lockedPreviewSmokeMarkers) {
     `Locked preview component should keep ${smokeMarker} marker.`,
   );
 }
+assert.ok(
+  lockedPreviewSource.includes('hasPreviewRows(section)'),
+  'Locked preview should skip configured sections whose generated report data has no rows.',
+);
 for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
   const data = section.data;
   if ('items' in data) {

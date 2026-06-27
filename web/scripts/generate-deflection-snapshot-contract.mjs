@@ -127,11 +127,8 @@ export function renderDeflectionDemoExample({ reportExampleText, snapshotExample
   if (!Array.isArray(reportModel.sections)) {
     throw new Error(`${deflectionReportExampleFilename} report_model.sections must be an array.`);
   }
-  for (const field of ['summary', 'top_questions', 'locked_questions', 'top_blind_spots', 'teaser']) {
-    if (!(field in snapshotExample)) {
-      throw new Error(`${deflectionSnapshotExampleFilename} is missing required field ${field}.`);
-    }
-  }
+  validateDemoSnapshotShape(snapshotExample);
+  validateDemoExamplePair({ reportModel, snapshot: snapshotExample });
   const reportModelLiteral = JSON.stringify(JSON.stringify(reportModel));
   const snapshotLiteral = JSON.stringify(JSON.stringify(snapshotExample));
 
@@ -168,6 +165,153 @@ function parseJsonObject(sourceText, label) {
 
 function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function validateDemoSnapshotShape(snapshot) {
+  const summary = requireObjectField(snapshot, 'summary', deflectionSnapshotExampleFilename);
+  for (const field of [
+    'generated',
+    'drafted_answer_count',
+    'no_proven_answer_count',
+    'repeat_ticket_count',
+    'non_repeat_ticket_count',
+    'support_ticket_resolution_evidence_count',
+  ]) {
+    requireNumberField(summary, field, `${deflectionSnapshotExampleFilename}.summary`);
+  }
+  for (const field of ['top_questions', 'locked_questions', 'top_blind_spots']) {
+    if (!Array.isArray(snapshot[field])) {
+      throw new Error(`${deflectionSnapshotExampleFilename}.${field} must be an array.`);
+    }
+  }
+  snapshot.top_questions.forEach((question, index) => {
+    requireNumberField(question, 'rank', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireStringField(question, 'question', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireStringField(question, 'customer_wording', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireNumberField(question, 'ticket_count', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireNumberField(question, 'weighted_frequency', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+  });
+  snapshot.locked_questions.forEach((question, index) => {
+    requireNumberField(question, 'rank', `${deflectionSnapshotExampleFilename}.locked_questions[${index}]`);
+    requireNumberField(question, 'ticket_count', `${deflectionSnapshotExampleFilename}.locked_questions[${index}]`);
+  });
+  snapshot.top_blind_spots.forEach((blindSpot, index) => {
+    requireNumberField(blindSpot, 'rank', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+    requireStringField(blindSpot, 'question', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+    requireNumberField(blindSpot, 'ticket_count', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+  });
+  const teaser = requireObjectField(snapshot, 'teaser', deflectionSnapshotExampleFilename);
+  if (teaser.full_answer !== null && !isPlainObject(teaser.full_answer)) {
+    throw new Error(`${deflectionSnapshotExampleFilename}.teaser.full_answer must be an object or null.`);
+  }
+  if (!Array.isArray(teaser.previews)) {
+    throw new Error(`${deflectionSnapshotExampleFilename}.teaser.previews must be an array.`);
+  }
+}
+
+function validateDemoExamplePair({ reportModel, snapshot }) {
+  const reportSummary = requireObjectField(reportModel, 'summary', `${deflectionReportExampleFilename}.report_model`);
+  const supportTaxData = sectionData(reportModel, 'support_tax') ?? {};
+  for (const field of [
+    ['generated', 'generated', 'generated_question_count'],
+    ['drafted_answer_count', 'drafted_answer_count', 'drafted_answer_count'],
+    ['no_proven_answer_count', 'no_proven_answer_count', 'no_proven_answer_count'],
+    ['repeat_ticket_count', 'repeat_ticket_count', 'repeat_ticket_count'],
+    ['non_repeat_ticket_count', 'non_repeat_ticket_count', 'non_repeat_ticket_count'],
+    ['source_date_start', 'source_date_start', 'source_date_window.source_date_start'],
+    ['source_date_end', 'source_date_end', 'source_date_window.source_date_end'],
+    ['source_window_days', 'source_window_days', 'source_date_window.source_window_days'],
+  ]) {
+    const expected = reportSummary[field[1]] ?? nestedValue(supportTaxData, field[2]);
+    if (expected === undefined && snapshot.summary[field[0]] === undefined) {
+      continue;
+    }
+    assertEqual(
+      snapshot.summary[field[0]],
+      expected,
+      `${deflectionSnapshotExampleFilename}.summary.${field[0]} must match report_model.summary.${field[1]}.`,
+    );
+  }
+
+  const rankedRows = sectionRows(reportModel, 'ranked_questions');
+  const rankedRowsByRank = new Map(rankedRows.map((row) => [row.rank, row]));
+  for (const question of snapshot.top_questions) {
+    const row = rankedRowsByRank.get(question.rank);
+    if (!row) {
+      throw new Error(`${deflectionSnapshotExampleFilename}.top_questions rank ${question.rank} has no matching ranked_questions row.`);
+    }
+    assertEqual(question.question, row.question, `top_questions rank ${question.rank} question must match ranked_questions.`);
+    assertEqual(question.customer_wording, row.customer_wording, `top_questions rank ${question.rank} customer_wording must match ranked_questions.`);
+    assertEqual(question.ticket_count, row.ticket_count, `top_questions rank ${question.rank} ticket_count must match ranked_questions.`);
+    assertEqual(question.weighted_frequency, row.weighted_frequency, `top_questions rank ${question.rank} weighted_frequency must match ranked_questions.`);
+  }
+  for (const question of snapshot.locked_questions) {
+    const row = rankedRowsByRank.get(question.rank);
+    if (!row) {
+      throw new Error(`${deflectionSnapshotExampleFilename}.locked_questions rank ${question.rank} has no matching ranked_questions row.`);
+    }
+    assertEqual(question.ticket_count, row.ticket_count, `locked_questions rank ${question.rank} ticket_count must match ranked_questions.`);
+  }
+  for (const blindSpot of snapshot.top_blind_spots) {
+    const row = rankedRowsByRank.get(blindSpot.rank);
+    if (!row) {
+      throw new Error(`${deflectionSnapshotExampleFilename}.top_blind_spots rank ${blindSpot.rank} has no matching ranked_questions row.`);
+    }
+    assertEqual(blindSpot.question, row.question, `top_blind_spots rank ${blindSpot.rank} question must match ranked_questions.`);
+    assertEqual(blindSpot.ticket_count, row.ticket_count, `top_blind_spots rank ${blindSpot.rank} ticket_count must match ranked_questions.`);
+  }
+}
+
+function sectionRows(reportModel, sectionId) {
+  const section = reportModel.sections.find((candidate) => candidate.id === sectionId);
+  if (!section) {
+    throw new Error(`${deflectionReportExampleFilename}.report_model.sections is missing ${sectionId}.`);
+  }
+  const data = requireObjectField(section, 'data', `${deflectionReportExampleFilename}.${sectionId}`);
+  if (!Array.isArray(data.rows)) {
+    throw new Error(`${deflectionReportExampleFilename}.${sectionId}.data.rows must be an array.`);
+  }
+  return data.rows.map((row, index) => requireObjectValue(row, `${deflectionReportExampleFilename}.${sectionId}.data.rows[${index}]`));
+}
+
+function sectionData(reportModel, sectionId) {
+  const section = reportModel.sections.find((candidate) => candidate.id === sectionId);
+  return section && isPlainObject(section.data) ? section.data : null;
+}
+
+function nestedValue(value, path) {
+  return path.split('.').reduce((current, part) => (
+    isPlainObject(current) ? current[part] : undefined
+  ), value);
+}
+
+function requireObjectField(value, field, label) {
+  return requireObjectValue(value[field], `${label}.${field}`);
+}
+
+function requireObjectValue(value, label) {
+  if (!isPlainObject(value)) {
+    throw new Error(`${label} must be an object.`);
+  }
+  return value;
+}
+
+function requireNumberField(value, field, label) {
+  if (typeof value[field] !== 'number' || !Number.isFinite(value[field])) {
+    throw new Error(`${label}.${field} must be a finite number.`);
+  }
+}
+
+function requireStringField(value, field, label) {
+  if (typeof value[field] !== 'string') {
+    throw new Error(`${label}.${field} must be a string.`);
+  }
+}
+
+function assertEqual(actual, expected, message) {
+  if (actual !== expected) {
+    throw new Error(`${message} Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}.`);
+  }
 }
 
 function formatTypeScript(sourceText) {

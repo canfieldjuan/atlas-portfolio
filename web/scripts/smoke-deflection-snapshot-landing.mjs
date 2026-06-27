@@ -24,7 +24,6 @@ const REQUIRED_MARKERS = [
   'lockedPreviewCoveredRecurring',
   'lockedPreviewBacklogTable',
   'lockedPreviewOutcomeDiagnostics',
-  'lockedPreviewSuppressedRepeatReviewQueue',
   'lockedPreviewQuestionDetails',
   'snapshotFirst',
   'finalSnapshotAsk',
