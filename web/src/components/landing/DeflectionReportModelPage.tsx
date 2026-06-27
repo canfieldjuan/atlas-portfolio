@@ -211,6 +211,76 @@ function SupportTaxSummary({
   );
 }
 
+type OwnerCostRow = {
+  ownerLane: string;
+  estimatedSupportCost: number;
+  ticketCount: number;
+  rowCount: number;
+};
+
+function ownerCostRows(section?: DeflectionReportSection): OwnerCostRow[] {
+  const ownerRows = new Map<string, OwnerCostRow>();
+  for (const row of rows(asRecord(section?.data).items)) {
+    const ownerLane = text(row.owner_lane) || 'Unknown';
+    const existing = ownerRows.get(ownerLane) ?? {
+      ownerLane,
+      estimatedSupportCost: 0,
+      ticketCount: 0,
+      rowCount: 0,
+    };
+    existing.estimatedSupportCost += typeof row.estimated_support_cost === 'number' && Number.isFinite(row.estimated_support_cost)
+      ? Math.max(0, row.estimated_support_cost)
+      : 0;
+    existing.ticketCount += int(row.ticket_count);
+    existing.rowCount += 1;
+    ownerRows.set(ownerLane, existing);
+  }
+  return Array.from(ownerRows.values()).sort((a, b) => b.estimatedSupportCost - a.estimatedSupportCost);
+}
+
+function OwnerCostSummary({ section }: { section?: DeflectionReportSection }) {
+  const ownerRows = ownerCostRows(section).slice(0, 6);
+  if (ownerRows.length === 0) return null;
+
+  const totalCost = ownerRows.reduce((total, row) => total + row.estimatedSupportCost, 0);
+  const totalTickets = ownerRows.reduce((total, row) => total + row.ticketCount, 0);
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-5 md:p-6" data-smoke="ownerCostSummary">
+      <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-primary/80">
+        <ListChecks className="h-3.5 w-3.5" />
+        Accountability view
+      </div>
+      <h2 className="mt-3 text-xl font-semibold text-foreground">Cost by Owner Lane</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
+        Grouped from the broader backlog table so repeated sections do not inflate ownership cost. Use this to decide
+        which lane reviews the work first; the row-level evidence remains below.
+      </p>
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {ownerRows.map((row) => {
+          const share = totalCost > 0 ? Math.round((row.estimatedSupportCost / totalCost) * 100) : 0;
+          return (
+            <div key={row.ownerLane} className="rounded-xl border border-border bg-background/35 p-4">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
+                {row.ownerLane}
+              </div>
+              <div className="mt-2 text-xl font-semibold text-foreground">{money(row.estimatedSupportCost)}</div>
+              <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+                {row.ticketCount.toLocaleString()} repeat tickets across {row.rowCount.toLocaleString()} backlog row{row.rowCount === 1 ? '' : 's'}
+                {share > 0 ? ` (${share}% of shown backlog cost)` : ''}.
+              </p>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-xs leading-relaxed text-foreground/50">
+        Based on {totalTickets.toLocaleString()} tickets in shown backlog rows. Owner lane is not a person-level
+        assignment.
+      </p>
+    </section>
+  );
+}
+
 function PriorityFixQueue({ section }: { section?: DeflectionReportSection }) {
   const data = asRecord(section?.data);
   const allItems = rows(data.items);
@@ -853,6 +923,7 @@ export function DeflectionReportModelPage({
 }) {
   const sections = sortedWebSections(model);
   const supportTax = sectionById(model, 'support_tax');
+  const backlog = sectionById(model, 'backlog_table');
   const searchChips = uploadedSearchChips(model);
   const showUploadedSearch = uploadedDeflectionSearchEnabled() && searchChips.length > 0;
   const copy = reportModelCopy(priceVariant);
@@ -875,6 +946,7 @@ export function DeflectionReportModelPage({
 
         <div className="space-y-8">
           <SupportTaxSummary section={supportTax} dashboardLabel={copy.dashboardLabel} />
+          <OwnerCostSummary section={backlog} />
           {showUploadedSearch && (
             <section className="rounded-2xl border border-border bg-surface p-5 md:p-6">
               <h2 className="text-xl font-semibold text-foreground">

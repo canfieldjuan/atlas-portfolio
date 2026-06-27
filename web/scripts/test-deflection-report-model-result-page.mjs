@@ -2062,6 +2062,19 @@ try {
   assert.ok(modelPageSource.includes('FULL RESOLUTION AUDIT'), 'public paid model page uses Resolution Audit badge copy');
   assert.ok(modelPageSource.includes('Your Resolution Audit is ready.'), 'public paid model page uses Resolution Audit headline copy');
   assert.ok(modelPageSource.includes('Full audit dashboard'), 'public paid model page uses audit dashboard copy');
+  assert.ok(modelPageSource.includes('data-smoke="ownerCostSummary"'), 'model page renders the owner-cost summary');
+  assert.ok(
+    modelPageSource.includes("const backlog = sectionById(model, 'backlog_table');"),
+    'owner-cost summary uses the backlog table as its rollup source',
+  );
+  assert.ok(
+    modelPageSource.includes('<OwnerCostSummary section={backlog} />'),
+    'model page passes backlog rows into the owner-cost summary',
+  );
+  assert.ok(
+    modelPageSource.includes('Owner lane is not a person-level'),
+    'owner-cost summary avoids person-level assignment claims',
+  );
   assert.ok(partnerReportModelCopyBranch.includes("badge: 'FULL DEFLECTION REPORT'"), 'partner paid model page keeps Deflection Report badge copy');
   assert.ok(partnerReportModelCopyBranch.includes("headline: 'Your Deflection Report is ready.'"), 'partner paid model page keeps Deflection Report headline copy');
   assert.ok(partnerReportModelCopyBranch.includes("dashboardLabel: 'Full report dashboard'"), 'partner paid model page keeps report dashboard copy');
