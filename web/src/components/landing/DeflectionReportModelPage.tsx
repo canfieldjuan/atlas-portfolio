@@ -225,18 +225,18 @@ function OwnerCostSummary({ section }: { section?: DeflectionReportSection }) {
         <ListChecks className="h-3.5 w-3.5" />
         Accountability view
       </div>
-      <h2 className="mt-3 text-xl font-semibold text-foreground">Cost by Owner Lane</h2>
+      <h2 className="mt-3 text-xl font-semibold text-foreground">Cost by Owner Category</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-foreground/60">
         Grouped from the broader backlog table so repeated sections do not inflate ownership cost. Use this to decide
-        which lane reviews the work first; the row-level evidence remains below.
+        which accountability category reviews the work first; the row-level owner lane remains below.
       </p>
       <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {ownerRows.map((row) => {
           const share = totalCost > 0 ? Math.round((row.estimatedSupportCost / totalCost) * 100) : 0;
           return (
-            <div key={row.ownerLane} className="rounded-xl border border-border bg-background/35 p-4">
+            <div key={row.ownerCategory} className="rounded-xl border border-border bg-background/35 p-4">
               <div className="text-[10px] font-mono uppercase tracking-widest text-foreground/40">
-                {row.ownerLane}
+                {row.ownerCategory}
               </div>
               <div className="mt-2 text-xl font-semibold text-foreground">{money(row.estimatedSupportCost)}</div>
               <p className="mt-2 text-xs leading-relaxed text-foreground/55">
@@ -248,8 +248,8 @@ function OwnerCostSummary({ section }: { section?: DeflectionReportSection }) {
         })}
       </div>
       <p className="mt-3 text-xs leading-relaxed text-foreground/50">
-        Based on {totalTickets.toLocaleString()} tickets in shown backlog rows. Owner lane is not a person-level
-        assignment.
+        Based on {totalTickets.toLocaleString()} tickets in shown backlog rows. Owner category is not a person-level
+        assignment; row-level owner lane remains the routeable topic.
       </p>
     </section>
   );

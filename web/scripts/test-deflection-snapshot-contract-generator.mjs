@@ -109,7 +109,7 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_FIELDS = ["items", "result_pag
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "result_page_limit", "status_counts", "support_cost_basis"] as const;
 
-export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "owner_lane", "evidence_tier", "routing_signals", "priority_score", "priority_drivers", "csat_signal"] as const;
+export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["question", "owner_lane", "owner_category", "evidence_tier", "routing_signals", "priority_score", "priority_drivers", "csat_signal"] as const;
 
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_ROUTING_SIGNALS_HOSTED_CONSUMER_SAFE_FIELDS = ["tags", "product_area", "custom_product_area"] as const;
 
@@ -145,6 +145,7 @@ export const DEFLECTION_REPORT_HOSTED_FIELD_SHAPES = {
   "priority_fix_queue.items": {
     "question": "scalar",
     "owner_lane": "scalar",
+    "owner_category": "scalar",
     "evidence_tier": "scalar",
     "routing_signals": "object",
     "priority_score": "scalar",
@@ -203,6 +204,7 @@ export type DeflectionReportPriorityFixQueueSupportCostBasis = {
 export type DeflectionReportPriorityFixQueueItem = {
   question: string;
   owner_lane: string;
+  owner_category?: string;
   evidence_tier?: string;
   routing_signals?: DeflectionReportPriorityFixQueueRoutingSignals;
   priority_score: number;
@@ -305,6 +307,7 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
               question: 'How do I enable SSO for my team?',
               status: 'Needs answer',
               owner_lane: 'Auth / Product UX',
+              owner_category: 'Product / Support Experience',
               ticket_count: 2,
               estimated_support_cost: 27,
             },
@@ -438,6 +441,10 @@ assert.ok(
 assert.ok(
   reportModelRendered.includes('"routing_signals": {\n      "shape": "object",\n      "required": false,\n      "nullable": false'),
   'nested hosted routing signals should be admitted as optional objects',
+);
+assert.ok(
+  reportModelRendered.includes('"owner_category": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "string"'),
+  'owner category should be admitted as optional for legacy hosted action rows',
 );
 assert.ok(
   requiredOwnerMetadataRendered.includes('"evidence_tier": {\n      "shape": "scalar",\n      "required": false,\n      "nullable": false,\n      "value": "string"'),
