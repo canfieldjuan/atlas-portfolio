@@ -50,7 +50,9 @@ Slice phase: Production hardening
 5. Update the cost-projection guard so it asserts the generated demo carries a
    high, coherent Support Tax volume instead of grepping stale hand-authored
    literals.
-6. Refresh the existing generated paid report-model contract against current
+6. Update the teaser rank-copy guard so it parses the generated Snapshot and
+   asserts rank properties instead of grepping the old hand-authored teaser.
+7. Refresh the existing generated paid report-model contract against current
    ATLAS source because the shared `check:deflection-contracts` gate owns that
    output too.
 
@@ -61,6 +63,7 @@ Slice phase: Production hardening
 - `web/scripts/test-deflection-cost-projection-share.mjs` - assert the generated demo preserves high/coherent Support Tax volume.
 - `web/scripts/test-deflection-snapshot-contract-generator.mjs` - generator drift coverage for the new demo-example output.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - consumer invariant that the demo Snapshot matches the paired projection.
+- `web/scripts/test-deflection-teaser-rank-copy.mjs` - assert teaser rank-copy against parsed generated Snapshot data.
 - `web/src/lib/deflection-demo-example.ts` - generated ATLAS paired demo report/snapshot module.
 - `web/src/lib/deflection-report-demo.ts` - wrapper export for the generated demo report model.
 - `web/src/lib/deflection-report-model-contract.ts` - generated paid report-model contract refresh from current ATLAS source.
@@ -93,6 +96,12 @@ Snapshot export, and asserts a high-volume property (`repeat_ticket_count >=
 300`, top question `ticket_count >= 90`, and weighted count matching ticket
 count). That keeps the marketing volume load-bearing without pinning the deleted
 hand-authored `1700` / `310` literals.
+
+The teaser rank-copy guard now follows the same generated-data pattern: it
+parses the generated Snapshot export and asserts the full teaser remains rank 1
+and the first preview follows that rank. The test stays stable across future
+ATLAS demo regeneration because it checks rank semantics, not a specific sample
+question literal.
 
 ## Intentional
 
@@ -128,21 +137,23 @@ Parked hardening: none.
 - Pass: `npm --prefix web run test:deflection-snapshot-contract-generator`.
 - Pass: `npm --prefix web run test:deflection-snapshot-landing-smoke`.
 - Pass: `npm --prefix web run test:deflection-cost-projection-share`.
+- Pass: `npm --prefix web run test:deflection-teaser-rank-copy`.
 - Pass: `npm --prefix web run test:deflection-report-model-result-page`.
-- Pass: `npm --prefix web run lint -- scripts/generate-deflection-snapshot-contract.mjs scripts/test-deflection-snapshot-contract-generator.mjs scripts/test-deflection-cost-projection-share.mjs scripts/test-deflection-snapshot-landing-smoke.mjs src/lib/deflection-demo-example.ts src/lib/deflection-report-demo.ts src/lib/deflection-snapshot.ts src/lib/deflection-report-model-contract.ts`.
+- Pass: `npm --prefix web run lint -- scripts/generate-deflection-snapshot-contract.mjs scripts/test-deflection-snapshot-contract-generator.mjs scripts/test-deflection-cost-projection-share.mjs scripts/test-deflection-snapshot-landing-smoke.mjs scripts/test-deflection-teaser-rank-copy.mjs src/lib/deflection-demo-example.ts src/lib/deflection-report-demo.ts src/lib/deflection-snapshot.ts src/lib/deflection-report-model-contract.ts`.
 - Pass: `bash scripts/local_pr_review.sh`.
 
 ## Estimated diff size
 
 | File | LOC |
 |---|---:|
-| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +148 / -0 |
+| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +159 / -0 |
 | `web/scripts/generate-deflection-snapshot-contract.mjs` | +119 / -1 |
 | `web/scripts/test-deflection-cost-projection-share.mjs` | +18 / -4 |
 | `web/scripts/test-deflection-snapshot-contract-generator.mjs` | +154 / -0 |
 | `web/scripts/test-deflection-snapshot-landing-smoke.mjs` | +117 / -54 |
+| `web/scripts/test-deflection-teaser-rank-copy.mjs` | +21 / -7 |
 | `web/src/lib/deflection-demo-example.ts` | +13 / -0 |
 | `web/src/lib/deflection-report-demo.ts` | +1 / -297 |
 | `web/src/lib/deflection-report-model-contract.ts` | +831 / -27 |
 | `web/src/lib/deflection-snapshot.ts` | +8 / -122 |
-| Total | ~1914 |
+| Total | ~1953 |

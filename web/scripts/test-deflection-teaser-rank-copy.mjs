@@ -11,11 +11,14 @@ const landingPageUrl = new URL(
   import.meta.url,
 );
 const snapshotFixtureUrl = new URL('../src/lib/deflection-snapshot.ts', import.meta.url);
+const generatedDemoUrl = new URL('../src/lib/deflection-demo-example.ts', import.meta.url);
 
 const teaserSource = await readFile(teaserComponentUrl, 'utf8');
 const resultsSource = await readFile(resultsPageUrl, 'utf8');
 const landingSource = await readFile(landingPageUrl, 'utf8');
 const snapshotSource = await readFile(snapshotFixtureUrl, 'utf8');
+const generatedDemoSource = await readFile(generatedDemoUrl, 'utf8');
+const demoSnapshot = parseGeneratedJsonExport(generatedDemoSource, 'DEMO_DEFLECTION_SNAPSHOT');
 
 assert.equal(
   teaserSource.includes('Sample Drafted Answer'),
@@ -68,15 +71,26 @@ assert.equal(
   'Snapshot landing page should not reintroduce bespoke teaser renderers.',
 );
 
-assert.match(
-  snapshotSource,
-  /full_answer:\s*\{\s*rank:\s*1,\s*question:\s*'How do I cancel my subscription\?'/s,
-  'The demo snapshot should model the current ATLAS rank-1 full teaser default.',
+assert.ok(
+  snapshotSource.includes("from './deflection-demo-example'"),
+  'The demo snapshot should come from the generated ATLAS example.',
 );
-assert.match(
-  snapshotSource,
-  /previews:\s*\[\s*\{\s*rank:\s*2,/s,
+assert.equal(
+  demoSnapshot.teaser.full_answer.rank,
+  1,
+  'The generated demo snapshot should keep rank 1 as the full teaser answer.',
+);
+assert.ok(
+  demoSnapshot.teaser.previews[0].rank > demoSnapshot.teaser.full_answer.rank,
   'The first demo teaser preview should start after the rank-1 full answer.',
 );
 
 console.log('Deflection teaser rank-copy guard passed.');
+
+function parseGeneratedJsonExport(source, name) {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^export const ${escapedName} = JSON\\.parse\\((.*)\\) as `, 'm');
+  const match = source.match(pattern);
+  assert(match, `${name} should be exported as generated JSON.parse payload.`);
+  return JSON.parse(JSON.parse(match[1]));
+}
