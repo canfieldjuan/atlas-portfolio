@@ -72,6 +72,8 @@ Slice phase: Production hardening
     summary and ranked-question rows.
 11. Add a `PATTERNS.md` standing note so future generated-fixture slices update
     property-derived direct-consumer assertions proactively.
+12. Update the CI-enrolled row-renderer sharing guard so it asserts the landing
+    passes teaser-proven rows into the shared row renderer.
 
 ### Files touched
 
@@ -80,6 +82,7 @@ Slice phase: Production hardening
 - `web/scripts/generate-deflection-snapshot-contract.mjs` - generate/check the paired demo-example module.
 - `web/scripts/smoke-deflection-snapshot-landing.mjs` - keep required live smoke markers aligned with non-empty locked-preview sections.
 - `web/scripts/test-deflection-cost-projection-share.mjs` - assert the generated demo preserves high/coherent Support Tax volume.
+- `web/scripts/test-deflection-row-renderer-share.mjs` - assert the landing still uses shared rows with teaser-proven questions.
 - `web/scripts/test-deflection-snapshot-contract-generator.mjs` - generator drift coverage for the new demo-example output.
 - `web/scripts/test-deflection-snapshot-landing-smoke.mjs` - consumer invariant that the demo Snapshot matches the paired projection.
 - `web/scripts/test-deflection-teaser-rank-copy.mjs` - assert teaser rank-copy against parsed generated Snapshot data.
@@ -166,9 +169,10 @@ Parked hardening: none.
 - Pass: `npm --prefix web run test:deflection-snapshot-contract-generator`.
 - Pass: `npm --prefix web run test:deflection-snapshot-landing-smoke`.
 - Pass: `npm --prefix web run test:deflection-cost-projection-share`.
+- Pass: `npm --prefix web run test:deflection-row-renderer-share`.
 - Pass: `npm --prefix web run test:deflection-teaser-rank-copy`.
 - Pass: `npm --prefix web run test:deflection-report-model-result-page`.
-- Pass: `npm --prefix web run lint -- scripts/generate-deflection-snapshot-contract.mjs scripts/smoke-deflection-snapshot-landing.mjs scripts/test-deflection-snapshot-contract-generator.mjs scripts/test-deflection-cost-projection-share.mjs scripts/test-deflection-snapshot-landing-smoke.mjs scripts/test-deflection-teaser-rank-copy.mjs src/components/landing/DeflectionSnapshotLandingPage.tsx src/components/landing/DeflectionLockedReportPreview.tsx src/lib/deflection-demo-example.ts src/lib/deflection-report-demo.ts src/lib/deflection-snapshot.ts src/lib/deflection-report-model-contract.ts`.
+- Pass: `npm --prefix web run lint -- scripts/generate-deflection-snapshot-contract.mjs scripts/smoke-deflection-snapshot-landing.mjs scripts/test-deflection-snapshot-contract-generator.mjs scripts/test-deflection-cost-projection-share.mjs scripts/test-deflection-row-renderer-share.mjs scripts/test-deflection-snapshot-landing-smoke.mjs scripts/test-deflection-teaser-rank-copy.mjs src/components/landing/DeflectionSnapshotLandingPage.tsx src/components/landing/DeflectionLockedReportPreview.tsx src/lib/deflection-demo-example.ts src/lib/deflection-report-demo.ts src/lib/deflection-snapshot.ts src/lib/deflection-report-model-contract.ts`.
 - Pass: `bash scripts/local_pr_review.sh`.
 
 ## Estimated diff size
@@ -176,10 +180,11 @@ Parked hardening: none.
 | File | LOC |
 |---|---:|
 | `PATTERNS.md` | +15 / -0 |
-| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +192 / -0 |
+| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +197 / -0 |
 | `web/scripts/generate-deflection-snapshot-contract.mjs` | +263 / -1 |
 | `web/scripts/smoke-deflection-snapshot-landing.mjs` | +0 / -1 |
 | `web/scripts/test-deflection-cost-projection-share.mjs` | +18 / -4 |
+| `web/scripts/test-deflection-row-renderer-share.mjs` | +7 / -2 |
 | `web/scripts/test-deflection-snapshot-contract-generator.mjs` | +232 / -0 |
 | `web/scripts/test-deflection-snapshot-landing-smoke.mjs` | +131 / -57 |
 | `web/scripts/test-deflection-teaser-rank-copy.mjs` | +21 / -7 |
@@ -189,4 +194,4 @@ Parked hardening: none.
 | `web/src/lib/deflection-report-demo.ts` | +1 / -297 |
 | `web/src/lib/deflection-report-model-contract.ts` | +831 / -27 |
 | `web/src/lib/deflection-snapshot.ts` | +8 / -122 |
-| Total | ~2325 |
+| Total | ~2339 |

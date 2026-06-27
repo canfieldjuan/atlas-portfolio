@@ -118,8 +118,13 @@ assert.match(
 );
 assert.match(
   landingSource,
-  /<DeflectionTopQuestionRows\s+questions=\{top_questions\}\s+assistedContactCost=\{assistedContactCost\}\s+\/>/,
-  'Snapshot landing page should render all fixture top questions through the shared row component and shared cost state.',
+  /<DeflectionTopQuestionRows\s+questions=\{provenQuestions\}\s+assistedContactCost=\{assistedContactCost\}\s+\/>/,
+  'Snapshot landing page should render teaser-proven top questions through the shared row component and shared cost state.',
+);
+assert.match(
+  landingSource,
+  /function provenQuestionRanks\(snapshot: DeflectionSnapshot\)/,
+  'Snapshot landing page should derive proven rows from Snapshot teaser ranks instead of raw top-question position.',
 );
 assert.equal(
   landingSource.includes('limit={3}'),
