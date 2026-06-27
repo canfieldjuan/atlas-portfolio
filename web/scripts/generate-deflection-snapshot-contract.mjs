@@ -204,9 +204,40 @@ function validateDemoSnapshotShape(snapshot) {
   if (teaser.full_answer !== null && !isPlainObject(teaser.full_answer)) {
     throw new Error(`${deflectionSnapshotExampleFilename}.teaser.full_answer must be an object or null.`);
   }
+  if (teaser.full_answer !== null) {
+    validateTeaserFullAnswer(teaser.full_answer);
+  }
   if (!Array.isArray(teaser.previews)) {
     throw new Error(`${deflectionSnapshotExampleFilename}.teaser.previews must be an array.`);
   }
+  teaser.previews.forEach((preview, index) => {
+    validateTeaserPreview(preview, index);
+  });
+}
+
+function validateTeaserFullAnswer(fullAnswer) {
+  const label = `${deflectionSnapshotExampleFilename}.teaser.full_answer`;
+  requireNumberField(fullAnswer, 'rank', label);
+  requireStringField(fullAnswer, 'question', label);
+  requireStringField(fullAnswer, 'answer', label);
+  requireStringArrayField(fullAnswer, 'steps', label);
+  requireStringField(fullAnswer, 'answer_evidence_status', label);
+  requireStringField(fullAnswer, 'resolution_evidence_scope', label);
+  requireNumberField(fullAnswer, 'weighted_frequency', label);
+  requireNumberField(fullAnswer, 'source_count', label);
+}
+
+function validateTeaserPreview(preview, index) {
+  const label = `${deflectionSnapshotExampleFilename}.teaser.previews[${index}]`;
+  requireObjectValue(preview, label);
+  requireNumberField(preview, 'rank', label);
+  requireStringField(preview, 'question', label);
+  requireBooleanField(preview, 'body_withheld', label);
+  requireStringField(preview, 'answer_evidence_status', label);
+  requireStringField(preview, 'resolution_evidence_scope', label);
+  requireNumberField(preview, 'weighted_frequency', label);
+  requireNumberField(preview, 'source_count', label);
+  requireNumberField(preview, 'step_count', label);
 }
 
 function validateDemoExamplePair({ reportModel, snapshot }) {
@@ -305,6 +336,18 @@ function requireNumberField(value, field, label) {
 function requireStringField(value, field, label) {
   if (typeof value[field] !== 'string') {
     throw new Error(`${label}.${field} must be a string.`);
+  }
+}
+
+function requireBooleanField(value, field, label) {
+  if (typeof value[field] !== 'boolean') {
+    throw new Error(`${label}.${field} must be a boolean.`);
+  }
+}
+
+function requireStringArrayField(value, field, label) {
+  if (!Array.isArray(value[field]) || value[field].some((item) => typeof item !== 'string')) {
+    throw new Error(`${label}.${field} must be an array of strings.`);
   }
 }
 

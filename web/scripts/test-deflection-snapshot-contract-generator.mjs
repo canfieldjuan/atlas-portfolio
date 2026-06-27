@@ -345,8 +345,28 @@ const DEMO_SNAPSHOT_EXAMPLE_FIXTURE = JSON.stringify({
     },
   ],
   teaser: {
-    full_answer: null,
-    previews: [],
+    full_answer: {
+      rank: 1,
+      question: 'How do I export attribution reports?',
+      answer: 'Open Analytics and export the report.',
+      steps: ['Open Analytics.', 'Choose Export.'],
+      answer_evidence_status: 'resolution_evidence',
+      resolution_evidence_scope: 'scoped',
+      weighted_frequency: 2,
+      source_count: 2,
+    },
+    previews: [
+      {
+        rank: 2,
+        question: 'How do I enable SSO for my team?',
+        body_withheld: true,
+        answer_evidence_status: 'resolution_evidence',
+        resolution_evidence_scope: 'scoped',
+        weighted_frequency: 2,
+        source_count: 2,
+        step_count: 2,
+      },
+    ],
   },
 }, null, 2);
 const demoExampleRendered = renderDeflectionDemoExample({
@@ -497,6 +517,42 @@ assert.throws(
   }),
   /top_questions must be an array/,
   'demo example validation should fail closed when a required Snapshot list has the wrong shape',
+);
+assert.throws(
+  () => renderDeflectionDemoExample({
+    reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
+    snapshotExampleText: JSON.stringify({
+      ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE),
+      teaser: {
+        ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE).teaser,
+        full_answer: {
+          ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE).teaser.full_answer,
+          steps: null,
+        },
+      },
+    }),
+  }),
+  /teaser\.full_answer\.steps must be an array of strings/,
+  'demo example validation should fail closed when full-answer steps cannot be rendered',
+);
+assert.throws(
+  () => renderDeflectionDemoExample({
+    reportExampleText: DEMO_REPORT_EXAMPLE_FIXTURE,
+    snapshotExampleText: JSON.stringify({
+      ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE),
+      teaser: {
+        ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE).teaser,
+        previews: [
+          {
+            ...JSON.parse(DEMO_SNAPSHOT_EXAMPLE_FIXTURE).teaser.previews[0],
+            rank: undefined,
+          },
+        ],
+      },
+    }),
+  }),
+  /teaser\.previews\[0\]\.rank must be a finite number/,
+  'demo example validation should fail closed when teaser preview ranks cannot derive proven rows',
 );
 assert.throws(
   () => renderDeflectionDemoExample({

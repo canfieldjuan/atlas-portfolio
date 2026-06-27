@@ -81,6 +81,9 @@ Slice phase: Production hardening
 13. Regenerate the demo module after ATLAS #1860 and update the landing smoke
     guard so blind-spot ranks validate against the paired report model instead
     of assuming those ranks also appear in the locked preview.
+14. Validate nested teaser `full_answer` and preview fields before emitting the
+    generated demo so malformed teaser data fails the drift gate instead of
+    crashing the landing.
 
 ### Files touched
 
@@ -187,18 +190,18 @@ Parked hardening: none.
 | File | LOC |
 |---|---:|
 | `PATTERNS.md` | +15 / -0 |
-| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +207 / -3 |
-| `web/scripts/generate-deflection-snapshot-contract.mjs` | +263 / -1 |
+| `web/plans/PR-Deflection-Landing-Demo-Example-Consumer.md` | +212 / -5 |
+| `web/scripts/generate-deflection-snapshot-contract.mjs` | +306 / -1 |
 | `web/scripts/smoke-deflection-snapshot-landing.mjs` | +0 / -1 |
 | `web/scripts/test-deflection-cost-projection-share.mjs` | +18 / -4 |
 | `web/scripts/test-deflection-row-renderer-share.mjs` | +7 / -2 |
-| `web/scripts/test-deflection-snapshot-contract-generator.mjs` | +232 / -0 |
+| `web/scripts/test-deflection-snapshot-contract-generator.mjs` | +290 / -2 |
 | `web/scripts/test-deflection-snapshot-landing-smoke.mjs` | +148 / -65 |
 | `web/scripts/test-deflection-teaser-rank-copy.mjs` | +21 / -7 |
 | `web/src/components/landing/DeflectionLockedReportPreview.tsx` | +8 / -1 |
 | `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` | +49 / -26 |
-| `web/src/lib/deflection-demo-example.ts` | +14 / -1 |
+| `web/src/lib/deflection-demo-example.ts` | +13 / -0 |
 | `web/src/lib/deflection-report-demo.ts` | +1 / -297 |
 | `web/src/lib/deflection-report-model-contract.ts` | +831 / -27 |
 | `web/src/lib/deflection-snapshot.ts` | +8 / -122 |
-| Total | ~2379 |
+| Total | ~2487 |
