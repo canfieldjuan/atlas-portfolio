@@ -18,6 +18,7 @@ Slice phase: Functional validation
 
 - `web/package.json` - adds the local browser smoke script.
 - `web/plans/PR-Deflection-Review-Control-Browser-Smoke.md` - slice contract.
+- `web/scripts/test-deflection-report-model-result-page.mjs` - keeps the source-level review-decision API assertion aligned with the configurable URL builder.
 - `web/scripts/smoke-deflection-review-control-browser.mjs` - drives `agent-browser` against the local smoke page.
 - `web/src/app/api/deflection-review-control-smoke/route.ts` - dev-only smoke API for deterministic review-decision states.
 - `web/src/app/systems/support-ticket-deflection/review-control-smoke/page.tsx` - dev-only smoke harness page.
@@ -54,16 +55,28 @@ Parked hardening: none
 - `npm --prefix web run smoke:deflection-review-control-browser -- --url http://127.0.0.1:3107/systems/support-ticket-deflection/review-control-smoke --json` - passed against a local `next dev --webpack` server on port 3107.
 - `npm --prefix web run build` - passed.
 
+Review follow-up verification:
+
+- `node --check web/scripts/smoke-deflection-review-control-browser.mjs` - passed.
+- `npm exec eslint -- scripts/smoke-deflection-review-control-browser.mjs src/app/api/deflection-review-control-smoke/route.ts src/app/systems/support-ticket-deflection/review-control-smoke/page.tsx src/components/landing/DeflectionReviewDecisionControl.tsx` from `web/` - passed.
+- `npm --prefix web run test:deflection-report-model-result-page` - passed after aligning the source-level API assertion with the configurable URL builder.
+- `npm --prefix web run test:deflection-review-decisions` - passed.
+- `npm --prefix web run check:dead-code` - passed.
+- `npm --prefix web run smoke:deflection-review-control-browser -- --url http://127.0.0.1:3107/systems/support-ticket-deflection/review-control-smoke --json` - passed against a local `next dev --webpack` server on port 3107.
+- `npm --prefix web run build` - passed.
+- `git diff --check` - passed.
+
 ## Estimated diff size
 
 | File | Estimate |
 |---|---:|
 | `web/package.json` | ~1 |
 | `web/plans/PR-Deflection-Review-Control-Browser-Smoke.md` | ~68 |
+| `web/scripts/test-deflection-report-model-result-page.mjs` | ~2 |
 | `web/scripts/smoke-deflection-review-control-browser.mjs` | ~277 |
 | `web/src/app/api/deflection-review-control-smoke/route.ts` | ~79 |
 | `web/src/app/systems/support-ticket-deflection/review-control-smoke/page.tsx` | ~87 |
 | `web/src/components/landing/DeflectionReviewDecisionControl.tsx` | ~32 |
-| Total | ~544 |
+| Total | ~546 |
 
 Soft cap note: this is over 400 LOC because a real browser smoke needs a deterministic local API and harness page in addition to the runner. The runner is intentionally verbose enough to report failed browser states instead of returning an opaque click failure.

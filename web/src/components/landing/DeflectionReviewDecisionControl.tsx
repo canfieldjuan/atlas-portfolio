@@ -73,9 +73,11 @@ function parseDecisionLoad(body: unknown): DecisionLoad {
 
 async function fetchDecisionLoad(requestId: string, apiPath: string): Promise<DecisionLoad> {
   const encodedRequestId = encodeURIComponent(requestId);
-  const loadUrl = apiPath === DEFAULT_REVIEW_DECISION_API_PATH
-    ? `/api/deflection-review-decisions?requestId=${encodedRequestId}`
-    : `${apiPath}?requestId=${encodedRequestId}`;
+  let separator = '?';
+  if (apiPath.includes('?')) {
+    separator = apiPath.endsWith('?') || apiPath.endsWith('&') ? '' : '&';
+  }
+  const loadUrl = `${apiPath}${separator}requestId=${encodedRequestId}`;
   const response = await fetch(loadUrl, {
     headers: { Accept: 'application/json' },
   });

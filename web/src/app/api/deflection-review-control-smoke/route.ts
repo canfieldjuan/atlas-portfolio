@@ -9,6 +9,10 @@ const SUCCESS_REVIEW_KEY = 'review_111111111111111111111111';
 const FAILURE_REVIEW_KEY = 'review_222222222222222222222222';
 const REVIEW_KEY_RE = /^review_[0-9a-f]{24}$/;
 const DECISIONS = new Set(['keep_suppressed', 'promote_to_review']);
+const REVIEW_KEYS_BY_REQUEST_ID = new Map([
+  [SUCCESS_REQUEST_ID, new Set([SUCCESS_REVIEW_KEY])],
+  [FAILURE_REQUEST_ID, new Set([FAILURE_REVIEW_KEY])],
+]);
 
 function unavailableInProduction() {
   if (process.env.NODE_ENV !== 'production') return null;
@@ -24,7 +28,7 @@ export async function GET(request: Request) {
   if (productionResponse) return productionResponse;
 
   const requestId = new URL(request.url).searchParams.get('requestId') ?? '';
-  if (requestId === SUCCESS_REQUEST_ID || requestId === FAILURE_REQUEST_ID) {
+  if (requestId === SUCCESS_REQUEST_ID) {
     return NextResponse.json({
       decisions: [
         {
@@ -34,6 +38,12 @@ export async function GET(request: Request) {
           updatedAt: '2026-06-24T00:00:00.000Z',
         },
       ],
+      persistence: 'configured',
+    });
+  }
+  if (requestId === FAILURE_REQUEST_ID) {
+    return NextResponse.json({
+      decisions: [],
       persistence: 'configured',
     });
   }
@@ -55,10 +65,12 @@ export async function POST(request: Request) {
   const requestId = typeof body?.requestId === 'string' ? body.requestId.trim() : '';
   const reviewKey = typeof body?.reviewKey === 'string' ? body.reviewKey.trim() : '';
   const decision = body?.decision;
+  const allowedReviewKeys = REVIEW_KEYS_BY_REQUEST_ID.get(requestId);
 
   if (
-    ![SUCCESS_REQUEST_ID, FAILURE_REQUEST_ID].includes(requestId) ||
+    !allowedReviewKeys ||
     !REVIEW_KEY_RE.test(reviewKey) ||
+    !allowedReviewKeys.has(reviewKey) ||
     typeof decision !== 'string' ||
     !DECISIONS.has(decision)
   ) {

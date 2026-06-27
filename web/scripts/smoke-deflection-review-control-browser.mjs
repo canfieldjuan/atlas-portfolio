@@ -211,8 +211,8 @@ function saveFailureScript() {
 
 async function runSmoke(options) {
   await runAgent(['close'], { ...options, allowFailure: true });
+  await runAgent(['errors', '--clear'], { ...options, launch: true });
   await runAgent(['open', options.url], { ...options, launch: true });
-  await runAgent(['errors', '--clear'], options);
   await runAgent(['wait', '[data-smoke="review-control-success"]'], options);
 
   const readyState = await waitFor('initial review-control states', assertReadyScript(), options);
