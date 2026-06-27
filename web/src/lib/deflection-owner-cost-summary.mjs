@@ -40,18 +40,18 @@ export function visibleBacklogRows(section, rowLimit = DEFLECTION_BACKLOG_TABLE_
 function ownerCostRows(items) {
   const ownerRows = new Map();
   for (const row of items) {
-    const ownerLane = text(row.owner_lane) || 'Unknown';
-    const existing = ownerRows.get(ownerLane) ?? {
-      ownerLane,
+    const ownerCategory = text(row.owner_category) || text(row.owner_lane) || 'Unknown';
+    const existing = ownerRows.get(ownerCategory) ?? {
+      ownerCategory,
       estimatedSupportCost: 0,
       ticketCount: 0,
       rowCount: 0,
-      laneCount: 1,
+      categoryCount: 1,
     };
     existing.estimatedSupportCost += supportCost(row.estimated_support_cost);
     existing.ticketCount += int(row.ticket_count);
     existing.rowCount += 1;
-    ownerRows.set(ownerLane, existing);
+    ownerRows.set(ownerCategory, existing);
   }
   return Array.from(ownerRows.values()).sort((a, b) => b.estimatedSupportCost - a.estimatedSupportCost);
 }
@@ -64,18 +64,18 @@ export function ownerCostCards(items, cardLimit = DEFLECTION_OWNER_COST_CARD_LIM
   const otherRows = groupedRows.slice(cardLimit);
   const other = otherRows.reduce(
     (total, row) => ({
-      ownerLane: `Other (${otherRows.length.toLocaleString()} lane${otherRows.length === 1 ? '' : 's'})`,
+      ownerCategory: `Other (${otherRows.length.toLocaleString()} categor${otherRows.length === 1 ? 'y' : 'ies'})`,
       estimatedSupportCost: total.estimatedSupportCost + row.estimatedSupportCost,
       ticketCount: total.ticketCount + row.ticketCount,
       rowCount: total.rowCount + row.rowCount,
-      laneCount: total.laneCount + row.laneCount,
+      categoryCount: total.categoryCount + row.categoryCount,
     }),
     {
-      ownerLane: '',
+      ownerCategory: '',
       estimatedSupportCost: 0,
       ticketCount: 0,
       rowCount: 0,
-      laneCount: 0,
+      categoryCount: 0,
     },
   );
   return [...visibleRows, other];

@@ -284,6 +284,7 @@ const ROUTING_SIGNALS_SHAPE = {
   custom_product_area: 'scalar_array',
 };
 for (const ownerPath of ACTION_ITEM_OWNER_PATHS) {
+  HOSTED_FIELD_SHAPES[ownerPath].owner_category = 'scalar';
   HOSTED_FIELD_SHAPES[ownerPath].evidence_tier = 'scalar';
   HOSTED_FIELD_SHAPES[ownerPath].routing_signals = 'object';
   HOSTED_FIELD_SHAPES[`${ownerPath}.routing_signals`] = { ...ROUTING_SIGNALS_SHAPE };
@@ -611,32 +612,35 @@ function backlogTableSection(overrides = {}) {
 }
 
 function ownerCostSummaryFixtureSection() {
-  const visibleLaneItems = [
-    ['Content', 100, 10],
-    ['Product', 90, 9],
-    ['Policy', 80, 8],
-    ['Operations', 70, 7],
-    ['Support enablement', 60, 6],
-    ['Engineering', 50, 5],
-    ['Billing ops', 40, 4],
-  ].map(([owner_lane, estimated_support_cost, ticket_count], index) => actionItem({
+  const visibleCategoryItems = [
+    ['Content / Support Enablement', 'Docs / Authentication', 100, 10],
+    ['Product / Support Experience', 'Auth / Product UX', 90, 9],
+    ['Product / Support Experience', 'Settings / Product UX', 80, 8],
+    ['Support Enablement', 'Support operations', 70, 7],
+    ['Operations', 'Billing operations', 60, 6],
+    ['Engineering', 'API platform', 50, 5],
+    [null, 'Legacy billing topic', 40, 4],
+    ['Security', 'SSO security review', 30, 3],
+  ].map(([owner_category, owner_lane, estimated_support_cost, ticket_count], index) => actionItem({
     rank: index + 1,
     owner_lane,
+    ...(owner_category ? { owner_category } : {}),
     estimated_support_cost,
     ticket_count,
   }));
   const hiddenHighCostItem = actionItem({
-    rank: 8,
+    rank: 9,
     owner_lane: 'Hidden high-cost lane',
+    owner_category: 'Hidden high-cost category',
     estimated_support_cost: 1000,
     ticket_count: 100,
   });
   return backlogTableSection({
     data: {
       ...backlogTableSection().data,
-      total_item_count: 8,
-      default_limit: 7,
-      items: [...visibleLaneItems, hiddenHighCostItem],
+      total_item_count: 9,
+      default_limit: 8,
+      items: [...visibleCategoryItems, hiddenHighCostItem],
     },
   });
 }
@@ -938,7 +942,7 @@ try {
   {
     const ownerFixture = ownerCostSummaryFixtureSection();
     const shownRows = visibleBacklogRows(ownerFixture);
-    assert.equal(shownRows.length, 7, 'owner summary uses the same default_limit slice as the backlog table');
+    assert.equal(shownRows.length, 8, 'owner summary uses the same default_limit slice as the backlog table');
     assert.equal(
       shownRows.some((row) => row.owner_lane === 'Hidden high-cost lane'),
       false,
@@ -946,19 +950,32 @@ try {
     );
     const ownerCards = ownerCostCards(shownRows);
     assert.deepEqual(
-      ownerCards.map((row) => row.ownerLane),
-      ['Content', 'Product', 'Policy', 'Operations', 'Support enablement', 'Engineering', 'Other (1 lane)'],
-      'owner summary keeps the top six lanes and buckets remaining shown lanes',
+      ownerCards.map((row) => row.ownerCategory),
+      [
+        'Product / Support Experience',
+        'Content / Support Enablement',
+        'Support Enablement',
+        'Operations',
+        'Engineering',
+        'Legacy billing topic',
+        'Other (1 category)',
+      ],
+      'owner summary groups by owner_category, falls back to owner_lane for legacy rows, and buckets overflow',
     );
     assert.equal(
       ownerCards.reduce((total, row) => total + row.estimatedSupportCost, 0),
-      490,
+      520,
       'owner summary totals tie out to shown backlog rows only',
     );
     assert.equal(
+      ownerCards[0].estimatedSupportCost,
+      170,
+      'owner summary merges distinct owner lanes under the same owner category',
+    );
+    assert.equal(
       ownerCards.at(-1).estimatedSupportCost,
-      40,
-      'other owner lane preserves omitted shown-row cost',
+      30,
+      'other owner category preserves omitted shown-row cost',
     );
     assert.equal(
       ownerCards.reduce((total, row) => total + row.ticketCount, 0),
@@ -1306,6 +1323,7 @@ try {
 
   resetCalls();
   const unsafeActionItem = actionItem({
+    owner_category: 'Content / Support Enablement',
     recommended_title: 'Unsafe title should not reach page data',
     representative_phrasing: ['My token is raw-customer-phrase'],
     source_ids: ['zendesk-ticket-123'],
@@ -1395,6 +1413,7 @@ try {
       'csat_signal',
       'estimated_support_cost',
       'evidence_tier',
+      'owner_category',
       'owner_lane',
       'priority_drivers',
       'priority_score',
@@ -2136,8 +2155,12 @@ try {
     'model page passes backlog rows into the owner-cost summary',
   );
   assert.ok(
-    modelPageSource.includes('Owner lane is not a person-level'),
-    'owner-cost summary avoids person-level assignment claims',
+    modelPageSource.includes('Cost by Owner Category'),
+    'model page labels the rollup as owner category',
+  );
+  assert.ok(
+    modelPageSource.includes('row-level owner lane remains the routeable topic'),
+    'owner-cost summary preserves owner lane as row-level routeable topic',
   );
   assert.ok(partnerReportModelCopyBranch.includes("badge: 'FULL DEFLECTION REPORT'"), 'partner paid model page keeps Deflection Report badge copy');
   assert.ok(partnerReportModelCopyBranch.includes("headline: 'Your Deflection Report is ready.'"), 'partner paid model page keeps Deflection Report headline copy');
