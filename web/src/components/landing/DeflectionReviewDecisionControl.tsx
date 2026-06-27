@@ -31,8 +31,10 @@ type DeflectionReviewDecisionControlProps = {
   requestId: string;
   reviewKey: string;
   recommendedAction?: string;
+  apiPath?: string;
 };
 
+const DEFAULT_REVIEW_DECISION_API_PATH = '/api/deflection-review-decisions';
 const decisionLoadCache = new Map<string, Promise<DecisionLoad>>();
 
 function isDecision(value: unknown): value is DeflectionReviewDecision {
@@ -69,8 +71,14 @@ function parseDecisionLoad(body: unknown): DecisionLoad {
   };
 }
 
-async function fetchDecisionLoad(requestId: string): Promise<DecisionLoad> {
-  const response = await fetch(`/api/deflection-review-decisions?requestId=${encodeURIComponent(requestId)}`, {
+async function fetchDecisionLoad(requestId: string, apiPath: string): Promise<DecisionLoad> {
+  const encodedRequestId = encodeURIComponent(requestId);
+  let separator = '?';
+  if (apiPath.includes('?')) {
+    separator = apiPath.endsWith('?') || apiPath.endsWith('&') ? '' : '&';
+  }
+  const loadUrl = `${apiPath}${separator}requestId=${encodedRequestId}`;
+  const response = await fetch(loadUrl, {
     headers: { Accept: 'application/json' },
   });
   const body = await response.json().catch(() => null);
@@ -83,15 +91,16 @@ async function fetchDecisionLoad(requestId: string): Promise<DecisionLoad> {
   return parseDecisionLoad(body);
 }
 
-function cachedDecisionLoad(requestId: string): Promise<DecisionLoad> {
-  const cached = decisionLoadCache.get(requestId);
+function cachedDecisionLoad(requestId: string, apiPath: string): Promise<DecisionLoad> {
+  const cacheKey = `${apiPath}:${requestId}`;
+  const cached = decisionLoadCache.get(cacheKey);
   if (cached) return cached;
 
-  const promise = fetchDecisionLoad(requestId).catch((error: unknown) => {
-    decisionLoadCache.delete(requestId);
+  const promise = fetchDecisionLoad(requestId, apiPath).catch((error: unknown) => {
+    decisionLoadCache.delete(cacheKey);
     throw error;
   });
-  decisionLoadCache.set(requestId, promise);
+  decisionLoadCache.set(cacheKey, promise);
   return promise;
 }
 
@@ -105,9 +114,10 @@ export function DeflectionReviewDecisionControl({
   requestId,
   reviewKey,
   recommendedAction = '',
+  apiPath = DEFAULT_REVIEW_DECISION_API_PATH,
 }: DeflectionReviewDecisionControlProps) {
   const statusId = useId();
-  const currentKey = `${requestId}:${reviewKey}`;
+  const currentKey = `${apiPath}:${requestId}:${reviewKey}`;
   const [viewState, setViewState] = useState<DecisionViewState>({
     loadedFor: '',
     loadState: 'loading',
@@ -121,7 +131,7 @@ export function DeflectionReviewDecisionControl({
     let cancelled = false;
     if (!reviewKey) return;
 
-    cachedDecisionLoad(requestId)
+    cachedDecisionLoad(requestId, apiPath)
       .then((loaded) => {
         if (cancelled) return;
         setViewState({
@@ -148,7 +158,7 @@ export function DeflectionReviewDecisionControl({
     return () => {
       cancelled = true;
     };
-  }, [currentKey, requestId, reviewKey]);
+  }, [apiPath, currentKey, requestId, reviewKey]);
 
   const loadState: LoadState = !reviewKey
     ? 'error'
@@ -175,7 +185,7 @@ export function DeflectionReviewDecisionControl({
       messageTone: 'neutral',
     });
     try {
-      const response = await fetch('/api/deflection-review-decisions', {
+      const response = await fetch(apiPath, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -191,7 +201,7 @@ export function DeflectionReviewDecisionControl({
         throw new Error(typeof error === 'string' && error.trim() ? error : 'Decision was not saved.');
       }
 
-      decisionLoadCache.delete(requestId);
+      decisionLoadCache.delete(`${apiPath}:${requestId}`);
       setViewState({
         loadedFor: currentKey,
         loadState: 'ready',

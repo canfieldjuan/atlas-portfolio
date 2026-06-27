@@ -2126,8 +2126,12 @@ try {
   );
   assert.ok(reviewDecisionControlSource.includes("'use client';"), 'review-decision controls stay in a client component');
   assert.ok(
-    reviewDecisionControlSource.includes('/api/deflection-review-decisions?requestId='),
+    reviewDecisionControlSource.includes("const DEFAULT_REVIEW_DECISION_API_PATH = '/api/deflection-review-decisions';"),
     'review-decision controls fetch saved decisions from the existing API',
+  );
+  assert.ok(
+    reviewDecisionControlSource.includes('const loadUrl = `${apiPath}${separator}requestId=${encodedRequestId}`;'),
+    'review-decision controls append requestId to the configured API path',
   );
   assert.ok(
     reviewDecisionControlSource.includes("method: 'POST'"),
