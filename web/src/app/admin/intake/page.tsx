@@ -19,6 +19,8 @@ type PageProps = {
   searchParams: Promise<{ error?: string }>;
 };
 
+type LoginError = 'invalid' | 'rate_limited';
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -48,7 +50,7 @@ function DetailBlock({ title, body }: { title: string; body: string | null }) {
   );
 }
 
-function LoginPanel({ invalid }: { invalid: boolean }) {
+function LoginPanel({ error }: { error?: LoginError }) {
   return (
     <main className="min-h-screen px-6 pb-20 pt-32">
       <section className="mx-auto max-w-xl rounded-2xl border border-border bg-surface p-8">
@@ -80,8 +82,13 @@ function LoginPanel({ invalid }: { invalid: boolean }) {
                 required
               />
             </label>
-            {invalid ? (
+            {error === 'invalid' ? (
               <p className="text-sm text-rose-300">Invalid admin token. Try again.</p>
+            ) : null}
+            {error === 'rate_limited' ? (
+              <p className="text-sm text-rose-300">
+                Too many failed attempts. Try again in a few minutes.
+              </p>
             ) : null}
             <button className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-black transition-colors hover:bg-primary/90">
               Open queue
@@ -211,7 +218,10 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
   const isAuthorized = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
 
   if (!isAuthorized) {
-    return <LoginPanel invalid={params?.error === 'invalid'} />;
+    const error = params?.error === 'invalid' || params?.error === 'rate_limited'
+      ? params.error
+      : undefined;
+    return <LoginPanel error={error} />;
   }
 
   const rows = await listAuditIntakeRecords(50);
