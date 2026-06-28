@@ -50,7 +50,7 @@
     "test:admin-intake-login-rate-limit": "vitest run src/lib/admin-intake-rate-limit.test.ts",
     "test:json-ld-escaping": "vitest run src/lib/json-ld.test.ts",
     "test:structured-runtime-logging": "vitest run src/lib/structured-runtime-log.test.ts",
-    "test:deflection-checkout": "node scripts/test-deflection-checkout.mjs",
+    "test:deflection-checkout": "vitest run src/lib/deflection-checkout.test.ts",
     "test:deflection-checkout-env": "node scripts/test-deflection-checkout-env.mjs",
     "test:deflection-browser-upload-smoke": "node scripts/test-deflection-browser-upload-smoke.mjs",
     "test:deflection-email-results-link": "vitest run src/lib/gap-report-intake.test.ts",
