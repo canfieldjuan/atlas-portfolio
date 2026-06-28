@@ -18,7 +18,8 @@ Slice phase: Functional validation
    the real `@/app/api/demo/deflection-search/route` module.
 2. Mock only external boundaries: ATLAS HTTP via `globalThis.fetch`, clock/rate
    bucket state, and runtime logging side effects.
-3. Keep the existing uploaded-search CLI smoke helper behavior coverage.
+3. Keep the existing uploaded-search guard, error, and CLI smoke helper behavior
+   coverage on the real-import path.
 4. Repoint the existing package script to the new Vitest test.
 
 ### Files touched
@@ -43,6 +44,11 @@ use the real ATLAS client response envelope: report-model access checks are
 served from `/report-model`, and uploaded-search results are served from
 `/search`. Rate-limit state is reset through the real global store between
 tests; it is not replaced.
+
+The migration also preserves coverage parity for the old guard/error cases:
+the explicit uploaded-search kill switch, production default gate, upstream
+search failures, and smoke-helper failure branches are asserted through the real
+route or smoke helper instead of through temp-module stubs.
 
 ## Intentional
 

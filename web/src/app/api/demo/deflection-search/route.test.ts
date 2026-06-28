@@ -181,6 +181,15 @@ function expectAtlasHeaders(init: RequestInit) {
   expect(headers.get('accept')).toBe('application/json');
 }
 
+function expectGenericUploadedSearchFailure(status: number, body: Record<string, unknown>) {
+  expect(status).toBe(502);
+  expect(body).toMatchObject({
+    match: null,
+    source: 'atlas',
+    error: 'Uploaded report search is temporarily unavailable. Please try again.',
+  });
+}
+
 describe('deflection uploaded search route', () => {
   beforeEach(() => {
     restoreEnv();
@@ -216,6 +225,43 @@ describe('deflection uploaded search route', () => {
     delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
     delete process.env.ATLAS_API_BASE_URL;
     delete process.env.ATLAS_B2B_SERVICE_TOKEN;
+    const { fetchImpl } = queueFetch([]);
+
+    const response = await POST(makePostRequest({ requestId, q: 'export' }) as never);
+    const body = await readJson(response);
+
+    expect(response.status).toBe(404);
+    expect(body).toMatchObject({
+      match: null,
+      source: 'atlas',
+      error: 'Uploaded report search is not enabled.',
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('keeps POST disabled when the explicit uploaded-search kill switch is false', async () => {
+    process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED = 'false';
+    process.env.ATLAS_API_BASE_URL = atlasBaseUrl;
+    process.env.ATLAS_B2B_SERVICE_TOKEN = atlasToken;
+    const { fetchImpl } = queueFetch([]);
+
+    const response = await POST(makePostRequest({ requestId, q: 'export' }) as never);
+    const body = await readJson(response);
+
+    expect(response.status).toBe(404);
+    expect(body).toMatchObject({
+      match: null,
+      source: 'atlas',
+      error: 'Uploaded report search is not enabled.',
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('keeps POST disabled by default in production even with service credentials', async () => {
+    delete process.env.DEFLECTION_UPLOADED_SEARCH_ENABLED;
+    process.env.ATLAS_API_BASE_URL = atlasBaseUrl;
+    process.env.ATLAS_B2B_SERVICE_TOKEN = atlasToken;
+    process.env.VERCEL_ENV = 'production';
     const { fetchImpl } = queueFetch([]);
 
     const response = await POST(makePostRequest({ requestId, q: 'export' }) as never);
@@ -285,6 +331,37 @@ describe('deflection uploaded search route', () => {
     expect(response.status).toBe(200);
     expect(body).toEqual({ match: null, source: 'atlas' });
   });
+
+  it.each([
+    {
+      name: 'non-OK search response',
+      response: { status: 500, body: { error: 'upstream failed' } },
+    },
+    {
+      name: 'invalid search response shape',
+      response: { status: 200, body: { item: atlasMatch } },
+    },
+    {
+      name: 'thrown search request',
+      response: { reject: 'network down' },
+    },
+  ] satisfies Array<{ name: string; response: FetchResponse }>)(
+    'returns the generic failure envelope for $name',
+    async ({ response: searchFailure }) => {
+      enableUploadedSearch();
+      const { calls } = queueFetch([
+        { status: 200, body: modelOkResponse() },
+        searchFailure,
+      ]);
+
+      const response = await POST(makePostRequest({ requestId, q: 'export' }) as never);
+      const body = await readJson(response);
+
+      expectGenericUploadedSearchFailure(response.status, body);
+      expect(calls).toHaveLength(2);
+      expect(calls[1].url).toBe(`${atlasBaseUrl}/api/v1/content-ops/deflection-reports/${requestId}/search`);
+    },
+  );
 
   it('does not search when the uploaded report is locked', async () => {
     enableUploadedSearch();
@@ -377,5 +454,57 @@ describe('deflection uploaded search route', () => {
       apiCalls: false,
     });
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      name: 'no match',
+      fetchResponse: { status: 200, body: { match: null, source: 'atlas' } },
+      expected: {
+        stage: 'match',
+        error: 'Uploaded search route returned no match.',
+      },
+    },
+    {
+      name: 'non-2xx response',
+      fetchResponse: { status: 404, body: { match: null, source: 'atlas' } },
+      expected: {
+        stage: 'search',
+        error: 'Uploaded search route failed with HTTP 404.',
+      },
+    },
+    {
+      name: 'non-Atlas envelope',
+      fetchResponse: { status: 200, body: { match: atlasMatch, source: 'local' } },
+      expected: {
+        stage: 'envelope',
+        error: 'Uploaded search route did not return the Atlas source envelope.',
+      },
+    },
+    {
+      name: 'non-renderable match',
+      fetchResponse: {
+        status: 200,
+        body: { match: { ...atlasMatch, steps: [{}] }, source: 'atlas' },
+      },
+      expected: {
+        stage: 'shape',
+        error: 'Uploaded search route returned a non-renderable match item.',
+      },
+    },
+  ])('keeps the uploaded-search smoke helper $name failure branch intact', async ({ fetchResponse, expected }) => {
+    const fetchImpl = vi.fn(async () => Response.json(fetchResponse.body, { status: fetchResponse.status }));
+
+    await expect(
+      runDeflectionUploadedSearchSmoke(
+        { requestId, query: 'export reports', baseUrl: 'https://portfolio.example.com/' },
+        { fetchImpl },
+      ),
+    ).resolves.toMatchObject({
+      ok: false,
+      apiCalls: true,
+      ...expected,
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });
