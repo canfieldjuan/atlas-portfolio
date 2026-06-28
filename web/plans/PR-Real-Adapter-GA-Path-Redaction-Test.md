@@ -24,6 +24,8 @@ Slice phase: Functional validation
 ### Files touched
 
 - `web/package.json` — run the GA redaction test through Vitest.
+- `web/knip-baseline.json` — remove analytics export findings resolved by the
+  real-import test.
 - `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` — plan for this slice.
 - `web/scripts/test-deflection-ga-path-redaction.mjs` — remove the temp transpile
   harness.
@@ -41,6 +43,10 @@ The test still reads `analytics.ts`, `GoogleAnalytics.tsx`, and the pre-push
 workflow as source files for the coverage that is intentionally about static
 configuration: the redaction registry, the event page-context override, disabled
 Google Ads auto page views, and CI enrollment.
+
+Because the new Vitest test imports `redactAnalyticsPath` and `trackEvent`
+through the real module, those exports are no longer dead-code baseline entries;
+the baseline is updated in the same slice so the gate matches reality.
 
 ## Intentional
 
@@ -64,6 +70,7 @@ Parked hardening: none
 ```bash
 npm --prefix web run test:deflection-ga-path-redaction # PASS
 node web/scripts/audit-test-enrollment.mjs # PASS
+npm --prefix web run check:dead-code # PASS
 npm --prefix web run lint # PASS
 if rg -n "test-deflection-ga-path-redaction\\.mjs|atlas-ga-redaction" web/package.json web/scripts web/src/lib/analytics.test.ts; then exit 1; else echo "No GA redaction temp harness references remain."; fi # PASS
 bash scripts/local_pr_review.sh # PASS
@@ -74,7 +81,8 @@ bash scripts/local_pr_review.sh # PASS
 | Area | Estimated LOC |
 |---|---:|
 | `web/package.json` | ~1 |
-| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~80 |
+| `web/knip-baseline.json` | ~10 |
+| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~88 |
 | `web/scripts/test-deflection-ga-path-redaction.mjs` | ~156 |
 | `web/src/lib/analytics.test.ts` | ~133 |
-| Total | ~370 |
+| Total | ~388 |
