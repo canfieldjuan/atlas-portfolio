@@ -31,6 +31,10 @@ export type DeflectionStandardPriceDisplayTerms = {
   currency: string;
 };
 
+export type DeflectionPriceDisplayTerms = DeflectionStandardPriceDisplayTerms & {
+  variant?: DeflectionPriceVariantId;
+};
+
 const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -99,6 +103,12 @@ export function withDeflectionStandardPriceUnavailable(
   priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
 ): DeflectionPriceVariant {
   if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
+  return withDeflectionPriceUnavailable(priceVariant);
+}
+
+export function withDeflectionPriceUnavailable(
+  priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
+): DeflectionPriceVariant {
   return {
     ...priceVariant,
     amountUsd: 0,
@@ -108,12 +118,13 @@ export function withDeflectionStandardPriceUnavailable(
   };
 }
 
-export function withDeflectionStandardPriceDisplayTerms(
+export function withDeflectionPriceDisplayTerms(
   priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
-  terms: DeflectionStandardPriceDisplayTerms | null,
+  terms: DeflectionPriceDisplayTerms | null,
 ): DeflectionPriceVariant {
-  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
-  if (!terms) return withDeflectionStandardPriceUnavailable(priceVariant);
+  if (!terms || (terms.variant && terms.variant !== priceVariant.id)) {
+    return withDeflectionPriceUnavailable(priceVariant);
+  }
   return {
     ...priceVariant,
     amountUsd: terms.currency.toLowerCase() === 'usd' ? terms.amountCents / 100 : 0,
@@ -121,6 +132,17 @@ export function withDeflectionStandardPriceDisplayTerms(
     priceLabel: formatDeflectionPriceLabel(terms.amountCents, terms.currency),
     priceUnavailable: false,
   };
+}
+
+export function withDeflectionStandardPriceDisplayTerms(
+  priceVariant: DeflectionPriceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
+  terms: DeflectionStandardPriceDisplayTerms | null,
+): DeflectionPriceVariant {
+  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
+  return withDeflectionPriceDisplayTerms(
+    priceVariant,
+    terms ? { ...terms, variant: DEFLECTION_DEFAULT_PRICE_VARIANT_ID } : null,
+  );
 }
 
 export function resolveDeflectionPriceVariant(value: unknown): DeflectionPriceVariant | null {

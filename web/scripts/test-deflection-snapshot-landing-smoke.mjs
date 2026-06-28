@@ -147,17 +147,23 @@ function assertArrayFieldSet(items, expectedKeys, name) {
   }
 }
 
-function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLevelKeys, name) {
+function assertSnapshotShapeMatchesReference(
+  snapshot,
+  reference,
+  expectedTopLevelKeys,
+  expectedFieldSets,
+  name,
+) {
   assertTopLevelSnapshotKeys(snapshot, expectedTopLevelKeys, `${name}: top-level keys`);
   assertArrayFieldSet(
     snapshot.top_questions,
-    sortedKeys(reference.top_questions[0]),
+    expectedFieldSets.topQuestions,
     `${name}: top_questions field set`,
   );
   if (snapshot.locked_questions.length > 0) {
     assertArrayFieldSet(
       snapshot.locked_questions,
-      sortedKeys(reference.locked_questions[0] ?? snapshot.locked_questions[0]),
+      expectedFieldSets.lockedQuestions,
       `${name}: locked_questions field set`,
     );
   } else {
@@ -165,18 +171,18 @@ function assertSnapshotShapeMatchesReference(snapshot, reference, expectedTopLev
   }
   assertArrayFieldSet(
     snapshot.top_blind_spots,
-    sortedKeys(reference.top_blind_spots[0]),
+    expectedFieldSets.topBlindSpots,
     `${name}: top_blind_spots field set`,
   );
   assert.deepEqual(
     sortedKeys(snapshot.teaser.full_answer),
-    sortedKeys(reference.teaser.full_answer),
+    expectedFieldSets.teaserFullAnswer,
     `${name}: teaser full_answer field set`,
   );
   if (snapshot.teaser.previews.length > 0) {
     assertArrayFieldSet(
       snapshot.teaser.previews,
-      sortedKeys(reference.teaser.previews[0] ?? snapshot.teaser.previews[0]),
+      expectedFieldSets.teaserPreviews,
       `${name}: teaser preview field set`,
     );
   } else {
@@ -341,10 +347,22 @@ const groundTruth = JSON.parse(
 const referenceSnapshot = groundTruth.snapshot;
 const expectedSnapshotTopLevelKeys = [...groundTruth._meta.snapshot_top_level_keys].sort();
 const {
+  DEFLECTION_SNAPSHOT_LOCKED_QUESTION_FIELDS,
+  DEFLECTION_SNAPSHOT_TEASER_FULL_ANSWER_FIELDS,
+  DEFLECTION_SNAPSHOT_TEASER_PREVIEW_FIELDS,
+  DEFLECTION_SNAPSHOT_TOP_BLIND_SPOT_FIELDS,
+  DEFLECTION_SNAPSHOT_TOP_QUESTION_FIELDS,
   DEMO_DEFLECTION_SNAPSHOT,
   DEMO_DEFLECTION_SNAPSHOT_CLEAN_UPLOAD,
 } = await loadSnapshotFixtures();
 const { DEMO_DEFLECTION_REPORT_MODEL } = await loadReportFixture();
+const expectedSnapshotFieldSets = {
+  topQuestions: [...DEFLECTION_SNAPSHOT_TOP_QUESTION_FIELDS].sort(),
+  lockedQuestions: [...DEFLECTION_SNAPSHOT_LOCKED_QUESTION_FIELDS].sort(),
+  topBlindSpots: [...DEFLECTION_SNAPSHOT_TOP_BLIND_SPOT_FIELDS].sort(),
+  teaserFullAnswer: [...DEFLECTION_SNAPSHOT_TEASER_FULL_ANSWER_FIELDS].sort(),
+  teaserPreviews: [...DEFLECTION_SNAPSHOT_TEASER_PREVIEW_FIELDS].sort(),
+};
 const lockedPreviewSectionIds = [
   'priority_fix_queue',
   'top_unresolved_repeats',
@@ -398,6 +416,7 @@ assertSnapshotShapeMatchesReference(
   DEMO_DEFLECTION_SNAPSHOT,
   referenceSnapshot,
   expectedSnapshotTopLevelKeys,
+  expectedSnapshotFieldSets,
   'Primary demo Snapshot',
 );
 assert.ok(

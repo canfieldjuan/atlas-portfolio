@@ -44,6 +44,7 @@ function makeLoginRequest(token, ip = '203.0.113.44') {
     async formData() {
       globalThis.__adminIntakeRouteFormDataCalls += 1;
       const formData = new FormData();
+      formData.set('adminId', 'juan');
       formData.set('token', token);
       return formData;
     },
@@ -84,10 +85,12 @@ try {
     join(libStubDir, 'admin-intake-auth.js'),
     [
       "exports.ADMIN_INTAKE_COOKIE = 'admin-intake';",
-      "exports.adminIntakeCookieValue = () => 'hashed-admin-cookie';",
-      'exports.verifyAdminIntakeToken = (token) => {',
-      '  globalThis.__adminIntakeRouteVerifyCalls.push(token);',
-      "  return token === 'valid-token';",
+      "exports.adminIntakeCookieValue = (session) => `signed-cookie:${session.actorId}`;",
+      'exports.verifyAdminIntakeCredentials = (actorId, token) => {',
+      '  globalThis.__adminIntakeRouteVerifyCalls.push({ actorId, token });',
+      "  return actorId === 'juan' && token === 'valid-token'",
+      "    ? { actorId: 'juan', actorKind: 'named_admin' }",
+      '    : null;',
       '};',
       '',
     ].join('\n'),
@@ -236,7 +239,7 @@ try {
   assert.equal(response.error, 'invalid');
   assert.equal(response.retryAfter, null);
   assert.equal(globalThis.__adminIntakeRouteFormDataCalls, 1);
-  assert.deepEqual(globalThis.__adminIntakeRouteVerifyCalls, ['bad-token']);
+  assert.deepEqual(globalThis.__adminIntakeRouteVerifyCalls, [{ actorId: 'juan', token: 'bad-token' }]);
   assert.deepEqual(globalThis.__adminIntakeRouteRecordCalls, ['203.0.113.44']);
   assert.deepEqual(globalThis.__adminIntakeRouteClearCalls, []);
   assert.deepEqual(globalThis.__adminIntakeRouteCookieCalls, []);
@@ -247,12 +250,12 @@ try {
   assert.equal(response.pathname, '/admin/intake');
   assert.equal(response.error, null);
   assert.equal(globalThis.__adminIntakeRouteFormDataCalls, 1);
-  assert.deepEqual(globalThis.__adminIntakeRouteVerifyCalls, ['valid-token']);
+  assert.deepEqual(globalThis.__adminIntakeRouteVerifyCalls, [{ actorId: 'juan', token: 'valid-token' }]);
   assert.deepEqual(globalThis.__adminIntakeRouteRecordCalls, ['203.0.113.44']);
   assert.deepEqual(globalThis.__adminIntakeRouteClearCalls, ['203.0.113.44']);
   assert.equal(globalThis.__adminIntakeRouteCookieCalls.length, 1);
   assert.equal(globalThis.__adminIntakeRouteCookieCalls[0][0], 'admin-intake');
-  assert.equal(globalThis.__adminIntakeRouteCookieCalls[0][1], 'hashed-admin-cookie');
+  assert.equal(globalThis.__adminIntakeRouteCookieCalls[0][1], 'signed-cookie:juan');
   assert.equal(globalThis.__adminIntakeRouteCookieCalls[0][2].httpOnly, true);
 
   console.log('Admin intake login rate-limit tests passed.');

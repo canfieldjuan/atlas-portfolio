@@ -117,43 +117,72 @@ export function DeflectionLandingPage({
   bare?: boolean;
 }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
-  const [standardPriceLabel, setStandardPriceLabel] = useState(
-    DEFLECTION_PRICE_UNAVAILABLE_LABEL,
+  const atlasPriceVariants = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          config.pricing.tiers
+            .map((tier) =>
+              tier.atlasPriceVariant ||
+              (tier.standardPriceSource === 'atlas' ? 'standard' : undefined),
+            )
+            .filter((variant): variant is 'standard' | 'partner' => Boolean(variant)),
+        ),
+      ),
+    [config.pricing.tiers],
   );
+  const [atlasPriceLabels, setAtlasPriceLabels] = useState<Record<string, string>>({});
   const pricingTiers = useMemo(
     () =>
-      config.pricing.tiers.map((tier) =>
-        tier.standardPriceSource === 'atlas'
-          ? { ...tier, price: standardPriceLabel }
-          : tier,
-      ),
-    [config.pricing.tiers, standardPriceLabel],
+      config.pricing.tiers.map((tier) => {
+        const atlasPriceVariant =
+          tier.atlasPriceVariant ||
+          (tier.standardPriceSource === 'atlas' ? 'standard' : undefined);
+        if (!atlasPriceVariant) return tier;
+        return {
+          ...tier,
+          price: atlasPriceLabels[atlasPriceVariant] || DEFLECTION_PRICE_UNAVAILABLE_LABEL,
+        };
+      }),
+    [atlasPriceLabels, config.pricing.tiers],
   );
 
   useEffect(() => {
     let cancelled = false;
+    const unavailableLabels = Object.fromEntries(
+      atlasPriceVariants.map((variant) => [variant, DEFLECTION_PRICE_UNAVAILABLE_LABEL]),
+    );
 
-    async function loadStandardPrice() {
-      try {
-        const res = await fetch('/api/deflection-pricing/standard', {
-          cache: 'no-store',
-        });
-        const data = (await res.json()) as { price_label?: unknown };
-        if (!cancelled && res.ok && typeof data.price_label === 'string') {
-          setStandardPriceLabel(data.price_label);
-          return;
-        }
-      } catch {
-        // Keep the safe unavailable display.
+    async function loadAtlasPrices() {
+      const labels = { ...unavailableLabels };
+      await Promise.all(
+        atlasPriceVariants.map(async (variant) => {
+          try {
+            const res = await fetch(`/api/deflection-pricing/${variant}`, {
+              cache: 'no-store',
+            });
+            const data = (await res.json()) as { price_label?: unknown };
+            if (res.ok && typeof data.price_label === 'string') {
+              labels[variant] = data.price_label;
+            }
+          } catch {
+            // Keep the safe unavailable display for this variant.
+          }
+        }),
+      );
+      if (!cancelled) {
+        setAtlasPriceLabels(labels);
       }
-      if (!cancelled) setStandardPriceLabel(DEFLECTION_PRICE_UNAVAILABLE_LABEL);
     }
 
-    void loadStandardPrice();
+    if (atlasPriceVariants.length > 0) {
+      void loadAtlasPrices();
+    }
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [atlasPriceVariants]);
 
   return (
     <>

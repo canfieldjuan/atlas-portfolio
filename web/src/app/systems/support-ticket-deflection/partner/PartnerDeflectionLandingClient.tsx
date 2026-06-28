@@ -7,6 +7,7 @@ import {
 import { DeflectionLandingPage } from '@/components/landing/DeflectionLandingPage';
 import {
   DEFLECTION_PARTNER_PRICE_VARIANT,
+  DEFLECTION_PRICE_UNAVAILABLE_LABEL,
 } from '@/lib/deflection-pricing';
 import { generateFaqJsonLd } from '@/lib/seo';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
@@ -100,8 +101,9 @@ function partnerPricingTiers(
     }
     return {
       ...partnerTier,
-      price: DEFLECTION_PARTNER_PRICE_VARIANT.priceLabel,
+      price: DEFLECTION_PRICE_UNAVAILABLE_LABEL,
       standardPriceSource: undefined,
+      atlasPriceVariant: DEFLECTION_PARTNER_PRICE_VARIANT.id,
       href: intakeHref,
       badge: 'FIRST 5 DESIGN PARTNERS',
       note: 'Partner price for the first 5 design partners, early teams that collaborate on direction and are OK sharing anonymized patterns as a case study.',

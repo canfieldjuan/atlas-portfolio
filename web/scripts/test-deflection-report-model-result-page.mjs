@@ -2098,6 +2098,14 @@ try {
   assert.equal(fetchCalls.length, 0);
 
   const routeSource = await readFile(routeUrl, 'utf8');
+  assert.ok(
+    routeSource.includes('fetchDeflectionPricingTerms(priceVariant.id)'),
+    'results route fetches ATLAS display terms for the selected price variant',
+  );
+  assert.ok(
+    routeSource.includes('withDeflectionPriceDisplayTerms('),
+    'results route projects selected variant display terms before checkout render',
+  );
   const modelFetchIndex = routeSource.indexOf('const modelResult = await getReportModel(requestId)');
   const modelPriceVariantIndex = routeSource.indexOf(
     'const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant)',

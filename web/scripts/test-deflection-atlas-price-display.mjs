@@ -117,12 +117,15 @@ try {
 
   const require = createRequire(compiledAtlasClientPath);
   const {
+    authorizeDeflectionCheckout,
+    fetchDeflectionPricingTerms,
     fetchDeflectionStandardPricingTerms,
   } = require(compiledAtlasClientPath);
   const {
     DEFLECTION_DEFAULT_PRICE_VARIANT,
     DEFLECTION_PARTNER_PRICE_VARIANT,
     DEFLECTION_PRICE_UNAVAILABLE_LABEL,
+    withDeflectionPriceDisplayTerms,
     withDeflectionStandardPriceDisplayTerms,
   } = require(compiledPricingPath);
 
@@ -145,6 +148,110 @@ try {
     'https://atlas.example.test/api/v1/content-ops/deflection-reports/pricing/standard',
   );
   assert.equal(fetchCalls[0].headers.Authorization, 'Bearer atlas_unit_token');
+
+  resetFetch({
+    payload: {
+      variant: 'partner',
+      status: 'configured',
+      amount_cents: 120000,
+      currency: 'USD',
+    },
+  });
+  assert.deepEqual(await fetchDeflectionPricingTerms('partner'), {
+    ok: true,
+    terms: {
+      variant: 'partner',
+      status: 'configured',
+      amountCents: 120000,
+      currency: 'usd',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/pricing/partner',
+  );
+
+  resetFetch({
+    payload: {
+      variant: 'standard',
+      status: 'configured',
+      amount_cents: 120000,
+      currency: 'USD',
+    },
+  });
+  assert.deepEqual(await fetchDeflectionPricingTerms('partner'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 180000,
+        currency: 'USD',
+        price_id: 'price_atlas_standard123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123'), {
+    ok: true,
+    checkout: {
+      amountCents: 180000,
+      currency: 'usd',
+      priceId: 'price_atlas_standard123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization',
+  );
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 180000,
+        currency: 'USD',
+        price_id: 'price_atlas_standard123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123', 'standard'), {
+    ok: true,
+    checkout: {
+      amountCents: 180000,
+      currency: 'usd',
+      priceId: 'price_atlas_standard123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization?price_variant=standard',
+  );
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 100000,
+        currency: 'USD',
+        price_id: 'price_atlas_partner123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123', 'partner'), {
+    ok: true,
+    checkout: {
+      amountCents: 100000,
+      currency: 'usd',
+      priceId: 'price_atlas_partner123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization?price_variant=partner',
+  );
 
   resetFetch({ status: 503 });
   assert.deepEqual(await fetchDeflectionStandardPricingTerms(), {
@@ -181,6 +288,22 @@ try {
   assert.equal(unavailable.priceLabel, DEFLECTION_PRICE_UNAVAILABLE_LABEL);
   assert.equal(unavailable.amountCents, 0);
   assert.equal(unavailable.priceUnavailable, true);
+
+  const partnerAtlasPriced = withDeflectionPriceDisplayTerms(
+    DEFLECTION_PARTNER_PRICE_VARIANT,
+    { variant: 'partner', amountCents: 120000, currency: 'usd' },
+  );
+  assert.equal(partnerAtlasPriced.priceLabel, '$1,200');
+  assert.equal(partnerAtlasPriced.amountCents, 120000);
+  assert.equal(partnerAtlasPriced.priceUnavailable, false);
+
+  const partnerUnavailable = withDeflectionPriceDisplayTerms(
+    DEFLECTION_PARTNER_PRICE_VARIANT,
+    null,
+  );
+  assert.equal(partnerUnavailable.priceLabel, DEFLECTION_PRICE_UNAVAILABLE_LABEL);
+  assert.equal(partnerUnavailable.amountCents, 0);
+  assert.equal(partnerUnavailable.priceUnavailable, true);
 
   assert.equal(
     withDeflectionStandardPriceDisplayTerms(DEFLECTION_PARTNER_PRICE_VARIANT, null)

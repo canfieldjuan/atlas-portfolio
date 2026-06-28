@@ -6,6 +6,8 @@ type AdminAccessSql = NeonQueryFunction<false, false>;
 export type AdminAccessAction = 'admin_intake_view' | 'gap_report_csv_download';
 
 export type AdminAccessEventInput = {
+  actorId: string;
+  actorKind: 'named_admin';
   action: AdminAccessAction;
   targetType: string;
   targetRequestId?: string | null;
@@ -17,10 +19,9 @@ export type AdminAccessEventResult =
   | { ok: true }
   | { ok: false; reason: 'not_configured' | 'error' };
 
-const ACTOR_ID = 'shared-admin-token';
-const ACTOR_KIND = 'shared_admin_token';
 const MAX_METADATA_KEYS = 20;
 const MAX_METADATA_STRING_LENGTH = 240;
+const MAX_ACTOR_ID_LENGTH = 120;
 
 function adminAccessLogDatabaseUrl() {
   return (
@@ -98,6 +99,10 @@ export function adminAccessLogConfigured() {
   return adminAccessLogDatabaseUrl().length > 0;
 }
 
+function safeActorId(actorId: string) {
+  return actorId.trim().slice(0, MAX_ACTOR_ID_LENGTH) || 'unknown';
+}
+
 export async function recordAdminAccessEvent(
   input: AdminAccessEventInput,
 ): Promise<AdminAccessEventResult> {
@@ -120,8 +125,8 @@ export async function recordAdminAccessEvent(
         VALUES ($1, $2, $3, $4, $5::uuid, $6, $7, $8::jsonb)
       `,
       [
-        ACTOR_ID,
-        ACTOR_KIND,
+        safeActorId(input.actorId),
+        input.actorKind,
         input.action,
         input.targetType,
         input.targetRequestId || null,

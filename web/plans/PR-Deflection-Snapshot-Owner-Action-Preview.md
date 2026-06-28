@@ -64,7 +64,7 @@ The runtime parser mirrors the generated contract and rejects live Snapshot payl
 - Pass: `npm --prefix web run test:deflection-snapshot-landing-smoke`
 - Pass: `npm --prefix web run test:deflection-row-renderer-share`
 - Pass: `npm --prefix web run test:deflection-cost-projection-share`
-- Pending: `bash scripts/local_pr_review.sh`
+- Pass: `bash scripts/local_pr_review.sh`
 
 ## Estimated diff size
 

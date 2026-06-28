@@ -46,6 +46,7 @@
     "test:google-ads-api": "node scripts/test-google-ads-api.mjs",
     "test:google-ads-artifacts": "node scripts/test-google-ads-artifact-contracts.mjs",
     "test:admin-access-ledger": "node scripts/test-admin-access-ledger.mjs",
+    "test:admin-intake-named-accounts": "node scripts/test-admin-intake-named-accounts.mjs",
     "test:admin-intake-login-rate-limit": "node scripts/test-admin-intake-login-rate-limit.mjs",
     "test:json-ld-escaping": "node scripts/test-json-ld-escaping.mjs",
     "test:structured-runtime-logging": "node scripts/test-structured-runtime-logging.mjs",
