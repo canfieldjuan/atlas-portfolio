@@ -58,6 +58,10 @@ function isNonNegativeNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
 function isoDateTime(value: string): number | null {
   if (!ISO_DATE_RE.test(value)) return null;
   const [year, month, day] = value.split('-').map(Number);
@@ -112,10 +116,13 @@ function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
   const q = v as Record<string, unknown>;
   if (
     typeof q.rank === 'number' &&
-    typeof q.question === 'string' &&
+    isNonEmptyString(q.question) &&
     typeof q.customer_wording === 'string' &&
     isNonNegativeNumber(q.ticket_count) &&
-    typeof q.weighted_frequency === 'number'
+    typeof q.weighted_frequency === 'number' &&
+    isNonEmptyString(q.owner_lane) &&
+    isNonEmptyString(q.action_label) &&
+    isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {
       rank: q.rank,
@@ -123,6 +130,9 @@ function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
       customer_wording: q.customer_wording,
       ticket_count: q.ticket_count,
       weighted_frequency: q.weighted_frequency,
+      owner_lane: q.owner_lane,
+      action_label: q.action_label,
+      estimated_support_cost: q.estimated_support_cost,
     };
   }
   return null;
@@ -145,14 +155,19 @@ function parseBlindSpot(v: unknown): DeflectionSnapshotBlindSpot | null {
   const q = v as Record<string, unknown>;
   if (
     typeof q.rank === 'number' &&
-    typeof q.question === 'string' &&
-    q.question.trim().length > 0 &&
-    isNonNegativeNumber(q.ticket_count)
+    isNonEmptyString(q.question) &&
+    isNonNegativeNumber(q.ticket_count) &&
+    isNonEmptyString(q.owner_lane) &&
+    isNonEmptyString(q.action_label) &&
+    isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {
       rank: q.rank,
       question: q.question,
       ticket_count: q.ticket_count,
+      owner_lane: q.owner_lane,
+      action_label: q.action_label,
+      estimated_support_cost: q.estimated_support_cost,
     };
   }
   return null;

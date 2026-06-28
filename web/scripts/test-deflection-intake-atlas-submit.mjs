@@ -289,6 +289,9 @@ try {
         customer_wording: 'export reports',
         ticket_count: 4,
         weighted_frequency: 4,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 54,
         source_ids: ['ticket-private-top'],
         evidence_quotes: ['private top evidence'],
       },
@@ -309,6 +312,9 @@ try {
         rank: 1,
         question: 'Can I schedule exports?',
         ticket_count: 2,
+        owner_lane: 'Reporting',
+        action_label: 'Write missing answer',
+        estimated_support_cost: 27,
         customer_wording: 'schedule exports',
         source_ids: ['ticket-private-blind'],
         evidence_quotes: ['private blind evidence'],
@@ -368,6 +374,9 @@ try {
       customer_wording: 'export reports',
       ticket_count: 4,
       weighted_frequency: 4,
+      owner_lane: 'Reporting',
+      action_label: 'Publish answer',
+      estimated_support_cost: 54,
     },
   ]);
   assert.deepEqual(snapshotResult.snapshot.locked_questions, [
@@ -381,6 +390,9 @@ try {
       rank: 1,
       question: 'Can I schedule exports?',
       ticket_count: 2,
+      owner_lane: 'Reporting',
+      action_label: 'Write missing answer',
+      estimated_support_cost: 27,
     },
   ]);
   assert.deepEqual(snapshotResult.snapshot.teaser.full_answer, {
@@ -531,6 +543,9 @@ try {
         customer_wording: 'export reports',
         ticket_count: 1,
         weighted_frequency: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
       },
     ],
     locked_questions: [],
@@ -551,12 +566,7 @@ try {
 
   resetCalls();
   fetchPayload = {
-    summary: minimalSummary({
-      generated: 2,
-      drafted_answer_count: 1,
-      no_proven_answer_count: 1,
-      repeat_ticket_count: 2,
-    }),
+    summary: minimalSummary(),
     top_questions: [
       {
         rank: 1,
@@ -564,10 +574,33 @@ try {
         customer_wording: 'export reports',
         ticket_count: 1,
         weighted_frequency: 1,
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
       },
     ],
     locked_questions: [],
-    top_blind_spots: [{ rank: 1, question: '', ticket_count: 1 }],
+    top_blind_spots: [],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: minimalSummary(),
+    top_questions: [],
+    locked_questions: [],
+    top_blind_spots: [
+      {
+        rank: 1,
+        question: 'Can I schedule exports?',
+        ticket_count: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Write missing answer',
+      },
+    ],
     teaser: { full_answer: null, previews: [] },
   };
   assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
@@ -590,6 +623,45 @@ try {
         customer_wording: 'export reports',
         ticket_count: 1,
         weighted_frequency: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
+      },
+    ],
+    locked_questions: [],
+    top_blind_spots: [{
+      rank: 1,
+      question: '',
+      ticket_count: 1,
+      owner_lane: 'Reporting',
+      action_label: 'Write missing answer',
+      estimated_support_cost: 13.5,
+    }],
+    teaser: { full_answer: null, previews: [] },
+  };
+  assert.deepEqual(await fetchDeflectionSnapshot('content-ops-unit-123'), {
+    ok: false,
+    reason: 'error',
+  });
+
+  resetCalls();
+  fetchPayload = {
+    summary: minimalSummary({
+      generated: 2,
+      drafted_answer_count: 1,
+      no_proven_answer_count: 1,
+      repeat_ticket_count: 2,
+    }),
+    top_questions: [
+      {
+        rank: 1,
+        question: 'How do I export reports?',
+        customer_wording: 'export reports',
+        ticket_count: 1,
+        weighted_frequency: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
       },
     ],
     locked_questions: [],
@@ -614,6 +686,9 @@ try {
         question: 'How do I export reports?',
         customer_wording: 'export reports',
         weighted_frequency: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
       },
     ],
     locked_questions: [],
@@ -640,6 +715,9 @@ try {
         customer_wording: 'export reports',
         ticket_count: 1,
         weighted_frequency: 1,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 13.5,
       },
     ],
     locked_questions: [{ rank: 2, ticket_count: '1' }],

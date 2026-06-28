@@ -6,6 +6,7 @@ import type {
   DeflectionSnapshotLockedQuestion,
   DeflectionSnapshotQuestion,
 } from '@/lib/deflection-snapshot';
+import { DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD } from '@/lib/deflection-pricing';
 
 const integerFormatter = new Intl.NumberFormat('en-US');
 const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
@@ -32,6 +33,36 @@ function costLabel(value: number) {
   return (value % 1 === 0 ? wholeUsdFormatter : fractionalUsdFormatter).format(value);
 }
 
+function adjustedSupportCost(estimatedSupportCost: number, assistedContactCost: number) {
+  return estimatedSupportCost * (assistedContactCost / DEFLECTION_ASSISTED_CONTACT_BENCHMARK_USD);
+}
+
+function RoutingMeta({
+  actionLabel,
+  ownerLane,
+  tone = 'primary',
+}: {
+  actionLabel: string;
+  ownerLane: string;
+  tone?: 'primary' | 'amber';
+}) {
+  const chipClass =
+    tone === 'amber'
+      ? 'border-amber-500/20 bg-amber-500/10 text-amber-800'
+      : 'border-primary/15 bg-primary/5 text-primary-dark';
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-medium">
+      <span className={`rounded-full border px-2 py-1 ${chipClass}`}>
+        {ownerLane}
+      </span>
+      <span className={`rounded-full border px-2 py-1 ${chipClass}`}>
+        {actionLabel}
+      </span>
+    </div>
+  );
+}
+
 export function DeflectionTopQuestionRows({
   questions,
   assistedContactCost,
@@ -50,6 +81,10 @@ export function DeflectionTopQuestionRows({
     <ol className="mt-5 space-y-3">
       {visibleQuestions.map((question) => {
         const customerWording = question.customer_wording.trim();
+        const supportCost = adjustedSupportCost(
+          question.estimated_support_cost,
+          assistedContactCost,
+        );
 
         return (
           <li
@@ -68,6 +103,10 @@ export function DeflectionTopQuestionRows({
                   target phrase from your tickets: &ldquo;{customerWording}&rdquo;
                 </p>
               )}
+              <RoutingMeta
+                actionLabel={question.action_label}
+                ownerLane={question.owner_lane}
+              />
               <p className="mt-2 text-xs leading-relaxed text-foreground/50">
                 Hit your queue{' '}
                 <strong className="text-foreground/70">
@@ -75,7 +114,7 @@ export function DeflectionTopQuestionRows({
                 </strong>{' '}
                 times in this upload, possibly costing{' '}
                 <strong className="text-foreground/70">
-                  {usd(question.ticket_count * assistedContactCost)}
+                  {usd(supportCost)}
                 </strong>{' '}
                 at {costLabel(assistedContactCost)} per assisted contact.
               </p>
@@ -164,47 +203,59 @@ export function DeflectionBlindSpotRows({
 
   return (
     <ol className="mt-5 space-y-3">
-      {blindSpots.map((blindSpot) => (
-        <li
-          key={blindSpot.rank}
-          className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"
-        >
-          <div className="flex items-start gap-4">
-            <span className="mt-0.5 w-6 shrink-0 text-center font-mono text-sm font-bold text-amber-600">
-              #{blindSpot.rank}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold leading-snug text-foreground">
-                {blindSpot.question}
-              </p>
-              <p className="mt-2 text-xs leading-relaxed text-foreground/55">
-                Appeared{' '}
-                <strong className="text-foreground/75">
-                  {count(blindSpot.ticket_count)}
-                </strong>{' '}
-                times with no proven answer found yet, representing roughly{' '}
-                <strong className="text-foreground/75">
-                  {usd(blindSpot.ticket_count * assistedContactCost)}
-                </strong>{' '}
-                in assisted-contact work for this upload.
-              </p>
-            </div>
-            <div className="flex shrink-0 flex-col items-end text-right">
-              <span className="rounded bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-700">
-                {count(blindSpot.ticket_count)}x
+      {blindSpots.map((blindSpot) => {
+        const supportCost = adjustedSupportCost(
+          blindSpot.estimated_support_cost,
+          assistedContactCost,
+        );
+
+        return (
+          <li
+            key={blindSpot.rank}
+            className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4"
+          >
+            <div className="flex items-start gap-4">
+              <span className="mt-0.5 w-6 shrink-0 text-center font-mono text-sm font-bold text-amber-600">
+                #{blindSpot.rank}
               </span>
-              <div className="mt-2 h-1.5 w-20 overflow-hidden rounded-full bg-border">
-                <div
-                  className="h-full rounded-full bg-amber-500"
-                  style={{
-                    width: `${Math.round((blindSpot.ticket_count / maxTicketCount) * 100)}%`,
-                  }}
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold leading-snug text-foreground">
+                  {blindSpot.question}
+                </p>
+                <RoutingMeta
+                  actionLabel={blindSpot.action_label}
+                  ownerLane={blindSpot.owner_lane}
+                  tone="amber"
                 />
+                <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+                  Appeared{' '}
+                  <strong className="text-foreground/75">
+                    {count(blindSpot.ticket_count)}
+                  </strong>{' '}
+                  times with no proven answer found yet, representing roughly{' '}
+                  <strong className="text-foreground/75">
+                    {usd(supportCost)}
+                  </strong>{' '}
+                  in assisted-contact work for this upload.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-col items-end text-right">
+                <span className="rounded bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-bold text-amber-700">
+                  {count(blindSpot.ticket_count)}x
+                </span>
+                <div className="mt-2 h-1.5 w-20 overflow-hidden rounded-full bg-border">
+                  <div
+                    className="h-full rounded-full bg-amber-500"
+                    style={{
+                      width: `${Math.round((blindSpot.ticket_count / maxTicketCount) * 100)}%`,
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-      ))}
+          </li>
+        );
+      })}
     </ol>
   );
 }
