@@ -77,16 +77,14 @@ session rather than a module-level `shared-admin-token` constant.
 
 ## Verification
 
-Run before opening the PR:
-
 ```bash
-npm --prefix web run test:admin-intake-named-accounts
-npm --prefix web run test:admin-intake-login-rate-limit
-npm --prefix web run test:admin-access-ledger
-node web/scripts/audit-test-enrollment.mjs
-npm --prefix web run lint
-bash scripts/local_pr_review.sh
-rg -n "shared-admin-token|ADMIN_INTAKE_TOKEN" web/src web/scripts
+npm --prefix web run test:admin-intake-named-accounts # PASS
+npm --prefix web run test:admin-intake-login-rate-limit # PASS
+npm --prefix web run test:admin-access-ledger # PASS
+node web/scripts/audit-test-enrollment.mjs # PASS
+npm --prefix web run lint # PASS
+bash scripts/local_pr_review.sh # PASS
+rg -n "shared-admin-token|ADMIN_INTAKE_TOKEN" web/src web/scripts # PASS (no matches)
 ```
 
 Expected grep result: no runtime `shared-admin-token`; no runtime
