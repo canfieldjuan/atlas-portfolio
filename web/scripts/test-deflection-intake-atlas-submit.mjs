@@ -289,6 +289,9 @@ try {
         customer_wording: 'export reports',
         ticket_count: 4,
         weighted_frequency: 4,
+        owner_lane: 'Reporting',
+        action_label: 'Publish answer',
+        estimated_support_cost: 54,
         source_ids: ['ticket-private-top'],
         evidence_quotes: ['private top evidence'],
       },
@@ -309,6 +312,9 @@ try {
         rank: 1,
         question: 'Can I schedule exports?',
         ticket_count: 2,
+        owner_lane: 'Reporting',
+        action_label: 'Write missing answer',
+        estimated_support_cost: 27,
         customer_wording: 'schedule exports',
         source_ids: ['ticket-private-blind'],
         evidence_quotes: ['private blind evidence'],
@@ -368,6 +374,9 @@ try {
       customer_wording: 'export reports',
       ticket_count: 4,
       weighted_frequency: 4,
+      owner_lane: 'Reporting',
+      action_label: 'Publish answer',
+      estimated_support_cost: 54,
     },
   ]);
   assert.deepEqual(snapshotResult.snapshot.locked_questions, [
@@ -381,6 +390,9 @@ try {
       rank: 1,
       question: 'Can I schedule exports?',
       ticket_count: 2,
+      owner_lane: 'Reporting',
+      action_label: 'Write missing answer',
+      estimated_support_cost: 27,
     },
   ]);
   assert.deepEqual(snapshotResult.snapshot.teaser.full_answer, {

@@ -98,17 +98,12 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
-  if (priceVariantId !== (expectedPriceVariantId || DEFLECTION_DEFAULT_PRICE_VARIANT_ID)) {
+  const authorizedPriceVariantId = expectedPriceVariantId || DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
+  if (priceVariantId !== authorizedPriceVariantId) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
-  if (priceVariantId !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) {
-    return NextResponse.json(
-      { error: 'Could not start checkout. Please try again.' },
-      { status: 503 },
-    );
-  }
 
-  const authorization = await authorizeDeflectionCheckout(requestId);
+  const authorization = await authorizeDeflectionCheckout(requestId, authorizedPriceVariantId);
   if (!authorization.ok && authorization.reason === 'already_paid') {
     return NextResponse.json({ alreadyPaid: true });
   }
@@ -126,7 +121,7 @@ export async function POST(request: Request) {
     requestId,
     attemptId,
     authorization.checkout,
-    priceVariantId,
+    authorizedPriceVariantId,
   );
   if (!result.ok) {
     const status =

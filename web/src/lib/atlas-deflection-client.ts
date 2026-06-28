@@ -21,6 +21,7 @@ import {
 import { get } from '@vercel/blob';
 import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@/lib/gap-report-intake';
 import { structuredRuntimeError } from '@/lib/structured-runtime-log';
+import type { DeflectionPriceVariantId } from '@/lib/deflection-pricing';
 
 // SERVER-ONLY by convention — import this only from server components / route
 // handlers, never a client component. It reads non-NEXT_PUBLIC_ service
@@ -115,7 +116,10 @@ function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
     typeof q.question === 'string' &&
     typeof q.customer_wording === 'string' &&
     isNonNegativeNumber(q.ticket_count) &&
-    typeof q.weighted_frequency === 'number'
+    typeof q.weighted_frequency === 'number' &&
+    typeof q.owner_lane === 'string' &&
+    typeof q.action_label === 'string' &&
+    isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {
       rank: q.rank,
@@ -123,6 +127,9 @@ function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
       customer_wording: q.customer_wording,
       ticket_count: q.ticket_count,
       weighted_frequency: q.weighted_frequency,
+      owner_lane: q.owner_lane,
+      action_label: q.action_label,
+      estimated_support_cost: q.estimated_support_cost,
     };
   }
   return null;
@@ -147,12 +154,18 @@ function parseBlindSpot(v: unknown): DeflectionSnapshotBlindSpot | null {
     typeof q.rank === 'number' &&
     typeof q.question === 'string' &&
     q.question.trim().length > 0 &&
-    isNonNegativeNumber(q.ticket_count)
+    isNonNegativeNumber(q.ticket_count) &&
+    typeof q.owner_lane === 'string' &&
+    typeof q.action_label === 'string' &&
+    isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {
       rank: q.rank,
       question: q.question,
       ticket_count: q.ticket_count,
+      owner_lane: q.owner_lane,
+      action_label: q.action_label,
+      estimated_support_cost: q.estimated_support_cost,
     };
   }
   return null;
@@ -420,9 +433,23 @@ const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
   helpscout: 'help_scout',
   other: 'other',
 };
+const CHECKOUT_AUTHORIZATION_PRICE_VARIANT_IDS = new Set(['standard', 'partner']);
 
-function deflectionCheckoutAuthorizationPath(requestId: string): string {
-  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/checkout-authorization`;
+function checkoutAuthorizationPriceVariant(value: DeflectionPriceVariantId | undefined): string | null {
+  if (value === undefined) return '';
+  return CHECKOUT_AUTHORIZATION_PRICE_VARIANT_IDS.has(value) ? value : null;
+}
+
+function deflectionCheckoutAuthorizationPath(
+  requestId: string,
+  priceVariantId?: DeflectionPriceVariantId,
+): string | null {
+  const priceVariant = checkoutAuthorizationPriceVariant(priceVariantId);
+  if (priceVariant === null) return null;
+  const path = `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}/checkout-authorization`;
+  if (!priceVariant) return path;
+  const params = new URLSearchParams({ price_variant: priceVariant });
+  return `${path}?${params.toString()}`;
 }
 
 function deflectionReportSearchPath(requestId: string): string {
@@ -680,15 +707,18 @@ export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPri
 
 export async function authorizeDeflectionCheckout(
   requestId: string,
+  priceVariantId?: DeflectionPriceVariantId,
 ): Promise<CheckoutAuthorizationResult> {
   const config = atlasConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
   if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
+  const authorizationPath = deflectionCheckoutAuthorizationPath(requestId, priceVariantId);
+  if (!authorizationPath) return { ok: false, reason: 'error' };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(`${config.baseUrl}${deflectionCheckoutAuthorizationPath(requestId)}`, {
+    const res = await fetch(`${config.baseUrl}${authorizationPath}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${config.token}`,
