@@ -117,6 +117,7 @@ try {
 
   const require = createRequire(compiledAtlasClientPath);
   const {
+    authorizeDeflectionCheckout,
     fetchDeflectionStandardPricingTerms,
   } = require(compiledAtlasClientPath);
   const {
@@ -145,6 +146,75 @@ try {
     'https://atlas.example.test/api/v1/content-ops/deflection-reports/pricing/standard',
   );
   assert.equal(fetchCalls[0].headers.Authorization, 'Bearer atlas_unit_token');
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 180000,
+        currency: 'USD',
+        price_id: 'price_atlas_standard123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123'), {
+    ok: true,
+    checkout: {
+      amountCents: 180000,
+      currency: 'usd',
+      priceId: 'price_atlas_standard123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization',
+  );
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 180000,
+        currency: 'USD',
+        price_id: 'price_atlas_standard123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123', 'standard'), {
+    ok: true,
+    checkout: {
+      amountCents: 180000,
+      currency: 'usd',
+      priceId: 'price_atlas_standard123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization?price_variant=standard',
+  );
+
+  resetFetch({
+    payload: {
+      status: 'authorized',
+      checkout: {
+        amount_cents: 100000,
+        currency: 'USD',
+        price_id: 'price_atlas_partner123',
+      },
+    },
+  });
+  assert.deepEqual(await authorizeDeflectionCheckout('request-123', 'partner'), {
+    ok: true,
+    checkout: {
+      amountCents: 100000,
+      currency: 'usd',
+      priceId: 'price_atlas_partner123',
+    },
+  });
+  assert.equal(
+    fetchCalls[0].url,
+    'https://atlas.example.test/api/v1/content-ops/deflection-reports/request-123/checkout-authorization?price_variant=partner',
+  );
 
   resetFetch({ status: 503 });
   assert.deepEqual(await fetchDeflectionStandardPricingTerms(), {
