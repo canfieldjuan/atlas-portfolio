@@ -85,6 +85,7 @@ Full local review before opening the PR:
 ```bash
 bash scripts/local_pr_review.sh
 # PASS — plan audits, drift advisory, dead-code baseline, landing smoke, lint, Next build, and whitespace all passed.
+# Re-run after review fix: PASS — same bundle passed with the AST tree-scan guard.
 ```
 
 Recurring value grep:
@@ -98,7 +99,7 @@ rg -n "type=\"application/ld\\+json\"|dangerouslySetInnerHTML=\\{\\{ __html: JSO
 
 | Area | Estimated LOC |
 | --- | ---: |
-| Helper and test | ~95 |
+| Helper and test | ~185 |
 | JSON-LD sink imports/replacements | ~75 |
 | Plan/package/CI | ~100 |
-| Total | ~270 |
+| Total | ~360 |
