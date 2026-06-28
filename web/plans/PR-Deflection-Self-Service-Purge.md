@@ -23,10 +23,13 @@ Slice phase: Production hardening
 3. Add a small two-step deletion control to free and paid hosted result views.
 4. Extend the enrolled CSV privacy/cleanup contract test to cover the endpoint,
    purge sequencing, and result-view control wiring.
+5. Update the hosted report-model result-page contract for the artifact page's
+   new purge `requestId` prop.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Self-Service-Purge.md` — plan for this slice.
+- `web/scripts/test-deflection-report-model-result-page.mjs` — keep artifact result-page prop coverage aligned with the purge control.
 - `web/scripts/test-deflection-csv-privacy-contract.mjs` — extend privacy contract coverage for self-service purge.
 - `web/src/app/api/deflection-report-purge/route.ts` — add the rate-limited purge endpoint.
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` — pass the request id into paid artifact rendering.
@@ -78,6 +81,7 @@ report were deleted instead of auto-redirecting into a confusing 404.
 
 ```bash
 npm --prefix web run test:deflection-csv-privacy # PASS
+npm --prefix web run test:deflection-report-model-result-page # PASS
 npm --prefix web run lint # PASS
 bash scripts/local_pr_review.sh # PASS
 ```
@@ -86,8 +90,8 @@ bash scripts/local_pr_review.sh # PASS
 
 | Area | Estimated LOC |
 | --- | ---: |
-| Plan doc | ~85 |
+| Plan doc | ~90 |
 | Purge endpoint and library wiring | ~130 |
 | Result-page purge control | ~125 |
-| Tests | ~125 |
-| Total | ~465 |
+| Tests | ~135 |
+| Total | ~480 |
