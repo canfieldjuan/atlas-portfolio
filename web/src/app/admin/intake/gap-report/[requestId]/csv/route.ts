@@ -1,6 +1,7 @@
 import { get } from '@vercel/blob';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { recordAdminAccessEvent } from '@/lib/admin-access-log';
 import {
   ADMIN_INTAKE_COOKIE,
   verifyAdminIntakeCookie,
@@ -44,7 +45,7 @@ async function getPrivateCsvBlob(url: string) {
   return null;
 }
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const cookieStore = await cookies();
   const isAuthorized = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
 
@@ -66,6 +67,23 @@ export async function GET(_request: Request, context: RouteContext) {
 
   if (!blob || blob.statusCode !== 200 || !blob.stream) {
     return NextResponse.json({ error: 'CSV blob not found.' }, { status: 404 });
+  }
+
+  const accessLog = await recordAdminAccessEvent({
+    action: 'gap_report_csv_download',
+    targetType: 'gap_report_submission',
+    targetRequestId: requestId,
+    headers: request.headers,
+    metadata: {
+      sourceOffer: submission.sourceOffer,
+      supportPlatform: submission.supportPlatform,
+    },
+  });
+  if (!accessLog.ok) {
+    return NextResponse.json(
+      { error: 'Admin access logging is unavailable.' },
+      { status: 503 },
+    );
   }
 
   const headers = new Headers();

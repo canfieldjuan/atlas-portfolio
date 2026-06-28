@@ -1,5 +1,6 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { Download, FileText, Lock, LogOut, Mail, ShieldCheck } from 'lucide-react';
+import { recordAdminAccessEvent } from '@/lib/admin-access-log';
 import { ADMIN_INTAKE_COOKIE, adminIntakeConfigured, verifyAdminIntakeCookie } from '@/lib/admin-intake-auth';
 import {
   auditIntakeDatabaseConfigured,
@@ -95,6 +96,28 @@ function LoginPanel({ error }: { error?: LoginError }) {
             </button>
           </form>
         )}
+      </section>
+    </main>
+  );
+}
+
+function LedgerUnavailablePanel() {
+  return (
+    <main className="min-h-screen px-6 pb-20 pt-32">
+      <section className="mx-auto max-w-xl rounded-2xl border border-border bg-surface p-8">
+        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
+          <ShieldCheck className="h-5 w-5" />
+        </div>
+        <p className="mb-3 text-[10px] font-mono tracking-[0.25em] text-primary uppercase">
+          Private Admin
+        </p>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">
+          Access ledger unavailable
+        </h1>
+        <p className="text-sm leading-relaxed text-foreground/60">
+          Configure <code>ADMIN_ACCESS_LOG_DATABASE_URL</code> or a shared intake database before
+          viewing customer submissions. Admin access is blocked when the ledger cannot record it.
+        </p>
       </section>
     </main>
   );
@@ -222,6 +245,16 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
       ? params.error
       : undefined;
     return <LoginPanel error={error} />;
+  }
+
+  const requestHeaders = await headers();
+  const accessLog = await recordAdminAccessEvent({
+    action: 'admin_intake_view',
+    targetType: 'admin_intake_queue',
+    headers: requestHeaders,
+  });
+  if (!accessLog.ok) {
+    return <LedgerUnavailablePanel />;
   }
 
   const rows = await listAuditIntakeRecords(50);
