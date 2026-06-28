@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 
 export const metadata = generatePageMetadata({
   title: "Support Ticket Deflection, Interactive Demo",
@@ -26,7 +27,7 @@ export default function DeflectionDemoLayout({ children }: { children: React.Rea
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>

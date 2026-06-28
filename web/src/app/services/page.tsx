@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2, FileText, HelpCircle, Map, Radar, Wrench } fr
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { generateFaqJsonLd } from '@/lib/seo';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 import { RelatedGuides } from '@/components/RelatedGuides';
 
 const faqJsonLd = generateFaqJsonLd([
@@ -155,7 +156,7 @@ export default function ServicesPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
       />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-5xl mx-auto">

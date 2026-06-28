@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 
 export const metadata = generatePageMetadata({
   title: "Ongoing Optimization for AI Content Ops",
@@ -29,7 +30,7 @@ export default function OngoingSupportLayout({ children }: { children: React.Rea
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>

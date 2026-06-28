@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { generateArticleJsonLd, generateBreadcrumbJsonLd, generatePageMetadata } from '@/lib/seo';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 import { getResourceArticle, resourceArticles } from '@/lib/resources';
 
 type PageProps = {
@@ -61,11 +62,11 @@ export default async function ResourceArticlePage({ params }: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(articleJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <article className="max-w-4xl mx-auto">

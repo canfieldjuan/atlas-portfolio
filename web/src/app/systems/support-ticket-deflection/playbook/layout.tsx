@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 
 export const metadata = generatePageMetadata({
   title: "Your users can Google it. So why are they opening a ticket?",
@@ -26,7 +27,7 @@ export default function DeflectionPlaybookLayout({ children }: { children: React
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>

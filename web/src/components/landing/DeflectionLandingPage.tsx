@@ -17,6 +17,7 @@ import {
 import { DeflectionDemo } from '@/components/deflection-demo/DeflectionDemo';
 import { SupportTaxMiniCalculator } from '@/components/deflection-demo/SupportTaxMiniCalculator';
 import { DEFLECTION_PRICE_UNAVAILABLE_LABEL } from '@/lib/deflection-pricing';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 
 // ── Config type ────────────────────────────────────────────────────────────
 
@@ -104,10 +105,6 @@ export type DeflectionLandingPageConfig = {
   };
 };
 
-function jsonLdPayload(value: unknown) {
-  return JSON.stringify(value).replace(/</g, '\\u003c');
-}
-
 // ── Component ──────────────────────────────────────────────────────────────
 
 export function DeflectionLandingPage({
@@ -163,7 +160,7 @@ export function DeflectionLandingPage({
       {config.structuredData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdPayload(config.structuredData) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(config.structuredData) }}
         />
       )}
       <main className={`deflection-landing min-h-screen ${bare ? 'pt-16' : 'pt-32'} pb-20 px-6 relative z-10`}>

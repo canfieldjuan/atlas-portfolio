@@ -16,6 +16,7 @@ import {
   type DiagnosticPricingTier,
   type DiagnosticUseCase,
 } from './LandingPrimitives';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 
 export type DiagnosticReportLandingPageConfig = {
   structuredData?: unknown;
@@ -109,10 +110,6 @@ export type DiagnosticReportLandingPageConfig = {
   };
 };
 
-function jsonLdPayload(value: unknown) {
-  return JSON.stringify(value).replace(/</g, '\\u003c');
-}
-
 export function DiagnosticReportLandingPage({
   config,
 }: {
@@ -123,7 +120,7 @@ export function DiagnosticReportLandingPage({
       {config.structuredData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdPayload(config.structuredData) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(config.structuredData) }}
         />
       )}
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">

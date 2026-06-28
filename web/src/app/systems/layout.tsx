@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 
 export const metadata = generatePageMetadata({
   title: "Productized AI Systems",
@@ -27,7 +28,7 @@ export default function SystemsLayout({ children }: { children: React.ReactNode 
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>
