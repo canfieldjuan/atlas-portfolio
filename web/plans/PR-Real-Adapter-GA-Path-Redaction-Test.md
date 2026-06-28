@@ -31,6 +31,8 @@ Slice phase: Functional validation
 - `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` — plan for this slice.
 - `web/scripts/test-deflection-ga-path-redaction.mjs` — remove the temp transpile
   harness.
+- `web/src/lib/atlas-deflection-client.ts` — carry the new snapshot title through
+  the ATLAS parser with a backward-compatible fallback.
 - `web/src/lib/deflection-demo-example.ts` — refresh the generated demo snapshot
   after the ATLAS snapshot contract added `title`.
 - `web/src/lib/deflection-snapshot-contract.ts` — refresh the generated snapshot
@@ -59,6 +61,10 @@ That gate surfaced a pre-existing drift: snapshot payloads now include a top-lev
 `title`. The generated snapshot contract and demo fixture are refreshed in this
 PR so the required check can pass, and the hand-kept ground-truth snapshot is
 updated so the smoke test remains a real shape guard.
+
+`fetchDeflectionSnapshot` now carries the title through the parser. Older
+persisted snapshot payloads without `title` fall back to `Resolution Snapshot` so
+the generated type can become required without breaking old reads.
 
 ## Intentional
 
@@ -97,12 +103,13 @@ bash scripts/local_pr_review.sh # PASS
 | `web/package.json` | ~1 |
 | `web/knip-baseline.json` | ~10 |
 | `web/plans/deflection-snapshot-report-groundtruth.json` | ~2 |
-| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~106 |
+| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~109 |
 | `web/scripts/test-deflection-ga-path-redaction.mjs` | ~156 |
+| `web/src/lib/atlas-deflection-client.ts` | ~4 |
 | `web/src/lib/deflection-demo-example.ts` | ~4 |
 | `web/src/lib/deflection-snapshot-contract.ts` | ~7 |
 | `web/src/lib/analytics.test.ts` | ~133 |
-| Total | ~419 |
+| Total | ~427 |
 
 This is slightly over the 400-LOC soft cap because the GA harness migration also
 surfaced required generated-contract and ground-truth drift that must be fixed
