@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   ADMIN_INTAKE_COOKIE,
   adminIntakeCookieValue,
-  verifyAdminIntakeToken,
+  verifyAdminIntakeCredentials,
 } from '@/lib/admin-intake-auth';
 import {
   checkAdminIntakeLoginRateLimit,
@@ -33,17 +33,23 @@ export async function POST(request: NextRequest) {
 
   recordAdminIntakeLoginFailure(request.headers);
   const formData = await request.formData();
+  const adminId = String(formData.get('adminId') || '');
   const token = String(formData.get('token') || '');
+  const session = verifyAdminIntakeCredentials(adminId, token);
 
-  if (!verifyAdminIntakeToken(token)) {
+  if (!session) {
     return redirectToIntake(request, 'invalid');
   }
 
   clearAdminIntakeLoginFailures(request.headers);
   const response = redirectToIntake(request);
-  // Persist a one-way hash of the token, not the token itself — an exfiltrated cookie
-  // does not reveal the underlying shared admin secret.
-  response.cookies.set(ADMIN_INTAKE_COOKIE, adminIntakeCookieValue(), {
+  const cookieValue = adminIntakeCookieValue(session);
+  if (!cookieValue) {
+    return redirectToIntake(request, 'invalid');
+  }
+
+  // Persist a signed named-admin session, not the submitted token.
+  response.cookies.set(ADMIN_INTAKE_COOKIE, cookieValue, {
     httpOnly: true,
     maxAge: 60 * 60 * 12,
     path: '/admin',

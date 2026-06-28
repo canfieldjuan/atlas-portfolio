@@ -1,7 +1,12 @@
 import { cookies, headers } from 'next/headers';
 import { Download, FileText, Lock, LogOut, Mail, ShieldCheck } from 'lucide-react';
 import { recordAdminAccessEvent } from '@/lib/admin-access-log';
-import { ADMIN_INTAKE_COOKIE, adminIntakeConfigured, verifyAdminIntakeCookie } from '@/lib/admin-intake-auth';
+import {
+  ADMIN_INTAKE_COOKIE,
+  adminIntakeConfigured,
+  verifyAdminIntakeCookie,
+  type AdminIntakeSession,
+} from '@/lib/admin-intake-auth';
 import {
   auditIntakeDatabaseConfigured,
   listAuditIntakeRecords,
@@ -63,15 +68,26 @@ function LoginPanel({ error }: { error?: LoginError }) {
         </p>
         <h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">Intake queue</h1>
         <p className="mb-8 text-sm leading-relaxed text-foreground/60">
-          Enter the admin intake token to view recent audit requests and deflection CSV submissions.
+          Enter your named admin id and token to view recent audit requests and deflection CSV submissions.
         </p>
 
         {!adminIntakeConfigured() ? (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
-            Configure <code>ADMIN_INTAKE_TOKEN</code> in Vercel before using this page.
+            Configure <code>ADMIN_INTAKE_USERS</code> in Vercel before using this page.
           </div>
         ) : (
           <form action="/admin/intake/login" method="post" className="space-y-4">
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium text-foreground/60">Admin id</span>
+              <input
+                name="adminId"
+                type="text"
+                autoComplete="username"
+                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-foreground/30 focus:border-primary/60"
+                placeholder="juan"
+                required
+              />
+            </label>
             <label className="block">
               <span className="mb-2 block text-xs font-medium text-foreground/60">Admin token</span>
               <input
@@ -84,7 +100,7 @@ function LoginPanel({ error }: { error?: LoginError }) {
               />
             </label>
             {error === 'invalid' ? (
-              <p className="text-sm text-rose-300">Invalid admin token. Try again.</p>
+              <p className="text-sm text-rose-300">Invalid admin id or token. Try again.</p>
             ) : null}
             {error === 'rate_limited' ? (
               <p className="text-sm text-rose-300">
@@ -120,6 +136,14 @@ function LedgerUnavailablePanel() {
         </p>
       </section>
     </main>
+  );
+}
+
+function SignedInAdmin({ session }: { session: AdminIntakeSession }) {
+  return (
+    <div className="text-right text-xs text-foreground/45">
+      Signed in as <span className="font-mono text-foreground/65">{session.actorId}</span>
+    </div>
   );
 }
 
@@ -238,9 +262,9 @@ function GapReportSubmissionCard({ row }: { row: GapReportSummaryRow }) {
 export default async function AdminIntakePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const cookieStore = await cookies();
-  const isAuthorized = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
+  const adminSession = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
 
-  if (!isAuthorized) {
+  if (!adminSession) {
     const error = params?.error === 'invalid' || params?.error === 'rate_limited'
       ? params.error
       : undefined;
@@ -249,6 +273,8 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
 
   const requestHeaders = await headers();
   const accessLog = await recordAdminAccessEvent({
+    actorId: adminSession.actorId,
+    actorKind: adminSession.actorKind,
     action: 'admin_intake_view',
     targetType: 'admin_intake_queue',
     headers: requestHeaders,
@@ -278,12 +304,15 @@ export default async function AdminIntakePage({ searchParams }: PageProps) {
               from the Atlas B2B CRM event stream.
             </p>
           </div>
-          <form action="/admin/intake/logout" method="post">
-            <button className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-border hover:text-foreground">
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </button>
-          </form>
+          <div className="space-y-3 lg:text-right">
+            <SignedInAdmin session={adminSession} />
+            <form action="/admin/intake/logout" method="post">
+              <button className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-foreground/65 transition-colors hover:border-border hover:text-foreground">
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="space-y-12">
