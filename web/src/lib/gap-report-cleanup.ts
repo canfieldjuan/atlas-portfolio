@@ -1,5 +1,6 @@
 import { BlobNotFoundError, del, list } from '@vercel/blob';
 import { deleteDeflectionReport } from './atlas-deflection-client';
+import { deleteDeflectionReviewDecisions } from './deflection-review-decisions-database';
 import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
@@ -102,10 +103,11 @@ async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
           retainedRows += 1;
           continue;
         }
+        await deleteDeflectionReviewDecisions(submission.reportRequestId);
         deletedRequestIds.push(submission.requestId);
       } catch (error) {
         errors.push(
-          `Failed to delete blob for request ${submission.requestId}: ${errorMessage(error)}`
+          `Failed to delete tracked report data for request ${submission.requestId}: ${errorMessage(error)}`
         );
         retainedRows += 1;
       }
@@ -210,6 +212,7 @@ export async function purgeGapReportSubmissionByReportRequestId(
   }
 
   try {
+    await deleteDeflectionReviewDecisions(target.reportRequestId);
     const deletedRows = await deleteGapReportSubmissions([target.requestId]);
     if (deletedRows < 1) {
       structuredRuntimeError('deflection.report_purge.database_delete_missing', {
