@@ -26,9 +26,6 @@ Slice phase: Product polish
 - `web/scripts/test-deflection-row-renderer-share.mjs`
 - `web/src/components/landing/DeflectionSnapshotRows.tsx`
 - `web/src/lib/atlas-deflection-client.ts`
-- `web/src/lib/deflection-demo-example.ts`
-- `web/src/lib/deflection-report-model-contract.ts`
-- `web/src/lib/deflection-snapshot-contract.ts`
 
 ### Review Contract
 
