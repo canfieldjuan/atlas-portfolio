@@ -3,7 +3,7 @@ import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 
 type AdminAccessSql = NeonQueryFunction<false, false>;
 
-export type AdminAccessAction = 'admin_intake_view' | 'gap_report_csv_download';
+type AdminAccessAction = 'admin_intake_view' | 'gap_report_csv_download';
 
 export type AdminAccessEventInput = {
   actorId: string;
