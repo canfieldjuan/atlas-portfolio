@@ -78,8 +78,8 @@ bash scripts/local_pr_review.sh # PASS
 | `web/package.json` | ~2 |
 | `web/plans/PR-Real-Adapter-Deflection-Checkout-Env-Test.md` | ~85 |
 | `web/scripts/test-deflection-checkout-env.mjs` | ~780 |
-| `web/src/lib/deflection-checkout-env.test.ts` | ~750 |
-| Total | ~1617 |
+| `web/src/lib/deflection-checkout-env.test.ts` | ~764 |
+| Total | ~1631 |
 
 This is over the 400-LOC soft cap because the old assertion harness is large
 and the migration keeps validator and CLI env-file coverage together.

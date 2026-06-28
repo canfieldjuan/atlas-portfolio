@@ -519,6 +519,20 @@ describe('deflection checkout env preflight', () => {
     expect(result.errors.some((error: string) => error.includes(STANDARD_PRICE_ID_ENV))).toBe(false);
   });
 
+  it('reports missing production account id without hiding partner requirements', () => {
+    const result = validate(
+      withProductionPartnerAccessToken({
+        ATLAS_SAAS_STRIPE_RAK: 'rk_live_unit_restricted',
+        [STANDARD_PRICE_ID_ENV]: 'price_standard123',
+      }),
+      'production',
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.missing).toEqual(['ATLAS_ACCOUNT_ID', PARTNER_PRICE_ID_ENV]);
+    expect(result.errors).toContain('Missing ATLAS_ACCOUNT_ID.');
+  });
+
   it.each([
     [
       'preview test restricted key',
