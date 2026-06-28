@@ -82,8 +82,8 @@ bash scripts/local_pr_review.sh # PASS
 | `web/package.json` | ~2 |
 | `web/plans/PR-Real-Adapter-Deflection-Partner-Access-Test.md` | ~90 |
 | `web/scripts/test-deflection-partner-access.mjs` | ~659 |
-| `web/src/lib/deflection-partner-access.test.ts` | ~604 |
-| Total | ~1355 |
+| `web/src/lib/deflection-partner-access.test.ts` | ~605 |
+| Total | ~1356 |
 
 This is over the 400-LOC soft cap because the old temp transpile harness is
 large and coverage parity keeps helper, CLI, route, and wiring assertions
