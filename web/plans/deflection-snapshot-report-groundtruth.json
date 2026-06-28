@@ -10,6 +10,7 @@
       "locked_questions",
       "summary",
       "teaser",
+      "title",
       "top_blind_spots",
       "top_questions"
     ],
@@ -21,6 +22,7 @@
     ]
   },
   "snapshot": {
+    "title": "Resolution Snapshot",
     "summary": {
       "generated": 7,
       "drafted_answer_count": 3,

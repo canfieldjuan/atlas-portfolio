@@ -26,9 +26,15 @@ Slice phase: Functional validation
 - `web/package.json` — run the GA redaction test through Vitest.
 - `web/knip-baseline.json` — remove analytics export findings resolved by the
   real-import test.
+- `web/plans/deflection-snapshot-report-groundtruth.json` — update the snapshot
+  ground-truth keys for the ATLAS `title` field surfaced by CI.
 - `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` — plan for this slice.
 - `web/scripts/test-deflection-ga-path-redaction.mjs` — remove the temp transpile
   harness.
+- `web/src/lib/deflection-demo-example.ts` — refresh the generated demo snapshot
+  after the ATLAS snapshot contract added `title`.
+- `web/src/lib/deflection-snapshot-contract.ts` — refresh the generated snapshot
+  contract to match the ATLAS source used by CI.
 - `web/src/lib/analytics.test.ts` — add real-import analytics coverage.
 
 ## Mechanism
@@ -47,6 +53,12 @@ Google Ads auto page views, and CI enrollment.
 Because the new Vitest test imports `redactAnalyticsPath` and `trackEvent`
 through the real module, those exports are no longer dead-code baseline entries;
 the baseline is updated in the same slice so the gate matches reality.
+
+CI also checks generated deflection contracts against live ATLAS contract source.
+That gate surfaced a pre-existing drift: snapshot payloads now include a top-level
+`title`. The generated snapshot contract and demo fixture are refreshed in this
+PR so the required check can pass, and the hand-kept ground-truth snapshot is
+updated so the smoke test remains a real shape guard.
 
 ## Intentional
 
@@ -71,6 +83,8 @@ Parked hardening: none
 npm --prefix web run test:deflection-ga-path-redaction # PASS
 node web/scripts/audit-test-enrollment.mjs # PASS
 npm --prefix web run check:dead-code # PASS
+npm --prefix web run check:deflection-contracts -- --source /home/juan-canfield/Desktop/Atlas/portfolio-ui/src/types/deflectionSnapshot.ts --report-model-source /home/juan-canfield/Desktop/Atlas/portfolio-ui/src/types/deflectionReportModel.ts # PASS
+npm --prefix web run test:deflection-snapshot-landing-smoke # PASS
 npm --prefix web run lint # PASS
 if rg -n "test-deflection-ga-path-redaction\\.mjs|atlas-ga-redaction" web/package.json web/scripts web/src/lib/analytics.test.ts; then exit 1; else echo "No GA redaction temp harness references remain."; fi # PASS
 bash scripts/local_pr_review.sh # PASS
@@ -82,7 +96,14 @@ bash scripts/local_pr_review.sh # PASS
 |---|---:|
 | `web/package.json` | ~1 |
 | `web/knip-baseline.json` | ~10 |
-| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~88 |
+| `web/plans/deflection-snapshot-report-groundtruth.json` | ~2 |
+| `web/plans/PR-Real-Adapter-GA-Path-Redaction-Test.md` | ~106 |
 | `web/scripts/test-deflection-ga-path-redaction.mjs` | ~156 |
+| `web/src/lib/deflection-demo-example.ts` | ~4 |
+| `web/src/lib/deflection-snapshot-contract.ts` | ~7 |
 | `web/src/lib/analytics.test.ts` | ~133 |
-| Total | ~388 |
+| Total | ~419 |
+
+This is slightly over the 400-LOC soft cap because the GA harness migration also
+surfaced required generated-contract and ground-truth drift that must be fixed
+for CI to stay green.
