@@ -26,9 +26,7 @@ function store() {
 }
 
 function clientIdentifier(headers: Headers) {
-  const forwardedFor = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   const candidate =
-    forwardedFor ||
     headers.get('x-real-ip')?.trim() ||
     headers.get('cf-connecting-ip')?.trim() ||
     'unknown';

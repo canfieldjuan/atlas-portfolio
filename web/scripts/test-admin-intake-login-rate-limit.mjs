@@ -15,8 +15,12 @@ const nextStubDir = join(testDir, 'node_modules', 'next');
 const originalNow = Date.now;
 let now = 1_700_000_000_000;
 
-function testHeaders(ip = '203.0.113.10') {
-  return new Headers({ 'x-forwarded-for': ip });
+function testHeaders({ realIp = '203.0.113.10', forwardedFor, cfIp } = {}) {
+  const headers = new Headers();
+  if (realIp) headers.set('x-real-ip', realIp);
+  if (forwardedFor) headers.set('x-forwarded-for', forwardedFor);
+  if (cfIp) headers.set('cf-connecting-ip', cfIp);
+  return headers;
 }
 
 function resetStore() {
@@ -35,7 +39,7 @@ function resetRouteState({ rateLimit = { ok: true } } = {}) {
 
 function makeLoginRequest(token, ip = '203.0.113.44') {
   return {
-    headers: testHeaders(ip),
+    headers: testHeaders({ realIp: ip, forwardedFor: '198.51.100.200' }),
     url: 'https://example.com/admin/intake/login',
     async formData() {
       globalThis.__adminIntakeRouteFormDataCalls += 1;
@@ -92,14 +96,14 @@ try {
     join(libStubDir, 'admin-intake-rate-limit.js'),
     [
       'exports.checkAdminIntakeLoginRateLimit = (headers) => {',
-      "  globalThis.__adminIntakeRouteRateLimitCalls.push(headers.get('x-forwarded-for'));",
+      "  globalThis.__adminIntakeRouteRateLimitCalls.push(headers.get('x-real-ip'));",
       '  return globalThis.__adminIntakeRouteRateLimit;',
       '};',
       'exports.recordAdminIntakeLoginFailure = (headers) => {',
-      "  globalThis.__adminIntakeRouteRecordCalls.push(headers.get('x-forwarded-for'));",
+      "  globalThis.__adminIntakeRouteRecordCalls.push(headers.get('x-real-ip'));",
       '};',
       'exports.clearAdminIntakeLoginFailures = (headers) => {',
-      "  globalThis.__adminIntakeRouteClearCalls.push(headers.get('x-forwarded-for'));",
+      "  globalThis.__adminIntakeRouteClearCalls.push(headers.get('x-real-ip'));",
       '};',
       '',
     ].join('\n'),
@@ -144,17 +148,42 @@ try {
     ok: false,
     retryAfterSeconds: 900,
   });
-  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders('198.51.100.7')), { ok: true });
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({ realIp: '198.51.100.7' })), { ok: true });
   now += 900_000;
   assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders()), { ok: true });
 
   resetStore();
-  recordAdminIntakeLoginFailure(testHeaders('203.0.113.10, 198.51.100.7'));
-  recordAdminIntakeLoginFailure(testHeaders('203.0.113.10'));
-  recordAdminIntakeLoginFailure(testHeaders('203.0.113.10'));
-  recordAdminIntakeLoginFailure(testHeaders('203.0.113.10'));
-  recordAdminIntakeLoginFailure(testHeaders('203.0.113.10'));
-  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders('203.0.113.10')), {
+  for (let index = 0; index < 5; index += 1) {
+    recordAdminIntakeLoginFailure(testHeaders({
+      realIp: '203.0.113.10',
+      forwardedFor: `198.51.100.${index}`,
+    }));
+  }
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({
+    realIp: '203.0.113.10',
+    forwardedFor: '198.51.100.200',
+  })), {
+    ok: false,
+    retryAfterSeconds: 900,
+  });
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({
+    realIp: '203.0.113.99',
+    forwardedFor: '198.51.100.200',
+  })), { ok: true });
+
+  resetStore();
+  for (let index = 0; index < 5; index += 1) {
+    recordAdminIntakeLoginFailure(testHeaders({
+      realIp: '',
+      forwardedFor: `198.51.100.${index}`,
+      cfIp: '203.0.113.88',
+    }));
+  }
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({
+    realIp: '',
+    forwardedFor: '198.51.100.200',
+    cfIp: '203.0.113.88',
+  })), {
     ok: false,
     retryAfterSeconds: 900,
   });

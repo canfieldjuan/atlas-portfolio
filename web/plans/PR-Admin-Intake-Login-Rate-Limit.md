@@ -26,7 +26,7 @@ Slice phase: Production hardening
 
 ## Mechanism
 
-The new `admin-intake-rate-limit` helper derives the same client identifier pattern as the existing public deflection limiter: first `x-forwarded-for` IP, then `x-real-ip`, then `cf-connecting-ip`, then `unknown`. Each failed admin-token submission increments one bucket for 15 minutes. Once the bucket has five failures, later requests from that identifier are redirected back to `/admin/intake?error=rate_limited` with a `Retry-After` header and the form body is not parsed.
+The new `admin-intake-rate-limit` helper derives the client identifier from trusted edge/proxy headers: first `x-real-ip`, then `cf-connecting-ip`, then `unknown`. It deliberately does not key off the leftmost `x-forwarded-for` value because that position can be attacker-controlled and would let a caller rotate the bucket. Each failed admin-token submission increments one bucket for 15 minutes. Once the bucket has five failures, later requests from that identifier are redirected back to `/admin/intake?error=rate_limited` with a `Retry-After` header and the form body is not parsed.
 
 Successful verification calls `clearAdminIntakeLoginFailures` before setting the existing admin cookie, so legitimate recovery does not leave the client stuck behind old failures. The storage is deliberately in-memory and per-process because issue #313 explicitly rules out paid KV/Redis for this baseline slice.
 
@@ -50,6 +50,7 @@ Local checks:
 ```bash
 npm --prefix web run test:admin-intake-login-rate-limit
 # PASS — Admin intake login rate-limit tests passed.
+# Re-run after review fix: PASS — forged leftmost x-forwarded-for rotation does not bypass a stable x-real-ip bucket.
 
 node web/scripts/audit-test-enrollment.mjs
 # PASS — All 35 test:* scripts are enrolled in .github/workflows/pre_push_audit.yml.
