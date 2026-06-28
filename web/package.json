@@ -53,7 +53,7 @@
     "test:deflection-checkout": "node scripts/test-deflection-checkout.mjs",
     "test:deflection-checkout-env": "node scripts/test-deflection-checkout-env.mjs",
     "test:deflection-browser-upload-smoke": "node scripts/test-deflection-browser-upload-smoke.mjs",
-    "test:deflection-email-results-link": "node scripts/test-deflection-email-results-link.mjs",
+    "test:deflection-email-results-link": "vitest run src/lib/gap-report-intake.test.ts",
     "test:deflection-snapshot-pdf-email": "vitest run src/lib/deflection-snapshot-pdf.test.ts",
     "test:deflection-snapshot-contract-generator": "node scripts/test-deflection-snapshot-contract-generator.mjs",
     "test:deflection-comeback-analytics": "node scripts/test-deflection-comeback-analytics.mjs",
