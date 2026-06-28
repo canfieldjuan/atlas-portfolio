@@ -45,7 +45,7 @@
     "test:test-enrollment-audit": "node scripts/test-test-enrollment-audit.mjs",
     "test:google-ads-api": "node scripts/test-google-ads-api.mjs",
     "test:google-ads-artifacts": "node scripts/test-google-ads-artifact-contracts.mjs",
-    "test:admin-access-ledger": "node scripts/test-admin-access-ledger.mjs",
+    "test:admin-access-ledger": "vitest run src/lib/admin-access-log.test.ts",
     "test:admin-intake-named-accounts": "node scripts/test-admin-intake-named-accounts.mjs",
     "test:admin-intake-login-rate-limit": "node scripts/test-admin-intake-login-rate-limit.mjs",
     "test:json-ld-escaping": "node scripts/test-json-ld-escaping.mjs",
