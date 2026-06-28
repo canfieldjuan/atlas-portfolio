@@ -1,0 +1,122 @@
+name: Security Guardrails
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * 1"
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+jobs:
+  secrets-pr:
+    name: Gitleaks PR secret scan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout PR head history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Resolve trusted baseline
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          baseline=".gitleaks-baseline-ci.json"
+          git fetch --no-tags origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+
+          if git cat-file -e "origin/${BASE_REF}:docs/security/gitleaks-baseline.json" 2>/dev/null; then
+            git show "origin/${BASE_REF}:docs/security/gitleaks-baseline.json" > "$baseline"
+            echo "Using Gitleaks baseline from origin/${BASE_REF}."
+          elif [ -f docs/security/gitleaks-baseline.json ]; then
+            cp docs/security/gitleaks-baseline.json "$baseline"
+            echo "Using adoption baseline from this PR because ${BASE_REF} has no baseline yet."
+          else
+            echo "No Gitleaks baseline found; scanning without a baseline."
+          fi
+
+      - name: Scan pull request commits
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          baseline_args=()
+          if [ -s .gitleaks-baseline-ci.json ]; then
+            baseline_args=(--baseline-path /repo/.gitleaks-baseline-ci.json)
+          fi
+          scan_range="origin/${BASE_REF}..HEAD"
+          echo "Scanning Gitleaks PR range: ${scan_range}"
+
+          docker run --rm \
+            -v "$PWD:/repo" \
+            ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git \
+            --redact \
+            --verbose \
+            --log-opts="${scan_range}" \
+            "${baseline_args[@]}" \
+            /repo
+
+  secrets-full-history:
+    name: Gitleaks full-history secret scan
+    if: github.event_name != 'pull_request' && github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve baseline
+        run: |
+          set -euo pipefail
+          if [ -f docs/security/gitleaks-baseline.json ]; then
+            cp docs/security/gitleaks-baseline.json .gitleaks-baseline-ci.json
+            echo "Using checked-in Gitleaks baseline from this trusted ref."
+          else
+            echo "No Gitleaks baseline found; scanning without a baseline."
+          fi
+
+      - name: Scan complete git history
+        run: |
+          set -euo pipefail
+          baseline_args=()
+          if [ -s .gitleaks-baseline-ci.json ]; then
+            baseline_args=(--baseline-path /repo/.gitleaks-baseline-ci.json)
+          fi
+
+          docker run --rm \
+            -v "$PWD:/repo" \
+            ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git \
+            --redact \
+            --verbose \
+            --log-opts="HEAD" \
+            "${baseline_args[@]}" \
+            --report-format sarif \
+            --report-path /repo/gitleaks.sarif \
+            /repo
+
+      - name: Upload Gitleaks SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: gitleaks.sarif
