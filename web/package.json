@@ -69,7 +69,7 @@
     "test:deflection-live-submit-smoke": "node scripts/test-deflection-live-submit-smoke.mjs",
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
     "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
-    "test:deflection-results-state": "node scripts/test-deflection-results-state.mjs",
+    "test:deflection-results-state": "vitest run src/lib/deflection-results-state.test.ts",
     "test:deflection-uploaded-search": "vitest run src/app/api/demo/deflection-search/route.test.ts",
     "test:deflection-snapshot-landing-smoke": "node scripts/test-deflection-snapshot-landing-smoke.mjs",
     "test:deflection-standard-price-chain-smoke": "node scripts/test-deflection-standard-price-chain-smoke.mjs",
