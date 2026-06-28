@@ -77,7 +77,7 @@
     "test:deflection-cost-projection-share": "node scripts/test-deflection-cost-projection-share.mjs",
     "test:deflection-rate-limit": "vitest run src/lib/deflection-rate-limit.test.ts",
     "test:deflection-row-renderer-share": "node scripts/test-deflection-row-renderer-share.mjs",
-    "test:deflection-teaser-rank-copy": "node scripts/test-deflection-teaser-rank-copy.mjs",
+    "test:deflection-teaser-rank-copy": "vitest run src/lib/deflection-teaser-rank-copy.test.ts",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
   "dependencies": {
