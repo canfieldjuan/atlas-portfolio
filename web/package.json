@@ -71,7 +71,7 @@
     "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
     "test:deflection-results-state": "vitest run src/lib/deflection-results-state.test.ts",
     "test:deflection-uploaded-search": "vitest run src/app/api/demo/deflection-search/route.test.ts",
-    "test:deflection-snapshot-landing-smoke": "node scripts/test-deflection-snapshot-landing-smoke.mjs",
+    "test:deflection-snapshot-landing-smoke": "vitest run src/lib/deflection-snapshot-landing-smoke.test.ts",
     "test:deflection-standard-price-chain-smoke": "node scripts/test-deflection-standard-price-chain-smoke.mjs",
     "test:deflection-csv-privacy": "vitest run src/lib/deflection-csv-privacy.test.ts",
     "test:deflection-cost-projection-share": "node scripts/test-deflection-cost-projection-share.mjs",
