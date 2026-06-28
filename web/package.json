@@ -64,7 +64,7 @@
     "test:deflection-report-model-result-page": "node scripts/test-deflection-report-model-result-page.mjs",
     "test:deflection-review-decisions": "vitest run src/app/api/deflection-review-decisions/route.test.ts",
     "test:deflection-intake-atlas-submit": "node scripts/test-deflection-intake-atlas-submit.mjs",
-    "test:deflection-legacy-results-redirect": "node scripts/test-deflection-legacy-results-redirect.mjs",
+    "test:deflection-legacy-results-redirect": "vitest run next.config.test.ts",
     "test:deflection-partner-access": "node scripts/test-deflection-partner-access.mjs",
     "test:deflection-live-submit-smoke": "node scripts/test-deflection-live-submit-smoke.mjs",
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
