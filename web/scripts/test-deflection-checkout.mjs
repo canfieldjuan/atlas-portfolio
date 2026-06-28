@@ -531,8 +531,8 @@ try {
       '};',
       'exports.authorizationCalls = authorizationCalls;',
       'exports.setAuthorizationResult = (value) => { authorizationResult = value; };',
-      'exports.authorizeDeflectionCheckout = async (requestId) => {',
-      '  authorizationCalls.push({ requestId });',
+      'exports.authorizeDeflectionCheckout = async (requestId, priceVariantId) => {',
+      '  authorizationCalls.push({ requestId, priceVariantId });',
       '  return authorizationResult;',
       '};',
       '',
@@ -601,7 +601,9 @@ try {
   );
   assert.equal(routeResponse.status, 503);
   assert.deepEqual(await routeResponse.json(), { error: 'Could not start checkout.' });
-  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [
+    { requestId: 'request-123', priceVariantId: 'standard' },
+  ]);
   assert.deepEqual(checkoutRouteStub.calls, [
     {
       requestId: 'request-123',
@@ -655,6 +657,10 @@ try {
 
   checkoutRouteStub.calls.length = 0;
   atlasRouteStub.authorizationCalls.length = 0;
+  atlasRouteStub.setAuthorizationResult({
+    ok: true,
+    checkout: partnerCheckout,
+  });
   checkoutDatabaseStub.setSavedPriceVariantId('partner');
   const partnerVariantResponse = await POST(
     new Request('https://unit.test/api/deflection-checkout', {
@@ -669,10 +675,19 @@ try {
   );
   assert.equal(partnerVariantResponse.status, 503);
   assert.deepEqual(await partnerVariantResponse.json(), {
-    error: 'Could not start checkout. Please try again.',
+    error: 'Could not start checkout.',
   });
-  assert.deepEqual(atlasRouteStub.authorizationCalls, []);
-  assert.deepEqual(checkoutRouteStub.calls, []);
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [
+    { requestId: 'request-123', priceVariantId: 'partner' },
+  ]);
+  assert.deepEqual(checkoutRouteStub.calls, [
+    {
+      requestId: 'request-123',
+      attemptId: 'attempt-12345678',
+      checkout: partnerCheckout,
+      priceVariantId: 'partner',
+    },
+  ]);
 
   checkoutRouteStub.calls.length = 0;
   atlasRouteStub.authorizationCalls.length = 0;
@@ -691,7 +706,9 @@ try {
   );
   assert.equal(missingReportResponse.status, 404);
   assert.deepEqual(await missingReportResponse.json(), { error: 'Report not found.' });
-  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'missing-123' }]);
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [
+    { requestId: 'missing-123', priceVariantId: 'standard' },
+  ]);
   assert.deepEqual(checkoutRouteStub.calls, []);
 
   atlasRouteStub.setAuthorizationResult({ ok: false, reason: 'already_paid' });
@@ -709,7 +726,9 @@ try {
   );
   assert.equal(alreadyPaidResponse.status, 200);
   assert.deepEqual(await alreadyPaidResponse.json(), { alreadyPaid: true });
-  assert.deepEqual(atlasRouteStub.authorizationCalls, [{ requestId: 'request-123' }]);
+  assert.deepEqual(atlasRouteStub.authorizationCalls, [
+    { requestId: 'request-123', priceVariantId: 'standard' },
+  ]);
   assert.deepEqual(checkoutRouteStub.calls, []);
 
   atlasRouteStub.setAuthorizationResult({
