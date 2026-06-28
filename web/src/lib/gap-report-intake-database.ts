@@ -25,6 +25,7 @@ export type GapReportSummaryRow = {
 
 export type GapReportCleanupCandidate = {
   requestId: string;
+  reportRequestId: string;
   submittedAt: string;
   csvBlobUrl: string;
 };
@@ -373,10 +374,13 @@ export async function listExpiredGapReportSubmissions(
     `
       SELECT
         request_id::text AS request_id,
+        payload->>'reportRequestId' AS report_request_id,
         to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
         csv_blob_url
       FROM portfolio_gap_report_submissions
       WHERE submitted_at < $1::timestamptz
+        AND payload->>'reportRequestId' IS NOT NULL
+        AND payload->>'reportRequestId' <> ''
       ORDER BY submitted_at ASC
       LIMIT $2
     `,
@@ -385,6 +389,7 @@ export async function listExpiredGapReportSubmissions(
 
   return rows.map((row) => ({
     requestId: String(row.request_id),
+    reportRequestId: String(row.report_request_id),
     submittedAt: String(row.submitted_at),
     csvBlobUrl: String(row.csv_blob_url),
   }));

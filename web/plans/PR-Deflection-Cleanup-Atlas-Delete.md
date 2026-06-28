@@ -30,6 +30,7 @@ Slice phase: Production hardening
 - `web/scripts/test-deflection-csv-privacy-contract.mjs` — extend cleanup coverage for ATLAS report deletion.
 - `web/src/lib/atlas-deflection-client.ts` — add the server-only report delete helper.
 - `web/src/lib/gap-report-cleanup.ts` — call the ATLAS delete helper before removing expired Neon rows.
+- `web/src/lib/gap-report-intake-database.ts` — expose expired rows' ATLAS report request ids to cleanup.
 
 ## Mechanism
 
@@ -45,6 +46,11 @@ the ATLAS delete helper for the expired submission's `reportRequestId`. Only
 submissions whose Blob delete and ATLAS delete both succeed are added to the
 `deleteGapReportSubmissions()` batch. A failed ATLAS delete records an error and
 leaves the Neon row in place so the next cron can retry.
+
+`listExpiredGapReportSubmissions()` now projects `payload->>'reportRequestId'`
+and limits this path to rows with a non-empty ATLAS report id. Rows without that
+payload cannot be deleted from ATLAS by this cron path and remain deferred rather
+than being silently marked complete.
 
 ## Intentional
 
@@ -68,7 +74,7 @@ leaves the Neon row in place so the next cron can retry.
 ```bash
 npm --prefix web run test:deflection-csv-privacy # PASS
 npm --prefix web run lint # PASS
-bash scripts/local_pr_review.sh # PENDING
+bash scripts/local_pr_review.sh # PASS
 ```
 
 ## Estimated diff size
@@ -77,6 +83,6 @@ bash scripts/local_pr_review.sh # PENDING
 | --- | ---: |
 | Plan doc | ~90 |
 | ATLAS delete helper | ~45 |
-| Cleanup wiring | ~25 |
+| Cleanup and database wiring | ~45 |
 | Tests | ~90 |
-| Total | ~250 |
+| Total | ~270 |
