@@ -49,7 +49,7 @@
     "test:admin-intake-named-accounts": "node scripts/test-admin-intake-named-accounts.mjs",
     "test:admin-intake-login-rate-limit": "node scripts/test-admin-intake-login-rate-limit.mjs",
     "test:json-ld-escaping": "node scripts/test-json-ld-escaping.mjs",
-    "test:structured-runtime-logging": "node scripts/test-structured-runtime-logging.mjs",
+    "test:structured-runtime-logging": "vitest run src/lib/structured-runtime-log.test.ts",
     "test:deflection-checkout": "node scripts/test-deflection-checkout.mjs",
     "test:deflection-checkout-env": "node scripts/test-deflection-checkout-env.mjs",
     "test:deflection-browser-upload-smoke": "node scripts/test-deflection-browser-upload-smoke.mjs",
@@ -98,7 +98,8 @@
     "eslint-config-next": "16.2.9",
     "knip": "^6.16.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   },
   "overrides": {
     "postcss": "8.5.12"
