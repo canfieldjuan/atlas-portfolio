@@ -41,6 +41,9 @@ export type DeflectionSnapshotTopQuestion = {
   ticket_count: number;
   weighted_frequency: number;
   customer_wording: string;
+  owner_lane: string;
+  action_label: string;
+  estimated_support_cost: number;
 };
 
 export type DeflectionSnapshotLockedQuestion = {
@@ -52,6 +55,9 @@ export type DeflectionSnapshotTopBlindSpot = {
   rank: number;
   question: string;
   ticket_count: number;
+  owner_lane: string;
+  action_label: string;
+  estimated_support_cost: number;
 };
 
 export type DeflectionSnapshotTeaserFullAnswer = {
@@ -272,7 +278,7 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
         surfaces: ['web'],
         default_limit: null,
         required_data: ['rows'],
-        snapshot_safe_fields: ['rows.rank', 'rows.question', 'rows.ticket_count', 'rows.weighted_frequency', 'rows.customer_wording'],
+        snapshot_safe_fields: ['rows.rank', 'rows.question', 'rows.ticket_count', 'rows.weighted_frequency', 'rows.customer_wording', 'rows.estimated_support_cost'],
         data: {
           rows: [
             {
@@ -281,6 +287,7 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
               customer_wording: 'How do I export attribution reports?',
               ticket_count: 2,
               weighted_frequency: 2,
+              estimated_support_cost: 27,
             },
             {
               rank: 2,
@@ -288,6 +295,7 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
               customer_wording: 'How do I enable SSO for my team?',
               ticket_count: 2,
               weighted_frequency: 2,
+              estimated_support_cost: 27,
             },
           ],
         },
@@ -302,6 +310,15 @@ const DEMO_REPORT_EXAMPLE_FIXTURE = JSON.stringify({
         snapshot_safe_fields: [],
         data: {
           items: [
+            {
+              rank: 1,
+              question: 'How do I export attribution reports?',
+              status: 'Draft ready',
+              owner_lane: 'Reporting',
+              owner_category: 'Content / Support Enablement',
+              ticket_count: 2,
+              estimated_support_cost: 27,
+            },
             {
               rank: 2,
               question: 'How do I enable SSO for my team?',
@@ -337,6 +354,9 @@ const DEMO_SNAPSHOT_EXAMPLE_FIXTURE = JSON.stringify({
       customer_wording: 'How do I export attribution reports?',
       ticket_count: 2,
       weighted_frequency: 2,
+      owner_lane: 'Reporting',
+      action_label: 'Publish answer',
+      estimated_support_cost: 27,
     },
   ],
   locked_questions: [],
@@ -345,6 +365,9 @@ const DEMO_SNAPSHOT_EXAMPLE_FIXTURE = JSON.stringify({
       rank: 2,
       question: 'How do I enable SSO for my team?',
       ticket_count: 2,
+      owner_lane: 'Auth / Product UX',
+      action_label: 'Write missing answer',
+      estimated_support_cost: 27,
     },
   ],
   teaser: {

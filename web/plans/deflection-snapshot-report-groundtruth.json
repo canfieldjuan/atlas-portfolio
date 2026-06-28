@@ -36,35 +36,50 @@
         "question": "How do I export attribution reports?",
         "ticket_count": 6,
         "weighted_frequency": 9,
-        "customer_wording": "export attribution reports"
+        "customer_wording": "export attribution reports",
+        "owner_lane": "Reporting",
+        "action_label": "Publish answer",
+        "estimated_support_cost": 81
       },
       {
         "rank": 2,
         "question": "Can I turn on SSO for all users?",
         "ticket_count": 5,
         "weighted_frequency": 7,
-        "customer_wording": "turn on SSO for all users"
+        "customer_wording": "turn on SSO for all users",
+        "owner_lane": "Auth / Product UX",
+        "action_label": "Write missing answer",
+        "estimated_support_cost": 67.5
       },
       {
         "rank": 3,
         "question": "How do I update my billing card?",
         "ticket_count": 4,
         "weighted_frequency": 6,
-        "customer_wording": "update billing card"
+        "customer_wording": "update billing card",
+        "owner_lane": "Billing",
+        "action_label": "Publish answer",
+        "estimated_support_cost": 54
       },
       {
         "rank": 4,
         "question": "Why does the API return 429 errors?",
         "ticket_count": 3,
         "weighted_frequency": 5,
-        "customer_wording": "API returns 429"
+        "customer_wording": "API returns 429",
+        "owner_lane": "Developer Platform",
+        "action_label": "Write missing answer",
+        "estimated_support_cost": 40.5
       },
       {
         "rank": 5,
         "question": "How do I invite a teammate?",
         "ticket_count": 3,
         "weighted_frequency": 4,
-        "customer_wording": "invite a teammate"
+        "customer_wording": "invite a teammate",
+        "owner_lane": "Admin / Access",
+        "action_label": "Improve discoverability",
+        "estimated_support_cost": 40.5
       }
     ],
     "locked_questions": [
@@ -81,12 +96,18 @@
       {
         "rank": 2,
         "question": "Can I turn on SSO for all users?",
-        "ticket_count": 5
+        "ticket_count": 5,
+        "owner_lane": "Auth / Product UX",
+        "action_label": "Write missing answer",
+        "estimated_support_cost": 67.5
       },
       {
         "rank": 4,
         "question": "Why does the API return 429 errors?",
-        "ticket_count": 3
+        "ticket_count": 3,
+        "owner_lane": "Developer Platform",
+        "action_label": "Write missing answer",
+        "estimated_support_cost": 40.5
       }
     ],
     "teaser": {

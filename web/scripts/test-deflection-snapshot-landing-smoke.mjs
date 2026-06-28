@@ -245,6 +245,25 @@ function assertBlindSpotRanksMatchOwningRows(snapshot, reportModel, name) {
   }
 }
 
+function assertSnapshotCostsMatchReport(snapshot, reportModel, name) {
+  const rankedRows =
+    reportModel.sections.find((section) => section.id === 'ranked_questions')?.data
+      ?.rows ?? [];
+  const rankedRowsByQuestion = new Map(
+    objectRows(rankedRows).map((row) => [row.question, row]),
+  );
+
+  for (const row of [...snapshot.top_questions, ...snapshot.top_blind_spots]) {
+    const rankedRow = rankedRowsByQuestion.get(row.question);
+    assert.ok(rankedRow, `${name}: ${row.question} should map to a ranked report row.`);
+    assert.equal(
+      row.estimated_support_cost,
+      rankedRow.estimated_support_cost,
+      `${name}: ${row.question} should keep the report projected cost.`,
+    );
+  }
+}
+
 function assertSyntheticSourceIds(value, name) {
   if (!Array.isArray(value)) return;
   for (const sourceId of value) {
@@ -409,6 +428,11 @@ assert.ok(
   'Primary demo blind spots should preserve original non-sequential ranks.',
 );
 assertBlindSpotRanksMatchOwningRows(
+  DEMO_DEFLECTION_SNAPSHOT,
+  DEMO_DEFLECTION_REPORT_MODEL,
+  'Primary demo Snapshot',
+);
+assertSnapshotCostsMatchReport(
   DEMO_DEFLECTION_SNAPSHOT,
   DEMO_DEFLECTION_REPORT_MODEL,
   'Primary demo Snapshot',

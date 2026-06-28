@@ -35,6 +35,7 @@ export type DiagnosticPricingTier = {
   price: string;
   priceDetail?: string;
   standardPriceSource?: 'atlas';
+  atlasPriceVariant?: 'standard' | 'partner';
   sla?: string;
   description: string;
   includes: string[];
