@@ -31,9 +31,17 @@ $$;
 DROP TRIGGER IF EXISTS portfolio_admin_access_events_no_mutation
   ON portfolio_admin_access_events;
 
+DROP TRIGGER IF EXISTS portfolio_admin_access_events_no_truncate
+  ON portfolio_admin_access_events;
+
 CREATE TRIGGER portfolio_admin_access_events_no_mutation
   BEFORE UPDATE OR DELETE ON portfolio_admin_access_events
   FOR EACH ROW
   EXECUTE FUNCTION prevent_portfolio_admin_access_event_mutation();
 
-REVOKE UPDATE, DELETE ON portfolio_admin_access_events FROM PUBLIC;
+CREATE TRIGGER portfolio_admin_access_events_no_truncate
+  BEFORE TRUNCATE ON portfolio_admin_access_events
+  FOR EACH STATEMENT
+  EXECUTE FUNCTION prevent_portfolio_admin_access_event_mutation();
+
+REVOKE UPDATE, DELETE, TRUNCATE ON portfolio_admin_access_events FROM PUBLIC;

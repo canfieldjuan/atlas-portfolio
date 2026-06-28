@@ -26,9 +26,9 @@ Slice phase: Production hardening
 
 `recordAdminAccessEvent` resolves an admin-ledger database URL, derives a conservative actor id (`shared-admin-token` until named accounts exist), extracts trusted-ish request context from headers, bounds metadata, and inserts one row into `portfolio_admin_access_events`.
 
-The SQL migration creates an append-only table with an `admin_access_events_no_mutation` trigger that raises on `UPDATE` or `DELETE`. Application code only inserts; no read UI is introduced in this slice.
+The SQL migration creates an append-only table with mutation triggers that raise on `UPDATE`, `DELETE`, or `TRUNCATE`, and revokes those mutation privileges from `PUBLIC`. Application code only inserts; no read UI is introduced in this slice.
 
-The admin intake page records an `admin_intake_view` event before it queries and renders audit/CSV submissions. The CSV download route records a `gap_report_csv_download` event after request-id validation and submission lookup but before private Blob retrieval/streaming, so a successful download attempt has an audit trail before raw CSV leaves storage.
+The admin intake page records an `admin_intake_view` event before it queries and renders audit/CSV submissions. The CSV download route validates the private Blob first, then records a `gap_report_csv_download` event immediately before streaming, so the ledger records actual raw CSV access rather than missing-blob attempts.
 
 ## Intentional
 
@@ -63,9 +63,9 @@ bash scripts/local_pr_review.sh # PASS
 | Area | Estimated LOC |
 |---|---:|
 | Plan + CI/script enrollment | ~75 |
-| SQL + helper | ~181 |
+| SQL + helper | ~189 |
 | Admin route/page wiring | ~55 |
 | Test | ~169 |
-| Total | ~480 |
+| Total | ~488 |
 
 This is above the 400-LOC soft cap because the ledger needs the SQL table, the runtime helper, route wiring, and an enrolled sandbox test in the same slice to be reviewable.

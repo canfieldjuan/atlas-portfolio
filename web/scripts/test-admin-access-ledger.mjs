@@ -157,10 +157,19 @@ try {
     'CSV route should record raw CSV downloads',
   );
   assert.ok(
-    csvRouteSource.indexOf('const accessLog = await recordAdminAccessEvent') <
-      csvRouteSource.indexOf('const blob = await getPrivateCsvBlob'),
-    'CSV access logging should happen before private Blob retrieval/streaming',
+    csvRouteSource.indexOf('const blob = await getPrivateCsvBlob') <
+      csvRouteSource.indexOf('const accessLog = await recordAdminAccessEvent'),
+    'CSV access logging should happen after private Blob validation',
   );
+  assert.ok(
+    csvRouteSource.indexOf('const accessLog = await recordAdminAccessEvent') <
+      csvRouteSource.indexOf('return new Response(blob.stream'),
+    'CSV access logging should happen before streaming the private Blob',
+  );
+
+  const sqlSource = await readFile(new URL('../sql/004_portfolio_admin_access_events.sql', import.meta.url), 'utf8');
+  assert.match(sqlSource, /BEFORE TRUNCATE ON portfolio_admin_access_events/);
+  assert.match(sqlSource, /REVOKE UPDATE, DELETE, TRUNCATE ON portfolio_admin_access_events FROM PUBLIC/);
 
   console.log('Admin access ledger tests passed.');
 } finally {

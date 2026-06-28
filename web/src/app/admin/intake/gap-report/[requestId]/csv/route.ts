@@ -63,6 +63,12 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: 'Submission not found.' }, { status: 404 });
   }
 
+  const blob = await getPrivateCsvBlob(submission.csvBlobUrl);
+
+  if (!blob || blob.statusCode !== 200 || !blob.stream) {
+    return NextResponse.json({ error: 'CSV blob not found.' }, { status: 404 });
+  }
+
   const accessLog = await recordAdminAccessEvent({
     action: 'gap_report_csv_download',
     targetType: 'gap_report_submission',
@@ -78,12 +84,6 @@ export async function GET(request: Request, context: RouteContext) {
       { error: 'Admin access logging is unavailable.' },
       { status: 503 },
     );
-  }
-
-  const blob = await getPrivateCsvBlob(submission.csvBlobUrl);
-
-  if (!blob || blob.statusCode !== 200 || !blob.stream) {
-    return NextResponse.json({ error: 'CSV blob not found.' }, { status: 404 });
   }
 
   const headers = new Headers();
