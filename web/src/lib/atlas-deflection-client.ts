@@ -20,6 +20,7 @@ import {
 } from '@/lib/deflection-report-contract';
 import { get } from '@vercel/blob';
 import { gapReportBlobToken, gapReportBlobTokens, type SupportPlatform } from '@/lib/gap-report-intake';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 
 // SERVER-ONLY by convention — import this only from server components / route
 // handlers, never a client component. It reads non-NEXT_PUBLIC_ service
@@ -324,18 +325,18 @@ export async function fetchDeflectionSnapshot(
     });
     if (res.status === 404) return { ok: false, reason: 'not_found' };
     if (!res.ok) {
-      console.error(`deflection snapshot fetch failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.snapshot.fetch_http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
     const snapshot = parseSnapshot(await res.json());
     if (!snapshot) {
-      console.error('deflection snapshot fetch: upstream shape rejected');
+      structuredRuntimeError('deflection.snapshot.shape_rejected');
       return { ok: false, reason: 'error' };
     }
     return { ok: true, snapshot };
   } catch (err) {
     // Generic — never surface the upstream host or token.
-    console.error('deflection snapshot fetch error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('deflection.snapshot.fetch_error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -491,7 +492,7 @@ export async function submitDeflectionReportCsv(
     const csvBytes = await new Response(blob.stream).arrayBuffer();
     csvBlob = new Blob([csvBytes], { type: blob.blob.contentType || 'text/csv' });
   } catch (err) {
-    console.error('deflection submit blob read error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('deflection.submit.blob_read_error', { error: err });
     return { ok: false, reason: 'blob_not_found' };
   }
 
@@ -515,17 +516,17 @@ export async function submitDeflectionReportCsv(
       signal: controller.signal,
     });
     if (!res.ok) {
-      console.error(`deflection submit failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.submit.http_error', { status: res.status });
       return { ok: false, reason: 'rejected' };
     }
     const requestId = parseSubmitRequestId(await res.json());
     if (!requestId) {
-      console.error('deflection submit: upstream shape rejected');
+      structuredRuntimeError('deflection.submit.shape_rejected');
       return { ok: false, reason: 'invalid_response' };
     }
     return { ok: true, requestId };
   } catch (err) {
-    console.error('deflection submit error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('deflection.submit.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -561,20 +562,17 @@ export async function searchUploadedDeflectionReport(input: {
     });
     if (res.status === 404) return { ok: false, reason: 'not_found' };
     if (!res.ok) {
-      console.error(`deflection uploaded search failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.uploaded_search.http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
     const item = parseUploadedDeflectionSearchResponse(await res.json());
     if (item === undefined) {
-      console.error('deflection uploaded search: upstream shape rejected');
+      structuredRuntimeError('deflection.uploaded_search.shape_rejected');
       return { ok: false, reason: 'invalid_response' };
     }
     return { ok: true, item };
   } catch (err) {
-    console.error(
-      'deflection uploaded search error:',
-      err instanceof Error ? err.message : err,
-    );
+    structuredRuntimeError('deflection.uploaded_search.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -661,20 +659,19 @@ export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPri
     });
     if (res.status === 503) return { ok: false, reason: 'not_configured' };
     if (!res.ok) {
-      console.error(`deflection standard pricing terms fetch failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.standard_pricing_terms.http_error', {
+        status: res.status,
+      });
       return { ok: false, reason: 'unavailable' };
     }
     const terms = parseStandardPricingTerms(await res.json());
     if (!terms) {
-      console.error('deflection standard pricing terms fetch: upstream shape rejected');
+      structuredRuntimeError('deflection.standard_pricing_terms.shape_rejected');
       return { ok: false, reason: 'error' };
     }
     return { ok: true, terms };
   } catch (err) {
-    console.error(
-      'deflection standard pricing terms fetch error:',
-      err instanceof Error ? err.message : err,
-    );
+    structuredRuntimeError('deflection.standard_pricing_terms.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -709,20 +706,19 @@ export async function authorizeDeflectionCheckout(
     }
     if (res.status === 503) return { ok: false, reason: 'not_configured' };
     if (!res.ok) {
-      console.error(`deflection checkout authorization failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.checkout_authorization.http_error', {
+        status: res.status,
+      });
       return { ok: false, reason: 'error' };
     }
     const checkout = parseCheckoutAuthorization(await res.json());
     if (!checkout) {
-      console.error('deflection checkout authorization: upstream shape rejected');
+      structuredRuntimeError('deflection.checkout_authorization.shape_rejected');
       return { ok: false, reason: 'error' };
     }
     return { ok: true, checkout };
   } catch (err) {
-    console.error(
-      'deflection checkout authorization error:',
-      err instanceof Error ? err.message : err,
-    );
+    structuredRuntimeError('deflection.checkout_authorization.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -1057,17 +1053,17 @@ export async function fetchDeflectionReportModel(
     if (res.status === 403) return { ok: false, reason: 'locked' };
     if (res.status === 404) return { ok: false, reason: 'not_found' };
     if (!res.ok) {
-      console.error(`deflection report model fetch failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.report_model.http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
     const model = parseReportModel(await res.json());
     if (!model) {
-      console.error('deflection report model fetch: upstream shape rejected');
+      structuredRuntimeError('deflection.report_model.shape_rejected');
       return { ok: false, reason: 'error' };
     }
     return { ok: true, model };
   } catch (err) {
-    console.error('deflection report model fetch error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('deflection.report_model.fetch_error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
@@ -1098,17 +1094,17 @@ export async function fetchDeflectionArtifact(
     if (res.status === 403) return { ok: false, reason: 'locked' };
     if (res.status === 404) return { ok: false, reason: 'not_found' };
     if (!res.ok) {
-      console.error(`deflection artifact fetch failed: HTTP ${res.status}`);
+      structuredRuntimeError('deflection.artifact.http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
     const artifact = parseArtifact(await res.json());
     if (!artifact) {
-      console.error('deflection artifact fetch: upstream shape rejected');
+      structuredRuntimeError('deflection.artifact.shape_rejected');
       return { ok: false, reason: 'error' };
     }
     return { ok: true, artifact };
   } catch (err) {
-    console.error('deflection artifact fetch error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('deflection.artifact.fetch_error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

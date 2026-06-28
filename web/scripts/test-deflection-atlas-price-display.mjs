@@ -90,6 +90,10 @@ try {
       '',
     ].join('\n'),
   );
+  await writeFile(
+    join(libStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = () => {};\n',
+  );
   await writeFile(join(blobStubDir, 'index.js'), 'exports.get = async () => null;\n');
   await writeFile(
     join(testDir, 'deflection-pricing-catalog.js'),

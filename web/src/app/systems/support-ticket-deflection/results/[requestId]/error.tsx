@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { AlertTriangle, RotateCw } from 'lucide-react';
 import Link from 'next/link';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 
 // Error boundary for the results route — renders the thrown "could not load
 // your snapshot" path inside the brand chrome instead of Next's default error UI.
@@ -15,7 +16,10 @@ export default function ResultsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('results page error:', error);
+    structuredRuntimeError('deflection.results_page_error_boundary', {
+      error,
+      digest: error.digest,
+    });
   }, [error]);
 
   return (

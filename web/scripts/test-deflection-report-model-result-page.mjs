@@ -886,6 +886,10 @@ try {
     "exports.gapReportBlobToken = () => 'vercel_blob_rw_unit'; exports.gapReportBlobTokens = () => ['vercel_blob_rw_unit'];\n",
   );
   await writeFile(
+    join(libStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = (event) => console.error(event);\n',
+  );
+  await writeFile(
     join(libStubDir, 'atlas-deflection-client.js'),
     [
       "exports.fetchDeflectionReportModel = async (id) => {",
@@ -1022,7 +1026,7 @@ try {
     reason: 'error',
   });
   assert.ok(
-    consoleErrors.some((entry) => entry.includes('deflection report model fetch: upstream shape rejected')),
+    consoleErrors.some((entry) => entry.includes('deflection.report_model.shape_rejected')),
     'unsupported schema is logged generically',
   );
 

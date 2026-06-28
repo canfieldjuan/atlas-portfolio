@@ -316,6 +316,10 @@ try {
   );
   await writeFile(join(libStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
+    join(libStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = () => {};\n',
+  );
+  await writeFile(
     join(libStubDir, 'deflection-snapshot-pdf.js'),
     [
       'exports.createDeflectionSnapshotPdfAttachment = () => ({',

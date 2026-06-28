@@ -133,6 +133,10 @@ try {
 
   await writeFile(join(seoStubDir, 'seo.js'), "exports.SITE_URL = 'https://juancanfield.com';\n");
   await writeFile(
+    join(seoStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = () => {};\n',
+  );
+  await writeFile(
     join(seoStubDir, 'deflection-pricing.js'),
     [
       `exports.DEFLECTION_DEFAULT_PRICE_VARIANT = ${JSON.stringify(DEFLECTION_DEFAULT_PRICE_VARIANT)};`,

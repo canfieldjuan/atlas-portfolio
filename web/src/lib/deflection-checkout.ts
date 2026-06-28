@@ -12,6 +12,7 @@
 // an SDK dependency, mirroring the fetch pattern in `atlas-deflection-client`.
 
 import { SITE_URL } from '@/lib/seo';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT,
   type DeflectionPriceVariant,
@@ -59,7 +60,7 @@ function stripeConfig(priceVariant: DeflectionPriceVariant): StripeCheckoutConfi
   ) as RuntimeCheckoutConfigResult;
   if (!result.ok) {
     if (result.message) {
-      console.error(`stripe checkout create: ${result.message}`);
+      structuredRuntimeError('stripe.checkout.config_error', { message: result.message });
     }
     return null;
   }
@@ -71,23 +72,29 @@ function isAllowedCheckoutSession(
   checkout: DeflectionCheckoutAuthorization,
 ): session is StripeCheckoutSessionResponse & { url: string } {
   if (typeof session.url !== 'string' || !session.url) {
-    console.error('stripe checkout create: missing session url');
+    structuredRuntimeError('stripe.checkout.missing_session_url');
     return false;
   }
   const amountTotal = typeof session.amount_total === 'number' ? session.amount_total : Number.NaN;
   if (!Number.isSafeInteger(amountTotal)) {
-    console.error('stripe checkout create: missing session amount');
+    structuredRuntimeError('stripe.checkout.missing_session_amount');
     return false;
   }
   if (amountTotal !== checkout.amountCents) {
-    console.error('stripe checkout create: session amount does not match ATLAS authorization');
+    structuredRuntimeError('stripe.checkout.amount_mismatch', {
+      sessionAmountCents: amountTotal,
+      authorizedAmountCents: checkout.amountCents,
+    });
     return false;
   }
   if (
     typeof session.currency !== 'string' ||
     session.currency.toLowerCase() !== checkout.currency
   ) {
-    console.error('stripe checkout create: session currency does not match ATLAS authorization');
+    structuredRuntimeError('stripe.checkout.currency_mismatch', {
+      sessionCurrency: session.currency,
+      authorizedCurrency: checkout.currency,
+    });
     return false;
   }
   return true;
@@ -127,7 +134,9 @@ export async function createDeflectionCheckoutSession(
     return { ok: false, reason: 'invalid_request' };
   }
   if (!config.allowedAmountsCents.has(checkout.amountCents)) {
-    console.error('stripe checkout create: authorized amount is not allowed');
+    structuredRuntimeError('stripe.checkout.amount_not_allowed', {
+      amountCents: checkout.amountCents,
+    });
     return { ok: false, reason: 'not_configured' };
   }
 
@@ -167,7 +176,7 @@ export async function createDeflectionCheckoutSession(
     });
     if (!res.ok) {
       // Log status only — never the secret key or Stripe's error body.
-      console.error(`stripe checkout create failed: HTTP ${res.status}`);
+      structuredRuntimeError('stripe.checkout.http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
     const session = (await res.json()) as StripeCheckoutSessionResponse;
@@ -176,7 +185,7 @@ export async function createDeflectionCheckoutSession(
     }
     return { ok: true, url: session.url };
   } catch (err) {
-    console.error('stripe checkout create error:', err instanceof Error ? err.message : err);
+    structuredRuntimeError('stripe.checkout.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

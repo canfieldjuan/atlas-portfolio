@@ -175,6 +175,10 @@ try {
     ].join('\n'),
   );
   await writeFile(
+    join(libStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = (event) => console.error(event);\n',
+  );
+  await writeFile(
     join(blobStubDir, 'index.js'),
     "exports.get = (...args) => globalThis.__atlasSubmitBlobGet(...args);\n",
   );
@@ -256,7 +260,7 @@ try {
   assert.equal(fetchCalls[0].headers.Authorization, 'Bearer service_token_unit');
   assert.equal(fetchCalls[0].body.get('support_platform'), 'other');
   assert.ok(
-    consoleErrors.some((entry) => entry.includes('deflection submit: upstream shape rejected')),
+    consoleErrors.some((entry) => entry.includes('deflection.submit.shape_rejected')),
     'invalid submit response is logged generically',
   );
 
@@ -597,7 +601,7 @@ try {
     reason: 'error',
   });
   assert.ok(
-    consoleErrors.some((entry) => entry.includes('deflection snapshot fetch: upstream shape rejected')),
+    consoleErrors.some((entry) => entry.includes('deflection.snapshot.shape_rejected')),
     'missing repeat_ticket_count is logged generically',
   );
 
@@ -671,7 +675,7 @@ try {
     reason: 'error',
   });
   assert.ok(
-    consoleErrors.some((entry) => entry.includes('deflection snapshot fetch: upstream shape rejected')),
+    consoleErrors.some((entry) => entry.includes('deflection.snapshot.shape_rejected')),
     'invalid snapshot teaser response is logged generically',
   );
 

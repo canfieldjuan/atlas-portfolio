@@ -161,6 +161,10 @@ try {
       '',
     ].join('\n'),
   );
+  await writeFile(
+    join(libStubDir, 'structured-runtime-log.js'),
+    'exports.structuredRuntimeError = () => {};\n',
+  );
 
   globalThis.__uploadedSearchLocalMatch = localMatch;
   globalThis.__uploadedSearchLocalCalls = localCalls;

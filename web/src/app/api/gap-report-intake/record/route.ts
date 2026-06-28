@@ -19,6 +19,7 @@ import {
   consumeDeflectionRateLimit,
   type DeflectionRateLimitConfig,
 } from '@/lib/deflection-rate-limit';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 
 export const runtime = 'nodejs';
 // The deflection submit forwards up to 50 MB of CSV to ATLAS and waits for
@@ -74,7 +75,7 @@ const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
 
 function deflectionSubmitFailureResponse(reason: DeflectionSubmitFailureReason) {
   const failure = DEFLECTION_SUBMIT_FAILURE_COPY[reason];
-  console.error(`deflection record: ATLAS submit failed (${reason})`);
+  structuredRuntimeError('deflection.record.atlas_submit_failed', { reason });
   return NextResponse.json(
     {
       ok: false,
@@ -109,7 +110,7 @@ async function findRecentDuplicateSubmission(email: string, blobUrl: string) {
   try {
     return await getRecentGapReportSubmissionByEmailAndBlob(email, blobUrl, submittedAfterIso);
   } catch (error) {
-    console.error('deflection record: duplicate lookup failed', error);
+    structuredRuntimeError('deflection.record.duplicate_lookup_failed', { error });
     return null;
   }
 }
@@ -212,9 +213,10 @@ export async function POST(request: Request) {
         if (snapshotResult.ok) {
           snapshot = snapshotResult.snapshot;
         } else {
-          console.error(
-            `deflection record: Snapshot PDF attachment skipped (${snapshotResult.reason})`,
-          );
+          structuredRuntimeError('deflection.record.snapshot_pdf_attachment_skipped', {
+            reason: snapshotResult.reason,
+            reportRequestId: submit.requestId,
+          });
         }
       } else {
         return deflectionSubmitFailureResponse(submit.reason);
