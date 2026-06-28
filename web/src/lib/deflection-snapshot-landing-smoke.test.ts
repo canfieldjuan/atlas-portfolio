@@ -396,6 +396,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     expect(snapshotLandingSource).toContain('data-smoke="heroProofStrip"');
     expect(snapshotLandingSource).toContain('data-smoke="blindSpots"');
     expect(snapshotLandingSource).toContain('DEMO_DEFLECTION_REPORT_MODEL');
+    expect(snapshotLandingSource).toContain('<SnapshotArtifact');
     expect(snapshotLandingSource).toContain('<DeflectionLockedReportPreview');
     expect(snapshotLandingSource.indexOf('<SnapshotArtifact')).toBeLessThan(
       snapshotLandingSource.indexOf('<DeflectionLockedReportPreview'),
@@ -533,9 +534,11 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     const success = await run({
       response: { body: `${GOOD_HTML}<template>This page could not be found</template>` },
     });
-    expect(success.result).toMatchObject({
+    expect(success.result).toEqual({
       ok: true,
       mode: 'DEFLECTION_SNAPSHOT_LANDING_SMOKE',
+      apiCalls: true,
+      checkedAt: '2026-06-04T00:30:00.000Z',
       baseUrl: 'https://portfolio.example.com',
       url: SNAPSHOT_URL,
       markers: Object.fromEntries(MARKER_KEYS.map((key) => [key, true])),

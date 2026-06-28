@@ -79,8 +79,8 @@ bash scripts/local_pr_review.sh # PASS
 | `web/package.json` | ~2 |
 | `web/plans/PR-Real-Adapter-Deflection-Snapshot-Landing-Smoke-Test.md` | ~87 |
 | `web/scripts/test-deflection-snapshot-landing-smoke.mjs` | ~848 |
-| `web/src/lib/deflection-snapshot-landing-smoke.test.ts` | ~657 |
-| Total | ~1594 |
+| `web/src/lib/deflection-snapshot-landing-smoke.test.ts` | ~660 |
+| Total | ~1597 |
 
 This is over the 400-LOC soft cap because the old smoke contract combines
 fixture projection checks, source/copy guards, render-marker validation, and CLI
