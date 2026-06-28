@@ -1,4 +1,5 @@
-import { del, list } from '@vercel/blob';
+import { BlobNotFoundError, del, list } from '@vercel/blob';
+import { deleteDeflectionReport } from './atlas-deflection-client';
 import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
@@ -9,6 +10,7 @@ import {
 const GAP_REPORT_BLOB_PREFIX = 'gap-report-csvs/';
 const DEFAULT_RETENTION_DAYS = 30;
 const DEFAULT_BATCH_LIMIT = 100;
+const MAX_TRACKED_BATCH_LIMIT = 25;
 
 export type GapReportCleanupResult = {
   cutoffIso: string;
@@ -32,19 +34,30 @@ function errorMessage(error: unknown) {
 async function deleteBlob(url: string) {
   const tokens = gapReportBlobTokens();
   if (tokens.length === 0) {
-    await del(url, { token: undefined });
+    try {
+      await del(url, { token: undefined });
+    } catch (error) {
+      if (error instanceof BlobNotFoundError) return;
+      throw error;
+    }
     return;
   }
 
   let lastError: unknown;
+  let sawMissingBlob = false;
   for (const token of tokens) {
     try {
       await del(url, { token });
       return;
     } catch (error) {
+      if (error instanceof BlobNotFoundError) {
+        sawMissingBlob = true;
+        continue;
+      }
       lastError = error;
     }
   }
+  if (sawMissingBlob) return;
   throw lastError;
 }
 
@@ -53,40 +66,50 @@ async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
   let expiredDatabaseRows = 0;
   let deletedTrackedBlobs = 0;
   let deletedDatabaseRows = 0;
+  const trackedLimit = Math.max(1, Math.min(limit, MAX_TRACKED_BATCH_LIMIT));
+  let retainedOffset = 0;
 
-  // Paginate until no more expired records exist. listExpiredGapReportSubmissions
-  // returns at most `limit` rows per call ordered by submitted_at ASC; without a
-  // loop, any backlog larger than `limit` rows would only be partially cleared per
-  // cron run, leaving older records past the 30-day retention window indefinitely.
-  //
-  // Guard: if an entire batch produces zero successful blob deletions (all blob
-  // deletes failed), break rather than retrying the same rows infinitely.
+  // Paginate until no more expired records exist. Retained failures stay in
+  // Neon, so retainedOffset lets this cron run advance to newer expired rows
+  // without losing the retry handle for failed rows.
   let hasMore = true;
   while (hasMore) {
-    const expired = await listExpiredGapReportSubmissions(cutoffIso, limit);
+    const expired = await listExpiredGapReportSubmissions(cutoffIso, trackedLimit, retainedOffset);
     if (expired.length === 0) break;
 
     expiredDatabaseRows += expired.length;
     const deletedRequestIds: string[] = [];
+    let retainedRows = 0;
 
     for (const submission of expired) {
       try {
         await deleteBlob(submission.csvBlobUrl);
         deletedTrackedBlobs += 1;
+        const atlasDelete = await deleteDeflectionReport(submission.reportRequestId);
+        if (!atlasDelete.ok) {
+          errors.push(
+            `Failed to delete ATLAS report ${submission.reportRequestId} for request ${submission.requestId}: ${atlasDelete.reason}`
+          );
+          retainedRows += 1;
+          continue;
+        }
         deletedRequestIds.push(submission.requestId);
       } catch (error) {
         errors.push(
           `Failed to delete blob for request ${submission.requestId}: ${errorMessage(error)}`
         );
+        retainedRows += 1;
       }
     }
 
     const batchDeleted = await deleteGapReportSubmissions(deletedRequestIds);
     deletedDatabaseRows += batchDeleted;
+    retainedOffset += retainedRows;
 
-    // Continue only if we got a full page (more may exist) AND made forward
-    // progress (at least one blob + DB row was deleted this iteration).
-    hasMore = expired.length === limit && deletedRequestIds.length > 0;
+    // Retained failures stay in Neon for retry, so advance past the retained
+    // rows within this cron run to keep one stuck report from starving newer
+    // expired rows.
+    hasMore = expired.length === trackedLimit;
   }
 
   return {

@@ -35,6 +35,7 @@ import type { DeflectionPriceVariantId } from '@/lib/deflection-pricing';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const FETCH_TIMEOUT_MS = 10_000;
+const REPORT_DELETE_TIMEOUT_MS = 3_000;
 const ARTIFACT_FETCH_TIMEOUT_MS = 60_000;
 // The full-volume submit streams up to 50 MB of CSV to ATLAS and waits for
 // the deterministic report build (~52s measured at 35k rows), so it needs a
@@ -48,11 +49,19 @@ export type SnapshotFetchResult =
   | { ok: true; snapshot: DeflectionSnapshot }
   | { ok: false; reason: 'not_configured' | 'not_found' | 'error' };
 
+export type DeflectionReportDeleteResult =
+  | { ok: true }
+  | { ok: false; reason: 'not_configured' | 'not_found' | 'error' };
+
 function atlasConfig(): { baseUrl: string; token: string } | null {
   const baseUrl = process.env.ATLAS_API_BASE_URL?.trim().replace(/\/$/, '');
   const token = process.env.ATLAS_B2B_SERVICE_TOKEN?.trim();
   if (!baseUrl || !token) return null;
   return { baseUrl, token };
+}
+
+function deflectionReportDeletePath(reportRequestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(reportRequestId)}`;
 }
 
 function isNonNegativeNumber(value: unknown): value is number {
@@ -353,6 +362,39 @@ export async function fetchDeflectionSnapshot(
   } catch (err) {
     // Generic — never surface the upstream host or token.
     structuredRuntimeError('deflection.snapshot.fetch_error', { error: err });
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function deleteDeflectionReport(
+  reportRequestId: string,
+): Promise<DeflectionReportDeleteResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+  if (!REQUEST_ID_RE.test(reportRequestId)) return { ok: false, reason: 'not_found' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REPORT_DELETE_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${deflectionReportDeletePath(reportRequestId)}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 204 || res.status === 404) return { ok: true };
+    if (!res.ok) {
+      structuredRuntimeError('deflection.report_delete.http_error', { status: res.status });
+      return { ok: false, reason: 'error' };
+    }
+    structuredRuntimeError('deflection.report_delete.unexpected_status', { status: res.status });
+    return { ok: false, reason: 'error' };
+  } catch (err) {
+    structuredRuntimeError('deflection.report_delete.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

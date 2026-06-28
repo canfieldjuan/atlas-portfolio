@@ -25,6 +25,7 @@ export type GapReportSummaryRow = {
 
 export type GapReportCleanupCandidate = {
   requestId: string;
+  reportRequestId: string;
   submittedAt: string;
   csvBlobUrl: string;
 };
@@ -361,7 +362,8 @@ export async function getGapReportPriceVariantByReportRequestId(
 
 export async function listExpiredGapReportSubmissions(
   cutoffIso: string,
-  limit = 100
+  limit = 100,
+  offset = 0
 ): Promise<GapReportCleanupCandidate[]> {
   const sql = getGapReportSql();
   if (!sql) {
@@ -369,22 +371,28 @@ export async function listExpiredGapReportSubmissions(
   }
 
   const boundedLimit = Math.max(1, Math.min(limit, 500));
+  const boundedOffset = Math.max(0, offset);
   const rows = await sql.query(
     `
       SELECT
         request_id::text AS request_id,
+        payload->>'reportRequestId' AS report_request_id,
         to_char(submitted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS submitted_at,
         csv_blob_url
       FROM portfolio_gap_report_submissions
       WHERE submitted_at < $1::timestamptz
+        AND payload->>'reportRequestId' IS NOT NULL
+        AND payload->>'reportRequestId' <> ''
       ORDER BY submitted_at ASC
       LIMIT $2
+      OFFSET $3
     `,
-    [cutoffIso, boundedLimit]
+    [cutoffIso, boundedLimit, boundedOffset]
   );
 
   return rows.map((row) => ({
     requestId: String(row.request_id),
+    reportRequestId: String(row.report_request_id),
     submittedAt: String(row.submitted_at),
     csvBlobUrl: String(row.csv_blob_url),
   }));

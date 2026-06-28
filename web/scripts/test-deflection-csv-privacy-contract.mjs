@@ -32,6 +32,7 @@ const recordRoute = await source('src/app/api/gap-report-intake/record/route.ts'
 const intakeLib = await source('src/lib/gap-report-intake.ts');
 const adminCsvRoute = await source('src/app/admin/intake/gap-report/[requestId]/csv/route.ts');
 const cleanupLib = await source('src/lib/gap-report-cleanup.ts');
+const atlasDeflectionClient = await source('src/lib/atlas-deflection-client.ts');
 const landingConfig = await source('src/app/systems/support-ticket-deflection/landingConfig.tsx');
 const securityPage = await source('src/app/security/page.tsx');
 const compactSecurityPage = securityPage.replace(/\s+/g, ' ');
@@ -115,8 +116,27 @@ assertIncludes(adminCsvRoute, "headers.set('Cache-Control', 'no-store')", 'admin
 assertIncludes(cleanupLib, "const GAP_REPORT_BLOB_PREFIX = 'gap-report-csvs/'", 'CSV cleanup prefix');
 assertIncludes(cleanupLib, 'for (const token of tokens)', 'CSV cleanup delete token fallback');
 assertIncludes(cleanupLib, 'for (const token of listTokens)', 'CSV cleanup list token fallback');
+assertIncludes(cleanupLib, 'deleteDeflectionReport', 'CSV cleanup ATLAS report delete');
 assertIncludes(cleanupLib, 'cleanupTrackedSubmissions', 'CSV tracked cleanup');
 assertIncludes(cleanupLib, 'cleanupOrphanedBlobs', 'CSV orphan cleanup');
+assertIncludes(cleanupLib, 'MAX_TRACKED_BATCH_LIMIT = 25', 'CSV tracked cleanup ATLAS delete bound');
+assertIncludes(cleanupLib, 'retainedOffset += retainedRows', 'CSV tracked cleanup retained-row paging');
+const reportDeleteHelper = sourceSlice(
+  atlasDeflectionClient,
+  'export async function deleteDeflectionReport',
+  'export type ArtifactFetchResult',
+  'ATLAS report delete helper',
+);
+assertIncludes(
+  atlasDeflectionClient,
+  'const REPORT_DELETE_TIMEOUT_MS = 3_000',
+  'ATLAS report delete timeout',
+);
+assertIncludes(
+  reportDeleteHelper,
+  "structuredRuntimeError('deflection.report_delete.unexpected_status'",
+  'ATLAS report delete unexpected success status',
+);
 
 assertIncludes(
   landingConfig,
@@ -289,7 +309,9 @@ exports.parseGapReportMetadata = (raw) => {
   await writeFile(
     join(blobStubDir, 'index.js'),
     `
-exports.del = (...args) => globalThis.__csvPrivacyBlobDel(...args);
+class BlobNotFoundError extends Error {}
+exports.BlobNotFoundError = BlobNotFoundError;
+exports.del = (...args) => globalThis.__csvPrivacyBlobDel(...args, BlobNotFoundError);
 exports.list = (...args) => globalThis.__csvPrivacyBlobList(...args);
 `,
   );
@@ -304,11 +326,27 @@ exports.gapReportBlobToken = () => globalThis.__csvPrivacyBlobTokens[0];
     join(testDir, 'gap-report-intake-database.js'),
     `
 exports.gapReportDatabaseConfigured = () => true;
-exports.listExpiredGapReportSubmissions = async () => {
-  const next = globalThis.__csvPrivacyExpiredBatches.shift();
-  return next || [];
+exports.listExpiredGapReportSubmissions = async (_cutoffIso, limit, offset = 0) => {
+  globalThis.__csvPrivacyCleanupPageRequests.push({ limit, offset });
+  const remaining = globalThis.__csvPrivacyExpiredRows.filter(
+    (row) => !globalThis.__csvPrivacyDeletedSubmissionIds.includes(row.requestId),
+  );
+  return remaining.slice(offset, offset + limit);
 };
-exports.deleteGapReportSubmissions = async (ids) => ids.length;
+exports.deleteGapReportSubmissions = async (ids) => {
+  globalThis.__csvPrivacyDeletedSubmissionIds.push(...ids);
+  return ids.length;
+};
+`,
+  );
+  await writeFile(
+    join(testDir, 'atlas-deflection-client.js'),
+    `
+exports.deleteDeflectionReport = async (requestId) => {
+  globalThis.__csvPrivacyCleanupEvents.push('atlas:' + requestId);
+  globalThis.__csvPrivacyAtlasDeletes.push(requestId);
+  return globalThis.__csvPrivacyAtlasDeleteResults[requestId] || { ok: true };
+};
 `,
   );
 
@@ -323,13 +361,43 @@ exports.deleteGapReportSubmissions = async (ids) => ids.length;
   const oldDate = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000);
   const delCalls = [];
   const listCalls = [];
+  globalThis.__csvPrivacyAtlasDeletes = [];
+  globalThis.__csvPrivacyAtlasDeleteResults = {
+    'report-failed': { ok: false, reason: 'error' },
+  };
+  globalThis.__csvPrivacyCleanupEvents = [];
+  globalThis.__csvPrivacyCleanupPageRequests = [];
+  globalThis.__csvPrivacyDeletedSubmissionIds = [];
+  globalThis.__csvPrivacyMissingBlobUrls = new Set();
   globalThis.__csvPrivacyBlobTokens = ['private-token', 'legacy-token'];
-  globalThis.__csvPrivacyExpiredBatches = [
-    [{ requestId: 'legacy-row', csvBlobUrl: 'https://legacy.example/gap-report-csvs/tracked.csv' }],
-    [],
+  globalThis.__csvPrivacyExpiredRows = [
+    {
+      requestId: 'legacy-row',
+      reportRequestId: 'report-deleted',
+      csvBlobUrl: 'https://legacy.example/gap-report-csvs/tracked.csv',
+    },
+    {
+      requestId: 'failed-row',
+      reportRequestId: 'report-failed',
+      csvBlobUrl: 'https://private.example/gap-report-csvs/failed.csv',
+    },
+    {
+      requestId: 'gone-row',
+      reportRequestId: 'report-gone',
+      csvBlobUrl: 'https://private.example/gap-report-csvs/gone.csv',
+    },
+    {
+      requestId: 'after-failure-row',
+      reportRequestId: 'report-after-failure',
+      csvBlobUrl: 'https://private.example/gap-report-csvs/after-failure.csv',
+    },
   ];
-  globalThis.__csvPrivacyBlobDel = async (url, options) => {
+  globalThis.__csvPrivacyBlobDel = async (url, options, BlobNotFoundError) => {
     delCalls.push({ url, token: options?.token });
+    globalThis.__csvPrivacyCleanupEvents.push('blob:' + url + ':' + options?.token);
+    if (globalThis.__csvPrivacyMissingBlobUrls.has(url) && options?.token === 'private-token') {
+      throw new BlobNotFoundError('missing blob');
+    }
     if (url.includes('legacy.example') && options?.token !== 'legacy-token') {
       throw new Error('wrong store');
     }
@@ -363,25 +431,91 @@ exports.deleteGapReportSubmissions = async (ids) => ids.length;
 
   const require = createRequire(compiledPath);
   const { cleanupExpiredGapReportData } = require(compiledPath);
-  const result = await cleanupExpiredGapReportData({ retentionDays: 30, limit: 10 });
+  const result = await cleanupExpiredGapReportData({ retentionDays: 30, limit: 2 });
 
-  assert.equal(result.deletedTrackedBlobs, 1);
-  assert.equal(result.deletedDatabaseRows, 1);
+  assert.equal(result.deletedTrackedBlobs, 4);
+  assert.equal(result.deletedDatabaseRows, 3);
   assert.equal(result.deletedOrphanedBlobs, 2);
-  assert.deepEqual(result.errors, []);
+  assert.deepEqual(result.errors, [
+    'Failed to delete ATLAS report report-failed for request failed-row: error',
+  ]);
   assert.deepEqual(listCalls, ['private-token', 'legacy-token']);
+  assert.deepEqual(globalThis.__csvPrivacyCleanupPageRequests, [
+    { limit: 2, offset: 0 },
+    { limit: 2, offset: 1 },
+    { limit: 2, offset: 1 },
+  ]);
+  assert.deepEqual(globalThis.__csvPrivacyAtlasDeletes, [
+    'report-deleted',
+    'report-failed',
+    'report-gone',
+    'report-after-failure',
+  ]);
+  assert.deepEqual(globalThis.__csvPrivacyDeletedSubmissionIds, [
+    'legacy-row',
+    'gone-row',
+    'after-failure-row',
+  ]);
+  const trackedBlobIndex = globalThis.__csvPrivacyCleanupEvents.indexOf(
+    'blob:https://legacy.example/gap-report-csvs/tracked.csv:legacy-token',
+  );
+  const reportDeleteIndex = globalThis.__csvPrivacyCleanupEvents.indexOf('atlas:report-deleted');
+  assert.notEqual(trackedBlobIndex, -1, 'tracked Blob delete event exists');
+  assert.notEqual(reportDeleteIndex, -1, 'ATLAS report delete event exists');
+  assert.ok(
+    trackedBlobIndex < reportDeleteIndex,
+    'cleanup deletes the tracked Blob before deleting the derived ATLAS report',
+  );
+  const orphanBlobIndex = globalThis.__csvPrivacyCleanupEvents.indexOf(
+    'blob:https://private.example/gap-report-csvs/orphan.csv:private-token',
+  );
+  assert.notEqual(orphanBlobIndex, -1, 'orphan Blob delete event exists');
+  assert.ok(
+    reportDeleteIndex < orphanBlobIndex,
+    'tracked report deletion happens before orphan cleanup',
+  );
   assert.deepEqual(
     delCalls.map((call) => call.token),
-    ['private-token', 'legacy-token', 'private-token', 'private-token', 'legacy-token'],
+    [
+      'private-token',
+      'legacy-token',
+      'private-token',
+      'private-token',
+      'private-token',
+      'private-token',
+      'private-token',
+      'legacy-token',
+    ],
     'cleanup retries legacy token for legacy-store URLs without blocking private-store deletes',
   );
+
+  globalThis.__csvPrivacyAtlasDeleteResults = {};
+  globalThis.__csvPrivacyMissingBlobUrls.add('https://private.example/gap-report-csvs/failed.csv');
+  const retryResult = await cleanupExpiredGapReportData({ retentionDays: 30, limit: 2 });
+  assert.equal(retryResult.deletedTrackedBlobs, 1);
+  assert.equal(retryResult.deletedDatabaseRows, 1);
+  assert.equal(retryResult.deletedOrphanedBlobs, 2);
+  assert.deepEqual(retryResult.errors, []);
+  assert.deepEqual(globalThis.__csvPrivacyDeletedSubmissionIds, [
+    'legacy-row',
+    'gone-row',
+    'after-failure-row',
+    'failed-row',
+  ]);
+  assert.deepEqual(globalThis.__csvPrivacyAtlasDeletes.slice(-1), ['report-failed']);
 } finally {
   delete globalThis.__atlasDeflectionRateLimitStore;
   delete globalThis.__csvPrivacyUploadClientPayload;
   delete globalThis.__csvPrivacyUploadGeneratedTokens;
   delete globalThis.__csvPrivacyUploadHandleCalls;
   delete globalThis.__csvPrivacyBlobTokens;
-  delete globalThis.__csvPrivacyExpiredBatches;
+  delete globalThis.__csvPrivacyMissingBlobUrls;
+  delete globalThis.__csvPrivacyExpiredRows;
+  delete globalThis.__csvPrivacyAtlasDeletes;
+  delete globalThis.__csvPrivacyAtlasDeleteResults;
+  delete globalThis.__csvPrivacyCleanupEvents;
+  delete globalThis.__csvPrivacyCleanupPageRequests;
+  delete globalThis.__csvPrivacyDeletedSubmissionIds;
   delete globalThis.__csvPrivacyBlobDel;
   delete globalThis.__csvPrivacyBlobList;
   await rm(testDir, { recursive: true, force: true });
