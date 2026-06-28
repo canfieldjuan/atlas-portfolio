@@ -27,6 +27,7 @@ import {
   getGapReportPriceVariantByReportRequestId,
   getGapReportSubmittedAtByReportRequestId,
 } from '@/lib/gap-report-intake-database';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 import type { FAQDeflectionReportArtifact } from '@/lib/deflection-report-contract';
 import type {
   FaqReportComebackAgeBucket,
@@ -94,10 +95,10 @@ async function getServerBoundPriceVariantId(requestId: string) {
   try {
     return await getGapReportPriceVariantByReportRequestId(requestId);
   } catch (error) {
-    console.error(
-      'deflection results: failed to load saved price variant:',
-      error instanceof Error ? error.message : error,
-    );
+    structuredRuntimeError('deflection.results.saved_price_variant_lookup_failed', {
+      requestId,
+      error,
+    });
     return null;
   }
 }
@@ -111,10 +112,10 @@ async function getResultsAnalyticsContext(
       submissionAgeBucket: comebackAgeBucket(submittedAt ?? undefined),
     };
   } catch (error) {
-    console.error(
-      'deflection results: failed to load submission analytics context:',
-      error instanceof Error ? error.message : error,
-    );
+    structuredRuntimeError('deflection.results.analytics_context_lookup_failed', {
+      requestId,
+      error,
+    });
     return { submissionAgeBucket: 'unknown' };
   }
 }

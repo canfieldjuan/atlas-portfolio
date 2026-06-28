@@ -3,6 +3,7 @@ import { createDeflectionCheckoutSession } from '@/lib/deflection-checkout';
 import { authorizeDeflectionCheckout } from '@/lib/atlas-deflection-client';
 import { consumeDeflectionRateLimit } from '@/lib/deflection-rate-limit';
 import { getGapReportPriceVariantByReportRequestId } from '@/lib/gap-report-intake-database';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   type DeflectionPriceVariantId,
@@ -32,10 +33,10 @@ async function serverBoundPriceVariantId(
       priceVariantId: await getGapReportPriceVariantByReportRequestId(requestId),
     };
   } catch (error) {
-    console.error(
-      'deflection checkout: failed to load saved price variant:',
-      error instanceof Error ? error.message : error,
-    );
+    structuredRuntimeError('deflection.checkout.saved_price_variant_lookup_failed', {
+      requestId,
+      error,
+    });
     return { ok: false };
   }
 }

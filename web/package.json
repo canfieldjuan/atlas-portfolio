@@ -47,6 +47,7 @@
     "test:google-ads-artifacts": "node scripts/test-google-ads-artifact-contracts.mjs",
     "test:admin-intake-login-rate-limit": "node scripts/test-admin-intake-login-rate-limit.mjs",
     "test:json-ld-escaping": "node scripts/test-json-ld-escaping.mjs",
+    "test:structured-runtime-logging": "node scripts/test-structured-runtime-logging.mjs",
     "test:deflection-checkout": "node scripts/test-deflection-checkout.mjs",
     "test:deflection-checkout-env": "node scripts/test-deflection-checkout-env.mjs",
     "test:deflection-browser-upload-smoke": "node scripts/test-deflection-browser-upload-smoke.mjs",

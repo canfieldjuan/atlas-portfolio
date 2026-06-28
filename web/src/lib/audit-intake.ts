@@ -1,6 +1,7 @@
 import { appendFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { persistAuditIntakeRecord } from './audit-intake-database';
+import { structuredRuntimeError } from './structured-runtime-log';
 
 export type AuditIntakePayload = {
   fullName: string;
@@ -284,7 +285,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
     // Database errors can include connection strings, schema names, host/user, and SQL
     // fragments. `warnings` is returned to the client by /api/audit, so surface only a
     // generic message and log the full error server-side for operator triage.
-    console.error('Audit database persistence failed', error);
+    structuredRuntimeError('audit_intake.database_persistence_failed', { error });
     warnings.push('Audit database persistence failed.');
   }
 
@@ -296,7 +297,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
     } catch (error) {
       // Webhook errors can include the upstream URL, response body, or
       // auth-related details. Generic message for the client; full error to logs.
-      console.error('Audit webhook delivery failed', error);
+      structuredRuntimeError('audit_intake.webhook_delivery_failed', { error });
       warnings.push('Audit webhook delivery failed.');
     }
   }
@@ -308,7 +309,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
       deliveries.push('atlas-crm-event');
     } catch (error) {
       // Atlas CRM errors can echo the upstream endpoint, response body, or auth state.
-      console.error('Atlas CRM event delivery failed', error);
+      structuredRuntimeError('audit_intake.atlas_crm_event_delivery_failed', { error });
       warnings.push('Atlas CRM event delivery failed.');
     }
   }
@@ -327,7 +328,7 @@ export async function recordAuditIntake(payload: AuditIntakePayload) {
     } catch (error) {
       // Email provider errors can include API keys, recipient lists, and provider
       // response bodies that should never reach the submitter.
-      console.error('Audit notification email failed', error);
+      structuredRuntimeError('audit_intake.notification_email_failed', { error });
       warnings.push('Audit notification email failed.');
     }
   }

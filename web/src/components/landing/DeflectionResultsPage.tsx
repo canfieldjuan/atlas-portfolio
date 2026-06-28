@@ -20,6 +20,7 @@ import {
   trackFaqReportUnlockClicked,
   type FaqReportResultsAnalyticsContext,
 } from '@/lib/analytics';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 import {
   DeflectionBlindSpotRows,
   DeflectionLockedQuestionRows,
@@ -239,10 +240,10 @@ export function DeflectionResultsPage({
       setError(data.error ?? 'Could not start checkout. Please try again.');
       setLoading(false);
     } catch (err) {
-      console.error(
-        'deflection checkout failed',
-        err instanceof Error ? err.message : err,
-      );
+      structuredRuntimeError('deflection.results.checkout_failed', {
+        requestId,
+        error: err,
+      });
       setError('Could not start checkout. Please try again.');
       setLoading(false);
     }

@@ -10,6 +10,7 @@ import {
   type DeflectionRateLimitConfig,
 } from '@/lib/deflection-rate-limit';
 import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
+import { structuredRuntimeError } from '@/lib/structured-runtime-log';
 
 // Backend seam for the Support Ticket Deflection demo.
 //
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
     };
     return NextResponse.json(response);
   } catch (error) {
-    console.error('deflection-search: unexpected error:', error);
+    structuredRuntimeError('deflection.demo_search.unexpected_error', { error });
     return NextResponse.json(
       { match: null, error: 'Search failed. Please try again.' },
       { status: 500 },
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       source: 'atlas',
     } satisfies DeflectionSearchResponse);
   } catch (error) {
-    console.error('deflection uploaded search: unexpected error:', error);
+    structuredRuntimeError('deflection.uploaded_search_route.unexpected_error', { error });
     return uploadedSearchFailureResponse('error');
   }
 }
