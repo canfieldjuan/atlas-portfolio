@@ -9,7 +9,7 @@ import {
   fetchDeflectionSnapshot,
   fetchDeflectionArtifact,
   fetchDeflectionReportModel,
-  fetchDeflectionStandardPricingTerms,
+  fetchDeflectionPricingTerms,
   type ReportModelFetchResult,
 } from '@/lib/atlas-deflection-client';
 import {
@@ -21,7 +21,7 @@ import {
   DEFLECTION_DEFAULT_PRICE_VARIANT_ID,
   resolveDeflectionPriceVariant,
   type DeflectionPriceVariant,
-  withDeflectionStandardPriceDisplayTerms,
+  withDeflectionPriceDisplayTerms,
 } from '@/lib/deflection-pricing';
 import {
   getGapReportPriceVariantByReportRequestId,
@@ -145,9 +145,8 @@ async function getResultsPriceVariant(
 async function getResultsDisplayPriceVariant(
   priceVariant: DeflectionPriceVariant,
 ): Promise<DeflectionPriceVariant> {
-  if (priceVariant.id !== DEFLECTION_DEFAULT_PRICE_VARIANT_ID) return priceVariant;
-  const result = await fetchDeflectionStandardPricingTerms();
-  return withDeflectionStandardPriceDisplayTerms(
+  const result = await fetchDeflectionPricingTerms(priceVariant.id);
+  return withDeflectionPriceDisplayTerms(
     priceVariant,
     result.ok ? result.terms : null,
   );

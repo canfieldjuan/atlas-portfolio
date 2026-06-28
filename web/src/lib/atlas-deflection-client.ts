@@ -388,6 +388,13 @@ export type DeflectionStandardPricingTerms = {
   currency: string;
 };
 
+export type DeflectionPricingTerms = {
+  variant: DeflectionPriceVariantId;
+  status: 'configured';
+  amountCents: number;
+  currency: string;
+};
+
 type CheckoutAuthorizationFailureReason =
   | 'not_configured'
   | 'not_found'
@@ -401,6 +408,10 @@ export type CheckoutAuthorizationResult =
 
 export type StandardPricingTermsResult =
   | { ok: true; terms: DeflectionStandardPricingTerms }
+  | { ok: false; reason: 'not_configured' | 'unavailable' | 'error' };
+
+export type PricingTermsResult =
+  | { ok: true; terms: DeflectionPricingTerms }
   | { ok: false; reason: 'not_configured' | 'unavailable' | 'error' };
 
 export type DeflectionSubmitResult =
@@ -423,8 +434,8 @@ export type DeflectionSubmitInput = {
 };
 
 const DEFLECTION_SUBMIT_PATH = '/api/v1/content-ops/deflection-reports/submit';
-const DEFLECTION_STANDARD_PRICING_TERMS_PATH =
-  '/api/v1/content-ops/deflection-reports/pricing/standard';
+const DEFLECTION_PRICING_TERMS_PATH =
+  '/api/v1/content-ops/deflection-reports/pricing';
 const DEFLECTION_REPORT_SEARCH_LIMIT = 5;
 const SUPPORT_PLATFORM_SUBMIT_VALUE: Record<SupportPlatform, string> = {
   zendesk: 'zendesk',
@@ -450,6 +461,12 @@ function deflectionCheckoutAuthorizationPath(
   if (!priceVariant) return path;
   const params = new URLSearchParams({ price_variant: priceVariant });
   return `${path}?${params.toString()}`;
+}
+
+function deflectionPricingTermsPath(priceVariantId: DeflectionPriceVariantId): string | null {
+  const priceVariant = checkoutAuthorizationPriceVariant(priceVariantId);
+  if (!priceVariant) return null;
+  return `${DEFLECTION_PRICING_TERMS_PATH}/${encodeURIComponent(priceVariant)}`;
 }
 
 function deflectionReportSearchPath(requestId: string): string {
@@ -634,13 +651,16 @@ function parseCheckoutAuthorization(v: unknown): DeflectionCheckoutAuthorization
   return null;
 }
 
-function parseStandardPricingTerms(v: unknown): DeflectionStandardPricingTerms | null {
+function parsePricingTerms(
+  v: unknown,
+  expectedVariant: DeflectionPriceVariantId,
+): DeflectionPricingTerms | null {
   if (typeof v !== 'object' || v === null) return null;
   const terms = v as Record<string, unknown>;
   const amountCents = terms.amount_cents;
   const currency = terms.currency;
   if (
-    terms.variant === 'standard' &&
+    terms.variant === expectedVariant &&
     terms.status === 'configured' &&
     typeof amountCents === 'number' &&
     Number.isSafeInteger(amountCents) &&
@@ -649,7 +669,7 @@ function parseStandardPricingTerms(v: unknown): DeflectionStandardPricingTerms |
     /^[a-zA-Z]{3}$/.test(currency)
   ) {
     return {
-      variant: 'standard',
+      variant: expectedVariant,
       status: 'configured',
       amountCents,
       currency: currency.trim().toLowerCase(),
@@ -668,14 +688,18 @@ function checkoutAuthorizationConflictReason(
   return 'unavailable';
 }
 
-export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPricingTermsResult> {
+export async function fetchDeflectionPricingTerms(
+  priceVariantId: DeflectionPriceVariantId,
+): Promise<PricingTermsResult> {
   const config = atlasConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
+  const pricingPath = deflectionPricingTermsPath(priceVariantId);
+  if (!pricingPath) return { ok: false, reason: 'error' };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(`${config.baseUrl}${DEFLECTION_STANDARD_PRICING_TERMS_PATH}`, {
+    const res = await fetch(`${config.baseUrl}${pricingPath}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${config.token}`,
@@ -686,23 +710,30 @@ export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPri
     });
     if (res.status === 503) return { ok: false, reason: 'not_configured' };
     if (!res.ok) {
-      structuredRuntimeError('deflection.standard_pricing_terms.http_error', {
+      structuredRuntimeError('deflection.pricing_terms.http_error', {
+        priceVariantId,
         status: res.status,
       });
       return { ok: false, reason: 'unavailable' };
     }
-    const terms = parseStandardPricingTerms(await res.json());
+    const terms = parsePricingTerms(await res.json(), priceVariantId);
     if (!terms) {
-      structuredRuntimeError('deflection.standard_pricing_terms.shape_rejected');
+      structuredRuntimeError('deflection.pricing_terms.shape_rejected', { priceVariantId });
       return { ok: false, reason: 'error' };
     }
     return { ok: true, terms };
   } catch (err) {
-    structuredRuntimeError('deflection.standard_pricing_terms.error', { error: err });
+    structuredRuntimeError('deflection.pricing_terms.error', { priceVariantId, error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function fetchDeflectionStandardPricingTerms(): Promise<StandardPricingTermsResult> {
+  const result = await fetchDeflectionPricingTerms('standard');
+  if (!result.ok) return result;
+  return { ok: true, terms: result.terms as DeflectionStandardPricingTerms };
 }
 
 export async function authorizeDeflectionCheckout(
