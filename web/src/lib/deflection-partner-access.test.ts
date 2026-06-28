@@ -11,11 +11,13 @@ import {
   resolveIntakePriceVariantId,
 } from '@/lib/deflection-partner-access';
 import {
+  DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV as PARTNER_TOKEN_ACCESS_TOKEN_ENV,
   DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV,
   DEFLECTION_PARTNER_SIGNED_TOKEN_PREFIX,
   createDeflectionPartnerSignedAccessToken,
   hasDeflectionPartnerAccessToken,
 } from '@/lib/deflection-partner-token';
+import * as pricingCatalog from '@/lib/deflection-pricing-catalog';
 
 type FetchResponse = { status: number; body: unknown } | { reject: string };
 type QueryCall = { sql: string; params: unknown[] };
@@ -240,8 +242,26 @@ describe('partner price access helpers', () => {
   it('accepts configured direct tokens and resolves partner intake only with access', () => {
     expect(DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_ENV).toBe(ACCESS_ENV_KEY);
     expect(DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN_PARAM).toBe('partnerToken');
+    expect(PARTNER_TOKEN_ACCESS_TOKEN_ENV).toBe(ACCESS_ENV_KEY);
     expect(PARTNER_ACCESS_SIGNING_SECRETS_ENV).toBe(SIGNING_ENV_KEY);
     expect(DEFLECTION_PARTNER_PRICE_SIGNING_SECRETS_ENV).toBe(SIGNING_ENV_KEY);
+    expect(pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_DEFAULT).toBe(150_000);
+    expect(pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_DEFAULT).toBe(100_000);
+    expect(pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV).toBe(
+      'NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_STANDARD_AMOUNT_CENTS',
+    );
+    expect(pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV).toBe(
+      'NEXT_PUBLIC_DEFLECTION_REPORT_PRICE_PARTNER_AMOUNT_CENTS',
+    );
+    expect(pricingCatalog.configuredDeflectionPriceAmounts({
+      [pricingCatalog.DEFLECTION_STANDARD_PRICE_AMOUNT_CENTS_ENV]: '180000',
+      [pricingCatalog.DEFLECTION_PARTNER_PRICE_AMOUNT_CENTS_ENV]: '120000',
+    })).toMatchObject({
+      ok: true,
+      amounts: { standard: 180_000, partner: 120_000 },
+      sources: { standard: 'env', partner: 'env' },
+    });
+    expect(pricingCatalog.resolveDeflectionPriceVariant('partner')?.id).toBe('partner');
 
     resetTokens({ access: 'signed-partner-token' });
     expect(hasDeflectionPartnerPriceAccessToken('signed-partner-token')).toBe(true);
