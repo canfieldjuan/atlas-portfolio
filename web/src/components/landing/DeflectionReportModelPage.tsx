@@ -9,6 +9,7 @@ import {
 } from '@/lib/deflection-pricing';
 import { ownerCostCards, visibleBacklogRows } from '@/lib/deflection-owner-cost-summary.mjs';
 import { uploadedDeflectionSearchEnabled } from '@/lib/deflection-uploaded-search-config';
+import { DeflectionReportPurgeControl } from './DeflectionReportPurgeControl';
 
 const RANKED_ROW_LIMIT = 25;
 const PRIORITY_FIX_QUEUE_LIMIT = 3;
@@ -969,6 +970,7 @@ export function DeflectionReportModelPage({
               work as the decision surface.
             </p>
           </aside>
+          <DeflectionReportPurgeControl requestId={requestId} />
         </div>
       </div>
     </main>

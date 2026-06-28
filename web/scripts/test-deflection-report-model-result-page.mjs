@@ -2141,8 +2141,11 @@ try {
     'results route resolves artifact price variant before artifact render',
   );
   assert.ok(
-    routeSource.includes('<DeflectionReportArtifactPage artifact={artifact} priceVariant={priceVariant} />'),
-    'results route passes price variant to the artifact page',
+    artifactPageRenderIndex > -1 &&
+      routeSource.indexOf('artifact={artifact}', artifactPageRenderIndex) > artifactPageRenderIndex &&
+      routeSource.indexOf('requestId={requestId}', artifactPageRenderIndex) > artifactPageRenderIndex &&
+      routeSource.indexOf('priceVariant={priceVariant}', artifactPageRenderIndex) > artifactPageRenderIndex,
+    'results route passes artifact, request id, and price variant to the artifact page',
   );
   assert.equal(
     routeSource.includes('fetchDeflectionArtifact(requestId);\\n  const model'),

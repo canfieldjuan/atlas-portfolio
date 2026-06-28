@@ -171,7 +171,13 @@ export default async function DeflectionResultsRoute({ params, searchParams }: P
   const artifact = modelResult.reason === 'not_found' ? await getArtifact(requestId) : null;
   if (artifact) {
     const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant);
-    return <DeflectionReportArtifactPage artifact={artifact} priceVariant={priceVariant} />;
+    return (
+      <DeflectionReportArtifactPage
+        artifact={artifact}
+        requestId={requestId}
+        priceVariant={priceVariant}
+      />
+    );
   }
 
   const snapshotState = await getSnapshotState(requestId);

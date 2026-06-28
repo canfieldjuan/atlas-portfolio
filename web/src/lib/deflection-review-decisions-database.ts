@@ -129,3 +129,19 @@ export async function upsertDeflectionReviewDecision(
   const row = rows[0];
   return row ? decisionRecordFromRow(row as Record<string, unknown>) : null;
 }
+
+export async function deleteDeflectionReviewDecisions(requestId: string) {
+  const sql = getDeflectionReviewDecisionSql();
+  if (!sql) return 0;
+
+  const rows = await sql.query(
+    `
+      DELETE FROM portfolio_deflection_review_decisions
+      WHERE request_id = $1
+      RETURNING review_key
+    `,
+    [requestId],
+  );
+
+  return rows.length;
+}

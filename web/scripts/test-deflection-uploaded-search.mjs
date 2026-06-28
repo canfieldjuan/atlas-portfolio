@@ -346,7 +346,7 @@ try {
   assert.match(uploadedSearchConfigSource, /VERCEL_ENV/);
 
   const resultsPageSource = await readFile(resultsPageUrl, 'utf8');
-  assert.doesNotMatch(resultsPageSource, /requestId=\{requestId\}/);
+  assert.doesNotMatch(resultsPageSource, /<DeflectionDemo[\s\S]*requestId=\{requestId\}/);
   const modelPageSource = await readFile(
     new URL('../src/components/landing/DeflectionReportModelPage.tsx', import.meta.url),
     'utf8',

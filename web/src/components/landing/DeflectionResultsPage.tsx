@@ -30,6 +30,7 @@ import {
   DeflectionTeaserAnswer,
   DeflectionTeaserPreviewCard,
 } from './DeflectionSnapshotTeaser';
+import { DeflectionReportPurgeControl } from './DeflectionReportPurgeControl';
 import { DeflectionSupportTaxProjection } from './DeflectionSupportTaxProjection';
 
 const FINALIZING_ATTEMPTS = 10;
@@ -606,6 +607,9 @@ export function DeflectionResultsPage({
               Your CSV is deleted after 30 days.
             </li>
           </ul>
+          <div className="mt-4">
+            <DeflectionReportPurgeControl requestId={requestId} />
+          </div>
         </div>
 
         {/* ── Secondary (soft) ───────────────────────────────────── */}
