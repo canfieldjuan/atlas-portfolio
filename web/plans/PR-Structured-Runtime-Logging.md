@@ -15,6 +15,11 @@ Slice phase: Production hardening
 - `.github/workflows/pre_push_audit.yml` — enrolls the structured runtime logging audit in CI.
 - `web/package.json` — adds the local test script.
 - `web/plans/PR-Structured-Runtime-Logging.md` — slice plan.
+- `web/scripts/test-deflection-atlas-price-display.mjs` — stubs the structured logger in the ATLAS client sandbox.
+- `web/scripts/test-deflection-checkout.mjs` — stubs the structured logger in the checkout sandbox.
+- `web/scripts/test-deflection-intake-atlas-submit.mjs` — stubs the structured logger and asserts new event names in the ATLAS submit sandbox.
+- `web/scripts/test-deflection-report-model-result-page.mjs` — stubs the structured logger and asserts new event names in the report-model sandbox.
+- `web/scripts/test-deflection-uploaded-search.mjs` — stubs the structured logger in the uploaded-search sandbox.
 - `web/scripts/test-structured-runtime-logging.mjs` — verifies helper behavior and scans for raw console error sinks.
 - `web/src/app/api/deflection-checkout/route.ts` — logs checkout price-variant lookup failures with a stable event.
 - `web/src/app/api/demo/deflection-search/route.ts` — logs demo/uploaded search failures with stable events.
@@ -53,6 +58,11 @@ Focused checks:
 
 ```bash
 npm --prefix web run test:structured-runtime-logging # PASS
+npm --prefix web run test:deflection-checkout # PASS
+npm --prefix web run test:deflection-intake-atlas-submit # PASS
+npm --prefix web run test:deflection-uploaded-search # PASS
+npm --prefix web run test:deflection-report-model-result-page # PASS
+npm --prefix web run test:deflection-atlas-price-display # PASS
 npm --prefix web run lint # PASS
 rg -n "console\\.error" web/src # PASS: only web/src/lib/structured-runtime-log.ts
 ```
@@ -67,9 +77,10 @@ bash scripts/local_pr_review.sh # PASS
 
 | Area | Estimated LOC |
 |---|---:|
-| Plan + CI/script enrollment | ~79 |
+| Plan + CI/script enrollment | ~84 |
 | Helper + audit script | ~193 |
-| Runtime call-site replacements | ~150 |
-| Total | ~422 |
+| Runtime call-site replacements | ~145 |
+| CI harness updates | ~28 |
+| Total | ~450 |
 
 This is slightly over the 400-LOC soft cap because the audit can only be strict if the current raw runtime error sinks are replaced in the same slice.
