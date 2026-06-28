@@ -75,6 +75,9 @@ jobs:
       - name: Google Ads artifact contract tests
         run: npm --prefix web run test:google-ads-artifacts
 
+      - name: Admin access ledger tests
+        run: npm --prefix web run test:admin-access-ledger
+
       - name: Admin intake login rate-limit tests
         run: npm --prefix web run test:admin-intake-login-rate-limit
 
