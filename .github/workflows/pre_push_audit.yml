@@ -42,6 +42,9 @@ jobs:
       - name: Install web deps
         run: npm --prefix web ci
 
+      - name: Web dependency audit
+        run: npm --prefix web audit --audit-level=high
+
       - name: Test enrollment audit
         run: node web/scripts/audit-test-enrollment.mjs
 
