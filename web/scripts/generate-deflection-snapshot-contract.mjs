@@ -190,6 +190,9 @@ function validateDemoSnapshotShape(snapshot) {
     requireStringField(question, 'customer_wording', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
     requireNumberField(question, 'ticket_count', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
     requireNumberField(question, 'weighted_frequency', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireStringField(question, 'owner_lane', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireStringField(question, 'action_label', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
+    requireNumberField(question, 'estimated_support_cost', `${deflectionSnapshotExampleFilename}.top_questions[${index}]`);
   });
   snapshot.locked_questions.forEach((question, index) => {
     requireNumberField(question, 'rank', `${deflectionSnapshotExampleFilename}.locked_questions[${index}]`);
@@ -199,6 +202,9 @@ function validateDemoSnapshotShape(snapshot) {
     requireNumberField(blindSpot, 'rank', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
     requireStringField(blindSpot, 'question', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
     requireNumberField(blindSpot, 'ticket_count', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+    requireStringField(blindSpot, 'owner_lane', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+    requireStringField(blindSpot, 'action_label', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
+    requireNumberField(blindSpot, 'estimated_support_cost', `${deflectionSnapshotExampleFilename}.top_blind_spots[${index}]`);
   });
   const teaser = requireObjectField(snapshot, 'teaser', deflectionSnapshotExampleFilename);
   if (teaser.full_answer !== null && !isPlainObject(teaser.full_answer)) {
@@ -275,6 +281,7 @@ function validateDemoExamplePair({ reportModel, snapshot }) {
     assertEqual(question.customer_wording, row.customer_wording, `top_questions rank ${question.rank} customer_wording must match ranked_questions.`);
     assertEqual(question.ticket_count, row.ticket_count, `top_questions rank ${question.rank} ticket_count must match ranked_questions.`);
     assertEqual(question.weighted_frequency, row.weighted_frequency, `top_questions rank ${question.rank} weighted_frequency must match ranked_questions.`);
+    assertEqual(question.estimated_support_cost, row.estimated_support_cost, `top_questions rank ${question.rank} estimated_support_cost must match ranked_questions.`);
   }
   for (const question of snapshot.locked_questions) {
     const row = rankedRowsByRank.get(question.rank);
@@ -290,6 +297,7 @@ function validateDemoExamplePair({ reportModel, snapshot }) {
     }
     assertEqual(blindSpot.question, row.question, `top_blind_spots rank ${blindSpot.rank} question must match ranked_questions.`);
     assertEqual(blindSpot.ticket_count, row.ticket_count, `top_blind_spots rank ${blindSpot.rank} ticket_count must match ranked_questions.`);
+    assertEqual(blindSpot.estimated_support_cost, row.estimated_support_cost, `top_blind_spots rank ${blindSpot.rank} estimated_support_cost must match ranked_questions.`);
   }
 }
 

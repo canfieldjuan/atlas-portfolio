@@ -59,6 +59,10 @@ function isNonNegativeNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
 function isoDateTime(value: string): number | null {
   if (!ISO_DATE_RE.test(value)) return null;
   const [year, month, day] = value.split('-').map(Number);
@@ -113,12 +117,12 @@ function parseQuestion(v: unknown): DeflectionSnapshotQuestion | null {
   const q = v as Record<string, unknown>;
   if (
     typeof q.rank === 'number' &&
-    typeof q.question === 'string' &&
+    isNonEmptyString(q.question) &&
     typeof q.customer_wording === 'string' &&
     isNonNegativeNumber(q.ticket_count) &&
     typeof q.weighted_frequency === 'number' &&
-    typeof q.owner_lane === 'string' &&
-    typeof q.action_label === 'string' &&
+    isNonEmptyString(q.owner_lane) &&
+    isNonEmptyString(q.action_label) &&
     isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {
@@ -152,11 +156,10 @@ function parseBlindSpot(v: unknown): DeflectionSnapshotBlindSpot | null {
   const q = v as Record<string, unknown>;
   if (
     typeof q.rank === 'number' &&
-    typeof q.question === 'string' &&
-    q.question.trim().length > 0 &&
+    isNonEmptyString(q.question) &&
     isNonNegativeNumber(q.ticket_count) &&
-    typeof q.owner_lane === 'string' &&
-    typeof q.action_label === 'string' &&
+    isNonEmptyString(q.owner_lane) &&
+    isNonEmptyString(q.action_label) &&
     isNonNegativeNumber(q.estimated_support_cost)
   ) {
     return {

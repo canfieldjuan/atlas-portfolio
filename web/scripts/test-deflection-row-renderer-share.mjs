@@ -42,6 +42,41 @@ assert.match(
 );
 assert.match(
   rowSource,
+  /function RoutingMeta/,
+  'Shared rows should render owner/action routing metadata inside the existing cards.',
+);
+assert.match(
+  rowSource,
+  /ownerLane=\{question\.owner_lane\}/,
+  'Shared top-question rows should show the Snapshot owner lane.',
+);
+assert.match(
+  rowSource,
+  /actionLabel=\{question\.action_label\}/,
+  'Shared top-question rows should show the Snapshot action label.',
+);
+assert.match(
+  rowSource,
+  /ownerLane=\{blindSpot\.owner_lane\}/,
+  'Shared blind-spot rows should show the Snapshot owner lane.',
+);
+assert.match(
+  rowSource,
+  /actionLabel=\{blindSpot\.action_label\}/,
+  'Shared blind-spot rows should show the Snapshot action label.',
+);
+assert.match(
+  rowSource,
+  /adjustedSupportCost\(\s*question\.estimated_support_cost,\s*assistedContactCost,\s*\)/,
+  'Shared top-question rows should use the Snapshot projected support cost as the slider-adjusted baseline.',
+);
+assert.match(
+  rowSource,
+  /adjustedSupportCost\(\s*blindSpot\.estimated_support_cost,\s*assistedContactCost,\s*\)/,
+  'Shared blind-spot rows should use the Snapshot projected support cost as the slider-adjusted baseline.',
+);
+assert.match(
+  rowSource,
   /\{customerWording && \(/,
   'Shared top-question rows should not render empty target-phrase quotes.',
 );
