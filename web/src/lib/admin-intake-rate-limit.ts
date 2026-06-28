@@ -40,14 +40,17 @@ function pruneExpired(limitStore: Map<string, AdminIntakeLoginAttemptEntry>, now
   }
 }
 
-function ensureStoreCapacity(limitStore: Map<string, AdminIntakeLoginAttemptEntry>) {
-  if (limitStore.size < MAX_ACTIVE_ADMIN_LOGIN_BUCKETS) return;
-  const oldestKey = limitStore.keys().next().value;
-  if (oldestKey) limitStore.delete(oldestKey);
-}
-
 function retryAfterSeconds(resetAt: number, now: number) {
   return Math.max(1, Math.ceil((resetAt - now) / 1000));
+}
+
+function nextRetryAfterSeconds(limitStore: Map<string, AdminIntakeLoginAttemptEntry>, now: number) {
+  let resetAt = Number.POSITIVE_INFINITY;
+  for (const entry of limitStore.values()) {
+    resetAt = Math.min(resetAt, entry.resetAt);
+  }
+  if (!Number.isFinite(resetAt)) return 1;
+  return retryAfterSeconds(resetAt, now);
 }
 
 export function checkAdminIntakeLoginRateLimit(headers: Headers): AdminIntakeLoginRateLimitResult {
@@ -56,7 +59,14 @@ export function checkAdminIntakeLoginRateLimit(headers: Headers): AdminIntakeLog
   pruneExpired(limitStore, now);
 
   const current = limitStore.get(clientIdentifier(headers));
-  if (!current || current.resetAt <= now || current.failedCount < ADMIN_INTAKE_LOGIN_RATE_LIMIT.failureLimit) {
+  if (!current || current.resetAt <= now) {
+    if (limitStore.size >= MAX_ACTIVE_ADMIN_LOGIN_BUCKETS) {
+      return { ok: false, retryAfterSeconds: nextRetryAfterSeconds(limitStore, now) };
+    }
+    return { ok: true };
+  }
+
+  if (current.failedCount < ADMIN_INTAKE_LOGIN_RATE_LIMIT.failureLimit) {
     return { ok: true };
   }
 
@@ -71,7 +81,7 @@ export function recordAdminIntakeLoginFailure(headers: Headers) {
   const key = clientIdentifier(headers);
   const current = limitStore.get(key);
   if (!current || current.resetAt <= now) {
-    ensureStoreCapacity(limitStore);
+    if (limitStore.size >= MAX_ACTIVE_ADMIN_LOGIN_BUCKETS) return;
     limitStore.set(key, { failedCount: 1, resetAt: now + ADMIN_INTAKE_LOGIN_RATE_LIMIT.windowMs });
     return;
   }

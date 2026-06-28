@@ -31,11 +31,11 @@ export async function POST(request: NextRequest) {
     return redirectToIntake(request, 'rate_limited', rateLimit.retryAfterSeconds);
   }
 
+  recordAdminIntakeLoginFailure(request.headers);
   const formData = await request.formData();
   const token = String(formData.get('token') || '');
 
   if (!verifyAdminIntakeToken(token)) {
-    recordAdminIntakeLoginFailure(request.headers);
     return redirectToIntake(request, 'invalid');
   }
 

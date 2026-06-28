@@ -137,6 +137,12 @@ try {
   const { POST: loginRoutePOST } = require(compiledLoginRoutePath);
   Date.now = () => now;
 
+  assert.ok(
+    loginRouteSource.indexOf('recordAdminIntakeLoginFailure(request.headers);') <
+      loginRouteSource.indexOf('await request.formData()'),
+    'login route reserves an attempt before parsing the submitted form',
+  );
+
   resetStore();
   assert.equal(ADMIN_INTAKE_LOGIN_RATE_LIMIT.failureLimit, 5);
   assert.equal(ADMIN_INTAKE_LOGIN_RATE_LIMIT.windowMs, 900_000);
@@ -190,6 +196,22 @@ try {
 
   resetStore();
   for (let index = 0; index < 5; index += 1) {
+    recordAdminIntakeLoginFailure(testHeaders({ realIp: '203.0.113.10' }));
+  }
+  for (let index = 0; index < 999; index += 1) {
+    recordAdminIntakeLoginFailure(testHeaders({ realIp: `198.51.100.${index}` }));
+  }
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({ realIp: '192.0.2.200' })), {
+    ok: false,
+    retryAfterSeconds: 900,
+  });
+  assert.deepEqual(checkAdminIntakeLoginRateLimit(testHeaders({ realIp: '203.0.113.10' })), {
+    ok: false,
+    retryAfterSeconds: 900,
+  });
+
+  resetStore();
+  for (let index = 0; index < 5; index += 1) {
     recordAdminIntakeLoginFailure(testHeaders());
   }
   assert.equal(checkAdminIntakeLoginRateLimit(testHeaders()).ok, false);
@@ -226,7 +248,7 @@ try {
   assert.equal(response.error, null);
   assert.equal(globalThis.__adminIntakeRouteFormDataCalls, 1);
   assert.deepEqual(globalThis.__adminIntakeRouteVerifyCalls, ['valid-token']);
-  assert.deepEqual(globalThis.__adminIntakeRouteRecordCalls, []);
+  assert.deepEqual(globalThis.__adminIntakeRouteRecordCalls, ['203.0.113.44']);
   assert.deepEqual(globalThis.__adminIntakeRouteClearCalls, ['203.0.113.44']);
   assert.equal(globalThis.__adminIntakeRouteCookieCalls.length, 1);
   assert.equal(globalThis.__adminIntakeRouteCookieCalls[0][0], 'admin-intake');

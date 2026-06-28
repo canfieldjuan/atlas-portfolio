@@ -2,7 +2,7 @@
 
 Issue #313 flags that the private admin intake login uses a shared token with no brute-force protection. The full admin hardening item also includes per-user accounts and an immutable access ledger, but this slice closes the smallest unblocked risk first: repeated guesses against `/admin/intake/login`.
 
-This slice lands slightly over the 400-LOC soft cap because the behavior needs both a new helper and a route-level regression test that proves locked-out requests do not parse the submitted token. Splitting the test into a follow-up would leave the security behavior less reviewable.
+This slice lands over the 400-LOC soft cap because the behavior needs both a new helper and a route-level regression test that proves locked-out requests do not parse the submitted token. Review also surfaced two lockout-integrity edges — concurrent attempts and full-store pressure — that are part of the same security control, so they are fixed here rather than split into a follow-up that would briefly ship weaker protection.
 
 ## Scope (this PR)
 
@@ -26,9 +26,9 @@ Slice phase: Production hardening
 
 ## Mechanism
 
-The new `admin-intake-rate-limit` helper derives the client identifier from trusted edge/proxy headers: first `x-real-ip`, then `cf-connecting-ip`, then `unknown`. It deliberately does not key off the leftmost `x-forwarded-for` value because that position can be attacker-controlled and would let a caller rotate the bucket. Each failed admin-token submission increments one bucket for 15 minutes. Once the bucket has five failures, later requests from that identifier are redirected back to `/admin/intake?error=rate_limited` with a `Retry-After` header and the form body is not parsed.
+The new `admin-intake-rate-limit` helper derives the client identifier from trusted edge/proxy headers: first `x-real-ip`, then `cf-connecting-ip`, then `unknown`. It deliberately does not key off the leftmost `x-forwarded-for` value because that position can be attacker-controlled and would let a caller rotate the bucket. Each allowed login attempt reserves one bucket before the route awaits form parsing, so concurrent bad guesses cannot all pass the check before any count is recorded. Invalid tokens leave that reservation in place for 15 minutes; successful verification clears the bucket before setting the admin cookie. Once the bucket has five attempts, later requests from that identifier are redirected back to `/admin/intake?error=rate_limited` with a `Retry-After` header and the form body is not parsed.
 
-Successful verification calls `clearAdminIntakeLoginFailures` before setting the existing admin cookie, so legitimate recovery does not leave the client stuck behind old failures. The storage is deliberately in-memory and per-process because issue #313 explicitly rules out paid KV/Redis for this baseline slice.
+The storage is deliberately in-memory and per-process because issue #313 explicitly rules out paid KV/Redis for this baseline slice. The store is capped at 1000 active buckets; if all buckets are active, new identifiers are rejected until the nearest bucket expires instead of evicting an active lockout.
 
 ## Intentional
 
@@ -51,6 +51,7 @@ Local checks:
 npm --prefix web run test:admin-intake-login-rate-limit
 # PASS — Admin intake login rate-limit tests passed.
 # Re-run after review fix: PASS — forged leftmost x-forwarded-for rotation does not bypass a stable x-real-ip bucket.
+# Re-run after P2 fixes: PASS — attempts are reserved before form parsing and full-store pressure preserves active lockouts.
 
 node web/scripts/audit-test-enrollment.mjs
 # PASS — All 35 test:* scripts are enrolled in .github/workflows/pre_push_audit.yml.
@@ -84,7 +85,7 @@ rg "Invalid admin token|rate_limited|admin-intake-login" web/src web/scripts web
 
 | Area | Estimated LOC |
 | --- | ---: |
-| CI/package/test harness | ~245 |
-| App/helper changes | ~100 |
+| CI/package/test harness | ~270 |
+| App/helper changes | ~115 |
 | Plan | ~85 |
-| Total | ~465 |
+| Total | ~510 |
