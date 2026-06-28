@@ -23,8 +23,11 @@ Slice phase: Production hardening
    submissions but does not remove the Neon row for that failed report.
 4. Bound tracked ATLAS deletes and page past retained failures within one cron
    run so one slow or failing report does not starve newer expired submissions.
-5. Extend the enrolled CSV privacy/cleanup test to cover delete ordering,
-   ATLAS failure retention, retained-row paging, and 404 idempotency.
+5. Treat already-missing tracked Blobs as deleted on retry so a prior Blob
+   success plus ATLAS failure can still progress on the next cron run.
+6. Extend the enrolled CSV privacy/cleanup test to cover delete ordering,
+   ATLAS failure retention, retained-row paging, missing-Blob retry, and 404
+   idempotency.
 
 ### Files touched
 
@@ -54,6 +57,10 @@ Tracked cleanup caps its per-run database page below the general cleanup limit
 and maintains an offset over retained failures. Successful rows are removed;
 failed rows stay in Neon, but the current cron run advances past them so newer
 expired rows can still be cleaned up.
+
+Blob deletion treats `BlobNotFoundError` as an idempotent success after trying
+the configured Blob tokens. That preserves the retry path where a previous cron
+run already deleted the raw CSV but failed before the ATLAS report delete.
 
 `listExpiredGapReportSubmissions()` now projects `payload->>'reportRequestId'`
 and limits this path to rows with a non-empty ATLAS report id. Rows without that
@@ -91,6 +98,6 @@ bash scripts/local_pr_review.sh # PASS
 | --- | ---: |
 | Plan doc | ~90 |
 | ATLAS delete helper | ~45 |
-| Cleanup and database wiring | ~75 |
-| Tests | ~120 |
-| Total | ~330 |
+| Cleanup and database wiring | ~90 |
+| Tests | ~150 |
+| Total | ~375 |

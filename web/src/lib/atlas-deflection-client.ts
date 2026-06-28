@@ -60,8 +60,8 @@ function atlasConfig(): { baseUrl: string; token: string } | null {
   return { baseUrl, token };
 }
 
-function deflectionReportDeletePath(requestId: string): string {
-  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}`;
+function deflectionReportDeletePath(reportRequestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(reportRequestId)}`;
 }
 
 function isNonNegativeNumber(value: unknown): value is number {
@@ -369,16 +369,16 @@ export async function fetchDeflectionSnapshot(
 }
 
 export async function deleteDeflectionReport(
-  requestId: string,
+  reportRequestId: string,
 ): Promise<DeflectionReportDeleteResult> {
   const config = atlasConfig();
   if (!config) return { ok: false, reason: 'not_configured' };
-  if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
+  if (!REQUEST_ID_RE.test(reportRequestId)) return { ok: false, reason: 'not_found' };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REPORT_DELETE_TIMEOUT_MS);
   try {
-    const res = await fetch(`${config.baseUrl}${deflectionReportDeletePath(requestId)}`, {
+    const res = await fetch(`${config.baseUrl}${deflectionReportDeletePath(reportRequestId)}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${config.token}`,

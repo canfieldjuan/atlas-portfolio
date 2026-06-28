@@ -1,4 +1,4 @@
-import { del, list } from '@vercel/blob';
+import { BlobNotFoundError, del, list } from '@vercel/blob';
 import { deleteDeflectionReport } from './atlas-deflection-client';
 import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
@@ -34,19 +34,30 @@ function errorMessage(error: unknown) {
 async function deleteBlob(url: string) {
   const tokens = gapReportBlobTokens();
   if (tokens.length === 0) {
-    await del(url, { token: undefined });
+    try {
+      await del(url, { token: undefined });
+    } catch (error) {
+      if (error instanceof BlobNotFoundError) return;
+      throw error;
+    }
     return;
   }
 
   let lastError: unknown;
+  let sawMissingBlob = false;
   for (const token of tokens) {
     try {
       await del(url, { token });
       return;
     } catch (error) {
+      if (error instanceof BlobNotFoundError) {
+        sawMissingBlob = true;
+        continue;
+      }
       lastError = error;
     }
   }
+  if (sawMissingBlob) return;
   throw lastError;
 }
 

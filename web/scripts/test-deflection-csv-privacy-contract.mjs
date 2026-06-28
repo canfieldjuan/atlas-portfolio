@@ -309,7 +309,9 @@ exports.parseGapReportMetadata = (raw) => {
   await writeFile(
     join(blobStubDir, 'index.js'),
     `
-exports.del = (...args) => globalThis.__csvPrivacyBlobDel(...args);
+class BlobNotFoundError extends Error {}
+exports.BlobNotFoundError = BlobNotFoundError;
+exports.del = (...args) => globalThis.__csvPrivacyBlobDel(...args, BlobNotFoundError);
 exports.list = (...args) => globalThis.__csvPrivacyBlobList(...args);
 `,
   );
@@ -366,6 +368,7 @@ exports.deleteDeflectionReport = async (requestId) => {
   globalThis.__csvPrivacyCleanupEvents = [];
   globalThis.__csvPrivacyCleanupPageRequests = [];
   globalThis.__csvPrivacyDeletedSubmissionIds = [];
+  globalThis.__csvPrivacyMissingBlobUrls = new Set();
   globalThis.__csvPrivacyBlobTokens = ['private-token', 'legacy-token'];
   globalThis.__csvPrivacyExpiredRows = [
     {
@@ -389,9 +392,12 @@ exports.deleteDeflectionReport = async (requestId) => {
       csvBlobUrl: 'https://private.example/gap-report-csvs/after-failure.csv',
     },
   ];
-  globalThis.__csvPrivacyBlobDel = async (url, options) => {
+  globalThis.__csvPrivacyBlobDel = async (url, options, BlobNotFoundError) => {
     delCalls.push({ url, token: options?.token });
     globalThis.__csvPrivacyCleanupEvents.push('blob:' + url + ':' + options?.token);
+    if (globalThis.__csvPrivacyMissingBlobUrls.has(url) && options?.token === 'private-token') {
+      throw new BlobNotFoundError('missing blob');
+    }
     if (url.includes('legacy.example') && options?.token !== 'legacy-token') {
       throw new Error('wrong store');
     }
@@ -450,17 +456,22 @@ exports.deleteDeflectionReport = async (requestId) => {
     'gone-row',
     'after-failure-row',
   ]);
+  const trackedBlobIndex = globalThis.__csvPrivacyCleanupEvents.indexOf(
+    'blob:https://legacy.example/gap-report-csvs/tracked.csv:legacy-token',
+  );
+  const reportDeleteIndex = globalThis.__csvPrivacyCleanupEvents.indexOf('atlas:report-deleted');
+  assert.notEqual(trackedBlobIndex, -1, 'tracked Blob delete event exists');
+  assert.notEqual(reportDeleteIndex, -1, 'ATLAS report delete event exists');
   assert.ok(
-    globalThis.__csvPrivacyCleanupEvents.indexOf(
-      'blob:https://legacy.example/gap-report-csvs/tracked.csv:legacy-token',
-    ) < globalThis.__csvPrivacyCleanupEvents.indexOf('atlas:report-deleted'),
+    trackedBlobIndex < reportDeleteIndex,
     'cleanup deletes the tracked Blob before deleting the derived ATLAS report',
   );
+  const orphanBlobIndex = globalThis.__csvPrivacyCleanupEvents.indexOf(
+    'blob:https://private.example/gap-report-csvs/orphan.csv:private-token',
+  );
+  assert.notEqual(orphanBlobIndex, -1, 'orphan Blob delete event exists');
   assert.ok(
-    globalThis.__csvPrivacyCleanupEvents.indexOf('atlas:report-deleted') <
-      globalThis.__csvPrivacyCleanupEvents.indexOf(
-        'blob:https://private.example/gap-report-csvs/orphan.csv:private-token',
-      ),
+    reportDeleteIndex < orphanBlobIndex,
     'tracked report deletion happens before orphan cleanup',
   );
   assert.deepEqual(
@@ -477,12 +488,28 @@ exports.deleteDeflectionReport = async (requestId) => {
     ],
     'cleanup retries legacy token for legacy-store URLs without blocking private-store deletes',
   );
+
+  globalThis.__csvPrivacyAtlasDeleteResults = {};
+  globalThis.__csvPrivacyMissingBlobUrls.add('https://private.example/gap-report-csvs/failed.csv');
+  const retryResult = await cleanupExpiredGapReportData({ retentionDays: 30, limit: 2 });
+  assert.equal(retryResult.deletedTrackedBlobs, 1);
+  assert.equal(retryResult.deletedDatabaseRows, 1);
+  assert.equal(retryResult.deletedOrphanedBlobs, 2);
+  assert.deepEqual(retryResult.errors, []);
+  assert.deepEqual(globalThis.__csvPrivacyDeletedSubmissionIds, [
+    'legacy-row',
+    'gone-row',
+    'after-failure-row',
+    'failed-row',
+  ]);
+  assert.deepEqual(globalThis.__csvPrivacyAtlasDeletes.slice(-1), ['report-failed']);
 } finally {
   delete globalThis.__atlasDeflectionRateLimitStore;
   delete globalThis.__csvPrivacyUploadClientPayload;
   delete globalThis.__csvPrivacyUploadGeneratedTokens;
   delete globalThis.__csvPrivacyUploadHandleCalls;
   delete globalThis.__csvPrivacyBlobTokens;
+  delete globalThis.__csvPrivacyMissingBlobUrls;
   delete globalThis.__csvPrivacyExpiredRows;
   delete globalThis.__csvPrivacyAtlasDeletes;
   delete globalThis.__csvPrivacyAtlasDeleteResults;
