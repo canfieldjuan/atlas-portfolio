@@ -43,7 +43,7 @@ Slice phase: Production hardening
 
 `jsonLdScriptPayload(value)` serializes the structured-data object with `JSON.stringify` and replaces every `<` with `\u003c`. That preserves valid JSON while preventing `</script>` text from terminating the script tag if a future structured-data source contains dynamic copy.
 
-The test transpiles the helper, verifies that dangerous-looking strings serialize without raw `<` or `</script>`, and scans each `application/ld+json` script block under `web/src` for bare `JSON.stringify` usage.
+The test transpiles the helper, verifies that dangerous-looking strings serialize without raw `<` or `</script>`, walks all TS/TSX/JS/JSX files under `web/src`, parses JSX with the TypeScript compiler, discovers `application/ld+json` script elements in self-closing and paired forms, and asserts each block uses `jsonLdScriptPayload` instead of bare `JSON.stringify`.
 
 ## Intentional
 
@@ -65,6 +65,7 @@ Local checks:
 ```bash
 npm --prefix web run test:json-ld-escaping
 # PASS — JSON-LD escaping tests passed.
+# Re-run after review fix: PASS — tree-scans web/src and detects self-closing, paired, literal, and expression JSON-LD script forms.
 
 node web/scripts/audit-test-enrollment.mjs
 # PASS — All 36 test:* scripts are enrolled in .github/workflows/pre_push_audit.yml.

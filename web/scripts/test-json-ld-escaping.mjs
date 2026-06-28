@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
@@ -13,26 +13,81 @@ const testDir = await mkdtemp(join(tmpdir(), 'atlas-json-ld-escaping-'));
 const helperSourcePath = join(sourceRoot, 'lib', 'json-ld.ts');
 const compiledHelperPath = join(testDir, 'json-ld.cjs');
 
-const jsonLdFiles = [
-  'app/layout.tsx',
-  'app/ai-automation-consultant/page.tsx',
-  'app/resources/[slug]/page.tsx',
-  'app/resources/layout.tsx',
-  'app/services/page.tsx',
-  'app/systems/ai-content-ops/layout.tsx',
-  'app/systems/ai-content-ops/ongoing-support/layout.tsx',
-  'app/systems/ai-content-ops/ongoing-support/page.tsx',
-  'app/systems/atlas-llm-gateway/layout.tsx',
-  'app/systems/atlas-llm-gateway/page.tsx',
-  'app/systems/layout.tsx',
-  'app/systems/support-ticket-deflection/calculator/layout.tsx',
-  'app/systems/support-ticket-deflection/demo/layout.tsx',
-  'app/systems/support-ticket-deflection/layout.tsx',
-  'app/systems/support-ticket-deflection/playbook/layout.tsx',
-  'app/systems/support-ticket-deflection/support-tax/layout.tsx',
-  'components/landing/DeflectionLandingPage.tsx',
-  'components/landing/DiagnosticReportLandingPage.tsx',
-];
+async function collectSourceFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const entryPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await collectSourceFiles(entryPath));
+      continue;
+    }
+    if (entry.isFile() && /\.(tsx?|jsx?)$/.test(entry.name)) {
+      files.push(entryPath);
+    }
+  }
+
+  return files;
+}
+
+function jsxTagName(node) {
+  if (ts.isIdentifier(node)) return node.text;
+  return node.getText();
+}
+
+function jsxAttribute(node, name) {
+  return node.attributes.properties.find(
+    (property) => ts.isJsxAttribute(property) && property.name.text === name,
+  );
+}
+
+function evaluateStringExpression(node) {
+  if (!node) return undefined;
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return node.text;
+  }
+  if (ts.isJsxExpression(node) && node.expression) {
+    return evaluateStringExpression(node.expression);
+  }
+  if (ts.isParenthesizedExpression(node)) {
+    return evaluateStringExpression(node.expression);
+  }
+  if (
+    ts.isBinaryExpression(node) &&
+    node.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
+    const left = evaluateStringExpression(node.left);
+    const right = evaluateStringExpression(node.right);
+    if (left !== undefined && right !== undefined) return `${left}${right}`;
+  }
+  return undefined;
+}
+
+function isJsonLdScript(openingElement) {
+  if (jsxTagName(openingElement.tagName) !== 'script') return false;
+  const typeAttribute = jsxAttribute(openingElement, 'type');
+  return evaluateStringExpression(typeAttribute?.initializer) === 'application/ld+json';
+}
+
+function collectJsonLdScriptBlocks(sourceFile) {
+  const blocks = [];
+
+  function visit(node) {
+    if (ts.isJsxSelfClosingElement(node) && isJsonLdScript(node)) {
+      blocks.push(node);
+      return;
+    }
+    if (ts.isJsxElement(node) && isJsonLdScript(node.openingElement)) {
+      blocks.push(node);
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return blocks;
+}
 
 try {
   const helperSource = await readFile(helperSourcePath, 'utf8');
@@ -63,29 +118,63 @@ try {
     name: 'Safe </script><script>alert("x")</script>',
   });
 
-  for (const relativePath of jsonLdFiles) {
-    const filePath = join(sourceRoot, relativePath);
-    const source = await readFile(filePath, 'utf8');
-    const blocks = source.match(/<script[\s\S]*?type="application\/ld\+json"[\s\S]*?\/>/g) || [];
+  const syntheticSource = ts.createSourceFile(
+    'json-ld-sink-forms.tsx',
+    [
+      'export function SinkForms() {',
+      '  return <>',
+      '    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(one) }} />',
+      "    <script type={'application/ld+json'} dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(two) }} />",
+      "    <script type={'application/' + 'ld+json'} dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(three) }} />",
+      '    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(four) }}></script>',
+      '  </>;',
+      '}',
+      '',
+    ].join('\n'),
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  assert.equal(
+    collectJsonLdScriptBlocks(syntheticSource).length,
+    4,
+    'JSON-LD scan should discover self-closing, paired, and expression type forms',
+  );
 
-    assert.ok(blocks.length > 0, `${relativePath} should contain a JSON-LD script block`);
+  const sourceFiles = await collectSourceFiles(sourceRoot);
+  const discoveredJsonLdFiles = new Set();
+  let discoveredJsonLdBlockCount = 0;
+
+  for (const filePath of sourceFiles) {
+    const source = await readFile(filePath, 'utf8');
+    const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const blocks = collectJsonLdScriptBlocks(sourceFile);
+    if (blocks.length === 0) continue;
+
+    const relativePath = relative(sourceRoot, filePath);
+    discoveredJsonLdFiles.add(relativePath);
+    discoveredJsonLdBlockCount += blocks.length;
     assert.ok(
       source.includes("from '@/lib/json-ld'") || source.includes('from "@/lib/json-ld"'),
       `${relativePath} should import the shared JSON-LD helper`,
     );
 
     for (const block of blocks) {
+      const blockText = block.getText(sourceFile);
       assert.equal(
-        block.includes('JSON.stringify'),
+        blockText.includes('JSON.stringify'),
         false,
         `${relativePath} JSON-LD block should not use bare JSON.stringify`,
       );
       assert.ok(
-        block.includes('jsonLdScriptPayload('),
+        blockText.includes('jsonLdScriptPayload('),
         `${relativePath} JSON-LD block should use jsonLdScriptPayload`,
       );
     }
   }
+
+  assert.ok(discoveredJsonLdFiles.size >= 18, 'expected to discover at least the current 18 JSON-LD files');
+  assert.ok(discoveredJsonLdBlockCount >= 20, 'expected to discover at least the current 20 JSON-LD script blocks');
 
   console.log('JSON-LD escaping tests passed.');
 } finally {
