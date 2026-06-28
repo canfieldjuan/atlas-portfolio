@@ -84,8 +84,8 @@ bash scripts/local_pr_review.sh # PASS
 | `web/package.json` | ~2 |
 | `web/plans/PR-Real-Adapter-Deflection-Report-Model-Result-Page-Test.md` | ~92 |
 | `web/scripts/test-deflection-report-model-result-page.mjs` | ~2388 |
-| `web/src/lib/deflection-report-model-result-page.test.ts` | ~1331 |
-| Total | ~3813 |
+| `web/src/lib/deflection-report-model-result-page.test.ts` | ~1374 |
+| Total | ~3856 |
 
 This is over the 400-LOC soft cap because the old temp harness is very large
 and this slice preserves parser, status-route, page-source, and owner-summary

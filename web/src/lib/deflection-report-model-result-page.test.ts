@@ -1042,14 +1042,22 @@ describe('deflection report-model result-page real imports', () => {
     for (const section of [
       rankedQuestionsSection(),
       outcomeDiagnosticsSection(),
-      questionDetailsSection(),
     ]) {
       resetCalls({
         payload: minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection(), section] }),
       });
-      const result = await fetchDeflectionReportModel('content-ops-unit-123');
-      expect(result.ok).toBe(true);
+      await expect(fetchDeflectionReportModel('content-ops-unit-123')).resolves.toEqual({
+        ok: true,
+        model: projectedModel({ sections: [supportTaxSection(), priorityFixQueueSection(), section] }),
+      });
     }
+    resetCalls({
+      payload: minimalModel({
+        sections: [supportTaxSection(), priorityFixQueueSection(), questionDetailsSection()],
+      }),
+    });
+    const questionDetailsResult = await fetchDeflectionReportModel('content-ops-unit-123');
+    expect(questionDetailsResult.ok).toBe(true);
 
     resetCalls({
       payload: minimalModel({
@@ -1067,6 +1075,18 @@ describe('deflection report-model result-page real imports', () => {
       ok: true,
       model: projectedModel({ sections: [supportTaxSection(), priorityFixQueueSection()] }),
     });
+  });
+
+  it('logs malformed report-model shapes generically', async () => {
+    resetCalls({ payload: minimalModel({ schema_version: 'deflection.v2' }) });
+
+    await expect(fetchDeflectionReportModel('content-ops-unit-123')).resolves.toEqual({
+      ok: false,
+      reason: 'error',
+    });
+    expect(
+      consoleErrors.some((entry) => entry.includes('deflection.report_model.shape_rejected')),
+    ).toBe(true);
   });
 
   it.each([
@@ -1112,6 +1132,15 @@ describe('deflection report-model result-page real imports', () => {
     })] })],
     ['object priority score', () => minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection({
       data: { ...priorityFixQueueSection().data, items: [{ ...priorityFixQueueSection().data.items[0], priority_score: { score: 84 } }] },
+    })] })],
+    ['object action rank', () => minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection({
+      data: { ...priorityFixQueueSection().data, items: [{ ...priorityFixQueueSection().data.items[0], rank: { value: 1.9 } }] },
+    })] })],
+    ['object action question', () => minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection({
+      data: { ...priorityFixQueueSection().data, items: [{ ...priorityFixQueueSection().data.items[0], question: { value: 'How do I enable SSO for my team?' } }] },
+    })] })],
+    ['object nested csat scalar', () => minimalModel({ sections: [supportTaxSection(), priorityFixQueueSection({
+      data: { ...priorityFixQueueSection().data, items: [{ ...priorityFixQueueSection().data.items[0], csat_signal: { ...priorityFixQueueSection().data.items[0].csat_signal, negative_csat_ticket_count: { count: 3 } } }] },
     })] })],
     ['string source window', () => minimalModel({ sections: [supportTaxSection({ source_date_window: '2026-05-01 to 2026-05-15' }), priorityFixQueueSection()] })],
     ['missing priority queue', () => minimalModel({ sections: [supportTaxSection()] })],
@@ -1183,13 +1212,27 @@ describe('deflection report-model result-page real imports', () => {
       'const priceVariant = await getResultsPriceVariant(requestId, requestedPriceVariant)',
       snapshotNotFoundIndex,
     );
+    const modelPageRenderIndex = routeSource.indexOf('<DeflectionReportModelPage');
+    const artifactPageRenderIndex = routeSource.indexOf('<DeflectionReportArtifactPage');
     expect(modelFetchIndex).toBeGreaterThanOrEqual(0);
     expect(modelPriceVariantIndex).toBeGreaterThan(modelFetchIndex);
+    expect(modelPageRenderIndex).toBeGreaterThanOrEqual(0);
+    expect(modelPriceVariantIndex).toBeLessThan(modelPageRenderIndex);
     expect(snapshotPriceVariantIndex).toBeGreaterThan(snapshotNotFoundIndex);
     expect(artifactFetchIndex).toBeGreaterThan(modelFetchIndex);
     expect(artifactPriceVariantIndex).toBeGreaterThan(artifactFetchIndex);
+    expect(artifactPageRenderIndex).toBeGreaterThanOrEqual(0);
+    expect(artifactPriceVariantIndex).toBeLessThan(artifactPageRenderIndex);
     expect(routeSource).toContain('priceVariant={priceVariant}');
-    expect(routeSource).toContain('<DeflectionReportArtifactPage');
+    expect(routeSource.indexOf('artifact={artifact}', artifactPageRenderIndex)).toBeGreaterThan(
+      artifactPageRenderIndex,
+    );
+    expect(routeSource.indexOf('requestId={requestId}', artifactPageRenderIndex)).toBeGreaterThan(
+      artifactPageRenderIndex,
+    );
+    expect(routeSource.indexOf('priceVariant={priceVariant}', artifactPageRenderIndex)).toBeGreaterThan(
+      artifactPageRenderIndex,
+    );
     expect(routeSource).not.toContain('fetchDeflectionArtifact(requestId);\\n  const model');
 
     expect(modelPageSource).toContain("section.surfaces.includes('web')");
