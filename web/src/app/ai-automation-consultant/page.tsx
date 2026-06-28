@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { generateBreadcrumbJsonLd, generateFaqJsonLd } from '@/lib/seo';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { RelatedGuides } from '@/components/RelatedGuides';
 
@@ -134,11 +135,11 @@ export default function AiAutomationConsultantPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">

@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from '@/lib/seo';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
 
 export const metadata = generatePageMetadata({
   title: 'AI Automation Resources',
@@ -25,7 +26,7 @@ export default function ResourcesLayout({ children }: { children: React.ReactNod
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>

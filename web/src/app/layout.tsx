@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION, SITE_KEYWORDS, rootJsonLd } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 import { SiteChrome } from "@/components/SiteChrome";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
@@ -75,7 +76,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(rootJsonLd) }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground relative selection:bg-primary/30">

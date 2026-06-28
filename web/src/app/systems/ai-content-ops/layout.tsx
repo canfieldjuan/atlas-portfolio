@@ -1,4 +1,5 @@
 import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { jsonLdScriptPayload } from "@/lib/json-ld";
 
 export const metadata = generatePageMetadata({
   title: "Content Ops — Productized Content Systems From Your Own Data",
@@ -30,7 +31,7 @@ export default function AiContentOpsLayout({ children }: { children: React.React
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
       />
       {children}
     </>
