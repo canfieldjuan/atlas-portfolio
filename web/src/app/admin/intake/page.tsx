@@ -73,7 +73,8 @@ function LoginPanel({ error }: { error?: LoginError }) {
 
         {!adminIntakeConfigured() ? (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
-            Configure <code>ADMIN_INTAKE_USERS</code> in Vercel before using this page.
+            Configure <code>ADMIN_INTAKE_USERS</code> and{' '}
+            <code>ADMIN_SESSION_SIGNING_SECRET</code> in Vercel before using this page.
           </div>
         ) : (
           <form action="/admin/intake/login" method="post" className="space-y-4">

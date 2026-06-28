@@ -17,6 +17,7 @@ const csvRouteUrl = new URL(
 const accessLogUrl = new URL('../src/lib/admin-access-log.ts', import.meta.url);
 const compiledHelperPath = join(testDir, 'admin-intake-auth.cjs');
 const originalUsers = process.env.ADMIN_INTAKE_USERS;
+const originalSigningSecret = process.env.ADMIN_SESSION_SIGNING_SECRET;
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -28,6 +29,14 @@ function setUsers(value) {
     return;
   }
   process.env.ADMIN_INTAKE_USERS = value;
+}
+
+function setSigningSecret(value) {
+  if (value === undefined) {
+    delete process.env.ADMIN_SESSION_SIGNING_SECRET;
+    return;
+  }
+  process.env.ADMIN_SESSION_SIGNING_SECRET = value;
 }
 
 try {
@@ -50,6 +59,7 @@ try {
   } = require(compiledHelperPath);
 
   setUsers(undefined);
+  setSigningSecret(undefined);
   assert.equal(adminIntakeConfigured(), false);
   assert.equal(verifyAdminIntakeCredentials('juan', 'valid-token'), null);
   assert.equal(adminIntakeCookieValue({ actorId: 'juan', actorKind: 'named_admin' }), '');
@@ -62,6 +72,17 @@ try {
     `juan:${sha256('valid-token')}`,
     `ops:${sha256('ops-token')}`,
   ].join(','));
+  assert.equal(adminIntakeConfigured(), false, 'credential hashes alone should not configure admin auth');
+  assert.deepEqual(verifyAdminIntakeCredentials('juan', 'valid-token'), {
+    actorId: 'juan',
+    actorKind: 'named_admin',
+  });
+  assert.equal(adminIntakeCookieValue({ actorId: 'juan', actorKind: 'named_admin' }), '');
+
+  setSigningSecret('too-short');
+  assert.equal(adminIntakeConfigured(), false, 'short signing secrets should fail closed');
+
+  setSigningSecret('0123456789abcdef0123456789abcdef');
   assert.equal(adminIntakeConfigured(), true);
   assert.equal(verifyAdminIntakeCredentials('juan', 'wrong-token'), null);
   assert.equal(verifyAdminIntakeCredentials('missing', 'valid-token'), null);
@@ -80,6 +101,10 @@ try {
   const [version, payload, signature] = cookie.split('.');
   assert.equal(verifyAdminIntakeCookie(`${version}.${payload}.bad${signature}`), null);
 
+  setSigningSecret('fedcba9876543210fedcba9876543210');
+  assert.equal(verifyAdminIntakeCookie(cookie), null, 'signing-secret rotation should invalidate existing sessions');
+
+  setSigningSecret('0123456789abcdef0123456789abcdef');
   setUsers(`ops:${sha256('ops-token')}`);
   assert.equal(verifyAdminIntakeCookie(cookie), null, 'removed admins should lose existing sessions');
 
@@ -115,6 +140,10 @@ try {
     'login page should point operators at the named-admin env var',
   );
   assert.ok(
+    adminPageSource.includes('ADMIN_SESSION_SIGNING_SECRET'),
+    'login page should point operators at the signing-secret env var',
+  );
+  assert.ok(
     csvRouteSource.includes('actorId: adminSession.actorId') &&
       csvRouteSource.includes('actorKind: adminSession.actorKind'),
     'CSV route should log the named admin actor',
@@ -133,5 +162,6 @@ try {
   console.log('Admin intake named-account tests passed.');
 } finally {
   setUsers(originalUsers);
+  setSigningSecret(originalSigningSecret);
   await rm(testDir, { recursive: true, force: true });
 }

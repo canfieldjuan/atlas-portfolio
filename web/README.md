@@ -151,12 +151,13 @@ The events include only routing metadata and non-personal operational dimensions
 
 ## Private Audit Intake Viewer
 
-The read-only `/admin/intake` page shows recent rows from `portfolio_audit_requests`. It is hidden from navigation and requires an HTTP-only cookie set by a shared admin token.
+The read-only `/admin/intake` page shows recent rows from `portfolio_audit_requests`. It is hidden from navigation and requires an HTTP-only cookie set by a named admin login.
 
-Configure this secret in Production and Preview before using the page:
+Configure named admin users and an independent session-signing secret in Production and Preview before using the page. `ADMIN_INTAKE_USERS` is comma- or newline-separated `admin_id:sha256_token_hash` entries, and `ADMIN_SESSION_SIGNING_SECRET` must be at least 32 characters.
 
 ```text
-ADMIN_INTAKE_TOKEN=
+ADMIN_INTAKE_USERS=juan:<sha256-token-hash>
+ADMIN_SESSION_SIGNING_SECRET=<32+ character random secret>
 ```
 
 ## Support Ticket Deflection Checkout

@@ -26,6 +26,7 @@ Slice phase: Production hardening
 ### Files touched
 
 - `.github/workflows/pre_push_audit.yml` — enroll the named-admin test in CI.
+- `web/README.md` — document `ADMIN_INTAKE_USERS` and the independent session-signing secret.
 - `web/package.json` — add the named-admin test script.
 - `web/plans/PR-Admin-Named-Accounts.md` — plan for this slice.
 - `web/scripts/test-admin-access-ledger.mjs` — update ledger expectations from shared actor to named actor.
@@ -45,11 +46,12 @@ hashes must be 64 hex characters. Login hashes the submitted token with SHA-256
 and compares that hash to the configured admin's hash with `timingSafeEqual`.
 
 On success, the login route signs a compact cookie payload containing the admin
-id and actor kind. The signature is an HMAC over the payload using a key derived
-from the configured user hashes, so rotating the configured admin credentials
-invalidates existing cookies. Cookie verification returns the named actor only
-when the signature is valid and the actor still exists in the configured user
-set.
+id and actor kind. The signature is an HMAC over the payload using an independent
+`ADMIN_SESSION_SIGNING_SECRET`; the configured user hashes are included only as
+rotation material, so rotating configured admin credentials still invalidates
+existing cookies without making the credential hashes sufficient to forge a
+cookie. Cookie verification returns the named actor only when the signature is
+valid and the actor still exists in the configured user set.
 
 The queue page and CSV route now require that verified session object and pass
 its actor fields into `recordAdminAccessEvent`. The ledger helper still bounds
@@ -61,7 +63,8 @@ session rather than a module-level `shared-admin-token` constant.
 - This is env-backed named auth, not a full admin-user database. It gives us
   attribution now without adding another auth datastore in the same slice.
 - Tokens are configured as hashes, not plaintext. The operator must generate a
-  SHA-256 token hash for each admin.
+  SHA-256 token hash for each admin and a separate 32+ character session-signing
+  secret.
 - Existing `ADMIN_INTAKE_TOKEN` sessions are invalidated by this slice. That is
   intentional because the shared-token identity is the gap this slice closes.
 - The login lockout remains IP-scoped, not admin-id scoped, so an attacker cannot
@@ -84,7 +87,7 @@ npm --prefix web run test:admin-access-ledger # PASS
 node web/scripts/audit-test-enrollment.mjs # PASS
 npm --prefix web run lint # PASS
 bash scripts/local_pr_review.sh # PASS
-rg -n "shared-admin-token|ADMIN_INTAKE_TOKEN" web/src web/scripts # PASS (no matches)
+rg -n "shared-admin-token|ADMIN_INTAKE_TOKEN" web/src web/scripts web/README.md # PASS (no matches)
 ```
 
 Expected grep result: no runtime `shared-admin-token`; no runtime
@@ -95,12 +98,13 @@ are intentionally not edited.
 
 | Area | Estimated LOC |
 | --- | ---: |
-| Plan doc | ~90 |
+| Plan doc | ~110 |
+| README | ~10 |
 | Auth/session helper | ~150 |
 | Admin routes/pages | ~60 |
 | Ledger helper | ~15 |
-| Tests + CI enrollment | ~250 |
-| Total | ~565 |
+| Tests + CI enrollment | ~270 |
+| Total | ~615 |
 
 This exceeds the 400-LOC soft cap because the slice changes the auth/session
 contract and needs tests around both helper behavior and route wiring.

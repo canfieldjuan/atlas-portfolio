@@ -16,9 +16,14 @@ const ADMIN_ID_RE = /^[a-zA-Z0-9_.-]{1,80}$/;
 const SHA256_HEX_RE = /^[a-f0-9]{64}$/i;
 const COOKIE_VERSION = 'v2';
 const COOKIE_SIGNING_CONTEXT = 'atlas-admin-intake-cookie-signing:v2:';
+const MIN_SESSION_SIGNING_SECRET_LENGTH = 32;
 
 function adminIntakeUsersConfig() {
   return process.env.ADMIN_INTAKE_USERS?.trim() || '';
+}
+
+function adminSessionSigningSecret() {
+  return process.env.ADMIN_SESSION_SIGNING_SECRET?.trim() || '';
 }
 
 function parseAdminIntakeUsers() {
@@ -60,12 +65,13 @@ function safeEqualHex(expectedHex: string, actualHex: string) {
 }
 
 function cookieSigningSecret() {
+  const signingSecret = adminSessionSigningSecret();
   const material = parseAdminIntakeUsers()
     .map((user) => `${user.id}:${user.tokenHash}`)
     .sort()
     .join('|');
-  if (!material) return null;
-  return createHash('sha256').update(COOKIE_SIGNING_CONTEXT + material).digest();
+  if (!material || signingSecret.length < MIN_SESSION_SIGNING_SECRET_LENGTH) return null;
+  return createHmac('sha256', signingSecret).update(COOKIE_SIGNING_CONTEXT + material).digest();
 }
 
 function base64UrlEncode(value: string) {
@@ -90,7 +96,8 @@ function safeEqualString(expectedValue: string, actualValue: string) {
 }
 
 export function adminIntakeConfigured() {
-  return parseAdminIntakeUsers().length > 0;
+  return parseAdminIntakeUsers().length > 0 &&
+    adminSessionSigningSecret().length >= MIN_SESSION_SIGNING_SECRET_LENGTH;
 }
 
 // Used by the login route to validate the raw admin id + token submitted via form post.
