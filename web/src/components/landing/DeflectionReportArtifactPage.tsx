@@ -5,6 +5,7 @@ import {
   DEFLECTION_PARTNER_PRICE_VARIANT_ID,
   type DeflectionPriceVariant,
 } from '@/lib/deflection-pricing';
+import { DeflectionReportPurgeControl } from './DeflectionReportPurgeControl';
 
 function cleanMarkdownText(value: string) {
   return value
@@ -394,10 +395,12 @@ function PaidReviewerGuidance({ artifact }: { artifact: FAQDeflectionReportArtif
 
 export function DeflectionReportArtifactPage({
   artifact,
+  requestId,
   companyName,
   priceVariant = DEFLECTION_DEFAULT_PRICE_VARIANT,
 }: {
   artifact: FAQDeflectionReportArtifact;
+  requestId: string;
   companyName?: string;
   priceVariant?: DeflectionPriceVariant;
 }) {
@@ -427,6 +430,9 @@ export function DeflectionReportArtifactPage({
         </div>
 
         <PaidReviewerGuidance artifact={artifact} />
+        <div className="mt-8">
+          <DeflectionReportPurgeControl requestId={requestId} />
+        </div>
       </div>
     </main>
   );

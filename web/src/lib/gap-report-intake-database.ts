@@ -30,6 +30,12 @@ export type GapReportCleanupCandidate = {
   csvBlobUrl: string;
 };
 
+export type GapReportPurgeTarget = {
+  requestId: string;
+  reportRequestId: string;
+  csvBlobUrl: string;
+};
+
 export type GapReportRecentDuplicateRow = {
   requestId: string;
   reportRequestId: string;
@@ -358,6 +364,42 @@ export async function getGapReportPriceVariantByReportRequestId(
       ? resolveDeflectionPriceVariant(row.price_variant)
       : null;
   return variant?.id ?? DEFLECTION_DEFAULT_PRICE_VARIANT_ID;
+}
+
+export async function getGapReportPurgeTargetByReportRequestId(
+  reportRequestId: string
+): Promise<GapReportPurgeTarget | null> {
+  const sql = getGapReportSql();
+  if (!sql) {
+    return null;
+  }
+
+  const rows = await sql.query(
+    `
+      SELECT
+        request_id::text AS request_id,
+        payload->>'reportRequestId' AS report_request_id,
+        csv_blob_url
+      FROM portfolio_gap_report_submissions
+      WHERE payload->>'reportRequestId' = $1
+        AND payload->>'reportRequestId' IS NOT NULL
+        AND payload->>'reportRequestId' <> ''
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `,
+    [reportRequestId]
+  );
+
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    requestId: String(row.request_id),
+    reportRequestId: String(row.report_request_id),
+    csvBlobUrl: String(row.csv_blob_url),
+  };
 }
 
 export async function listExpiredGapReportSubmissions(

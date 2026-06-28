@@ -4,8 +4,10 @@ import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
   gapReportDatabaseConfigured,
+  getGapReportPurgeTargetByReportRequestId,
   listExpiredGapReportSubmissions,
 } from './gap-report-intake-database';
+import { structuredRuntimeError } from './structured-runtime-log';
 
 const GAP_REPORT_BLOB_PREFIX = 'gap-report-csvs/';
 const DEFAULT_RETENTION_DAYS = 30;
@@ -22,6 +24,13 @@ export type GapReportCleanupResult = {
   deletedOrphanedBlobs: number;
   errors: string[];
 };
+
+export type GapReportPurgeResult =
+  | { ok: true; status: 'purged' }
+  | {
+      ok: false;
+      reason: 'not_configured' | 'not_found' | 'blob_error' | 'atlas_error' | 'database_error';
+    };
 
 function cutoffDate(retentionDays: number) {
   return new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
@@ -155,6 +164,70 @@ async function cleanupOrphanedBlobs(cutoff: Date, limit: number) {
   }
 
   return { deletedOrphanedBlobs, errors };
+}
+
+export async function purgeGapReportSubmissionByReportRequestId(
+  reportRequestId: string
+): Promise<GapReportPurgeResult> {
+  if (!gapReportDatabaseConfigured()) {
+    return { ok: false, reason: 'not_configured' };
+  }
+
+  let target;
+  try {
+    target = await getGapReportPurgeTargetByReportRequestId(reportRequestId);
+  } catch (error) {
+    structuredRuntimeError('deflection.report_purge.lookup_failed', {
+      reportRequestId,
+      error,
+    });
+    return { ok: false, reason: 'database_error' };
+  }
+
+  if (!target) {
+    return { ok: false, reason: 'not_found' };
+  }
+
+  try {
+    await deleteBlob(target.csvBlobUrl);
+  } catch (error) {
+    structuredRuntimeError('deflection.report_purge.blob_delete_failed', {
+      reportRequestId,
+      requestId: target.requestId,
+      error,
+    });
+    return { ok: false, reason: 'blob_error' };
+  }
+
+  const atlasDelete = await deleteDeflectionReport(target.reportRequestId);
+  if (!atlasDelete.ok) {
+    structuredRuntimeError('deflection.report_purge.atlas_delete_failed', {
+      reportRequestId,
+      requestId: target.requestId,
+      reason: atlasDelete.reason,
+    });
+    return { ok: false, reason: 'atlas_error' };
+  }
+
+  try {
+    const deletedRows = await deleteGapReportSubmissions([target.requestId]);
+    if (deletedRows < 1) {
+      structuredRuntimeError('deflection.report_purge.database_delete_missing', {
+        reportRequestId,
+        requestId: target.requestId,
+      });
+      return { ok: false, reason: 'database_error' };
+    }
+  } catch (error) {
+    structuredRuntimeError('deflection.report_purge.database_delete_failed', {
+      reportRequestId,
+      requestId: target.requestId,
+      error,
+    });
+    return { ok: false, reason: 'database_error' };
+  }
+
+  return { ok: true, status: 'purged' };
 }
 
 export async function cleanupExpiredGapReportData(options?: {
