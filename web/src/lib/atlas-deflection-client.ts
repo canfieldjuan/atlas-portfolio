@@ -48,11 +48,19 @@ export type SnapshotFetchResult =
   | { ok: true; snapshot: DeflectionSnapshot }
   | { ok: false; reason: 'not_configured' | 'not_found' | 'error' };
 
+export type DeflectionReportDeleteResult =
+  | { ok: true }
+  | { ok: false; reason: 'not_configured' | 'not_found' | 'error' };
+
 function atlasConfig(): { baseUrl: string; token: string } | null {
   const baseUrl = process.env.ATLAS_API_BASE_URL?.trim().replace(/\/$/, '');
   const token = process.env.ATLAS_B2B_SERVICE_TOKEN?.trim();
   if (!baseUrl || !token) return null;
   return { baseUrl, token };
+}
+
+function deflectionReportDeletePath(requestId: string): string {
+  return `/api/v1/content-ops/deflection-reports/${encodeURIComponent(requestId)}`;
 }
 
 function isNonNegativeNumber(value: unknown): value is number {
@@ -350,6 +358,38 @@ export async function fetchDeflectionSnapshot(
   } catch (err) {
     // Generic — never surface the upstream host or token.
     structuredRuntimeError('deflection.snapshot.fetch_error', { error: err });
+    return { ok: false, reason: 'error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function deleteDeflectionReport(
+  requestId: string,
+): Promise<DeflectionReportDeleteResult> {
+  const config = atlasConfig();
+  if (!config) return { ok: false, reason: 'not_configured' };
+  if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${config.baseUrl}${deflectionReportDeletePath(requestId)}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (res.status === 204 || res.status === 404) return { ok: true };
+    if (!res.ok) {
+      structuredRuntimeError('deflection.report_delete.http_error', { status: res.status });
+      return { ok: false, reason: 'error' };
+    }
+    return { ok: true };
+  } catch (err) {
+    structuredRuntimeError('deflection.report_delete.error', { error: err });
     return { ok: false, reason: 'error' };
   } finally {
     clearTimeout(timer);

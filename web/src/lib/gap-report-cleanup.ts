@@ -1,4 +1,5 @@
 import { del, list } from '@vercel/blob';
+import { deleteDeflectionReport } from './atlas-deflection-client';
 import { gapReportBlobToken, gapReportBlobTokens } from './gap-report-intake';
 import {
   deleteGapReportSubmissions,
@@ -73,6 +74,13 @@ async function cleanupTrackedSubmissions(cutoffIso: string, limit: number) {
       try {
         await deleteBlob(submission.csvBlobUrl);
         deletedTrackedBlobs += 1;
+        const atlasDelete = await deleteDeflectionReport(submission.reportRequestId);
+        if (!atlasDelete.ok) {
+          errors.push(
+            `Failed to delete ATLAS report ${submission.reportRequestId} for request ${submission.requestId}: ${atlasDelete.reason}`
+          );
+          continue;
+        }
         deletedRequestIds.push(submission.requestId);
       } catch (error) {
         errors.push(
