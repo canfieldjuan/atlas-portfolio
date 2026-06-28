@@ -47,9 +47,9 @@ async function getPrivateCsvBlob(url: string) {
 
 export async function GET(request: Request, context: RouteContext) {
   const cookieStore = await cookies();
-  const isAuthorized = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
+  const adminSession = verifyAdminIntakeCookie(cookieStore.get(ADMIN_INTAKE_COOKIE)?.value);
 
-  if (!isAuthorized) {
+  if (!adminSession) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
 
@@ -70,6 +70,8 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const accessLog = await recordAdminAccessEvent({
+    actorId: adminSession.actorId,
+    actorKind: adminSession.actorKind,
     action: 'gap_report_csv_download',
     targetType: 'gap_report_submission',
     targetRequestId: requestId,

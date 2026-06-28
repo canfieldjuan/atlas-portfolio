@@ -86,6 +86,8 @@ try {
   assert.equal(adminAccessLogConfigured(), false);
   assert.deepEqual(
     await recordAdminAccessEvent({
+      actorId: 'juan',
+      actorKind: 'named_admin',
       action: 'admin_intake_view',
       targetType: 'admin_intake_queue',
       headers: new Headers(),
@@ -98,6 +100,8 @@ try {
   assert.equal(adminAccessLogConfigured(), true);
   assert.deepEqual(
     await recordAdminAccessEvent({
+      actorId: 'juan',
+      actorKind: 'named_admin',
       action: 'gap_report_csv_download',
       targetType: 'gap_report_submission',
       targetRequestId: '00000000-0000-4000-8000-000000000000',
@@ -120,8 +124,8 @@ try {
   assert.equal(globalThis.__adminAccessLedgerQueries.length, 1);
   const query = globalThis.__adminAccessLedgerQueries[0];
   assert.match(query.sql, /INSERT INTO portfolio_admin_access_events/);
-  assert.equal(query.params[0], 'shared-admin-token');
-  assert.equal(query.params[1], 'shared_admin_token');
+  assert.equal(query.params[0], 'juan');
+  assert.equal(query.params[1], 'named_admin');
   assert.equal(query.params[2], 'gap_report_csv_download');
   assert.equal(query.params[3], 'gap_report_submission');
   assert.equal(query.params[4], '00000000-0000-4000-8000-000000000000');
@@ -136,6 +140,8 @@ try {
   globalThis.__adminAccessLedgerThrow = true;
   assert.deepEqual(
     await recordAdminAccessEvent({
+      actorId: 'juan',
+      actorKind: 'named_admin',
       action: 'admin_intake_view',
       targetType: 'admin_intake_queue',
       headers: new Headers({ 'cf-connecting-ip': '198.51.100.5' }),
@@ -149,8 +155,18 @@ try {
     readFile(csvRouteUrl, 'utf8'),
   ]);
   assert.ok(
+    adminPageSource.includes('actorId: adminSession.actorId') &&
+      adminPageSource.includes('actorKind: adminSession.actorKind'),
+    'admin intake page should pass the named admin actor into the ledger',
+  );
+  assert.ok(
     adminPageSource.includes("action: 'admin_intake_view'"),
     'admin intake page should record authorized PII queue views',
+  );
+  assert.ok(
+    csvRouteSource.includes('actorId: adminSession.actorId') &&
+      csvRouteSource.includes('actorKind: adminSession.actorKind'),
+    'CSV route should pass the named admin actor into the ledger',
   );
   assert.ok(
     csvRouteSource.includes("action: 'gap_report_csv_download'"),
