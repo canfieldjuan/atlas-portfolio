@@ -275,6 +275,7 @@ describe('deflection review decisions route', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     restoreEnv();
     resetDatabaseState();
     resetRateLimitStore();
@@ -408,6 +409,8 @@ describe('deflection review decisions route', () => {
   });
 
   it('rate limits before ATLAS access checks', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-28T17:30:00.000Z'));
     queueFetch(Array.from({ length: 40 }, () => modelResponse()));
 
     let response: Response | null = null;
