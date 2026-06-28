@@ -1,0 +1,23 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 84,
+  "EndLine": 84,
+  "StartColumn": 24,
+  "EndColumn": 72,
+  "Match": "env.ATLAS_B2B_SERVICE_TOKEN || REDACTED ",
+  "Secret": "REDACTED",
+  "File": "web/scripts/smoke-deflection-live-submit.mjs",
+  "SymlinkFile": "",
+  "Commit": "0555d8edba241279749d0623ca99ee7afeb09690",
+  "Link": "https://github.com/canfieldjuan/atlas-portfolio/blob/0555d8edba241279749d0623ca99ee7afeb09690/web/scripts/smoke-deflection-live-submit.mjs#L84",
+  "Entropy": 3.6168747,
+  "Author": "FineTune Lab",
+  "Email": "canfieldjuan24@gmail.com",
+  "Date": "2026-06-01T17:40:07Z",
+  "Message": "PR-Deflection-Service-Token\n\nPlan: web/plans/PR-Deflection-Service-Token.md\nSlice phase: Production hardening\n\nMoves the support-ticket-deflection funnel from a JWT-only ATLAS credential to a durable service-token contract: the portfolio server now prefers ATLAS_B2B_SERVICE_TOKEN and falls back to ATLAS_B2B_JWT during rollout.\n\nIntentional:\n- ATLAS_B2B_JWT remains a temporary fallback while the service-token env rolls out.\n- The service token stays server-only; no NEXT_PUBLIC_ env is introduced.\n- This slice changes consumption, not API-key minting or Vercel env provisioning.\n\nDeferred:\n- Mint atlas-portfolio-deflection-prod with content_ops:deflection:*, set ATLAS_B2B_SERVICE_TOKEN in Vercel, redeploy, verify live smokes, then remove ATLAS_B2B_JWT.\n- Browser-upload and paid-unlock live smokes remain separate go-live checks after the env is deployed.\n\nParked hardening:\n- None.\n\nVerification:\n- npm --prefix web ci\n- npm --prefix web run test:deflection-intake-atlas-submit\n- npm --prefix web run test:deflection-live-submit-smoke\n- bash scripts/local_pr_review.sh",
+  "Tags": [],
+  "Fingerprint": "0555d8edba241279749d0623ca99ee7afeb09690:web/scripts/smoke-deflection-live-submit.mjs:generic-api-key:84"
+ }
+]
