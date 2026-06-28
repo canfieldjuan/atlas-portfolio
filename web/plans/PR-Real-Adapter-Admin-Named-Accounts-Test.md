@@ -27,6 +27,8 @@ Slice phase: Functional validation
 - `web/plans/PR-Real-Adapter-Admin-Named-Accounts-Test.md` — plan for this slice.
 - `web/scripts/test-admin-intake-named-accounts.mjs` — remove the temp transpile
   harness.
+- `web/src/lib/admin-access-log.ts` — make the action union internal after the
+  deleted script stops masking the unused export in Knip.
 - `web/src/lib/admin-intake-auth.test.ts` — add real-import auth coverage.
 
 ## Mechanism
@@ -42,6 +44,10 @@ helper itself: the login route must verify named credentials and sign the
 session, the admin page must expose the named admin input and env copy, the CSV
 route must log the named actor, and runtime admin surfaces must not retain the
 legacy shared-token actor.
+
+Deleting the legacy script also exposes an unused exported type in
+`admin-access-log.ts`; the type remains in the file for the real input contract,
+but it no longer needs to be exported.
 
 ## Intentional
 
@@ -67,6 +73,7 @@ Parked hardening: none
 ```bash
 npm --prefix web run test:admin-intake-named-accounts # PASS
 node web/scripts/audit-test-enrollment.mjs # PASS
+npm --prefix web run check:dead-code # PASS
 npm --prefix web run lint # PASS
 if rg -n "test-admin-intake-named-accounts\\.mjs|atlas-admin-intake-named-accounts" web/package.json web/scripts web/src/lib/admin-intake-auth.test.ts; then exit 1; else echo "No admin named-account temp harness references remain."; fi # PASS
 bash scripts/local_pr_review.sh # PASS
@@ -77,10 +84,11 @@ bash scripts/local_pr_review.sh # PASS
 | Area | Estimated LOC |
 |---|---:|
 | `web/package.json` | ~1 |
-| `web/plans/PR-Real-Adapter-Admin-Named-Accounts-Test.md` | ~83 |
+| `web/plans/PR-Real-Adapter-Admin-Named-Accounts-Test.md` | ~91 |
 | `web/scripts/test-admin-intake-named-accounts.mjs` | ~167 |
+| `web/src/lib/admin-access-log.ts` | ~1 |
 | `web/src/lib/admin-intake-auth.test.ts` | ~159 |
-| Total | ~411 |
+| Total | ~420 |
 
 This is slightly over the 400-LOC soft cap because the old temp-transpile harness
 is deleted and replaced with real-import Vitest coverage in the same slice.
