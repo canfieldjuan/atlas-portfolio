@@ -145,12 +145,12 @@ describe('deflection intake email results links', () => {
     expect(calls[0].body.subject).toMatch(/New Resolution Audit CSV/);
     expect(calls[1].body.subject).toBe('We received your Resolution Audit CSV');
     expect(sentText(0)).toMatch(/Report request ID: content-ops-unit-123/);
-    expect(sentText(0)).toMatch(
-      /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
+    expect(sentText(0)).toContain(
+      'Results: https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123',
     );
     expect(sentText(1)).toMatch(/Your free Resolution Audit Snapshot is ready:/);
-    expect(sentText(1)).toMatch(
-      /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123/,
+    expect(sentText(1)).toContain(
+      'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123',
     );
     expect(sentText(1)).toMatch(/save this email or bookmark your results link/);
     expect(sentText(1)).toMatch(
@@ -181,11 +181,11 @@ describe('deflection intake email results links', () => {
     expect(calls).toHaveLength(2);
     expect(calls[0].body.subject).toMatch(/New Deflection Report CSV/);
     expect(calls[1].body.subject).toBe('We received your Deflection Report CSV');
-    expect(sentText(0)).toMatch(
-      /Results: https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
+    expect(sentText(0)).toContain(
+      'Results: https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123?priceVariant=partner',
     );
-    expect(sentText(1)).toMatch(
-      /https:\/\/juancanfield\.com\/systems\/support-ticket-deflection\/results\/content-ops-unit-123\?priceVariant=partner/,
+    expect(sentText(1)).toContain(
+      'https://juancanfield.com/systems/support-ticket-deflection/results/content-ops-unit-123?priceVariant=partner',
     );
     expect(sentText(1)).toMatch(/Your free Deflection Snapshot is ready:/);
     expect(sentText(1)).toMatch(/upgrade to the full report during that window without re-uploading/);
@@ -221,8 +221,8 @@ describe('deflection intake email results links', () => {
       reportRequestId: 'https://evil.example/report',
     });
 
-    expect(sentText(0)).not.toMatch(/https:\/\/evil\.example/);
-    expect(sentText(1)).not.toMatch(/https:\/\/evil\.example/);
+    expect(sentText(0)).not.toContain('https://evil.example');
+    expect(sentText(1)).not.toContain('https://evil.example');
   });
 
   it('returns a snapshot email warning when the customer email fails', async () => {
