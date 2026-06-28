@@ -63,9 +63,9 @@ bash scripts/local_pr_review.sh # PASS
 | Area | Estimated LOC |
 |---|---:|
 | Plan + CI/script enrollment | ~75 |
-| SQL + helper | ~189 |
+| SQL + helper | ~190 |
 | Admin route/page wiring | ~55 |
-| Test | ~169 |
-| Total | ~488 |
+| Test | ~177 |
+| Total | ~497 |
 
 This is above the 400-LOC soft cap because the ledger needs the SQL table, the runtime helper, route wiring, and an enrolled sandbox test in the same slice to be reviewable.
