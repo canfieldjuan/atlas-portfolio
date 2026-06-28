@@ -35,6 +35,7 @@ import type { DeflectionPriceVariantId } from '@/lib/deflection-pricing';
 
 const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,128}$/;
 const FETCH_TIMEOUT_MS = 10_000;
+const REPORT_DELETE_TIMEOUT_MS = 3_000;
 const ARTIFACT_FETCH_TIMEOUT_MS = 60_000;
 // The full-volume submit streams up to 50 MB of CSV to ATLAS and waits for
 // the deterministic report build (~52s measured at 35k rows), so it needs a
@@ -375,7 +376,7 @@ export async function deleteDeflectionReport(
   if (!REQUEST_ID_RE.test(requestId)) return { ok: false, reason: 'not_found' };
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), REPORT_DELETE_TIMEOUT_MS);
   try {
     const res = await fetch(`${config.baseUrl}${deflectionReportDeletePath(requestId)}`, {
       method: 'DELETE',
@@ -390,7 +391,8 @@ export async function deleteDeflectionReport(
       structuredRuntimeError('deflection.report_delete.http_error', { status: res.status });
       return { ok: false, reason: 'error' };
     }
-    return { ok: true };
+    structuredRuntimeError('deflection.report_delete.unexpected_status', { status: res.status });
+    return { ok: false, reason: 'error' };
   } catch (err) {
     structuredRuntimeError('deflection.report_delete.error', { error: err });
     return { ok: false, reason: 'error' };

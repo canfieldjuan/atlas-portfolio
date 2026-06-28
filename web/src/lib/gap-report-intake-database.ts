@@ -362,7 +362,8 @@ export async function getGapReportPriceVariantByReportRequestId(
 
 export async function listExpiredGapReportSubmissions(
   cutoffIso: string,
-  limit = 100
+  limit = 100,
+  offset = 0
 ): Promise<GapReportCleanupCandidate[]> {
   const sql = getGapReportSql();
   if (!sql) {
@@ -370,6 +371,7 @@ export async function listExpiredGapReportSubmissions(
   }
 
   const boundedLimit = Math.max(1, Math.min(limit, 500));
+  const boundedOffset = Math.max(0, offset);
   const rows = await sql.query(
     `
       SELECT
@@ -383,8 +385,9 @@ export async function listExpiredGapReportSubmissions(
         AND payload->>'reportRequestId' <> ''
       ORDER BY submitted_at ASC
       LIMIT $2
+      OFFSET $3
     `,
-    [cutoffIso, boundedLimit]
+    [cutoffIso, boundedLimit, boundedOffset]
   );
 
   return rows.map((row) => ({

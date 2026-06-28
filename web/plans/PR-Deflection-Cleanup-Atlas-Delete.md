@@ -19,10 +19,12 @@ Slice phase: Production hardening
    the ATLAS report by `reportRequestId`, then delete the Neon row only after
    both external stores are cleared.
 3. Treat ATLAS 204 and 404 as successful/idempotent cleanup; fail soft on other
-   ATLAS errors so the cron keeps processing other submissions but does not
-   remove the Neon row for that failed report.
-4. Extend the enrolled CSV privacy/cleanup test to cover delete ordering,
-   ATLAS failure retention, and 404 idempotency.
+   ATLAS errors or unexpected statuses so the cron keeps processing other
+   submissions but does not remove the Neon row for that failed report.
+4. Bound tracked ATLAS deletes and page past retained failures within one cron
+   run so one slow or failing report does not starve newer expired submissions.
+5. Extend the enrolled CSV privacy/cleanup test to cover delete ordering,
+   ATLAS failure retention, retained-row paging, and 404 idempotency.
 
 ### Files touched
 
@@ -38,14 +40,20 @@ Slice phase: Production hardening
 id with the existing `REQUEST_ID_RE`, sends an authenticated `DELETE` to
 `/api/v1/content-ops/deflection-reports/{request_id}`, and returns a compact
 result instead of throwing. It treats missing ATLAS config as `not_configured`,
-204 and 404 as `ok`, and all other HTTP/network outcomes as `error` with a
-structured runtime log.
+204 and 404 as `ok`, and all other HTTP/network/unexpected-status outcomes as
+`error` with a structured runtime log. The delete helper uses a shorter timeout
+than read paths so a full cleanup batch stays inside the cron budget.
 
 `cleanupTrackedSubmissions()` keeps its existing blob-first behavior, then calls
 the ATLAS delete helper for the expired submission's `reportRequestId`. Only
 submissions whose Blob delete and ATLAS delete both succeed are added to the
 `deleteGapReportSubmissions()` batch. A failed ATLAS delete records an error and
 leaves the Neon row in place so the next cron can retry.
+
+Tracked cleanup caps its per-run database page below the general cleanup limit
+and maintains an offset over retained failures. Successful rows are removed;
+failed rows stay in Neon, but the current cron run advances past them so newer
+expired rows can still be cleaned up.
 
 `listExpiredGapReportSubmissions()` now projects `payload->>'reportRequestId'`
 and limits this path to rows with a non-empty ATLAS report id. Rows without that
@@ -83,6 +91,6 @@ bash scripts/local_pr_review.sh # PASS
 | --- | ---: |
 | Plan doc | ~90 |
 | ATLAS delete helper | ~45 |
-| Cleanup and database wiring | ~45 |
-| Tests | ~90 |
-| Total | ~270 |
+| Cleanup and database wiring | ~75 |
+| Tests | ~120 |
+| Total | ~330 |
