@@ -75,7 +75,7 @@
     "test:deflection-standard-price-chain-smoke": "node scripts/test-deflection-standard-price-chain-smoke.mjs",
     "test:deflection-csv-privacy": "node scripts/test-deflection-csv-privacy-contract.mjs",
     "test:deflection-cost-projection-share": "node scripts/test-deflection-cost-projection-share.mjs",
-    "test:deflection-rate-limit": "node scripts/test-deflection-rate-limit.mjs",
+    "test:deflection-rate-limit": "vitest run src/lib/deflection-rate-limit.test.ts",
     "test:deflection-row-renderer-share": "node scripts/test-deflection-row-renderer-share.mjs",
     "test:deflection-teaser-rank-copy": "node scripts/test-deflection-teaser-rank-copy.mjs",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
