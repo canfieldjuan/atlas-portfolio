@@ -26,7 +26,7 @@ export const DEFLECTION_REPORT_SEO_TARGETS_SNAPSHOT_SAFE_FIELDS = [] as const;
 export const DEFLECTION_REPORT_SEO_TARGETS_HOSTED_CONSUMER_SAFE_FIELDS = ["phrases", "total_phrase_count", "displayed_phrase_count", "omitted_phrase_count", "limit"] as const;
 export const DEFLECTION_REPORT_RANKED_QUESTIONS_FIELDS = ["rows"] as const;
 export const DEFLECTION_REPORT_RANKED_QUESTIONS_REQUIRED_DATA = ["rows"] as const;
-export const DEFLECTION_REPORT_RANKED_QUESTIONS_SNAPSHOT_SAFE_FIELDS = ["rows.rank", "rows.question", "rows.ticket_count", "rows.weighted_frequency", "rows.customer_wording"] as const;
+export const DEFLECTION_REPORT_RANKED_QUESTIONS_SNAPSHOT_SAFE_FIELDS = ["rows.rank", "rows.question", "rows.ticket_count", "rows.weighted_frequency", "rows.customer_wording", "rows.estimated_support_cost"] as const;
 export const DEFLECTION_REPORT_RANKED_QUESTIONS_HOSTED_CONSUMER_SAFE_FIELDS = ["rows"] as const;
 export const DEFLECTION_REPORT_RANKED_QUESTIONS_ROWS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "ticket_count", "weighted_frequency", "customer_wording", "estimated_support_cost", "opportunity_score", "answer_status", "source_proof"] as const;
 export const DEFLECTION_REPORT_RANKED_QUESTIONS_ROWS_FIELDS = ["rank", "question", "ticket_count", "weighted_frequency", "customer_wording", "estimated_support_cost", "opportunity_score", "answer_status", "source_proof"] as const;
@@ -43,7 +43,7 @@ export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_TOP_EVIDENCE_HOSTED_CONS
 export const DEFLECTION_REPORT_PRIORITY_FIX_QUEUE_ITEMS_FIELDS = ["rank", "repeat_key", "cluster_id", "identity_basis", "identity_confidence", "question", "status", "owner_lane", "owner_category", "evidence_tier", "routing_signals", "product_gap_summary", "customer_vocabulary", "cost_period", "cost_confidence", "jira_template", "fix_type", "csat_signal", "confidence", "priority_score", "priority_drivers", "recommended_title", "recommended_action", "representative_phrasing", "ticket_count", "estimated_support_cost", "support_cost_formula", "support_cost_source", "opportunity_score", "top_evidence"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_FIELDS = ["items", "top_item_count", "result_page_limit", "pdf_limit", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_REQUIRED_DATA = ["items", "top_item_count", "result_page_limit", "pdf_limit", "support_cost_basis"] as const;
-export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_SNAPSHOT_SAFE_FIELDS = ["items.rank", "items.question", "items.ticket_count"] as const;
+export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_SNAPSHOT_SAFE_FIELDS = ["items.rank", "items.question", "items.ticket_count", "items.owner_lane", "items.estimated_support_cost"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_HOSTED_CONSUMER_SAFE_FIELDS = ["items", "top_item_count", "support_cost_basis"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_SUPPORT_COST_BASIS_HOSTED_CONSUMER_SAFE_FIELDS = ["status"] as const;
 export const DEFLECTION_REPORT_TOP_UNRESOLVED_REPEATS_ITEMS_HOSTED_CONSUMER_SAFE_FIELDS = ["rank", "question", "status", "owner_lane", "owner_category", "evidence_tier", "routing_signals", "product_gap_summary", "customer_vocabulary", "cost_period", "cost_confidence", "jira_template", "confidence", "recommended_action", "ticket_count", "estimated_support_cost", "priority_score", "priority_drivers", "csat_signal"] as const;
