@@ -18,6 +18,7 @@ Slice phase: Production hardening
 - `web/scripts/test-deflection-atlas-price-display.mjs` — stubs the structured logger in the ATLAS client sandbox.
 - `web/scripts/test-deflection-checkout.mjs` — stubs the structured logger in the checkout sandbox.
 - `web/scripts/test-deflection-intake-atlas-submit.mjs` — stubs the structured logger and asserts new event names in the ATLAS submit sandbox.
+- `web/scripts/test-deflection-partner-access.mjs` — stubs the structured logger in the partner record-route sandbox.
 - `web/scripts/test-deflection-report-model-result-page.mjs` — stubs the structured logger and asserts new event names in the report-model sandbox.
 - `web/scripts/test-deflection-uploaded-search.mjs` — stubs the structured logger in the uploaded-search sandbox.
 - `web/scripts/test-structured-runtime-logging.mjs` — verifies helper behavior and scans for raw console error sinks.
@@ -60,6 +61,7 @@ Focused checks:
 npm --prefix web run test:structured-runtime-logging # PASS
 npm --prefix web run test:deflection-checkout # PASS
 npm --prefix web run test:deflection-intake-atlas-submit # PASS
+npm --prefix web run test:deflection-partner-access # PASS
 npm --prefix web run test:deflection-uploaded-search # PASS
 npm --prefix web run test:deflection-report-model-result-page # PASS
 npm --prefix web run test:deflection-atlas-price-display # PASS
@@ -80,7 +82,7 @@ bash scripts/local_pr_review.sh # PASS
 | Plan + CI/script enrollment | ~84 |
 | Helper + audit script | ~193 |
 | Runtime call-site replacements | ~145 |
-| CI harness updates | ~28 |
-| Total | ~450 |
+| CI harness updates | ~32 |
+| Total | ~465 |
 
 This is slightly over the 400-LOC soft cap because the audit can only be strict if the current raw runtime error sinks are replaced in the same slice.
