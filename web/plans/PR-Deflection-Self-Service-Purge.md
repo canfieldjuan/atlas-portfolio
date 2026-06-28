@@ -25,12 +25,15 @@ Slice phase: Production hardening
    purge sequencing, and result-view control wiring.
 5. Update the hosted report-model result-page contract for the artifact page's
    new purge `requestId` prop.
+6. Keep the uploaded-search contract focused on the paid search component now
+   that the free Snapshot can pass `requestId` to the purge control.
 
 ### Files touched
 
 - `web/plans/PR-Deflection-Self-Service-Purge.md` — plan for this slice.
 - `web/scripts/test-deflection-report-model-result-page.mjs` — keep artifact result-page prop coverage aligned with the purge control.
 - `web/scripts/test-deflection-csv-privacy-contract.mjs` — extend privacy contract coverage for self-service purge.
+- `web/scripts/test-deflection-uploaded-search.mjs` — keep uploaded-search result-page assertions scoped to the search component.
 - `web/src/app/api/deflection-report-purge/route.ts` — add the rate-limited purge endpoint.
 - `web/src/app/systems/support-ticket-deflection/results/[requestId]/page.tsx` — pass the request id into paid artifact rendering.
 - `web/src/components/landing/DeflectionReportArtifactPage.tsx` — render the purge control on legacy paid artifact results.
@@ -82,6 +85,7 @@ report were deleted instead of auto-redirecting into a confusing 404.
 ```bash
 npm --prefix web run test:deflection-csv-privacy # PASS
 npm --prefix web run test:deflection-report-model-result-page # PASS
+npm --prefix web run test:deflection-uploaded-search # PASS
 npm --prefix web run lint # PASS
 bash scripts/local_pr_review.sh # PASS
 ```
@@ -90,8 +94,8 @@ bash scripts/local_pr_review.sh # PASS
 
 | Area | Estimated LOC |
 | --- | ---: |
-| Plan doc | ~90 |
+| Plan doc | ~95 |
 | Purge endpoint and library wiring | ~130 |
 | Result-page purge control | ~125 |
-| Tests | ~135 |
-| Total | ~480 |
+| Tests | ~140 |
+| Total | ~490 |
