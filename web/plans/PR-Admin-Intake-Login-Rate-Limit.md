@@ -70,6 +70,7 @@ Full local review before opening the PR:
 ```bash
 bash scripts/local_pr_review.sh
 # PASS — plan audits, drift advisory, dead-code baseline, landing smoke, lint, Next build, and whitespace all passed.
+# Re-run after review fix: PASS — same bundle passed with trusted-header identity and spoofed-XFF test coverage.
 ```
 
 Recurring value grep:
@@ -83,7 +84,7 @@ rg "Invalid admin token|rate_limited|admin-intake-login" web/src web/scripts web
 
 | Area | Estimated LOC |
 | --- | ---: |
-| CI/package/test harness | ~215 |
+| CI/package/test harness | ~245 |
 | App/helper changes | ~100 |
 | Plan | ~85 |
-| Total | ~430 |
+| Total | ~465 |
