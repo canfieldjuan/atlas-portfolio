@@ -205,7 +205,7 @@ review** means, per verdict level:
 
 Fixes go in as new commits (never force-push); squash-merge collapses them.
 
-### 3d. Test adapter discipline
+### 3e. Test adapter discipline
 
 1. **Use real test adapters when they exist.** Tests must exercise repo modules
    through their normal imports (`@/`, package entrypoints, or the real adapter
