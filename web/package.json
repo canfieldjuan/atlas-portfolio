@@ -57,7 +57,7 @@
     "test:deflection-snapshot-pdf-email": "node scripts/test-deflection-snapshot-pdf-email.mjs",
     "test:deflection-snapshot-contract-generator": "node scripts/test-deflection-snapshot-contract-generator.mjs",
     "test:deflection-comeback-analytics": "node scripts/test-deflection-comeback-analytics.mjs",
-    "test:deflection-ga-path-redaction": "node scripts/test-deflection-ga-path-redaction.mjs",
+    "test:deflection-ga-path-redaction": "vitest run src/lib/analytics.test.ts",
     "test:deflection-hosted-checkout-smoke": "node scripts/test-deflection-hosted-checkout-smoke.mjs",
     "test:deflection-hosted-results-smoke": "node scripts/test-deflection-hosted-results-smoke.mjs",
     "test:deflection-atlas-price-display": "node scripts/test-deflection-atlas-price-display.mjs",

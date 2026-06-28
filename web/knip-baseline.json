@@ -39,16 +39,6 @@
       "name": "REQUIRED_GOOGLE_ADS_ENV"
     },
     {
-      "type": "exports",
-      "file": "src/lib/analytics.ts",
-      "name": "redactAnalyticsPath"
-    },
-    {
-      "type": "exports",
-      "file": "src/lib/analytics.ts",
-      "name": "trackEvent"
-    },
-    {
       "type": "files",
       "file": "scripts/audit-test-enrollment.mjs",
       "name": "scripts/audit-test-enrollment.mjs"

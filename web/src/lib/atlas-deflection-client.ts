@@ -312,7 +312,11 @@ function parseSnapshot(v: unknown): DeflectionSnapshot | null {
   const teaser = parseTeaser(o.teaser);
   if (!teaser) return null;
   const sourceWindow = parseDeflectionSnapshotSourceWindow(s);
+  const title = typeof o.title === 'string' && o.title.trim()
+    ? o.title.trim()
+    : 'Resolution Snapshot';
   return {
+    title,
     summary: {
       generated: s.generated,
       drafted_answer_count: s.drafted_answer_count,
