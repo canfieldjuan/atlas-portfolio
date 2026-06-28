@@ -97,13 +97,13 @@ try {
   assert.equal(payload.event, 'unit.test_event');
   assert.equal(payload.status, 502);
   assert.match(payload.timestamp, /^\d{4}-\d{2}-\d{2}T/);
-  assert.deepEqual(payload.error, { name: 'Error', message: 'boom' });
+  assert.deepEqual(payload.error, { name: 'Error' });
   assert.equal(payload.token, '[REDACTED]');
   assert.deepEqual(payload.nested, {
     apiKey: '[REDACTED]',
     ok: true,
   });
-  assert.deepEqual(payload.values, [1, { name: 'Error', message: 'nested boom' }]);
+  assert.deepEqual(payload.values, [1, { name: 'Error' }]);
 
   await assertNoRawConsoleErrorSinks();
 

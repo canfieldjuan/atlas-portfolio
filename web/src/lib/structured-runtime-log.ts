@@ -22,7 +22,6 @@ function sanitizeLogValue(value: unknown, depth = 0): unknown {
   if (value instanceof Error) {
     return {
       name: value.name,
-      message: value.message,
     };
   }
   if (value instanceof Date) return value.toISOString();

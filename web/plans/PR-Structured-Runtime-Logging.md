@@ -35,7 +35,7 @@ Slice phase: Production hardening
 
 ## Mechanism
 
-`structuredRuntimeError(event, fields)` emits a single JSON object through the one allowed `console.error` sink. The helper preserves a stable `level`, `event`, and ISO `timestamp`, recursively sanitizes field values, serializes `Error` objects as name/message only, drops unsupported values, bounds arrays/object depth, and redacts sensitive key names before output.
+`structuredRuntimeError(event, fields)` emits a single JSON object through the one allowed `console.error` sink. The helper preserves a stable `level`, `event`, and ISO `timestamp`, recursively sanitizes field values, serializes `Error` objects by name only, drops unsupported values, bounds arrays/object depth, and redacts sensitive key names before output.
 
 The replacement call sites log stable event names plus non-secret context such as status codes, failure reasons, request ids, and scrubbed errors. They still return the same user-facing responses as before; this slice changes observability only.
 
@@ -45,7 +45,7 @@ The replacement call sites log stable event names plus non-secret context such a
 
 The helper is generic rather than server-only because one current raw error sink lives in a client error boundary and another lives in a client checkout handler. Browser console output was already present; this slice makes it structured without introducing a server dependency into client bundles.
 
-The logs deliberately avoid stack traces, request bodies, upstream error bodies, URLs, cookies, authorization headers, and tokens. Those details can be useful during debugging, but they are the same category of data this lane is trying not to leak into operator-visible logs.
+The logs deliberately avoid stack traces, `Error.message`, request bodies, upstream error bodies, URLs, cookies, authorization headers, and tokens. Those details can be useful during debugging, but they are the same category of data this lane is trying not to leak into operator-visible logs.
 
 ## Deferred
 
