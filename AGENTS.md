@@ -205,6 +205,20 @@ review** means, per verdict level:
 
 Fixes go in as new commits (never force-push); squash-merge collapses them.
 
+### 3e. Test adapter discipline
+
+1. **Use real test adapters when they exist.** Tests must exercise repo modules
+   through their normal imports (`@/`, package entrypoints, or the real adapter
+   exported by the codebase) instead of re-creating fake pools, query-string
+   parsers, HTTP shims, or local mini-adapters that approximate production
+   behavior.
+2. **Mock only the external boundary.** It is fine to spy on console output,
+   freeze time, stub network/storage/env, or provide fixture data, but the
+   adapter or module whose behavior is under review stays in the call path.
+3. **Name any exception in the plan.** If no real adapter exists yet, or if a
+   real adapter cannot be used in the slice, the plan's Intentional or Deferred
+   section must say why and name the follow-up that would make the test real.
+
 ---
 
 ## 4. Anti-patterns
