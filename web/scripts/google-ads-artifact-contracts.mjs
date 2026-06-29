@@ -35,7 +35,7 @@ export const GOOGLE_ADS_ARTIFACT_TYPES = Object.freeze(
   Object.fromEntries(Object.keys(GOOGLE_ADS_ARTIFACT_VERSIONS).map((key) => [key, key])),
 );
 
-export const GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS = Object.freeze({
+const GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS = Object.freeze({
   GOOGLE_ADS_PERFORMANCE: 48,
   GA4_PERFORMANCE: 48,
   ADVERTISING_FUNNEL: 48,

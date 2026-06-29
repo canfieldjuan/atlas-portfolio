@@ -4,11 +4,6 @@
   "command": "knip --reporter json --no-exit-code --no-progress",
   "issues": [
     {
-      "type": "exports",
-      "file": "scripts/google-ads-artifact-contracts.mjs",
-      "name": "GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS"
-    },
-    {
       "type": "files",
       "file": "scripts/audit-test-enrollment.mjs",
       "name": "scripts/audit-test-enrollment.mjs"
