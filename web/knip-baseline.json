@@ -9,21 +9,6 @@
       "name": "GOOGLE_ADS_ARTIFACT_FRESHNESS_HOURS"
     },
     {
-      "type": "exports",
-      "file": "scripts/google-ads-env.mjs",
-      "name": "DEFAULT_GOOGLE_ADS_API_VERSION"
-    },
-    {
-      "type": "exports",
-      "file": "scripts/google-ads-env.mjs",
-      "name": "OPTIONAL_GOOGLE_ADS_ENV"
-    },
-    {
-      "type": "exports",
-      "file": "scripts/google-ads-env.mjs",
-      "name": "REQUIRED_GOOGLE_ADS_ENV"
-    },
-    {
       "type": "files",
       "file": "scripts/audit-test-enrollment.mjs",
       "name": "scripts/audit-test-enrollment.mjs"
