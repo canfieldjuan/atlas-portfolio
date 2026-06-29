@@ -155,13 +155,6 @@ describe('deflection standard price-chain smoke guard', () => {
     expect(result).toMatchObject({
       ok: true,
       mode: 'DEFLECTION_STANDARD_PRICE_CHAIN_SMOKE',
-      terms: {
-        variant: 'standard',
-        status: 'configured',
-        amountCents: 180000,
-        currency: 'usd',
-        priceLabel: '$1,800',
-      },
       allowedAmountsCents: [180000, 200000],
       checkoutMode: 'test',
       stripeSessionId: 'cs_test_unit',
@@ -170,6 +163,13 @@ describe('deflection standard price-chain smoke guard', () => {
         checkoutSource: 'provided',
         resultsUrl: 'https://portfolio.example.com/systems/support-ticket-deflection/results/content-ops-unit-123',
       },
+    });
+    expect(result.terms).toEqual({
+      variant: 'standard',
+      status: 'configured',
+      amountCents: 180000,
+      currency: 'usd',
+      priceLabel: '$1,800',
     });
     expect(awaitingPayment).toHaveLength(1);
     expect(awaitingPayment[0].checkoutUrl).toBe('https://checkout.stripe.com/c/pay/cs_test_unit');
