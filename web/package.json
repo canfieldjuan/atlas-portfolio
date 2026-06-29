@@ -58,7 +58,7 @@
     "test:deflection-snapshot-contract-generator": "vitest run src/lib/deflection-snapshot-contract-generator.test.ts",
     "test:deflection-comeback-analytics": "vitest run src/lib/deflection-comeback-analytics.test.ts",
     "test:deflection-ga-path-redaction": "vitest run src/lib/analytics.test.ts",
-    "test:deflection-hosted-checkout-smoke": "node scripts/test-deflection-hosted-checkout-smoke.mjs",
+    "test:deflection-hosted-checkout-smoke": "vitest run src/lib/deflection-hosted-checkout-smoke.test.mjs",
     "test:deflection-hosted-results-smoke": "node scripts/test-deflection-hosted-results-smoke.mjs",
     "test:deflection-atlas-price-display": "vitest run src/lib/atlas-deflection-client.test.ts",
     "test:deflection-report-model-result-page": "vitest run src/lib/deflection-report-model-result-page.test.ts",
