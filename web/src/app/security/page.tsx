@@ -253,7 +253,7 @@ export default function SecurityPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-semibold text-foreground">Deflection Report CSV Data Safety</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Resolution Audit CSV Data Safety</h2>
           </div>
           <p className="text-sm text-foreground/65 mb-6 leading-relaxed">
             When you upload ticket logs for a Support Deflection gap analysis, we keep the flow

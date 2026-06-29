@@ -522,7 +522,7 @@ describe('partner access record route behavior', () => {
         status: 503,
         reason: 'not_configured',
         error:
-          'Deflection report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+          'Resolution Audit generation is temporarily unavailable. Please try again in a moment or email us directly.',
       },
       {
         env: { ATLAS_API_BASE_URL: atlasBaseUrl, ATLAS_B2B_SERVICE_TOKEN: atlasToken },
@@ -539,7 +539,7 @@ describe('partner access record route behavior', () => {
         status: 502,
         reason: 'invalid_response',
         error:
-          'Deflection report generation returned an unexpected response. Please try again or email us directly.',
+          'Resolution Audit generation returned an unexpected response. Please try again or email us directly.',
       },
       {
         env: { ATLAS_API_BASE_URL: atlasBaseUrl, ATLAS_B2B_SERVICE_TOKEN: atlasToken },
@@ -548,7 +548,7 @@ describe('partner access record route behavior', () => {
         status: 502,
         reason: 'rejected',
         error:
-          'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+          'Resolution Audit generation rejected this CSV. Please check the export and try again, or email us directly.',
       },
       {
         env: { ATLAS_API_BASE_URL: atlasBaseUrl, ATLAS_B2B_SERVICE_TOKEN: atlasToken },
@@ -557,7 +557,7 @@ describe('partner access record route behavior', () => {
         status: 503,
         reason: 'error',
         error:
-          'Deflection report generation failed. Please try again in a moment or email us directly.',
+          'Resolution Audit generation failed. Please try again in a moment or email us directly.',
       },
     ];
 
@@ -583,6 +583,33 @@ describe('partner access record route behavior', () => {
       });
       expect(dbState.queries.some((call) => /^\s*INSERT/i.test(call.sql))).toBe(false);
     }
+  });
+
+  it('keeps partner ATLAS submit failures on Deflection Report copy', async () => {
+    resetTokens({ access: 'signed-partner-token' });
+    configureDeflectionEnv({
+      ATLAS_API_BASE_URL: atlasBaseUrl,
+      ATLAS_B2B_SERVICE_TOKEN: atlasToken,
+      DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN: 'signed-partner-token',
+    });
+    queueFetch([{ status: 400, body: { detail: 'rejected' } }]);
+
+    const response = await recordRoutePOST(
+      recordRequest({
+        priceVariant: 'partner',
+        partnerToken: 'signed-partner-token',
+      }),
+    );
+
+    expect(response.status).toBe(502);
+    expect(await readJson(response)).toEqual({
+      ok: false,
+      status: 'failed_to_submit',
+      reason: 'rejected',
+      error:
+        'Deflection Report generation rejected this CSV. Please check the export and try again, or email us directly.',
+    });
+    expect(dbState.queries.some((call) => /^\s*INSERT/i.test(call.sql))).toBe(false);
   });
 
   it('requires durable persistence for validated partner uploads but lets standard uploads warn', async () => {

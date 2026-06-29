@@ -326,7 +326,7 @@ describe('deflection browser upload smoke guard', () => {
             status: 'failed_to_submit',
             reason: 'rejected',
             error:
-              'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+              'Resolution Audit generation rejected this CSV. Please check the export and try again, or email us directly.',
           },
         },
       ],
@@ -336,7 +336,7 @@ describe('deflection browser upload smoke guard', () => {
       stage: 'record',
       recordStatus: 502,
       error:
-        'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+        'Resolution Audit generation rejected this CSV. Please check the export and try again, or email us directly.',
     });
   });
 

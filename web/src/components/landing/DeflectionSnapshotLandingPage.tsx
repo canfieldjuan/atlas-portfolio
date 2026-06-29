@@ -263,7 +263,7 @@ function SnapshotArtifact({
 
   return (
     <section
-      aria-label="Representative Deflection Snapshot"
+      aria-label="Representative Resolution Snapshot"
       className="rounded-md border border-border bg-surface p-4 shadow-[var(--card-shadow)] md:p-5"
     >
       <div className="mb-5 flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-start md:justify-between">

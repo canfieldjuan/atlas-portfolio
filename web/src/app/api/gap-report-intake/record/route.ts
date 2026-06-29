@@ -13,7 +13,10 @@ import {
   type DeflectionSubmitResult,
 } from '@/lib/atlas-deflection-client';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
-import { DEFLECTION_PARTNER_PRICE_VARIANT_ID } from '@/lib/deflection-pricing';
+import {
+  DEFLECTION_PARTNER_PRICE_VARIANT_ID,
+  type DeflectionPriceVariantId,
+} from '@/lib/deflection-pricing';
 import {
   consumeDeflectionIdentifierRateLimit,
   consumeDeflectionRateLimit,
@@ -43,14 +46,14 @@ const RECENT_RECORD_DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
 
 type DeflectionSubmitFailureReason = Extract<DeflectionSubmitResult, { ok: false }>['reason'];
 
-const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
+const DEFLECTION_SUBMIT_PUBLIC_FAILURE_COPY: Record<
   DeflectionSubmitFailureReason,
   { httpStatus: number; error: string }
 > = {
   not_configured: {
     httpStatus: 503,
     error:
-      'Deflection report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+      'Resolution Audit generation is temporarily unavailable. Please try again in a moment or email us directly.',
   },
   blob_not_found: {
     httpStatus: 400,
@@ -59,23 +62,60 @@ const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
   invalid_response: {
     httpStatus: 502,
     error:
-      'Deflection report generation returned an unexpected response. Please try again or email us directly.',
+      'Resolution Audit generation returned an unexpected response. Please try again or email us directly.',
   },
   rejected: {
     httpStatus: 502,
     error:
-      'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+      'Resolution Audit generation rejected this CSV. Please check the export and try again, or email us directly.',
   },
   error: {
     httpStatus: 503,
     error:
-      'Deflection report generation failed. Please try again in a moment or email us directly.',
+      'Resolution Audit generation failed. Please try again in a moment or email us directly.',
   },
 };
 
-function deflectionSubmitFailureResponse(reason: DeflectionSubmitFailureReason) {
-  const failure = DEFLECTION_SUBMIT_FAILURE_COPY[reason];
-  structuredRuntimeError('deflection.record.atlas_submit_failed', { reason });
+const DEFLECTION_SUBMIT_PARTNER_FAILURE_COPY: Record<
+  DeflectionSubmitFailureReason,
+  { httpStatus: number; error: string }
+> = {
+  not_configured: {
+    httpStatus: 503,
+    error:
+      'Deflection Report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+  },
+  blob_not_found: {
+    httpStatus: 400,
+    error: 'We could not read the uploaded CSV. Please retry the upload.',
+  },
+  invalid_response: {
+    httpStatus: 502,
+    error:
+      'Deflection Report generation returned an unexpected response. Please try again or email us directly.',
+  },
+  rejected: {
+    httpStatus: 502,
+    error:
+      'Deflection Report generation rejected this CSV. Please check the export and try again, or email us directly.',
+  },
+  error: {
+    httpStatus: 503,
+    error:
+      'Deflection Report generation failed. Please try again in a moment or email us directly.',
+  },
+};
+
+function deflectionSubmitFailureResponse(
+  reason: DeflectionSubmitFailureReason,
+  priceVariant: DeflectionPriceVariantId | undefined,
+) {
+  const copy =
+    priceVariant === DEFLECTION_PARTNER_PRICE_VARIANT_ID
+      ? DEFLECTION_SUBMIT_PARTNER_FAILURE_COPY
+      : DEFLECTION_SUBMIT_PUBLIC_FAILURE_COPY;
+  const failure = copy[reason];
+  structuredRuntimeError('deflection.record.atlas_submit_failed', { reason, priceVariant });
   return NextResponse.json(
     {
       ok: false,
@@ -219,7 +259,7 @@ export async function POST(request: Request) {
           });
         }
       } else {
-        return deflectionSubmitFailureResponse(submit.reason);
+        return deflectionSubmitFailureResponse(submit.reason, meta.value.priceVariant);
       }
     }
 
