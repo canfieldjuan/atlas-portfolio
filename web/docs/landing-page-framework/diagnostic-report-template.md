@@ -34,11 +34,11 @@ In [timeframe], we'll turn [existing messy/problem source] into [clear artifact/
 
 ## Implementation Contract
 
-Use `DiagnosticReportLandingPage` from `src/components/landing/DiagnosticReportLandingPage.tsx`.
+Historical note: the original `DiagnosticReportLandingPage` implementation was retired after the live support-ticket page moved to `DeflectionLandingPage` in `src/components/landing/DeflectionLandingPage.tsx`.
 
-The route owns the offer-specific copy and data. The template owns the repeated layout, animation, pricing, FAQ, CTA, and section rhythm. Keep the sample artifact as a custom React slot because it is the highest-trust part of each page.
+For the current support-ticket offer, the route owns the offer-specific copy and data in `landingConfig-v2.tsx`; `DeflectionLandingPage` owns the repeated layout, animation, pricing, FAQ, CTA, and section rhythm.
 
-Do not fork the template for small copy differences. Add typed config fields only when a future page has a real structural need.
+Use this document as a copy and structure pattern for future report-style offers. Add or extract a new shared template only when more than one live route needs the same structure.
 
 ## Naming Contract
 

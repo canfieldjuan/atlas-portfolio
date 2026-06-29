@@ -17,17 +17,6 @@ export type DiagnosticPipelineStage = {
   sub?: string;
 };
 
-export type DiagnosticCard = {
-  icon?: ReactNode;
-  title: string;
-  desc: string;
-};
-
-export type DiagnosticUseCase = {
-  title: string;
-  detail: string;
-};
-
 export type DiagnosticPricingTier = {
   id: string;
   badge?: string;

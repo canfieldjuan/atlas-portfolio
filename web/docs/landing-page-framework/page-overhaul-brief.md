@@ -55,33 +55,26 @@ enforces this hard.
 **Config-driven template.** The wedge page is a thin wrapper:
 
 - `web/src/app/systems/support-ticket-deflection/page.tsx` — 8-line wrapper.
-- `web/src/app/systems/support-ticket-deflection/landingConfig.tsx` — **the
+- `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx` — **the
   shared config object** (all copy + the inline artifact components). **This is
   where ~all the copy lives.**
-- `web/src/components/landing/DiagnosticReportLandingPage.tsx` — the template
+- `web/src/components/landing/DeflectionLandingPage.tsx` — the live template
   that renders the config. Adding a *new kind of section* means a typed slot
   here; copy/data changes are config-only.
-- `/partner` (`partner/page.tsx`) imports the same `landingConfig` and overrides
-  **only** pricing ($1,000) — so any copy edit propagates to both. Don't
-  duplicate; edit the shared config.
+- `/partner` (`partner/PartnerDeflectionLandingClient.tsx`) starts from
+  `landingConfig-v2` and overrides partner-specific hero, final CTA, pricing,
+  and FAQ copy. Don't duplicate shared sections; edit the shared config when the
+  public and partner pages should move together.
 
-**Section order (the template slots), top to bottom:**
-`hero → problem (the "Picture") → solution (3-step "how it works") → comparison
-(language-mismatch table) → sample (the on-page demo artifact) → deliverables
-(what's in the report) → audience (who it's for) → pricing → finalCta (the
-"Push") → faq → footerCta`.
+**Section order (the live template slots), top to bottom:**
+`hero → problemAgitation → problemCost → currentWayVsThisWay → mechanism → demo
+→ offer → seoVisibility → proofStack → riskReversal → finalCta → pricing → faq`.
 
-**The on-page "demo"/artifact elements (where we're starting):**
-- `DeflectionReportHeroArtifact` (in `landingConfig.tsx`) — the hero's
-  "24-hour snapshot preview" card: stat chips (`3–6 months` / `Top 25` /
-  `5 answers`), a "repeat questions found" list (`heroReportRows`: e.g. "Billing
-  confusion · 41 tickets · 'why was I charged twice?'"), and one sample answer.
-- `HelpCenterComparison` (`comparison` section) — the language-mismatch table
-  (`comparisonRows`): customer phrase vs traditional help-center label vs the
-  bridge answer.
-- `DeflectionReportSample` (`sample` section) — the big demo built from a
-  **public CFPB complaint dataset** (`sampleRankedQuestions`, `sampleFaqExamples`,
-  `demoScaleStats` = 1.28M rows / 383k narratives / 1,000 validated / 46 shown).
+**Artifact/source-of-truth note:**
+Older plan docs name retired artifact components from the previous diagnostic
+template. The live page now keeps section copy in `landingConfig-v2.tsx` and
+renders interactive proof through `DeflectionLandingPage` plus the
+`deflection-demo` components.
 
 **Sibling routes** (`web/src/app/systems/support-ticket-deflection/`):
 `/demo` (standalone interactive "Clarify" demo, GLM-themed→re-themed),
@@ -195,8 +188,8 @@ framing + headline + copy tightening.
 
 ## 8. Pointers
 
-- **Page copy:** `web/src/app/systems/support-ticket-deflection/landingConfig.tsx`
-- **Template:** `web/src/components/landing/DiagnosticReportLandingPage.tsx`
+- **Page copy:** `web/src/app/systems/support-ticket-deflection/landingConfig-v2.tsx`
+- **Template:** `web/src/components/landing/DeflectionLandingPage.tsx`
 - **Decisions / voice / claims:** `web/docs/landing-page-framework/`
   (`decisions.md`, `voice-reference.md`, `support-deflection-acquisition-pack.md`,
   `ticket-deflection-funnel-brief.md`, `support-deflection-first-analysis.md`)
