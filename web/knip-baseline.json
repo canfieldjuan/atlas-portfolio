@@ -27,16 +27,6 @@
       "type": "types",
       "file": "src/components/landing/LandingPrimitives.tsx",
       "name": "DiagnosticUseCase"
-    },
-    {
-      "type": "types",
-      "file": "src/lib/deflection-report-contract.ts",
-      "name": "FAQDeflectionReportSummary"
-    },
-    {
-      "type": "types",
-      "file": "src/lib/deflection-report-contract.ts",
-      "name": "TicketFAQMarkdownResult"
     }
   ]
 }

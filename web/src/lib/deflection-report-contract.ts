@@ -48,7 +48,7 @@ export type TicketFAQItem = {
   displayed_evidence_count: number;
 };
 
-export type TicketFAQMarkdownResult = {
+type TicketFAQMarkdownResult = {
   generated: number;
   markdown: string;
   items: TicketFAQItem[];
@@ -63,7 +63,7 @@ export type TicketFAQMarkdownResult = {
   saved_ids: string[];
 };
 
-export type FAQDeflectionReportSummary = {
+type FAQDeflectionReportSummary = {
   generated: number;
   source_count: number;
   ticket_source_count: number;
