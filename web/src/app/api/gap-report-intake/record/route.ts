@@ -50,7 +50,7 @@ const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
   not_configured: {
     httpStatus: 503,
     error:
-      'Deflection report generation is temporarily unavailable. Please try again in a moment or email us directly.',
+      'Resolution Audit generation is temporarily unavailable. Please try again in a moment or email us directly.',
   },
   blob_not_found: {
     httpStatus: 400,
@@ -59,17 +59,17 @@ const DEFLECTION_SUBMIT_FAILURE_COPY: Record<
   invalid_response: {
     httpStatus: 502,
     error:
-      'Deflection report generation returned an unexpected response. Please try again or email us directly.',
+      'Resolution Audit generation returned an unexpected response. Please try again or email us directly.',
   },
   rejected: {
     httpStatus: 502,
     error:
-      'Deflection report generation rejected this CSV. Please check the export and try again, or email us directly.',
+      'Resolution Audit generation rejected this CSV. Please check the export and try again, or email us directly.',
   },
   error: {
     httpStatus: 503,
     error:
-      'Deflection report generation failed. Please try again in a moment or email us directly.',
+      'Resolution Audit generation failed. Please try again in a moment or email us directly.',
   },
 };
 
