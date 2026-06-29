@@ -152,15 +152,15 @@ describe('deflection browser upload smoke guard', () => {
     expect(result).toMatchObject({
       ok: true,
       resultsVerified: true,
-      resultMarkers: {
-        snapshotBadge: true,
-        headline: true,
-        keywordReframe: true,
-        runRateComparison: true,
-        snapshotAnswerState: true,
-        supportTax: true,
-        unlockCta: true,
-      },
+    });
+    expect(result.resultMarkers).toEqual({
+      snapshotBadge: true,
+      headline: true,
+      keywordReframe: true,
+      runRateComparison: true,
+      snapshotAnswerState: true,
+      supportTax: true,
+      unlockCta: true,
     });
     expect(fetchImpl.calls).toHaveLength(2);
     expect(fetchImpl.calls[1]).toMatchObject({
