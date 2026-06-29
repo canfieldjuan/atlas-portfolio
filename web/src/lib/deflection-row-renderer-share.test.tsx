@@ -20,11 +20,15 @@ function assertNotIncludes(haystack: string, needle: string, context: string) {
   expect(haystack, `${context}: unexpected ${needle}`).not.toContain(needle);
 }
 
+function occurrences(haystack: string, needle: string) {
+  return haystack.split(needle).length - 1;
+}
+
 const topQuestions: DeflectionSnapshotQuestion[] = [
   {
     action_label: 'Publish answer',
     customer_wording: ' export reports ',
-    estimated_support_cost: 135,
+    estimated_support_cost: 200,
     owner_lane: 'Reporting',
     question: 'How do I export attribution reports?',
     rank: 1,
@@ -50,7 +54,7 @@ const lockedQuestions: DeflectionSnapshotLockedQuestion[] = [
 const blindSpots: DeflectionSnapshotBlindSpot[] = [
   {
     action_label: 'Investigate gap',
-    estimated_support_cost: 270,
+    estimated_support_cost: 325,
     owner_lane: 'Product Ops',
     question: 'Why do saved search alerts keep firing?',
     rank: 4,
@@ -70,11 +74,13 @@ describe('deflection row renderer sharing guard', () => {
       'target phrase from your tickets:',
       'top row target-phrase label',
     );
-    assertIncludes(topMarkup, 'export reports', 'top row trimmed customer wording');
+    assertIncludes(topMarkup, '“export reports”', 'top row trimmed customer wording');
+    assertNotIncludes(topMarkup, '“ export reports ”', 'top row padded customer wording');
+    expect(occurrences(topMarkup, 'target phrase from your tickets:')).toBe(1);
     assertIncludes(topMarkup, 'Reporting', 'top row owner lane');
     assertIncludes(topMarkup, 'Publish answer', 'top row action label');
-    assertIncludes(topMarkup, '$270', 'top row slider-adjusted support cost');
-    assertIncludes(topMarkup, '$27', 'top row assisted-contact cost label');
+    assertIncludes(topMarkup, '$400', 'top row slider-adjusted support cost');
+    assertIncludes(topMarkup, 'at $27 per assisted contact', 'top row assisted-contact cost label');
     assertNotIncludes(topMarkup, 'priority score', 'top row copy');
     assertNotIncludes(topMarkup, '   ', 'empty customer wording');
 
@@ -95,7 +101,7 @@ describe('deflection row renderer sharing guard', () => {
       />,
     );
     assertIncludes(lockedMarkup, 'Question text withheld', 'locked row withheld label');
-    assertIncludes(lockedMarkup, '4', 'locked row count');
+    expect(lockedMarkup).toMatch(/>4<\/strong>\s*repeat tickets/);
     assertIncludes(lockedMarkup, '$108', 'locked row cost');
     assertIncludes(lockedMarkup, 'from-background to-transparent', 'locked fade');
 
@@ -106,7 +112,7 @@ describe('deflection row renderer sharing guard', () => {
     assertIncludes(blindSpotMarkup, 'Product Ops', 'blind spot owner lane');
     assertIncludes(blindSpotMarkup, 'Investigate gap', 'blind spot action label');
     assertIncludes(blindSpotMarkup, 'no proven answer found yet', 'blind spot gap framing');
-    assertIncludes(blindSpotMarkup, '$540', 'blind spot slider-adjusted support cost');
+    assertIncludes(blindSpotMarkup, '$650', 'blind spot slider-adjusted support cost');
   });
 
   it('keeps results and landing pages delegated to the shared row renderers', async () => {
