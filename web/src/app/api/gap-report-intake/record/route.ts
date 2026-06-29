@@ -8,6 +8,7 @@ import {
 } from '@/lib/gap-report-intake';
 import { getRecentGapReportSubmissionByEmailAndBlob } from '@/lib/gap-report-intake-database';
 import {
+  deleteDeflectionReport,
   fetchDeflectionSnapshot,
   submitDeflectionReportCsv,
   type DeflectionSubmitResult,
@@ -197,6 +198,22 @@ function deflectionSnapshotFailureResponse(
   );
 }
 
+async function deleteUnattachedDeflectionReport(
+  reportRequestId: string,
+  snapshotReason: DeflectionSnapshotFailureReason,
+  priceVariant: DeflectionPriceVariantId | undefined,
+) {
+  const deleted = await deleteDeflectionReport(reportRequestId);
+  if (!deleted.ok) {
+    structuredRuntimeError('deflection.record.snapshot_failure_cleanup_failed', {
+      reportRequestId,
+      snapshotReason,
+      cleanupReason: deleted.reason,
+      priceVariant,
+    });
+  }
+}
+
 function recordRateLimitResponse(retryAfterSeconds: number) {
   return NextResponse.json(
     { ok: false, error: 'Too many submission attempts. Please try again later.' },
@@ -323,6 +340,11 @@ export async function POST(request: Request) {
         if (snapshotResult.ok) {
           snapshot = snapshotResult.snapshot;
         } else {
+          await deleteUnattachedDeflectionReport(
+            submit.requestId,
+            snapshotResult.reason,
+            meta.value.priceVariant,
+          );
           return deflectionSnapshotFailureResponse(
             snapshotResult.reason,
             submit.requestId,

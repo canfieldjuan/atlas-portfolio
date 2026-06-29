@@ -69,12 +69,16 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-partner-access` — 12 passed.
+- `bash scripts/pre_push_audit.sh` — passed.
+- `bash scripts/local_pr_review.sh` — passed, including real-adapter audit,
+  dead-code baseline, Snapshot landing smoke, ESLint, Next build, and
+  `git diff --check`.
 
 ## Estimated diff size
 
 | File | LOC |
 |---|---:|
-| `web/plans/PR-Deflection-Snapshot-Required-Email-Attachment.md` | 80 |
-| `web/src/app/api/gap-report-intake/record/route.ts` | +75 / -4 |
-| `web/src/lib/deflection-partner-access.test.ts` | +52 / -0 |
-| Total | ~207 |
+| `web/plans/PR-Deflection-Snapshot-Required-Email-Attachment.md` | ~83 |
+| `web/src/app/api/gap-report-intake/record/route.ts` | ~97 / -4 |
+| `web/src/lib/deflection-partner-access.test.ts` | ~98 / -13 |
+| Total | ~295 |
