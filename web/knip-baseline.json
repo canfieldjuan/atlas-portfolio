@@ -5,11 +5,6 @@
   "issues": [
     {
       "type": "files",
-      "file": "scripts/audit-test-enrollment.mjs",
-      "name": "scripts/audit-test-enrollment.mjs"
-    },
-    {
-      "type": "files",
       "file": "src/components/ContentOpsDemo.tsx",
       "name": "src/components/ContentOpsDemo.tsx"
     },

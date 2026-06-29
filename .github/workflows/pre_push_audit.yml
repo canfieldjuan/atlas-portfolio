@@ -46,7 +46,7 @@ jobs:
         run: npm --prefix web audit --audit-level=high
 
       - name: Test enrollment audit
-        run: node web/scripts/audit-test-enrollment.mjs
+        run: npm --prefix web run check:test-enrollment
 
       - name: Test enrollment audit tests
         run: npm --prefix web run test:test-enrollment-audit
