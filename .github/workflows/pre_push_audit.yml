@@ -168,6 +168,9 @@ jobs:
       - name: Deflection standard price-chain smoke tests
         run: npm --prefix web run test:deflection-standard-price-chain-smoke
 
+      - name: Deflection standard price preflight tests
+        run: npm --prefix web run test:deflection-standard-price-preflight
+
       - name: Deflection row renderer share tests
         run: npm --prefix web run test:deflection-row-renderer-share
 
