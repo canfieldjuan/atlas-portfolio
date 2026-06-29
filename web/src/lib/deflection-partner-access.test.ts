@@ -612,6 +612,58 @@ describe('partner access record route behavior', () => {
     expect(dbState.queries.some((call) => /^\s*INSERT/i.test(call.sql))).toBe(false);
   });
 
+  it('fails closed before customer email when the Snapshot attachment cannot be fetched', async () => {
+    const fixtures = [
+      {
+        fetch: { status: 404, body: { detail: 'missing snapshot' } },
+        reason: 'not_found',
+        error:
+          'Resolution Audit generation finished, but the Snapshot was not available yet. Please try again in a moment or email us directly.',
+      },
+      {
+        fetch: { status: 500, body: { detail: 'snapshot unavailable' } },
+        reason: 'error',
+        error:
+          'Resolution Audit Snapshot delivery failed. Please try again in a moment or email us directly.',
+      },
+    ] satisfies Array<{ fetch: FetchResponse; reason: string; error: string }>;
+
+    for (const fixture of fixtures) {
+      resetRateLimitStore();
+      resetDatabase();
+      configureDeflectionEnv({
+        GAP_REPORT_NOTIFICATION_RESEND_API_KEY: 'resend_unit',
+        GAP_REPORT_NOTIFICATION_FROM_EMAIL: 'reports@example.com',
+        GAP_REPORT_NOTIFICATION_TO_EMAIL: 'ops@example.com',
+      });
+      queueFetch([
+        { status: 200, body: { request_id: 'content-ops-unit-123' } },
+        fixture.fetch,
+      ]);
+
+      const response = await recordRoutePOST(
+        recordRequest({ ip: `203.0.113.${fixture.reason === 'not_found' ? '41' : '42'}` }),
+      );
+
+      expect(response.status).toBe(502);
+      expect(await readJson(response)).toEqual({
+        ok: false,
+        status: 'failed_to_fetch_snapshot',
+        reason: fixture.reason,
+        error: fixture.error,
+      });
+      expect(fetchCalls).toHaveLength(2);
+      expect(fetchCalls[0].url).toContain('/api/v1/content-ops/deflection-reports');
+      expect(fetchCalls[1].url).toContain(
+        '/api/v1/content-ops/deflection-reports/content-ops-unit-123/snapshot',
+      );
+      expect(dbState.queries.some((call) => /^\s*INSERT/i.test(call.sql))).toBe(false);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('deflection.record.snapshot_pdf_attachment_skipped'),
+      );
+    }
+  });
+
   it('requires durable persistence for validated partner uploads but lets standard uploads warn', async () => {
     resetTokens({ access: 'signed-partner-token' });
     configureDeflectionEnv({

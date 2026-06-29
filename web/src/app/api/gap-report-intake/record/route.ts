@@ -11,6 +11,7 @@ import {
   fetchDeflectionSnapshot,
   submitDeflectionReportCsv,
   type DeflectionSubmitResult,
+  type SnapshotFetchResult,
 } from '@/lib/atlas-deflection-client';
 import type { DeflectionSnapshot } from '@/lib/deflection-snapshot';
 import {
@@ -45,6 +46,7 @@ const RECORD_EMAIL_RATE_LIMIT = {
 const RECENT_RECORD_DUPLICATE_WINDOW_MS = 60 * 60 * 1000;
 
 type DeflectionSubmitFailureReason = Extract<DeflectionSubmitResult, { ok: false }>['reason'];
+type DeflectionSnapshotFailureReason = Extract<SnapshotFetchResult, { ok: false }>['reason'];
 
 const DEFLECTION_SUBMIT_PUBLIC_FAILURE_COPY: Record<
   DeflectionSubmitFailureReason,
@@ -106,6 +108,48 @@ const DEFLECTION_SUBMIT_PARTNER_FAILURE_COPY: Record<
   },
 };
 
+const DEFLECTION_SNAPSHOT_PUBLIC_FAILURE_COPY: Record<
+  DeflectionSnapshotFailureReason,
+  { httpStatus: number; error: string }
+> = {
+  not_configured: {
+    httpStatus: 503,
+    error:
+      'Resolution Audit Snapshot delivery is temporarily unavailable. Please try again in a moment or email us directly.',
+  },
+  not_found: {
+    httpStatus: 502,
+    error:
+      'Resolution Audit generation finished, but the Snapshot was not available yet. Please try again in a moment or email us directly.',
+  },
+  error: {
+    httpStatus: 502,
+    error:
+      'Resolution Audit Snapshot delivery failed. Please try again in a moment or email us directly.',
+  },
+};
+
+const DEFLECTION_SNAPSHOT_PARTNER_FAILURE_COPY: Record<
+  DeflectionSnapshotFailureReason,
+  { httpStatus: number; error: string }
+> = {
+  not_configured: {
+    httpStatus: 503,
+    error:
+      'Deflection Snapshot delivery is temporarily unavailable. Please try again in a moment or email us directly.',
+  },
+  not_found: {
+    httpStatus: 502,
+    error:
+      'Deflection Report generation finished, but the Snapshot was not available yet. Please try again in a moment or email us directly.',
+  },
+  error: {
+    httpStatus: 502,
+    error:
+      'Deflection Snapshot delivery failed. Please try again in a moment or email us directly.',
+  },
+};
+
 function deflectionSubmitFailureResponse(
   reason: DeflectionSubmitFailureReason,
   priceVariant: DeflectionPriceVariantId | undefined,
@@ -120,6 +164,32 @@ function deflectionSubmitFailureResponse(
     {
       ok: false,
       status: 'failed_to_submit',
+      reason,
+      error: failure.error,
+    },
+    { status: failure.httpStatus },
+  );
+}
+
+function deflectionSnapshotFailureResponse(
+  reason: DeflectionSnapshotFailureReason,
+  reportRequestId: string,
+  priceVariant: DeflectionPriceVariantId | undefined,
+) {
+  const copy =
+    priceVariant === DEFLECTION_PARTNER_PRICE_VARIANT_ID
+      ? DEFLECTION_SNAPSHOT_PARTNER_FAILURE_COPY
+      : DEFLECTION_SNAPSHOT_PUBLIC_FAILURE_COPY;
+  const failure = copy[reason];
+  structuredRuntimeError('deflection.record.snapshot_pdf_attachment_skipped', {
+    reason,
+    reportRequestId,
+    priceVariant,
+  });
+  return NextResponse.json(
+    {
+      ok: false,
+      status: 'failed_to_fetch_snapshot',
       reason,
       error: failure.error,
     },
@@ -253,10 +323,11 @@ export async function POST(request: Request) {
         if (snapshotResult.ok) {
           snapshot = snapshotResult.snapshot;
         } else {
-          structuredRuntimeError('deflection.record.snapshot_pdf_attachment_skipped', {
-            reason: snapshotResult.reason,
-            reportRequestId: submit.requestId,
-          });
+          return deflectionSnapshotFailureResponse(
+            snapshotResult.reason,
+            submit.requestId,
+            meta.value.priceVariant,
+          );
         }
       } else {
         return deflectionSubmitFailureResponse(submit.reason, meta.value.priceVariant);
