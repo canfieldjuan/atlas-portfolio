@@ -585,6 +585,33 @@ describe('partner access record route behavior', () => {
     }
   });
 
+  it('keeps partner ATLAS submit failures on Deflection Report copy', async () => {
+    resetTokens({ access: 'signed-partner-token' });
+    configureDeflectionEnv({
+      ATLAS_API_BASE_URL: atlasBaseUrl,
+      ATLAS_B2B_SERVICE_TOKEN: atlasToken,
+      DEFLECTION_PARTNER_PRICE_ACCESS_TOKEN: 'signed-partner-token',
+    });
+    queueFetch([{ status: 400, body: { detail: 'rejected' } }]);
+
+    const response = await recordRoutePOST(
+      recordRequest({
+        priceVariant: 'partner',
+        partnerToken: 'signed-partner-token',
+      }),
+    );
+
+    expect(response.status).toBe(502);
+    expect(await readJson(response)).toEqual({
+      ok: false,
+      status: 'failed_to_submit',
+      reason: 'rejected',
+      error:
+        'Deflection Report generation rejected this CSV. Please check the export and try again, or email us directly.',
+    });
+    expect(dbState.queries.some((call) => /^\s*INSERT/i.test(call.sql))).toBe(false);
+  });
+
   it('requires durable persistence for validated partner uploads but lets standard uploads warn', async () => {
     resetTokens({ access: 'signed-partner-token' });
     configureDeflectionEnv({
