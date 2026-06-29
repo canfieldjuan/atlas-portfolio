@@ -76,7 +76,7 @@
     "test:deflection-csv-privacy": "vitest run src/lib/deflection-csv-privacy.test.ts",
     "test:deflection-cost-projection-share": "vitest run src/lib/deflection-cost-projection-share.test.ts",
     "test:deflection-rate-limit": "vitest run src/lib/deflection-rate-limit.test.ts",
-    "test:deflection-row-renderer-share": "node scripts/test-deflection-row-renderer-share.mjs",
+    "test:deflection-row-renderer-share": "vitest run src/lib/deflection-row-renderer-share.test.tsx",
     "test:deflection-teaser-rank-copy": "vitest run src/lib/deflection-teaser-rank-copy.test.ts",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
