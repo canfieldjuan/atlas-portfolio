@@ -236,7 +236,7 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 ## D-007 — Template count
 
-**Status:** DECIDED (2026-05-22)
+**Status:** SUPERSEDED (2026-06-29)
 
 **Question:** Do we standardize on one template or maintain 2+ (e.g., "direct-offer" page + "lead-magnet" page + "long-form sales letter")?
 
@@ -244,11 +244,13 @@ existing support tickets (Zendesk / Intercom / HelpScout / Freshdesk).
 
 **Recommendation:** Start with one. Fork to a second only when we measure a real conversion gap on a specific traffic source.
 
-**Decision:** **Use one diagnostic landing-page template for now.** Extend `DiagnosticReportLandingPage` with typed visual slots when a page has a real structural need, but do not create a separate long-copy template yet.
+**Original decision:** **Use one diagnostic landing-page template for now.** Extend `DiagnosticReportLandingPage` with typed visual slots when a page has a real structural need, but do not create a separate long-copy template yet.
+
+**Superseded by:** The live support-ticket route now uses `DeflectionLandingPage` and `landingConfig-v2.tsx`. The old `DiagnosticReportLandingPage` implementation is retired; keep the diagnostic structure as a copy pattern, not as the current code path.
 
 **Why:** The current Support Ticket Deflection Report page already needs modern long-copy, a report artifact, pricing, fit/not-fit, and FAQ. Those are diagnostic-template behaviors, not a separate page type. A second template would add maintenance before we have traffic-source data proving that the shared template is limiting conversion.
 
-**Current implementation rule:** Add optional slots for first-viewport proof and before/after comparison. The route owns offer-specific copy, report naming, and artifacts; the template owns repeated layout rhythm.
+**Current implementation rule:** The support-ticket route owns offer-specific copy, report naming, and artifacts in `landingConfig-v2.tsx`; `DeflectionLandingPage` owns the live repeated layout rhythm.
 
 ---
 

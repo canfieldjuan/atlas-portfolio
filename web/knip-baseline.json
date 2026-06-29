@@ -3,20 +3,5 @@
   "tool": "knip",
   "command": "knip --reporter json --no-exit-code --no-progress",
   "issues": [
-    {
-      "type": "files",
-      "file": "src/components/landing/DiagnosticReportLandingPage.tsx",
-      "name": "src/components/landing/DiagnosticReportLandingPage.tsx"
-    },
-    {
-      "type": "types",
-      "file": "src/components/landing/LandingPrimitives.tsx",
-      "name": "DiagnosticCard"
-    },
-    {
-      "type": "types",
-      "file": "src/components/landing/LandingPrimitives.tsx",
-      "name": "DiagnosticUseCase"
-    }
   ]
 }
