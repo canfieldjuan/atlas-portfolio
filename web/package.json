@@ -67,7 +67,7 @@
     "test:deflection-legacy-results-redirect": "vitest run next.config.test.ts",
     "test:deflection-partner-access": "vitest run src/lib/deflection-partner-access.test.ts",
     "test:deflection-live-submit-smoke": "vitest run src/lib/deflection-live-submit-smoke.test.mjs",
-    "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
+    "test:deflection-paid-unlock-smoke": "vitest run src/lib/deflection-paid-unlock-smoke.test.mjs",
     "test:deflection-public-reachability-smoke": "vitest run src/lib/deflection-public-reachability-smoke.test.mjs",
     "test:deflection-results-state": "vitest run src/lib/deflection-results-state.test.ts",
     "test:deflection-uploaded-search": "vitest run src/app/api/demo/deflection-search/route.test.ts",
