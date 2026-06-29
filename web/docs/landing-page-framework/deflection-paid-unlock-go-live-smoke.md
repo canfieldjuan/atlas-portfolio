@@ -35,8 +35,25 @@ checkout creation uses the ATLAS-authorized `price_id`, amount, and currency.
 The portfolio allowed amount set is still required as the local fail-closed
 mirror of the ATLAS webhook gate.
 
-After deploying the config change, run the standard price-chain smoke against a
-locked report in the same Stripe mode you intend to validate:
+After deploying the config change, run the no-Checkout standard price preflight
+first. This fetches the hosted standard price terms and confirms that the amount
+is present in the portfolio allowed amount mirror before any Checkout Session is
+created:
+
+```bash
+npm --prefix web run smoke:deflection-standard-price-preflight -- \
+  --base-url "$PREVIEW_URL" \
+  --json \
+  --output /tmp/deflection-standard-price-preflight.json
+```
+
+For a candidate env file that has not been deployed yet, add
+`--env-file /tmp/atlas-portfolio-prod-candidate.env`. The hosted terms still
+come from `--base-url`; the env file only supplies the portfolio allowlist being
+checked.
+
+Once the dry-run passes, run the standard price-chain smoke against a locked
+report in the same Stripe mode you intend to validate:
 
 ```bash
 npm --prefix web run smoke:deflection-standard-price-chain -- \
