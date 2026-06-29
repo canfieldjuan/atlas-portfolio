@@ -612,7 +612,7 @@ describe('deflection artifact client and intake wiring', () => {
 
     expect(recordRoute).toContain('submitDeflectionReportCsv');
     expect(recordRoute).toContain('reportRequestId');
-    expect(recordRoute).toContain('deflectionSubmitFailureResponse(submit.reason)');
+    expect(recordRoute).toContain('deflectionSubmitFailureResponse(submit.reason,');
     expect(recordRoute).toContain("status: 'failed_to_submit'");
     expect(recordRoute).toContain('consumeRecordClientRateLimit(request.headers)');
     expect(recordRoute).toContain('consumeRecordEmailRateLimit(meta.value.email)');

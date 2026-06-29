@@ -29,6 +29,7 @@ Slice phase: Product polish
 - `web/src/app/security/page.tsx` - public CSV safety heading.
 - `web/src/app/api/gap-report-intake/record/route.ts` - public/default upload failure copy.
 - `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` - Snapshot sample accessibility label.
+- `web/src/lib/atlas-deflection-client-submit.test.ts` - updated route helper wiring assertion for the partner-copy argument.
 - `web/src/lib/deflection-browser-upload-smoke.test.mjs` - updated route failure assertion.
 - `web/src/lib/deflection-partner-access.test.ts` - updated route failure assertions.
 
@@ -61,11 +62,12 @@ Parked hardening: none.
 ## Verification
 
 - `npm --prefix web run test:deflection-browser-upload-smoke` - passed after review fix; 10 tests.
+- `npm --prefix web run test:deflection-intake-atlas-submit` - passed after CI review fix; 8 tests.
 - `npm --prefix web run test:deflection-partner-access` - passed after review fix; 11 tests.
 - `npm --prefix web run test:deflection-public-reachability-smoke` - passed after review fix; 18 tests.
 - `rg -n "Deflection Report CSV Data Safety|Deflection report generation|Representative Deflection Snapshot" web/src web/scripts --glob '!*.map'` - passed; no matches.
 - `rg -n "Resolution Audit generation|Deflection Report generation|isPartner \\? 'Deflection Report' : 'Resolution Audit'|SUPPORT_DEFLECTION_PARTNER_OFFER_COPY|Support Ticket Deflection Report" web/src/app web/src/components web/src/lib/gap-report-intake.ts web/src/lib/*test*` - passed; public/default failures use Resolution Audit, partner failures and partner exception surfaces keep Deflection Report.
-- `bash scripts/local_pr_review.sh` - passed after review fix.
+- `bash scripts/local_pr_review.sh` - passed after CI review fix.
 
 ## Estimated diff size
 
@@ -73,5 +75,5 @@ Parked hardening: none.
 | --- | ---: |
 | Plan doc | ~72 |
 | Public copy | ~58 |
-| Test assertions | ~28 |
-| Total | ~158 |
+| Test assertions | ~29 |
+| Total | ~159 |
