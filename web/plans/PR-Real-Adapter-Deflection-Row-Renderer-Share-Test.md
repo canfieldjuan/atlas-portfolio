@@ -66,10 +66,10 @@ Parked hardening: none
 | Area | Estimated LOC |
 |---|---:|
 | Plan doc | ~77 |
-| Vitest replacement | ~164 |
+| Vitest replacement | ~170 |
 | Package script update | ~2 |
 | Legacy harness deletion | ~206 |
-| Total | ~449 |
+| Total | ~455 |
 
 This is over the 400 LOC soft cap because the existing harness is 206 lines and
 the replacement both preserves page wiring coverage and adds real rendered
