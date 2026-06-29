@@ -31,6 +31,7 @@ Slice phase: Production hardening
 - `web/docs/landing-page-framework/diagnostic-report-template.md` -- update the implementation note.
 - `web/docs/landing-page-framework/decisions.md` -- mark the old template decision as superseded by the live deflection template.
 - `web/docs/landing-page-framework/page-overhaul-brief.md` -- update current source pointers.
+- `web/src/lib/json-ld.test.ts` -- update the JSON-LD sink discovery floor after deleting one JSON-LD-bearing template.
 - `web/plans/PR-Diagnostic-Template-Retirement.md` -- this plan.
 
 ## Mechanism
@@ -39,7 +40,10 @@ The live support-ticket pages import `DeflectionLandingPage` and
 `landingConfig-v2.tsx`. Once the unused diagnostic template is deleted, the two
 primitive types it imported are no longer referenced anywhere. The docs update
 keeps the implementation contract aligned with the live source path rather than
-preserving a stale recommendation.
+preserving a stale recommendation. Because the deleted template contained one
+JSON-LD script sink, the JSON-LD routing audit's discovered-file and block
+floors each drop by one while keeping its per-block shared-helper assertions
+unchanged.
 
 ## Intentional
 
@@ -64,6 +68,7 @@ Parked hardening: none.
 - `rg -n "landingConfig\\.tsx|DeflectionReportHeroArtifact|HelpCenterComparison|DeflectionReportSample|heroReportRows|comparisonRows|sampleRankedQuestions|demoScaleStats" web/docs/landing-page-framework/page-overhaul-brief.md` -- pass; no stale current-doc artifact pointers remain.
 - `rg -n "DiagnosticReportLandingPage|DiagnosticCard|DiagnosticUseCase|DeflectionLandingPage" web/docs/landing-page-framework web/plans --glob '!node_modules/**'` -- pass; current framework docs now mark the old template retired, while historical plan mentions remain.
 - `npm --prefix web run check:dead-code` -- pass; Knip baseline matches 0 known findings.
+- `npm --prefix web run test:json-ld-escaping` -- pass.
 - `npm --prefix web run lint` -- pass.
 - `npm --prefix web run build` -- pass.
 - `git diff --check` -- pass.
@@ -78,8 +83,9 @@ Parked hardening: none.
 | `web/docs/landing-page-framework/diagnostic-report-template.md` | ~8 |
 | `web/docs/landing-page-framework/decisions.md` | ~8 |
 | `web/docs/landing-page-framework/page-overhaul-brief.md` | ~43 |
+| `web/src/lib/json-ld.test.ts` | ~1 |
 | `web/plans/PR-Diagnostic-Template-Retirement.md` | ~92 |
-| Total | ~569 |
+| Total | ~570 |
 
 This exceeds the 400 LOC soft cap because the slice deletes one retired
 template and updates the current docs that named it.
