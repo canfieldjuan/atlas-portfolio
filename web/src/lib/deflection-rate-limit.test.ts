@@ -1,5 +1,4 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST as auditRoutePOST } from '@/app/api/audit/route';
@@ -99,7 +98,7 @@ async function readFallbackRecords() {
 
 beforeEach(async () => {
   resetStore();
-  tempDir = await mkdtemp(path.join(tmpdir(), 'atlas-audit-rate-limit-'));
+  tempDir = await mkdtemp('/tmp/atlas-audit-rate-limit-');
   auditFallbackPath = path.join(tempDir, 'audit-intake.ndjson');
   for (const key of INTAKE_DELIVERY_ENV_KEYS) {
     vi.stubEnv(key, '');

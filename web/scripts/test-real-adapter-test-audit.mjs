@@ -73,6 +73,63 @@ async function testLocalMockFails() {
   });
 }
 
+async function testDoMockFails() {
+  await withFixture('do-mock', async (webRoot) => {
+    await writeFile(
+      path.join(webRoot, 'src', 'lib', 'do-mock.test.ts'),
+      [
+        "import { vi } from 'vitest';",
+        "vi." + "doMock('" + "@/" + "lib/real-module', () => ({ realValue: 2 }));",
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const result = runAudit(webRoot);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /local-module-mock/);
+    assert.match(result.stderr, /@\/lib\/real-module/);
+  });
+}
+
+async function testRelativeLocalMockFails() {
+  await withFixture('relative-local-mock', async (webRoot) => {
+    await writeFile(
+      path.join(webRoot, 'src', 'lib', 'relative-local-mock.test.ts'),
+      [
+        "import { vi } from 'vitest';",
+        "vi." + "mock('./real-module', () => ({ realValue: 2 }));",
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const result = runAudit(webRoot);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /local-module-mock/);
+    assert.match(result.stderr, /\.\/real-module/);
+  });
+}
+
+async function testRootLevelTestFileIsScanned() {
+  await withFixture('root-level-test', async (webRoot) => {
+    await writeFile(
+      path.join(webRoot, 'next.config.test.ts'),
+      [
+        "import { vi } from 'vitest';",
+        "vi." + "mock('" + "@/" + "lib/real-module', () => ({ realValue: 2 }));",
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const result = runAudit(webRoot);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /local-module-mock/);
+    assert.match(result.stderr, /next\.config\.test\.ts/);
+  });
+}
+
 async function testTranspileShimFails() {
   await withFixture('transpile', async (webRoot) => {
     await writeFile(
@@ -110,6 +167,27 @@ async function testFabricatedNodeModulesAliasFails() {
   });
 }
 
+async function testPathJoinedFabricatedNodeModulesAliasFails() {
+  await withFixture('path-joined-fabricated-stub', async (webRoot) => {
+    await writeFile(
+      path.join(webRoot, 'scripts', 'path-joined-fabricated-stub.mjs'),
+      [
+        "import { writeFile } from 'node:fs/promises';",
+        "import path from 'node:path';",
+        "const stubPath = path.join('/tmp', 'node_modules', '@', 'lib', 'real-module.js');",
+        "await writeFile(stubPath, 'export const realValue = 2');",
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const result = runAudit(webRoot);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /fabricated-local-module-stub/);
+    assert.match(result.stderr, /@\/lib\/real-module/);
+  });
+}
+
 async function testAllowlistReportsException() {
   await withFixture('allowlist', async (webRoot) => {
     await writeFile(
@@ -133,8 +211,12 @@ async function testAllowlistReportsException() {
 const tests = [
   testCleanExternalMockPasses,
   testLocalMockFails,
+  testDoMockFails,
+  testRelativeLocalMockFails,
+  testRootLevelTestFileIsScanned,
   testTranspileShimFails,
   testFabricatedNodeModulesAliasFails,
+  testPathJoinedFabricatedNodeModulesAliasFails,
   testAllowlistReportsException,
 ];
 

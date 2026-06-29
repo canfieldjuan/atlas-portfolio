@@ -55,17 +55,36 @@ function walkFiles(dir, predicate, output = []) {
 }
 
 function collectScannedFiles(webRoot) {
+  const testFilePattern = /\.(test|spec)\.(ts|tsx|js|jsx|mjs|cjs)$/;
   const scriptFiles = existsSync(path.join(webRoot, 'scripts'))
     ? readdirSync(path.join(webRoot, 'scripts'), { withFileTypes: true })
         .filter((entry) => entry.isFile() && entry.name.endsWith('.mjs'))
         .map((entry) => path.join(webRoot, 'scripts', entry.name))
     : [];
-  const testFiles = walkFiles(
-    path.join(webRoot, 'src'),
-    (file) => /\.(test|spec)\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file),
-  );
+  const rootTestFiles = readdirSync(webRoot, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && testFilePattern.test(entry.name))
+    .map((entry) => path.join(webRoot, entry.name));
+  const srcTestFiles = walkFiles(path.join(webRoot, 'src'), (file) => testFilePattern.test(file));
 
-  return [...scriptFiles, ...testFiles].sort();
+  return [...scriptFiles, ...rootTestFiles, ...srcTestFiles].sort();
+}
+
+function resolveModuleFile(candidatePath) {
+  for (const extension of EXTENSIONS) {
+    const candidate = `${candidatePath}${extension}`;
+    if (existsSync(candidate) && statSync(candidate).isFile()) {
+      return candidate;
+    }
+  }
+
+  for (const extension of INDEX_EXTENSIONS) {
+    const candidate = path.join(candidatePath, `index${extension}`);
+    if (existsSync(candidate) && statSync(candidate).isFile()) {
+      return candidate;
+    }
+  }
+
+  return null;
 }
 
 function resolveAliasSpecifier(webRoot, specifier) {
@@ -73,18 +92,23 @@ function resolveAliasSpecifier(webRoot, specifier) {
     return null;
   }
 
-  const srcCandidate = path.join(webRoot, 'src', specifier.slice(2));
-  for (const extension of EXTENSIONS) {
-    const candidate = `${srcCandidate}${extension}`;
-    if (existsSync(candidate) && statSync(candidate).isFile()) {
-      return candidate;
-    }
+  return resolveModuleFile(path.join(webRoot, 'src', specifier.slice(2)));
+}
+
+function pathIsInside(parent, candidate) {
+  const relative = path.relative(parent, candidate);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function resolveMockSpecifier(webRoot, file, specifier) {
+  if (specifier.startsWith('@/')) {
+    return resolveAliasSpecifier(webRoot, specifier);
   }
 
-  for (const extension of INDEX_EXTENSIONS) {
-    const candidate = path.join(srcCandidate, `index${extension}`);
-    if (existsSync(candidate) && statSync(candidate).isFile()) {
-      return candidate;
+  if (specifier.startsWith('./') || specifier.startsWith('../')) {
+    const resolved = resolveModuleFile(path.resolve(path.dirname(file), specifier));
+    if (resolved && pathIsInside(path.join(webRoot, 'src'), resolved)) {
+      return resolved;
     }
   }
 
@@ -108,11 +132,20 @@ function allowlistReason(lines, lineNumber) {
   return sameLine.match(marker)?.[1] || previousLine.match(marker)?.[1] || null;
 }
 
-function recordFinding({ findings, allowlisted, file, line, code, message, specifier, source, webRoot }) {
+function recordFinding({
+  findings,
+  allowlisted,
+  file,
+  line,
+  code,
+  message,
+  specifier,
+  resolved,
+  source,
+}) {
   const lines = source.split(/\r?\n/);
   const reason = allowlistReason(lines, line);
   const displayFile = path.relative(process.cwd(), file);
-  const resolved = specifier ? resolveAliasSpecifier(webRoot, specifier) : null;
   const entry = {
     file: displayFile,
     line,
@@ -150,14 +183,64 @@ function normalizeFabricatedAliasPath(rawPath) {
   return `@/${aliasPath}`;
 }
 
+function extractStringLiterals(source) {
+  const strings = [];
+  const stringRegex = /(['"])((?:\\.|(?!\1).)*)\1/g;
+  for (const match of source.matchAll(stringRegex)) {
+    strings.push({
+      value: match[2].replace(/\\(['"\\])/g, '$1'),
+      offset: match.index,
+    });
+  }
+  return strings;
+}
+
+function segmentLooksLikePathPart(value) {
+  return /^[A-Za-z0-9._-]+$/.test(value);
+}
+
+function joinedAliasSpecifiers(source) {
+  const strings = extractStringLiterals(source);
+  const specifiers = [];
+
+  for (let index = 0; index < strings.length - 2; index += 1) {
+    if (strings[index].value !== 'node_modules' || strings[index + 1].value !== '@') {
+      continue;
+    }
+
+    const segments = [];
+    for (let segmentIndex = index + 2; segmentIndex < strings.length; segmentIndex += 1) {
+      const value = strings[segmentIndex].value;
+      if (!segmentLooksLikePathPart(value)) {
+        break;
+      }
+
+      segments.push(value);
+      if (/\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(value)) {
+        const aliasPath = segments
+          .join('/')
+          .replace(/\.(?:ts|tsx|js|jsx|mjs|cjs)$/, '')
+          .replace(/\/index$/, '');
+        specifiers.push({ specifier: `@/${aliasPath}`, offset: strings[index].offset });
+        break;
+      }
+    }
+  }
+
+  return specifiers;
+}
+
 function scanFile(file, webRoot) {
   const source = readFileSync(file, 'utf8');
   const findings = [];
   const allowlisted = [];
 
-  for (const match of source.matchAll(/\b(?:vi\.|jest\.)?mock\s*\(\s*(['"])(@\/[^'"]+)\1/g)) {
+  for (
+    const match of source.matchAll(/\b(?:vi\.|jest\.)?(?:doMock|mock)\s*\(\s*(['"])([^'"]+)\1/g)
+  ) {
     const specifier = match[2];
-    if (!resolveAliasSpecifier(webRoot, specifier)) {
+    const resolved = resolveMockSpecifier(webRoot, file, specifier);
+    if (!resolved) {
       continue;
     }
 
@@ -169,8 +252,8 @@ function scanFile(file, webRoot) {
       code: 'local-module-mock',
       message: 'Mock resolves to an existing web/src module; use the real adapter instead.',
       specifier,
+      resolved,
       source,
-      webRoot,
     });
   }
 
@@ -183,14 +266,14 @@ function scanFile(file, webRoot) {
       code: 'typescript-transpile-shim',
       message: 'Tests must not transpile source code manually; import the real module adapter.',
       source,
-      webRoot,
     });
   }
 
   if (/\b(?:writeFile|writeFileSync|mkdtemp|mkdtempSync)\b/.test(source)) {
     for (const match of source.matchAll(/node_modules[\\/]+@[\\/]+([^'"`\s)]+)/g)) {
       const specifier = normalizeFabricatedAliasPath(match[0]);
-      if (!specifier || !resolveAliasSpecifier(webRoot, specifier)) {
+      const resolved = specifier ? resolveAliasSpecifier(webRoot, specifier) : null;
+      if (!specifier || !resolved) {
         continue;
       }
 
@@ -202,8 +285,27 @@ function scanFile(file, webRoot) {
         code: 'fabricated-local-module-stub',
         message: 'Test writes a temp node_modules/@/ stub for an existing web/src module.',
         specifier,
+        resolved,
         source,
-        webRoot,
+      });
+    }
+
+    for (const { specifier, offset } of joinedAliasSpecifiers(source)) {
+      const resolved = resolveAliasSpecifier(webRoot, specifier);
+      if (!resolved) {
+        continue;
+      }
+
+      recordFinding({
+        findings,
+        allowlisted,
+        file,
+        line: lineNumberForOffset(source, offset),
+        code: 'fabricated-local-module-stub',
+        message: 'Test writes a path-joined temp node_modules/@/ stub for an existing web/src module.',
+        specifier,
+        resolved,
+        source,
       });
     }
   }

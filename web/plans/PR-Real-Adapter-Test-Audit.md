@@ -13,8 +13,8 @@ tests so the new guard can run cleanly on the existing tree.
 Slice phase: Workflow/process
 
 1. Add a real-adapter test audit that scans migrated test files and `web/scripts`
-   harnesses for local `@/` module mocks, fabricated `node_modules/@/` stubs,
-   and `ts.transpileModule(`.
+   harnesses for local module mocks, fabricated `node_modules/@/` stubs, and
+   `ts.transpileModule(`.
 2. Add fixture tests proving the audit fails on fabricated local modules and
    TypeScript transpile shims, passes on external mocks, and reports explicit
    allowlist markers.
@@ -26,6 +26,7 @@ Slice phase: Workflow/process
 ### Files touched
 
 - `.github/workflows/pre_push_audit.yml` - enrolls the audit and audit tests in CI.
+- `AGENTS.md` - documents the new local review gate.
 - `scripts/local_pr_review.sh` - runs the real-adapter audit locally with the review bundle.
 - `web/package.json` - adds the audit and fixture-test npm scripts.
 - `web/plans/PR-Real-Adapter-Test-Audit.md` - plan for this slice.
@@ -35,13 +36,18 @@ Slice phase: Workflow/process
 
 ## Mechanism
 
-`audit-real-adapter-tests.mjs` walks `web/scripts/*.mjs` and `web/src/**/*.test.*`
-files. It resolves `@/foo` specifiers against `web/src/foo` with the normal TS/JS
-extensions and `index.*` fallbacks. A local mock such as `vi.mock('@/lib/foo')`
-fails when that specifier points at a real source file. A fabricated
+`audit-real-adapter-tests.mjs` walks `web/scripts/*.mjs`, root-level
+`web/*.test.*` files such as `next.config.test.ts`, and `web/src/**/*.test.*`
+files. It resolves `@/foo` specifiers against `web/src/foo` and relative
+`./foo` / `../foo` specifiers against the test file directory with the normal
+TS/JS extensions and `index.*` fallbacks. A local mock such as
+`vi.mock('@/lib/foo')`, `vi.doMock('@/lib/foo')`, or `vi.mock('./foo')` fails
+when that specifier points at a real source file. A fabricated
 `node_modules/@/lib/foo.js` stub also fails if it maps back to a real source
-module. Any `ts.transpileModule(` use in scanned test files fails because it
-lets a test reshape source code instead of exercising the real module adapter.
+module, including the path-joined `path.join(root, 'node_modules', '@', 'lib',
+'foo.js')` shape. Any `ts.transpileModule(` use in scanned test files fails
+because it lets a test reshape source code instead of exercising the real module
+adapter.
 
 Rare exceptions require an inline or previous-line `real-adapter-audit-allow:
 <reason>` marker. Allowlisted findings are printed so the exception stays
@@ -63,8 +69,9 @@ intake modules.
 
 ## Deferred
 
-- Blocking every possible alias fabrication shape is deferred; this slice covers
-  the known `@/` mock and `node_modules/@/` stub shapes that created the issue.
+- Computed mock specifiers remain deferred; the guard intentionally handles
+  literal local specifiers where it can prove the target resolves under
+  `web/src`.
 - Broader adapter conversions outside the already-migrated smoke tests remain in
   the real-adapter epic.
 
@@ -72,24 +79,24 @@ Parked hardening: none.
 
 ## Verification
 
-- `npm --prefix web run check:real-adapter-tests` - passed; scanned 74 files.
-- `npm --prefix web run test:real-adapter-test-audit` - passed; fixture tests cover clean external mocks, local mocks, transpile shims, fabricated `node_modules/@/` stubs, and allowlist reporting.
+- `npm --prefix web run check:real-adapter-tests` - passed; scanned 75 files.
+- `npm --prefix web run test:real-adapter-test-audit` - passed; fixture tests cover clean external mocks, local mocks, `vi.doMock`, relative local mocks, root-level test files, transpile shims, slash-delimited fabricated `node_modules/@/` stubs, path-joined fabricated stubs, and allowlist reporting.
 - `npm --prefix web run test:deflection-rate-limit` - passed; 7 tests.
 - `node web/scripts/audit-test-enrollment.mjs` - passed; all 40 `test:*` scripts are enrolled.
 - `npm --prefix web run lint` - passed.
-- `rg -n "vi\\.mock\\('@/|vi\\.mock\\(\\\"@/|mock\\('@/|mock\\(\\\"@/|ts\\.transpileModule\\(" web/src web/scripts --glob '*test*' --glob '*.mjs' --glob '*.ts' --glob '*.tsx'` - passed; no stale direct local mocks or transpile shims remain.
-- `bash scripts/local_pr_review.sh` - passed; advisory overlap with Dependabot workflow PRs only.
+- `rg -n "vi\\.mock\\('@/|vi\\.mock\\(\\\"@/|mock\\('@/|mock\\(\\\"@/|vi\\.doMock\\('@/|vi\\.doMock\\(\\\"@/|doMock\\('@/|doMock\\(\\\"@/|ts\\.transpileModule\\(" web/src web/scripts --glob '*test*' --glob '*.mjs' --glob '*.ts' --glob '*.tsx'` - passed; no stale direct local mocks, `doMock` local mocks, or transpile shims remain.
+- `bash scripts/local_pr_review.sh` - passed after review fixes; advisory overlap with Dependabot workflow PRs only.
 
 ## Estimated diff size
 
 | Area | Estimated LOC |
 | --- | ---: |
-| Plan doc | ~82 |
-| Audit script | ~210 |
-| Audit fixture tests | ~170 |
+| Plan doc | ~94 |
+| Audit script | ~270 |
+| Audit fixture tests | ~240 |
 | Rate-limit test update | ~75 |
-| CI/local/package enrollment | ~18 |
-| Total | ~555 |
+| CI/local/package/contract enrollment | ~24 |
+| Total | ~703 |
 
 This is over the 400-LOC soft cap because the slice includes both the guard and
 the negative-test fixtures that prove the guard catches the class, not just the
