@@ -5,11 +5,6 @@
   "issues": [
     {
       "type": "files",
-      "file": "src/components/ContentOpsDemo.tsx",
-      "name": "src/components/ContentOpsDemo.tsx"
-    },
-    {
-      "type": "files",
       "file": "src/components/landing/DiagnosticReportLandingPage.tsx",
       "name": "src/components/landing/DiagnosticReportLandingPage.tsx"
     },
