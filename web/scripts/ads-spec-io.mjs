@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const repoRoot = join(__dirname, '..');
-export const specDir = join(repoRoot, 'ads', 'content-workflow-audit');
+const specDir = join(repoRoot, 'ads', 'content-workflow-audit');
 
 function resolveSpecFile(fileName) {
   if (typeof fileName !== 'string' || !fileName.trim()) {
@@ -22,11 +22,11 @@ function resolveSpecFile(fileName) {
   return resolvedPath;
 }
 
-export async function readJson(path) {
+async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
 }
 
-export async function readCsv(path) {
+async function readCsv(path) {
   const text = await readFile(path, 'utf8');
   const [headerLine, ...lines] = text.trim().split(/\r?\n/);
   const headers = parseCsvLine(headerLine).map((item) => item.trim());
