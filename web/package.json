@@ -39,6 +39,7 @@
     "check:deflection-snapshot-contract": "node scripts/generate-deflection-snapshot-contract.mjs --check",
     "check:dead-code": "node scripts/check-knip-baseline.mjs",
     "check:real-adapter-tests": "node scripts/audit-real-adapter-tests.mjs",
+    "check:test-enrollment": "node scripts/audit-test-enrollment.mjs",
     "create:deflection-partner-token": "node scripts/create-deflection-partner-token.mjs",
     "generate:deflection-contracts": "node scripts/generate-deflection-snapshot-contract.mjs",
     "generate:deflection-snapshot-contract": "node scripts/generate-deflection-snapshot-contract.mjs",
