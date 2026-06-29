@@ -66,7 +66,7 @@
     "test:deflection-intake-atlas-submit": "vitest run src/lib/atlas-deflection-client-submit.test.ts",
     "test:deflection-legacy-results-redirect": "vitest run next.config.test.ts",
     "test:deflection-partner-access": "vitest run src/lib/deflection-partner-access.test.ts",
-    "test:deflection-live-submit-smoke": "node scripts/test-deflection-live-submit-smoke.mjs",
+    "test:deflection-live-submit-smoke": "vitest run src/lib/deflection-live-submit-smoke.test.mjs",
     "test:deflection-paid-unlock-smoke": "node scripts/test-deflection-paid-unlock-smoke.mjs",
     "test:deflection-public-reachability-smoke": "node scripts/test-deflection-public-reachability-smoke.mjs",
     "test:deflection-results-state": "vitest run src/lib/deflection-results-state.test.ts",
