@@ -51,6 +51,12 @@ jobs:
       - name: Test enrollment audit tests
         run: npm --prefix web run test:test-enrollment-audit
 
+      - name: Real adapter test audit
+        run: npm --prefix web run check:real-adapter-tests
+
+      - name: Real adapter test audit tests
+        run: npm --prefix web run test:real-adapter-test-audit
+
       - name: Deflection contract drift check
         run: npm --prefix web run check:deflection-contracts -- --source "$GITHUB_WORKSPACE/_atlas_contract_source/portfolio-ui/src/types/deflectionSnapshot.ts" --report-model-source "$GITHUB_WORKSPACE/_atlas_contract_source/portfolio-ui/src/types/deflectionReportModel.ts"
 
