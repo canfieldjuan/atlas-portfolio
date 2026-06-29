@@ -100,12 +100,13 @@ This requires a clean worktree, then runs:
    ownership-lane overlap; open-PR *file* overlap stays advisory (lanes are the
    cross-PR block — revisit if you tighten while lanes are unused). See
    `PATTERNS.md`.
-3. **Dead code baseline** (`npm --prefix web run check:dead-code`).
-4. **Deflection Snapshot landing smoke tests**
+3. **Real adapter test audit** (`npm --prefix web run check:real-adapter-tests`).
+4. **Dead code baseline** (`npm --prefix web run check:dead-code`).
+5. **Deflection Snapshot landing smoke tests**
    (`npm --prefix web run test:deflection-snapshot-landing-smoke`).
-5. **ESLint** (`npm --prefix web run lint`).
-6. **Next build** (`npm --prefix web run build`).
-7. **Whitespace** (`git diff --check`).
+6. **ESLint** (`npm --prefix web run lint`).
+7. **Next build** (`npm --prefix web run build`).
+8. **Whitespace** (`git diff --check`).
 
 CI (`.github/workflows/pre_push_audit.yml`) mirrors the plan audits + lint on
 every PR; the full build is covered by Vercel's per-PR preview.

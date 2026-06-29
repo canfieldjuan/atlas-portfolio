@@ -1,3 +1,5 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST as auditRoutePOST } from '@/app/api/audit/route';
 import {
@@ -5,20 +7,24 @@ import {
   consumeDeflectionRateLimit,
 } from '@/lib/deflection-rate-limit';
 
-const auditIntakeState = vi.hoisted(() => ({
-  recordAuditIntake: vi.fn(async () => ({
-    requestId: 'audit-unit',
-    deliveries: ['database'],
-    warnings: [],
-  })),
-}));
-
-vi.mock('@/lib/audit-intake', () => ({
-  AuditIntakePayload: undefined,
-  recordAuditIntake: auditIntakeState.recordAuditIntake,
-}));
-
 let now = 1_700_000_000_000;
+let tempDir = '';
+let auditFallbackPath = '';
+
+const INTAKE_DELIVERY_ENV_KEYS = [
+  'AUDIT_INTAKE_DATABASE_URL',
+  'DATABASE_URL',
+  'POSTGRES_URL',
+  'AUDIT_INTAKE_WEBHOOK_URL',
+  'AUDIT_INTAKE_ATLAS_BASE_URL',
+  'AUDIT_INTAKE_ATLAS_AUTH_TOKEN',
+  'AUDIT_NOTIFICATION_TO_EMAIL',
+  'AUDIT_NOTIFICATION_RESEND_API_KEY',
+  'ATLAS_CAMPAIGN_SEQ_RESEND_API_KEY',
+  'AUDIT_NOTIFICATION_FROM_EMAIL',
+  'ATLAS_CAMPAIGN_SEQ_RESEND_FROM_EMAIL',
+  'ATLAS_EMAIL_DEFAULT_FROM',
+];
 
 function testHeaders(value?: string) {
   return new Headers(value ? { 'x-forwarded-for': value } : {});
@@ -70,15 +76,43 @@ async function readRouteResponse(response: Response) {
   };
 }
 
-beforeEach(() => {
+async function readFallbackRecords() {
+  try {
+    const content = await readFile(auditFallbackPath, 'utf8');
+    return content
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+  } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'ENOENT'
+    ) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+beforeEach(async () => {
   resetStore();
-  auditIntakeState.recordAuditIntake.mockClear();
+  tempDir = await mkdtemp('/tmp/atlas-audit-rate-limit-');
+  auditFallbackPath = path.join(tempDir, 'audit-intake.ndjson');
+  for (const key of INTAKE_DELIVERY_ENV_KEYS) {
+    vi.stubEnv(key, '');
+  }
+  vi.stubEnv('AUDIT_INTAKE_ALLOW_FILE_FALLBACK', 'true');
+  vi.stubEnv('AUDIT_INTAKE_FILE_PATH', auditFallbackPath);
   now = 1_700_000_000_000;
   vi.spyOn(Date, 'now').mockImplementation(() => now);
 });
 
-afterEach(() => {
+afterEach(async () => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  await rm(tempDir, { recursive: true, force: true });
   resetStore();
 });
 
@@ -169,17 +203,22 @@ describe('audit route deflection rate limiting', () => {
       retryAfter: null,
       body: {
         ok: true,
-        requestId: 'audit-unit',
-        status: 'submitted',
-        delivery: 'database',
-        deliveries: ['database'],
-        warnings: [],
+        requestId: expect.any(String),
+        status: 'submitted_with_warnings',
+        delivery: 'file',
+        deliveries: ['file'],
+        warnings: [expect.stringContaining('no persistent intake sink')],
         estimatedResponseHours: 48,
       },
     });
-    expect(auditIntakeState.recordAuditIntake).toHaveBeenCalledTimes(1);
-    expect(auditIntakeState.recordAuditIntake).toHaveBeenCalledWith(
-      expect.objectContaining({ workEmail: 'buyer@example.com' }),
+    const records = await readFallbackRecords();
+    expect(records).toHaveLength(1);
+    expect(records[0]).toEqual(
+      expect.objectContaining({
+        requestId: auditResponse.body.requestId,
+        fullName: 'Ada Buyer',
+        workEmail: 'buyer@example.com',
+      }),
     );
   });
 
@@ -208,7 +247,7 @@ describe('audit route deflection rate limiting', () => {
       },
     });
     expect(jsonCalls).toBe(0);
-    expect(auditIntakeState.recordAuditIntake).not.toHaveBeenCalled();
+    expect(await readFallbackRecords()).toEqual([]);
   });
 
   it('returns a generic 429 after parsing the body when the normalized email bucket is exhausted', async () => {
@@ -223,7 +262,7 @@ describe('audit route deflection rate limiting', () => {
       );
       expect(auditResponse.status).toBe(200);
     }
-    auditIntakeState.recordAuditIntake.mockClear();
+    await rm(auditFallbackPath, { force: true });
 
     let jsonCalls = 0;
     const auditResponse = await readRouteResponse(
@@ -245,6 +284,6 @@ describe('audit route deflection rate limiting', () => {
       },
     });
     expect(jsonCalls).toBe(1);
-    expect(auditIntakeState.recordAuditIntake).not.toHaveBeenCalled();
+    expect(await readFallbackRecords()).toEqual([]);
   });
 });
