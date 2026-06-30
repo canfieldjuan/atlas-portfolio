@@ -360,6 +360,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
       reportDemoFixtureSource,
       generatedDemoSource,
       intakeFormSource,
+      supportDeflectionLayoutSource,
       globalsSource,
     ] = await Promise.all([
       readFile(join(webRoot, 'src/components/landing/DeflectionSnapshotLandingPage.tsx'), 'utf8'),
@@ -370,6 +371,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
       readFile(join(webRoot, 'src/lib/deflection-report-demo.ts'), 'utf8'),
       readFile(join(webRoot, 'src/lib/deflection-demo-example.ts'), 'utf8'),
       readFile(join(webRoot, 'src/components/landing/SupportTicketCsvIntakeForm.tsx'), 'utf8'),
+      readFile(join(webRoot, 'src/app/systems/support-ticket-deflection/layout.tsx'), 'utf8'),
       readFile(join(webRoot, 'src/app/globals.css'), 'utf8'),
     ]);
     const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
@@ -384,7 +386,13 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     expect(snapshotLandingSource).toContain('const provenQuestions = top_questions.filter');
     expect(snapshotLandingSource).toContain('questions={provenQuestions}');
     expect(snapshotLandingSource).toContain('locked_questions.length > 0');
-    expect(snapshotLandingSource).toContain("label: 'Remaining backlog'");
+    expect(snapshotLandingSource.indexOf("label: 'Estimated Support Tax'")).toBeLessThan(
+      snapshotLandingSource.indexOf("label: 'Repeat Contacts'"),
+    );
+    expect(snapshotLandingSource.indexOf("label: 'Repeat Contacts'")).toBeLessThan(
+      snapshotLandingSource.indexOf("label: 'Draft + Gap'"),
+    );
+    expect(snapshotLandingSource).not.toContain("label: 'Remaining backlog'");
     expect(snapshotLandingSource).toContain("sourceOffer: 'support-ticket-deflection-intake'");
     expect(snapshotLandingSource).not.toContain("sourceOffer: 'hero_intake'");
     expect(snapshotLandingSource).toContain("const CTA_LABEL = 'Start Your Forensic Audit';");
@@ -393,6 +401,10 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     expect(intakeFormSource).toContain('Identify the cost exposure behind your unresolved questions.');
     expect(intakeFormSource).toContain('data-smoke="submitSecurityLine"');
     expect(intakeFormSource).toContain('data-smoke="deterministicBadge"');
+    expect(supportDeflectionLayoutSource).toContain('ZERO Generative AI Models');
+    expect(supportDeflectionLayoutSource).toContain('Private encrypted storage + browser and backend PII controls');
+    expect(supportDeflectionLayoutSource).not.toContain('AES-256');
+    expect(supportDeflectionLayoutSource).not.toContain('VPC isolated');
     expect(submitSecurityLineIndex).toBeGreaterThanOrEqual(0);
     expect(submitSecurityLineIndex).toBeLessThan(submitCtaIndex);
     expect(snapshotLandingSource).toContain('data-smoke="heroProofStrip"');
@@ -479,6 +491,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
       'Repeat Contacts',
       'Draft + Gap',
       'one agent-backed answer and one unresolved finding',
+      'grouped into ${formatInteger(summary.generated)} ranked question clusters',
       'Customer wording &rarr; your long-tail SEO target list',
       'const customerWordingExamples = top_questions',
       'aria-label="Customer wording examples"',
@@ -497,6 +510,9 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     expect(compactSnapshotLandingSource).toContain(
       'the volume of repeat tickets, the strength of existing agent resolution evidence, the estimated support cost, and the original source tickets.',
     );
+    expect(snapshotLandingSource).not.toContain('Repeat-ticket hits');
+    expect(snapshotLandingSource).not.toContain('Support Tax estimate');
+    expect(snapshotLandingSource).not.toContain('Included draft');
     expect(compactSnapshotLandingSource).toContain(
       'Every drafted resolution is anchored to source ticket IDs.',
     );
