@@ -511,8 +511,8 @@ export function DeflectionSnapshotLandingPage() {
         </div>
       </section>
 
-      <section className="section-band">
-        <div className="mx-auto max-w-6xl">
+      <section className="section-band section-band-wide">
+        <div className="mx-auto max-w-7xl">
           <div className="mb-8 max-w-3xl">
             <Eyebrow>Your Resolution Snapshot</Eyebrow>
             <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
