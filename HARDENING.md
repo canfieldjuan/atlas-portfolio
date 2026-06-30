@@ -32,6 +32,16 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
+## 2026-06-29
+
+### DEFLECTION-SNAPSHOT-DEVSERVER-1 — Snapshot landing dev route fails on `node:crypto` import path
+- File/location: `web/src/components/landing/DeflectionSnapshotLandingPage.tsx` via `SupportTicketCsvIntakeForm.tsx` -> `gap-report-intake.ts` -> `deflection-partner-access.ts` -> `deflection-partner-token.js`.
+- Description: The production build passes, but the local dev server returns HTTP 500 for `/systems/support-ticket-deflection/snapshot` because the webpack dev pipeline trips on the transitive `node:crypto` import path.
+- Why it matters: it blocks browser-based local verification for the public Snapshot landing page even when the production build succeeds.
+- Effort: S
+- Category: tech-debt
+- Found during: PR-Deflection-Snapshot-Demo-Width.
+
 ## 2026-06-03
 
 ### NPM-AUDIT-WEB-1 — RESOLVED — web dependency audit findings

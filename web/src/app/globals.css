@@ -112,6 +112,11 @@ option {
   padding-bottom: 6rem;
 }
 
+.section-band-wide {
+  padding-left: max(1.5rem, calc((100vw - 80rem) / 2));
+  padding-right: max(1.5rem, calc((100vw - 80rem) / 2));
+}
+
 .section-band-muted {
   background: var(--surface-muted);
 }

@@ -360,6 +360,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
       reportDemoFixtureSource,
       generatedDemoSource,
       intakeFormSource,
+      globalsSource,
     ] = await Promise.all([
       readFile(join(webRoot, 'src/components/landing/DeflectionSnapshotLandingPage.tsx'), 'utf8'),
       readFile(join(webRoot, 'src/components/landing/DeflectionLockedReportPreview.tsx'), 'utf8'),
@@ -369,6 +370,7 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
       readFile(join(webRoot, 'src/lib/deflection-report-demo.ts'), 'utf8'),
       readFile(join(webRoot, 'src/lib/deflection-demo-example.ts'), 'utf8'),
       readFile(join(webRoot, 'src/components/landing/SupportTicketCsvIntakeForm.tsx'), 'utf8'),
+      readFile(join(webRoot, 'src/app/globals.css'), 'utf8'),
     ]);
     const compactSnapshotLandingSource = snapshotLandingSource.replace(/\s+/g, ' ');
     const submitSecurityLineIndex = intakeFormSource.indexOf('data-smoke="submitSecurityLine"');
@@ -397,6 +399,11 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     expect(snapshotLandingSource).toContain('data-smoke="blindSpots"');
     expect(snapshotLandingSource).toContain('DEMO_DEFLECTION_REPORT_MODEL');
     expect(snapshotLandingSource).toContain('<SnapshotArtifact');
+    expect(compactSnapshotLandingSource).toContain(
+      '<section className="section-band section-band-wide"> <div className="mx-auto max-w-7xl">',
+    );
+    expect(globalsSource).toContain('.section-band-wide');
+    expect(globalsSource).toContain('calc((100vw - 80rem) / 2)');
     expect(snapshotLandingSource).toContain('<DeflectionLockedReportPreview');
     expect(snapshotLandingSource.indexOf('<SnapshotArtifact')).toBeLessThan(
       snapshotLandingSource.indexOf('<DeflectionLockedReportPreview'),
