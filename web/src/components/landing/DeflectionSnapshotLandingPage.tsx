@@ -213,6 +213,8 @@ function SnapshotArtifact({
   const supportTaxEstimate = formatDeflectionWholeUsd(
     artifactCostProof.uploadedWindowCost,
   );
+  const includedDraftCount = teaser.full_answer ? 1 : 0;
+  const highlightedGapCount = top_blind_spots.length > 0 ? 1 : 0;
   const provenRanks = provenQuestionRanks(snapshot);
   const provenQuestions = top_questions.filter((question) =>
     provenRanks.has(question.rank),
@@ -234,31 +236,25 @@ function SnapshotArtifact({
     .slice(0, 5);
   const artifactMetrics = [
     {
-      label: 'Repeat-ticket hits',
-      value: formatInteger(artifactCostProof.repeatTicketCount),
-      detail: `${formatInteger(summary.generated)} ranked question groups`,
-    },
-    {
-      label: 'Support Tax estimate',
+      label: 'Estimated Support Tax',
       value: supportTaxEstimate,
-      detail: `${formatAssistedContactCost(assistedContactCost)} assisted-contact value`,
+      detail: `${formatInteger(artifactCostProof.repeatTicketCount)} repeat contacts at ${formatAssistedContactCost(
+        assistedContactCost,
+      )} each`,
     },
     {
-      label: 'Included draft',
-      value: teaser.full_answer ? '1' : '0',
-      detail: teaser.full_answer
-        ? `${formatInteger(teaser.full_answer.source_count)} source tickets`
-        : 'No scoped draft in this sample',
+      label: 'Repeat Contacts',
+      value: formatInteger(artifactCostProof.repeatTicketCount),
+      detail: `grouped into ${formatInteger(summary.generated)} ranked question clusters`,
     },
-    ...(locked_questions.length > 0
-      ? [
-          {
-            label: 'Remaining backlog',
-            value: formatInteger(locked_questions.length),
-            detail: 'rank and volume previewed',
-          },
-        ]
-      : []),
+    {
+      label: 'Draft + Gap',
+      value: `${includedDraftCount} + ${highlightedGapCount}`,
+      detail:
+        includedDraftCount > 0 && highlightedGapCount > 0
+          ? 'one agent-backed answer and one unresolved finding'
+          : 'draft answer and unresolved finding availability',
+    },
   ];
 
   return (
