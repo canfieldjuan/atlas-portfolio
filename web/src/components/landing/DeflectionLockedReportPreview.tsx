@@ -342,8 +342,11 @@ export function DeflectionLockedReportPreview({
   if (sections.length === 0) return null;
 
   return (
-    <section data-smoke="lockedReportPreview" className="section-band section-band-muted">
-      <div className="mx-auto max-w-6xl">
+    <section
+      data-smoke="lockedReportPreview"
+      className="section-band section-band-muted section-band-wide"
+    >
+      <div className="mx-auto max-w-7xl">
         <div className="mb-8 max-w-3xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-mono text-primary">
             <FileText className="h-3.5 w-3.5" />
