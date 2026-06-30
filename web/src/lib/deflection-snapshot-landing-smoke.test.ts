@@ -420,6 +420,9 @@ describe('deflection Snapshot landing smoke real fixtures', () => {
     for (const smokeMarker of lockedPreviewSmokeMarkers) {
       expect(lockedPreviewSource).toContain(smokeMarker);
     }
+    expect(lockedPreviewSource).toMatch(
+      /data-smoke="lockedReportPreview"[\s\S]*className="section-band section-band-muted section-band-wide"[\s\S]*<div className="mx-auto max-w-7xl">/,
+    );
     expect(lockedPreviewSource).toContain('hasPreviewRows(section)');
 
     for (const section of DEMO_DEFLECTION_REPORT_MODEL.sections) {
