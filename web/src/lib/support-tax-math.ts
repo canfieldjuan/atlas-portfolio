@@ -1,9 +1,9 @@
-import { DEFLECTION_ASSISTED_CONTACT_DELTA_USD } from '@/lib/deflection-pricing';
-
 // Pure math behind the support-tax calculators
 // (SupportTaxCalculator, ThirtySecondCalculator, SupportTaxMiniCalculator).
 // Every formula here is pinned by support-tax-math.test.ts; change a model,
-// change its golden values in the same slice.
+// change its golden values in the same slice. Deliberately dependency-free:
+// pricing benchmarks arrive as inputs so quick-calculator bundles never pull
+// in the pricing catalog.
 
 // Quick model assumptions (30-second / mini calculators).
 export const QUICK_REPEAT_SHARE = 0.4; // 40% of volume modeled as repeat Tier-1 how-to tickets
@@ -66,6 +66,9 @@ export interface LeakyBucketInputs {
   attritionPct: number;
   currentSelfServicePct: number;
   targetSelfServicePct: number;
+  // Per-ticket savings when a repeat question moves to self-service; callers
+  // pass DEFLECTION_ASSISTED_CONTACT_DELTA_USD from @/lib/deflection-pricing.
+  assistedContactDeltaUsd: number;
 }
 
 export interface LeakyBucketResult {
@@ -91,6 +94,7 @@ export function computeLeakyBucketLeak({
   attritionPct,
   currentSelfServicePct,
   targetSelfServicePct,
+  assistedContactDeltaUsd,
 }: LeakyBucketInputs): LeakyBucketResult {
   const monthlyRepeatTickets = monthlyTickets * (repeatPct / 100);
   const hourlyRate = salary / ANNUAL_WORK_HOURS;
@@ -102,7 +106,7 @@ export function computeLeakyBucketLeak({
 
   const selfServiceDelta = Math.max(0, targetSelfServicePct - currentSelfServicePct) / 100;
   const annualSelfServiceOpportunity =
-    monthlyRepeatTickets * 12 * selfServiceDelta * DEFLECTION_ASSISTED_CONTACT_DELTA_USD;
+    monthlyRepeatTickets * 12 * selfServiceDelta * assistedContactDeltaUsd;
 
   const totalVisibleLeak = annualContextLeak + annualAttritionTax + annualSelfServiceOpportunity;
 

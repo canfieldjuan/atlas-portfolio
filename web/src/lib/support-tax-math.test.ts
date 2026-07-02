@@ -60,6 +60,8 @@ describe('computeQuickSupportTax', () => {
 });
 
 describe('computeLeakyBucketLeak', () => {
+  // assistedContactDeltaUsd is the hand-pinned 11.66 golden value; the
+  // "pricing input pins" suite asserts the live constant still equals it.
   const defaults = {
     monthlyTickets: 3000,
     agents: 10,
@@ -68,6 +70,7 @@ describe('computeLeakyBucketLeak', () => {
     attritionPct: 35,
     currentSelfServicePct: 14,
     targetSelfServicePct: 40,
+    assistedContactDeltaUsd: 11.66,
   };
 
   it('matches the shipped defaults leak by leak', () => {

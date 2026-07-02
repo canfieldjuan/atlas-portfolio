@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { DEFLECTION_ASSISTED_CONTACT_DELTA_USD } from '@/lib/deflection-pricing';
 import {
   BURNOUT_TURNOVER_SHARE,
   clampToStep,
@@ -182,6 +183,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
     attritionPct,
     currentSelfServicePct,
     targetSelfServicePct,
+    assistedContactDeltaUsd: DEFLECTION_ASSISTED_CONTACT_DELTA_USD,
   });
 
   return (

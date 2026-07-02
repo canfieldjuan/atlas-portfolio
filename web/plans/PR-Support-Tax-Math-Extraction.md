@@ -64,11 +64,15 @@ slider clamp:
   current hardcoded 0.4 / 0.2 so this slice changes nothing, while the Reddit
   lander slice can pass user-adjusted values with no math change.
 - `computeLeakyBucketLeak({ monthlyTickets, agents, salary, repeatPct,
-  attritionPct, currentSelfServicePct, targetSelfServicePct })` returns every
-  intermediate the component renders plus `totalVisibleLeak`. It imports
-  `DEFLECTION_ASSISTED_CONTACT_DELTA_USD` from `@/lib/deflection-pricing`
-  (moved out of the component), keeps the 2080 annual work hours divisor
-  private, and floors the self-service delta at zero.
+  attritionPct, currentSelfServicePct, targetSelfServicePct,
+  assistedContactDeltaUsd })` returns every intermediate the component
+  renders plus `totalVisibleLeak`. The assisted-contact delta is an explicit
+  input — `SupportTaxCalculator` passes
+  `DEFLECTION_ASSISTED_CONTACT_DELTA_USD` from `@/lib/deflection-pricing` —
+  so the math module stays dependency-free and the quick calculators never
+  pull the pricing catalog into their bundles. The module keeps the 2080
+  annual work hours divisor private and floors the self-service delta at
+  zero.
 - `clampToStep(value, { min, max, step })` replaces the identical
   `clamp(Math.round(n / step) * step, min, max)` expression duplicated in all
   three components' number-input commit handlers.
