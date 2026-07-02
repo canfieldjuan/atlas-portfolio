@@ -84,6 +84,7 @@
     "test:deflection-row-renderer-share": "vitest run src/lib/deflection-row-renderer-share.test.tsx",
     "test:deflection-teaser-rank-copy": "vitest run src/lib/deflection-teaser-rank-copy.test.ts",
     "test:support-tax-math": "vitest run src/lib/support-tax-math.test.ts",
+    "test:support-tax-share-state": "vitest run src/lib/support-tax-share-state.test.ts",
     "test:local-env": "node scripts/test-local-env-loader.mjs"
   },
   "dependencies": {

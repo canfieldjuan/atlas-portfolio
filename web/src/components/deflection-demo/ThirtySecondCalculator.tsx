@@ -1,22 +1,28 @@
 'use client';
 
-import { useId, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useEffect, useId, useState } from 'react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 import {
-  clampToStep,
-  computeQuickSupportTax,
-  QUICK_REPEAT_SHARE,
-} from '@/lib/support-tax-math';
+  buildSupportTaxShareQuery,
+  parseSupportTaxShareState,
+  SUPPORT_TAX_INPUTS,
+} from '@/lib/support-tax-share-state';
 
 // The 30-Second Support Tax Calculator. A simpler, manager-facing cut of the
-// leaky-bucket model: two inputs (ticket volume + fully loaded cost per ticket)
-// sized against fixed assumptions, showing the monthly cost and agent-hours spent
-// re-answering repeat questions. This sizes current spend; it is not a forecast of
-// what the Resolution Audit will save. Math lives in @/lib/support-tax-math.
+// leaky-bucket model: two primary inputs (ticket volume + fully loaded cost per
+// ticket) with the model assumptions (repeat share, touch time) exposed as
+// editable overrides, showing the monthly cost and agent-hours spent
+// re-answering repeat questions. This sizes current spend; it is not a forecast
+// of what the Resolution Audit will save. Math lives in @/lib/support-tax-math;
+// slider state round-trips through the URL via @/lib/support-tax-share-state.
 
-const TICKETS = { min: 100, max: 10000, step: 50, default: 1500 };
-const COST = { min: 10, max: 30, step: 1, default: 15 };
+const TICKETS = SUPPORT_TAX_INPUTS.monthlyTickets;
+const COST = SUPPORT_TAX_INPUTS.costPerTicket;
+const REPEAT_PCT = SUPPORT_TAX_INPUTS.repeatPct;
+const TOUCH_MINUTES = SUPPORT_TAX_INPUTS.touchMinutes;
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const count = (n: number) => Math.round(n).toLocaleString();
@@ -30,6 +36,7 @@ function SliderField({
   step,
   onChange,
   prefix,
+  suffix,
 }: {
   label: string;
   hint: string;
@@ -39,6 +46,7 @@ function SliderField({
   step: number;
   onChange: (n: number) => void;
   prefix?: string;
+  suffix?: string;
 }) {
   const fieldId = useId();
 
@@ -79,6 +87,7 @@ function SliderField({
             }}
             className="w-24 rounded-lg border border-border bg-surface px-3 py-2 text-right text-sm font-semibold tabular-nums text-foreground outline-none transition-colors focus:border-primary/60"
           />
+          {suffix && <span className="text-sm text-foreground/50">{suffix}</span>}
         </div>
       </div>
       <input
@@ -96,10 +105,12 @@ function SliderField({
         <span>
           {prefix}
           {min.toLocaleString()}
+          {suffix}
         </span>
         <span>
           {prefix}
           {max.toLocaleString()}
+          {suffix}
         </span>
       </div>
     </div>
@@ -117,12 +128,33 @@ function Metric({ label, value, sub }: { label: string; value: string; sub: stri
 }
 
 export function ThirtySecondCalculator() {
-  const [monthlyTickets, setMonthlyTickets] = useState(TICKETS.default);
-  const [costPerTicket, setCostPerTicket] = useState(COST.default);
+  const searchParams = useSearchParams();
+  const [initialState] = useState(() => parseSupportTaxShareState(searchParams));
+  const [monthlyTickets, setMonthlyTickets] = useState(initialState.monthlyTickets);
+  const [costPerTicket, setCostPerTicket] = useState(initialState.costPerTicket);
+  const [repeatPct, setRepeatPct] = useState(initialState.repeatPct);
+  const [touchMinutes, setTouchMinutes] = useState(initialState.touchMinutes);
+
+  // Mirror slider state into the URL so a configured result can be shared;
+  // native replaceState is the documented shallow-update path (no navigation).
+  useEffect(() => {
+    const query = buildSupportTaxShareQuery({
+      monthlyTickets,
+      costPerTicket,
+      repeatPct,
+      touchMinutes,
+    });
+    const next = query
+      ? `${window.location.pathname}?${query}`
+      : window.location.pathname;
+    window.history.replaceState(null, '', next);
+  }, [monthlyTickets, costPerTicket, repeatPct, touchMinutes]);
 
   const { monthlyRepeatVolume, monthlyTax, annualTax, monthlyHours } = computeQuickSupportTax({
     monthlyTickets,
     costPerTicket,
+    repeatShare: repeatPct / 100,
+    touchHoursPerTicket: touchMinutes / 60,
   });
 
   return (
@@ -172,13 +204,42 @@ export function ThirtySecondCalculator() {
             />
           </div>
 
-          <div className="mt-7 rounded-xl border border-border bg-surface-muted p-4">
-            <h4 className="text-xs font-semibold text-foreground">Industry-average assumptions</h4>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <Metric label="Repeat tickets" value="40%" sub="repetitive Tier-1 how-to" />
-              <Metric label="Avg. touch time" value="12 min" sub="0.2 support hours each" />
+          <details className="group mt-7 rounded-xl border border-border bg-surface-muted p-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block text-xs font-semibold text-foreground">
+                  Assumptions &mdash; think we&apos;re wrong? Change them
+                </span>
+                <span className="mt-1 block text-[11px] text-foreground/45">
+                  Industry averages: {REPEAT_PCT.default}% repeat share, {TOUCH_MINUTES.default} min
+                  touch time per ticket.
+                </span>
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-foreground/45 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mt-4 space-y-6">
+              <SliderField
+                label="Repeat-ticket share"
+                hint="Share of volume that is repeat Tier-1 how-to"
+                suffix="%"
+                value={repeatPct}
+                min={REPEAT_PCT.min}
+                max={REPEAT_PCT.max}
+                step={REPEAT_PCT.step}
+                onChange={setRepeatPct}
+              />
+              <SliderField
+                label="Average touch time"
+                hint="Agent minutes per repeat ticket"
+                suffix=" min"
+                value={touchMinutes}
+                min={TOUCH_MINUTES.min}
+                max={TOUCH_MINUTES.max}
+                step={TOUCH_MINUTES.step}
+                onChange={setTouchMinutes}
+              />
             </div>
-          </div>
+          </details>
         </section>
 
         {/* Outputs */}
@@ -194,6 +255,10 @@ export function ThirtySecondCalculator() {
               A directional size of what {usd(monthlyTax)} per month on repeat questions adds up to. This
               sizes current spend, not a forecast of what the Resolution Audit will save.
             </p>
+            <p className="mt-3 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-mono leading-relaxed text-foreground/55">
+              The math: {count(monthlyTickets)} tickets &times; {repeatPct}% repeat &times; $
+              {costPerTicket} = {usd(monthlyTax)}/mo &rarr; {usd(annualTax)}/yr
+            </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -205,12 +270,12 @@ export function ThirtySecondCalculator() {
           <div className="rounded-xl border border-border bg-surface p-5">
             <div className="mb-3 flex items-center justify-between gap-4">
               <p className="text-sm font-semibold text-foreground">Ticket volume breakdown</p>
-              <p className="text-xs font-mono text-foreground/45">{Math.round(QUICK_REPEAT_SHARE * 100)}% repeat work</p>
+              <p className="text-xs font-mono text-foreground/45">{repeatPct}% repeat work</p>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-foreground/[0.08]">
               <div
                 className="h-full rounded-full bg-primary/80"
-                style={{ width: `${QUICK_REPEAT_SHARE * 100}%` }}
+                style={{ width: `${repeatPct}%` }}
               />
             </div>
             <div className="mt-2 flex justify-between text-[11px] text-foreground/45">
