@@ -10,7 +10,7 @@ wall, which is heavy friction on a phone, and the page still carries a
 conversion page. There is also no low-commitment action: the only CTA is the
 intake upload, a big first-touch ask for cold social traffic. This slice
 restructures for number-first engagement: three core inputs visible, the four
-assumption sliders collapsed, and an "Email me this breakdown" mailto
+assumption sliders collapsed, and a "Send my numbers to Juan" mailto
 micro-conversion that carries the visitor's own numbers.
 
 ## Scope (this PR)
@@ -22,11 +22,11 @@ Slice phase: Product polish
    self-service sliders into a collapsed "Adjust the assumptions" expander
    (same `<details>` pattern the 30-second calculator shipped in #482). The
    headline number, metric tiles, and named leak-breakdown cards stay as-is.
-2. Add an "Email me this breakdown" card: a `mailto:` link (the established
+2. Add a "Send my numbers to Juan" card: a `mailto:` link (the established
    micro-conversion pattern from `SupportTicketCsvIntakePage`) whose subject
    and body are prefilled with the visitor's inputs, the three leak lines,
-   and the total — a forwardable artifact and a lower-commitment first touch
-   than the intake upload.
+   and the total — a lower-commitment first touch than the intake upload,
+   honestly labeled as a message to the site owner.
 3. Remove the back-link escape hatch (and its now-unused imports) from
    `calculator/page.tsx`, completing the sweep #482 started on the
    support-tax page.
@@ -52,7 +52,9 @@ same destructured values the cards render: subject
 dollar lines, and the annual total, with a link back to the calculator page.
 It is a plain anchor styled as the secondary action next to the existing
 "Start Your Forensic Audit" primary CTA, matching the intake page's
-mailto add-on pattern.
+mailto add-on pattern. The label and helper copy state plainly that the
+draft is addressed to Juan — a lead-capture touch, not a self-addressed
+artifact — so the CTA promises exactly what clicking does.
 
 ## Intentional
 
@@ -81,8 +83,12 @@ mailto add-on pattern.
   shows demand for pasteable configured results.
 - A real email-capture endpoint replacing the mailto pattern, if the
   micro-conversion earns it.
+- The two parked calculator-math entries below were scanned per the
+  `HARDENING.md` workflow and deliberately left parked: this slice changes
+  structure and copy only, and resolving either entry changes the live
+  headline number — the product decision they were parked for.
 
-Parked hardening: none
+Parked hardening: SUPPORT-TAX-MATH-1; SUPPORT-TAX-MATH-2
 
 ## Verification
 

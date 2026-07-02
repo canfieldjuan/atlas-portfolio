@@ -397,12 +397,12 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
                 className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} inline-flex items-center justify-center gap-2 rounded-md border border-border text-sm font-medium text-foreground transition hover:border-primary/45 hover:text-primary`}
               >
                 <Mail className="h-4 w-4" />
-                Email me this breakdown
+                Send my numbers to Juan
               </a>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-foreground/45">
-              The email opens in your mail app with the numbers above, ready to forward to whoever
-              owns the budget.
+              Opens in your mail app with the breakdown above, addressed to Juan. Send it and get a
+              first read on which leak your ticket export would confirm.
             </p>
           </div>
         </section>
