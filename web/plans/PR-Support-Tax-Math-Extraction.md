@@ -98,6 +98,13 @@ fails a test instead of silently changing a live headline number.
   formula) on purpose — re-deriving would make the test tautological.
 - `usd` / `count` formatting helpers stay duplicated in the components; they
   are presentation and out of scope for a math slice.
+- The assumption-card copy strings that describe the quick-model constants
+  stay hardcoded as prose: `40%` / `12 min` / `0.2 support hours` in
+  `ThirtySecondCalculator.tsx` (lines 178-179) and
+  `SupportTaxMiniCalculator.tsx` (lines 172-173, 229). They are rendered
+  descriptions, not math inputs; the Reddit-lander slice replaces the
+  quick-calculator assumption cards with editable sliders driven by the
+  extracted parameters, which retires most of these strings.
 - The `DEFLECTION_ASSISTED_CONTACT_DELTA_USD === 11.66` pin is asserted in the
   suite so a pricing-constant change surfaces as a calculator-math failure,
   not just a pricing-page change.
@@ -128,8 +135,11 @@ calculator surfaces.
 - `npm --prefix web run test:dead-code-baseline` — no new knip findings from
   the new module's exports.
 - `npm --prefix web run lint` — clean.
-- `rg -n "2080|46000|0\.7|REPEAT_SHARE = 0\.4|0\.2" web/src/components/deflection-demo/` —
-  no stale copies of the extracted constants remain in the components.
+- `rg -n "2080|46000|REPEAT_SHARE = 0\.4|TOUCH_HOURS = 0\.2|AVERAGE_TOUCH_HOURS|REPEAT_TICKET_PERCENTAGE|BURNOUT_TURNOVER_SHARE = |CONTEXT_MINUTES_PER_REPEAT = |REPLACEMENT_COST = |ANNUAL_WORK_HOURS" web/src/components/deflection-demo/` —
+  no stale copies of the extracted constant definitions remain in the
+  components. The only remaining matches for the underlying values are the
+  five assumption-card prose strings (`40%` / `12 min` / `0.2 support
+  hours`) named in Intentional above.
 - `bash scripts/local_pr_review.sh` — full local gate (plan audits, drift,
   dead code, snapshot landing smoke, ESLint, Next build, `git diff --check`).
 
