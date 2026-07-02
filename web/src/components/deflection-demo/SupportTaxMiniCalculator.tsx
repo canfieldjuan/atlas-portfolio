@@ -3,13 +3,11 @@
 import { useId, useState } from 'react';
 import { ArrowRight, Calculator } from 'lucide-react';
 import Link from 'next/link';
+import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 
 const TICKET_VOLUME = { min: 100, max: 10000, step: 50, default: 1500 };
 const COST_PER_TICKET = { min: 10, max: 30, step: 1, default: 15 };
-const REPEAT_TICKET_PERCENTAGE = 0.4;
-const AVERAGE_TOUCH_HOURS = 0.2;
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 const usd = (value: number) => `$${Math.round(value).toLocaleString()}`;
 const count = (value: number) => Math.round(value).toLocaleString();
 
@@ -37,7 +35,7 @@ function MiniInput({
   const commit = (input: HTMLInputElement) => {
     const parsed = Number(input.value);
     if (input.value.trim() !== '' && Number.isFinite(parsed)) {
-      const nextValue = clamp(Math.round(parsed / step) * step, min, max);
+      const nextValue = clampToStep(parsed, { min, max, step });
       onChange(nextValue);
       input.value = String(nextValue);
     } else {
@@ -114,10 +112,12 @@ export function SupportTaxMiniCalculator() {
   const [ticketVolume, setTicketVolume] = useState(TICKET_VOLUME.default);
   const [costPerTicket, setCostPerTicket] = useState(COST_PER_TICKET.default);
 
-  const monthlyRepeatVolume = ticketVolume * REPEAT_TICKET_PERCENTAGE;
-  const monthlySupportTax = monthlyRepeatVolume * costPerTicket;
-  const annualSupportTax = monthlySupportTax * 12;
-  const monthlyHoursWasted = monthlyRepeatVolume * AVERAGE_TOUCH_HOURS;
+  const {
+    monthlyRepeatVolume,
+    monthlyTax: monthlySupportTax,
+    annualTax: annualSupportTax,
+    monthlyHours: monthlyHoursWasted,
+  } = computeQuickSupportTax({ monthlyTickets: ticketVolume, costPerTicket });
 
   return (
     <section className="rounded-2xl border border-border bg-surface p-4 shadow-[0_18px_50px_rgba(31,45,39,0.08)] sm:p-5 lg:p-6">

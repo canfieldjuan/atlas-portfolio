@@ -3,20 +3,21 @@
 import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import {
+  clampToStep,
+  computeQuickSupportTax,
+  QUICK_REPEAT_SHARE,
+} from '@/lib/support-tax-math';
 
 // The 30-Second Support Tax Calculator. A simpler, manager-facing cut of the
 // leaky-bucket model: two inputs (ticket volume + fully loaded cost per ticket)
 // sized against fixed assumptions, showing the monthly cost and agent-hours spent
 // re-answering repeat questions. This sizes current spend; it is not a forecast of
-// what the Resolution Audit will save.
+// what the Resolution Audit will save. Math lives in @/lib/support-tax-math.
 
 const TICKETS = { min: 100, max: 10000, step: 50, default: 1500 };
 const COST = { min: 10, max: 30, step: 1, default: 15 };
 
-const REPEAT_SHARE = 0.4; // 40% of volume modeled as repeat Tier-1 how-to tickets
-const TOUCH_HOURS = 0.2; // 12 minutes of average touch time per ticket
-
-const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const count = (n: number) => Math.round(n).toLocaleString();
 
@@ -44,7 +45,7 @@ function SliderField({
   const commit = (input: HTMLInputElement) => {
     const n = Number(input.value);
     if (input.value.trim() !== '' && Number.isFinite(n)) {
-      const nextValue = clamp(Math.round(n / step) * step, min, max);
+      const nextValue = clampToStep(n, { min, max, step });
       onChange(nextValue);
       input.value = String(nextValue);
     } else {
@@ -119,10 +120,10 @@ export function ThirtySecondCalculator() {
   const [monthlyTickets, setMonthlyTickets] = useState(TICKETS.default);
   const [costPerTicket, setCostPerTicket] = useState(COST.default);
 
-  const monthlyRepeatVolume = monthlyTickets * REPEAT_SHARE;
-  const monthlyTax = monthlyRepeatVolume * costPerTicket;
-  const annualTax = monthlyTax * 12;
-  const monthlyHours = monthlyRepeatVolume * TOUCH_HOURS;
+  const { monthlyRepeatVolume, monthlyTax, annualTax, monthlyHours } = computeQuickSupportTax({
+    monthlyTickets,
+    costPerTicket,
+  });
 
   return (
     <div className="glass rounded-2xl border border-border p-5 sm:p-7">
@@ -204,12 +205,12 @@ export function ThirtySecondCalculator() {
           <div className="rounded-xl border border-border bg-surface p-5">
             <div className="mb-3 flex items-center justify-between gap-4">
               <p className="text-sm font-semibold text-foreground">Ticket volume breakdown</p>
-              <p className="text-xs font-mono text-foreground/45">{Math.round(REPEAT_SHARE * 100)}% repeat work</p>
+              <p className="text-xs font-mono text-foreground/45">{Math.round(QUICK_REPEAT_SHARE * 100)}% repeat work</p>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-foreground/[0.08]">
               <div
                 className="h-full rounded-full bg-primary/80"
-                style={{ width: `${REPEAT_SHARE * 100}%` }}
+                style={{ width: `${QUICK_REPEAT_SHARE * 100}%` }}
               />
             </div>
             <div className="mt-2 flex justify-between text-[11px] text-foreground/45">
