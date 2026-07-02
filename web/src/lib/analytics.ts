@@ -170,3 +170,51 @@ export function trackFaqReportResultsViewed(context: FaqReportResultsAnalyticsCo
 export function trackFaqReportUnlockClicked(context: FaqReportResultsAnalyticsContext) {
   trackEvent('faq_report_unlock_clicked', faqReportResultsParams(context));
 }
+
+export type CalculatorId = 'leaky_bucket' | 'thirty_second';
+
+// Channel attribution for the calculator landers: explicit ?src= wins,
+// utm_source is the fallback, 'none' means direct/unattributed.
+function currentTrafficSource() {
+  const params = new URLSearchParams(window.location.search);
+  return safeDimension(params.get('src') ?? params.get('utm_source') ?? undefined, 'none');
+}
+
+// Fires once per session per calculator — the question is "did arrivals
+// touch the tool at all", so per-interaction volume would be noise. The
+// guard is only burned when tracking is actually possible, and private-mode
+// storage failures degrade to always-track.
+export function trackCalculatorEngaged({ calculator }: { calculator: CalculatorId }) {
+  if (!canTrack()) {
+    return;
+  }
+
+  const storageKey = `calculator_engaged_${calculator}`;
+  try {
+    if (window.sessionStorage.getItem(storageKey) === '1') {
+      return;
+    }
+    window.sessionStorage.setItem(storageKey, '1');
+  } catch {
+    // sessionStorage unavailable; track without the session guard.
+  }
+
+  trackEvent('calculator_engaged', {
+    calculator: safeDimension(calculator, 'unknown'),
+    traffic_source: currentTrafficSource(),
+  });
+}
+
+export function trackCalculatorCtaClicked({
+  calculator,
+  cta,
+}: {
+  calculator: CalculatorId;
+  cta: 'intake' | 'email_breakdown';
+}) {
+  trackEvent('calculator_cta_clicked', {
+    calculator: safeDimension(calculator, 'unknown'),
+    cta: safeDimension(cta, 'unknown'),
+    traffic_source: currentTrafficSource(),
+  });
+}

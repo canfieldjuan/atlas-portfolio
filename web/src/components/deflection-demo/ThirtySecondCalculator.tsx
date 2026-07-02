@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { trackCalculatorCtaClicked, trackCalculatorEngaged } from '@/lib/analytics';
 import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 import {
   mergeSupportTaxShareQuery,
@@ -135,6 +136,11 @@ export function ThirtySecondCalculator() {
   const [repeatPct, setRepeatPct] = useState(initialState.repeatPct);
   const [touchMinutes, setTouchMinutes] = useState(initialState.touchMinutes);
 
+  const withEngagement = (set: (n: number) => void) => (n: number) => {
+    trackCalculatorEngaged({ calculator: 'thirty_second' });
+    set(n);
+  };
+
   // Mirror slider state into the URL so a configured result can be shared;
   // native replaceState is the documented shallow-update path (no navigation).
   // Merging preserves foreign params (utm_* attribution) and the write is
@@ -196,7 +202,7 @@ export function ThirtySecondCalculator() {
               min={TICKETS.min}
               max={TICKETS.max}
               step={TICKETS.step}
-              onChange={setMonthlyTickets}
+              onChange={withEngagement(setMonthlyTickets)}
             />
             <SliderField
               label="Fully loaded cost per Tier-1 ticket"
@@ -206,7 +212,7 @@ export function ThirtySecondCalculator() {
               min={COST.min}
               max={COST.max}
               step={COST.step}
-              onChange={setCostPerTicket}
+              onChange={withEngagement(setCostPerTicket)}
             />
           </div>
 
@@ -232,7 +238,7 @@ export function ThirtySecondCalculator() {
                 min={REPEAT_PCT.min}
                 max={REPEAT_PCT.max}
                 step={REPEAT_PCT.step}
-                onChange={setRepeatPct}
+                onChange={withEngagement(setRepeatPct)}
               />
               <SliderField
                 label="Average touch time"
@@ -242,7 +248,7 @@ export function ThirtySecondCalculator() {
                 min={TOUCH_MINUTES.min}
                 max={TOUCH_MINUTES.max}
                 step={TOUCH_MINUTES.step}
-                onChange={setTouchMinutes}
+                onChange={withEngagement(setTouchMinutes)}
               />
             </div>
           </details>
@@ -299,6 +305,9 @@ export function ThirtySecondCalculator() {
             </p>
             <Link
               href="/systems/support-ticket-deflection/intake"
+              onClick={() =>
+                trackCalculatorCtaClicked({ calculator: 'thirty_second', cta: 'intake' })
+              }
               className="group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
             >
               Start Your Forensic Audit
