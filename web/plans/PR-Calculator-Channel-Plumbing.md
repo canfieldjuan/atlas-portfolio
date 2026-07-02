@@ -87,7 +87,10 @@ handlers call `trackCalculatorCtaClicked` with `cta: 'intake'` or
   the question it answers is "did arrivals touch the tool at all";
   per-interaction volume would be noise.
 - The share-state keys stay out of tracked page paths (shipped in #482);
-  these explicit events are how calculator context reaches analytics.
+  these explicit events are how calculator context reaches analytics. The
+  same route-scoped strip now applies inside `currentAnalyticsPageParams`,
+  so event `page_path`/`page_location` match page-view redaction instead of
+  leaking slider state through the event side channel (review finding).
 - No new test suite: `analytics.test.ts` is already enrolled as
   `test:deflection-ga-path-redaction`, and the new cases live with the
   existing wrapper tests.

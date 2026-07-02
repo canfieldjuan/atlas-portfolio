@@ -1,3 +1,5 @@
+import { stripSupportTaxShareParams } from '@/lib/support-tax-share-state';
+
 const LIVE_GA_MEASUREMENT_ID = 'G-RYN3S1R1RK';
 
 export const GA_MEASUREMENT_ID =
@@ -72,7 +74,16 @@ export function redactAnalyticsPath(path: string) {
 }
 
 function currentAnalyticsPageParams(): AnalyticsParams {
-  const safePath = redactAnalyticsPath(`${window.location.pathname}${window.location.search}`);
+  // Calculator share-state params are UI state, not navigation; events get
+  // the same route-scoped strip page views get in GoogleAnalytics, so no
+  // tracked path carries slider state.
+  const query = stripSupportTaxShareParams(
+    window.location.pathname,
+    window.location.search.replace(/^\?/, ''),
+  );
+  const safePath = redactAnalyticsPath(
+    `${window.location.pathname}${query ? `?${query}` : ''}`,
+  );
   return {
     page_path: safePath,
     page_location: `${window.location.origin}${safePath}`,

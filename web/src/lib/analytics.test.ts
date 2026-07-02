@@ -166,6 +166,31 @@ describe('deflection analytics path redaction', () => {
     expect(last?.[2]?.traffic_source).toBe('none');
   });
 
+  it('strips calculator share-state params from event page paths', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/support-tax',
+        search: '?v=3000&r=55&utm_source=reddit',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+    });
+
+    analytics.trackCalculatorCtaClicked({ calculator: 'thirty_second', cta: 'intake' });
+
+    const event = calls.at(-1);
+    expect(event?.[2]?.page_path).toBe(
+      '/systems/support-ticket-deflection/support-tax?utm_source=reddit',
+    );
+    expect(event?.[2]?.page_location).toBe(
+      'https://portfolio.example.com/systems/support-ticket-deflection/support-tax?utm_source=reddit',
+    );
+    expect(JSON.stringify(event)).not.toContain('v=3000');
+    expect(event?.[2]?.traffic_source).toBe('reddit');
+  });
+
   it('still tracks engagement when sessionStorage is unavailable', async () => {
     const analytics = await importAnalytics();
     const calls: GtagCall[] = [];
