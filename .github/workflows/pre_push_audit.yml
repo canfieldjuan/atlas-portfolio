@@ -183,5 +183,8 @@ jobs:
       - name: Support tax math tests
         run: npm --prefix web run test:support-tax-math
 
+      - name: Support tax share-state tests
+        run: npm --prefix web run test:support-tax-share-state
+
       - name: Local env loader tests
         run: npm --prefix web run test:local-env
