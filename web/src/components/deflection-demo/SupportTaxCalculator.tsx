@@ -1,9 +1,10 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { DEFLECTION_ASSISTED_CONTACT_DELTA_USD } from '@/lib/deflection-pricing';
+import { SITE_URL } from '@/lib/seo';
 import {
   BURNOUT_TURNOVER_SHARE,
   clampToStep,
@@ -186,6 +187,32 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
     assistedContactDeltaUsd: DEFLECTION_ASSISTED_CONTACT_DELTA_USD,
   });
 
+  // Forwardable artifact for the visitor's own numbers — the low-commitment
+  // first touch next to the intake CTA (same mailto pattern as the intake
+  // page's add-on card).
+  const emailBreakdownHref = `mailto:juan@juancanfield.com?subject=${encodeURIComponent(
+    'My support-tax breakdown',
+  )}&body=${encodeURIComponent(
+    [
+      'My leaky-bucket numbers from the Support Tax Calculator:',
+      '',
+      `Monthly ticket volume: ${count(monthlyTickets)}`,
+      `Frontline agents: ${count(agents)}`,
+      `Average loaded salary: ${usd(salary)}`,
+      `Repeat-question share: ${repeatPct}%`,
+      `Annual agent attrition: ${attritionPct}%`,
+      `Self-service resolution: ${currentSelfServicePct}% today, ${targetSelfServicePct}% target`,
+      '',
+      `Leak 01 - Context assembly: ${usd(annualContextLeak)} / yr`,
+      `Leak 02 - Burnout attrition: ${usd(annualAttritionTax)} / yr`,
+      `Opportunity - Self-service: ${usd(annualSelfServiceOpportunity)} / yr`,
+      '',
+      `Annual visible leak: ${usd(totalVisibleLeak)}`,
+      '',
+      `Calculator: ${SITE_URL}/systems/support-ticket-deflection/calculator`,
+    ].join('\n'),
+  )}`;
+
   return (
     <div className={`glass rounded-2xl border border-border ${compact ? 'p-4 sm:p-5' : 'p-5 sm:p-7'}`}>
       <div className={`${compact ? 'mb-5' : 'mb-7'} max-w-3xl`}>
@@ -242,51 +269,68 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               onChange={setSalary}
               compact={compact}
             />
-            <SliderField
-              label="Repeat-question share"
-              hint="Questions customers ask again and again"
-              suffix="%"
-              value={repeatPct}
-              min={REPEAT.min}
-              max={REPEAT.max}
-              step={REPEAT.step}
-              onChange={setRepeatPct}
-              compact={compact}
-            />
-            <SliderField
-              label="Annual agent attrition"
-              hint="Departures per year across frontline support"
-              suffix="%"
-              value={attritionPct}
-              min={ATTRITION.min}
-              max={ATTRITION.max}
-              step={ATTRITION.step}
-              onChange={setAttritionPct}
-              compact={compact}
-            />
-            <SliderField
-              label="Current self-service resolution"
-              hint="What your current help center resolves today"
-              suffix="%"
-              value={currentSelfServicePct}
-              min={CURRENT_SELF_SERVICE.min}
-              max={CURRENT_SELF_SERVICE.max}
-              step={CURRENT_SELF_SERVICE.step}
-              onChange={setCurrentSelfServicePct}
-              compact={compact}
-            />
-            <SliderField
-              label="Target self-service resolution"
-              hint="A conservative target for findable docs"
-              suffix="%"
-              value={targetSelfServicePct}
-              min={TARGET_SELF_SERVICE.min}
-              max={TARGET_SELF_SERVICE.max}
-              step={TARGET_SELF_SERVICE.step}
-              onChange={setTargetSelfServicePct}
-              compact={compact}
-            />
           </div>
+
+          <details className={`group rounded-xl border border-border bg-surface-muted ${compact ? 'mt-4 p-3' : 'mt-6 p-4'}`}>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block text-xs font-semibold text-foreground">
+                  Adjust the assumptions
+                </span>
+                <span className="mt-1 block text-[11px] text-foreground/45">
+                  Defaults: {REPEAT.default}% repeat share, {ATTRITION.default}% attrition,{' '}
+                  {CURRENT_SELF_SERVICE.default}% to {TARGET_SELF_SERVICE.default}% self-service.
+                </span>
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-foreground/45 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className={compact ? 'mt-4 space-y-4' : 'mt-4 space-y-6'}>
+              <SliderField
+                label="Repeat-question share"
+                hint="Questions customers ask again and again"
+                suffix="%"
+                value={repeatPct}
+                min={REPEAT.min}
+                max={REPEAT.max}
+                step={REPEAT.step}
+                onChange={setRepeatPct}
+                compact={compact}
+              />
+              <SliderField
+                label="Annual agent attrition"
+                hint="Departures per year across frontline support"
+                suffix="%"
+                value={attritionPct}
+                min={ATTRITION.min}
+                max={ATTRITION.max}
+                step={ATTRITION.step}
+                onChange={setAttritionPct}
+                compact={compact}
+              />
+              <SliderField
+                label="Current self-service resolution"
+                hint="What your current help center resolves today"
+                suffix="%"
+                value={currentSelfServicePct}
+                min={CURRENT_SELF_SERVICE.min}
+                max={CURRENT_SELF_SERVICE.max}
+                step={CURRENT_SELF_SERVICE.step}
+                onChange={setCurrentSelfServicePct}
+                compact={compact}
+              />
+              <SliderField
+                label="Target self-service resolution"
+                hint="A conservative target for findable docs"
+                suffix="%"
+                value={targetSelfServicePct}
+                min={TARGET_SELF_SERVICE.min}
+                max={TARGET_SELF_SERVICE.max}
+                step={TARGET_SELF_SERVICE.step}
+                onChange={setTargetSelfServicePct}
+                compact={compact}
+              />
+            </div>
+          </details>
         </section>
 
         <section className={compact ? 'space-y-3' : 'space-y-4'}>
@@ -340,13 +384,26 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               actually there, which customer wording is missing, and one review-ready FAQ draft
               built from resolved replies.
             </p>
-            <Link
-              href="/systems/support-ticket-deflection/intake"
-              className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
-            >
-              Start Your Forensic Audit
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/systems/support-ticket-deflection/intake"
+                className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
+              >
+                Start Your Forensic Audit
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <a
+                href={emailBreakdownHref}
+                className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} inline-flex items-center justify-center gap-2 rounded-md border border-border text-sm font-medium text-foreground transition hover:border-primary/45 hover:text-primary`}
+              >
+                <Mail className="h-4 w-4" />
+                Send my numbers to Juan
+              </a>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-foreground/45">
+              Opens in your mail app with the breakdown above, addressed to Juan. Send it and get a
+              first read on which leak your ticket export would confirm.
+            </p>
           </div>
         </section>
       </div>
