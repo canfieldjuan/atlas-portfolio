@@ -34,6 +34,14 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## 2026-07-02
 
+### SUPPORT-TAX-OG-PERSONALIZED-1 — Personalized per-share-link OG cards for the calculator landers
+- File/location: `web/src/app/systems/support-ticket-deflection/support-tax/opengraph-image.tsx` (and the calculator route's sibling).
+- Description: The `opengraph-image.tsx` file convention receives route params only, never `searchParams`, so shared calculator links (`?v=&c=&r=&t=`) unfurl with the static default-numbers card rather than the sharer's configured result. A personalized card needs a `route.tsx` ImageResponse handler plus `generateMetadata` reading the Promise-typed `searchParams`.
+- Why it matters: a Reddit commenter pasting "here's mine: $14k/mo" gets a card that says $108K/yr defaults — the unfurl contradicts the comment, weakening exactly the share loop the lander is built for.
+- Effort: M
+- Category: polish
+- Found during: PR-Calculator-Channel-Plumbing (issue #480).
+
 ### SUPPORT-TAX-MATH-1 — Leaky-bucket context leak and self-service opportunity double-count agent time
 - File/location: `web/src/lib/support-tax-math.ts` (`computeLeakyBucketLeak`), rendered by `web/src/components/deflection-demo/SupportTaxCalculator.tsx`.
 - Description: The context-assembly leak prices 10 minutes of agent time on every repeat ticket, while the self-service opportunity prices the deflected share at the $11.66 assisted-contact delta. The $13.50 assisted-contact benchmark the delta derives from already includes agent handle time, so for the deflected share agent time is counted in both leaks and the "Annual visible leak" total overstates.

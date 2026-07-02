@@ -1,3 +1,5 @@
+import { stripSupportTaxShareParams } from '@/lib/support-tax-share-state';
+
 const LIVE_GA_MEASUREMENT_ID = 'G-RYN3S1R1RK';
 
 export const GA_MEASUREMENT_ID =
@@ -72,7 +74,16 @@ export function redactAnalyticsPath(path: string) {
 }
 
 function currentAnalyticsPageParams(): AnalyticsParams {
-  const safePath = redactAnalyticsPath(`${window.location.pathname}${window.location.search}`);
+  // Calculator share-state params are UI state, not navigation; events get
+  // the same route-scoped strip page views get in GoogleAnalytics, so no
+  // tracked path carries slider state.
+  const query = stripSupportTaxShareParams(
+    window.location.pathname,
+    window.location.search.replace(/^\?/, ''),
+  );
+  const safePath = redactAnalyticsPath(
+    `${window.location.pathname}${query ? `?${query}` : ''}`,
+  );
   return {
     page_path: safePath,
     page_location: `${window.location.origin}${safePath}`,
@@ -169,4 +180,52 @@ export function trackFaqReportResultsViewed(context: FaqReportResultsAnalyticsCo
 
 export function trackFaqReportUnlockClicked(context: FaqReportResultsAnalyticsContext) {
   trackEvent('faq_report_unlock_clicked', faqReportResultsParams(context));
+}
+
+export type CalculatorId = 'leaky_bucket' | 'thirty_second';
+
+// Channel attribution for the calculator landers: explicit ?src= wins,
+// utm_source is the fallback, 'none' means direct/unattributed.
+function currentTrafficSource() {
+  const params = new URLSearchParams(window.location.search);
+  return safeDimension(params.get('src') ?? params.get('utm_source') ?? undefined, 'none');
+}
+
+// Fires once per session per calculator — the question is "did arrivals
+// touch the tool at all", so per-interaction volume would be noise. The
+// guard is only burned when tracking is actually possible, and private-mode
+// storage failures degrade to always-track.
+export function trackCalculatorEngaged({ calculator }: { calculator: CalculatorId }) {
+  if (!canTrack()) {
+    return;
+  }
+
+  const storageKey = `calculator_engaged_${calculator}`;
+  try {
+    if (window.sessionStorage.getItem(storageKey) === '1') {
+      return;
+    }
+    window.sessionStorage.setItem(storageKey, '1');
+  } catch {
+    // sessionStorage unavailable; track without the session guard.
+  }
+
+  trackEvent('calculator_engaged', {
+    calculator: safeDimension(calculator, 'unknown'),
+    traffic_source: currentTrafficSource(),
+  });
+}
+
+export function trackCalculatorCtaClicked({
+  calculator,
+  cta,
+}: {
+  calculator: CalculatorId;
+  cta: 'intake' | 'email_breakdown';
+}) {
+  trackEvent('calculator_cta_clicked', {
+    calculator: safeDimension(calculator, 'unknown'),
+    cta: safeDimension(cta, 'unknown'),
+    traffic_source: currentTrafficSource(),
+  });
 }

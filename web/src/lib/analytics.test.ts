@@ -112,6 +112,111 @@ describe('deflection analytics path redaction', () => {
     }
   });
 
+  it('fires calculator engagement once per session with src attribution', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    const storage = new Map<string, string>();
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/support-tax',
+        search: '?src=reddit&v=3000',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+      sessionStorage: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: (key: string, value: string) => storage.set(key, value),
+      },
+    });
+
+    analytics.trackCalculatorEngaged({ calculator: 'thirty_second' });
+    analytics.trackCalculatorEngaged({ calculator: 'thirty_second' });
+
+    const events = calls.filter((call) => call[0] === 'event');
+    expect(events).toHaveLength(1);
+    expect(events[0][1]).toBe('calculator_engaged');
+    expect(events[0][2]?.calculator).toBe('thirty_second');
+    expect(events[0][2]?.traffic_source).toBe('reddit');
+
+    // A different calculator in the same session tracks independently.
+    analytics.trackCalculatorEngaged({ calculator: 'leaky_bucket' });
+    expect(calls.filter((call) => call[0] === 'event')).toHaveLength(2);
+  });
+
+  it('falls back to utm_source and then none for traffic attribution', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/calculator',
+        search: '?utm_source=linkedin&utm_campaign=leaky',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+    });
+
+    analytics.trackCalculatorCtaClicked({ calculator: 'leaky_bucket', cta: 'intake' });
+    expect(calls.at(-1)?.[2]?.traffic_source).toBe('linkedin');
+
+    (window as unknown as { location: { search: string } }).location.search = '';
+    analytics.trackCalculatorCtaClicked({ calculator: 'leaky_bucket', cta: 'email_breakdown' });
+    const last = calls.at(-1);
+    expect(last?.[1]).toBe('calculator_cta_clicked');
+    expect(last?.[2]?.cta).toBe('email_breakdown');
+    expect(last?.[2]?.traffic_source).toBe('none');
+  });
+
+  it('strips calculator share-state params from event page paths', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/support-tax',
+        search: '?v=3000&r=55&utm_source=reddit',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+    });
+
+    analytics.trackCalculatorCtaClicked({ calculator: 'thirty_second', cta: 'intake' });
+
+    const event = calls.at(-1);
+    expect(event?.[2]?.page_path).toBe(
+      '/systems/support-ticket-deflection/support-tax?utm_source=reddit',
+    );
+    expect(event?.[2]?.page_location).toBe(
+      'https://portfolio.example.com/systems/support-ticket-deflection/support-tax?utm_source=reddit',
+    );
+    expect(JSON.stringify(event)).not.toContain('v=3000');
+    expect(event?.[2]?.traffic_source).toBe('reddit');
+  });
+
+  it('still tracks engagement when sessionStorage is unavailable', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/support-tax',
+        search: '',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+      sessionStorage: {
+        getItem: () => {
+          throw new Error('denied');
+        },
+        setItem: () => {
+          throw new Error('denied');
+        },
+      },
+    });
+
+    analytics.trackCalculatorEngaged({ calculator: 'thirty_second' });
+    const events = calls.filter((call) => call[0] === 'event');
+    expect(events).toHaveLength(1);
+    expect(events[0][2]?.traffic_source).toBe('none');
+  });
+
   it('keeps static redaction and enrollment guards wired', async () => {
     const [analyticsSource, googleAnalyticsSource, prePushWorkflow] = await Promise.all([
       readFile(join(webRoot, 'src/lib/analytics.ts'), 'utf8'),

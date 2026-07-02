@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { ArrowRight, ChevronDown, Mail } from 'lucide-react';
 import Link from 'next/link';
+import { trackCalculatorCtaClicked, trackCalculatorEngaged } from '@/lib/analytics';
 import { DEFLECTION_ASSISTED_CONTACT_DELTA_USD } from '@/lib/deflection-pricing';
 import { SITE_URL } from '@/lib/seo';
 import {
@@ -168,6 +169,11 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
   const [currentSelfServicePct, setCurrentSelfServicePct] = useState(CURRENT_SELF_SERVICE.default);
   const [targetSelfServicePct, setTargetSelfServicePct] = useState(TARGET_SELF_SERVICE.default);
 
+  const withEngagement = (set: (n: number) => void) => (n: number) => {
+    trackCalculatorEngaged({ calculator: 'leaky_bucket' });
+    set(n);
+  };
+
   const {
     monthlyRepeatTickets,
     monthlyContextHours,
@@ -245,7 +251,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               min={TICKETS.min}
               max={TICKETS.max}
               step={TICKETS.step}
-              onChange={setMonthlyTickets}
+              onChange={withEngagement(setMonthlyTickets)}
               compact={compact}
             />
             <SliderField
@@ -255,7 +261,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               min={AGENTS.min}
               max={AGENTS.max}
               step={AGENTS.step}
-              onChange={setAgents}
+              onChange={withEngagement(setAgents)}
               compact={compact}
             />
             <SliderField
@@ -266,7 +272,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               min={SALARY.min}
               max={SALARY.max}
               step={SALARY.step}
-              onChange={setSalary}
+              onChange={withEngagement(setSalary)}
               compact={compact}
             />
           </div>
@@ -293,7 +299,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
                 min={REPEAT.min}
                 max={REPEAT.max}
                 step={REPEAT.step}
-                onChange={setRepeatPct}
+                onChange={withEngagement(setRepeatPct)}
                 compact={compact}
               />
               <SliderField
@@ -304,7 +310,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
                 min={ATTRITION.min}
                 max={ATTRITION.max}
                 step={ATTRITION.step}
-                onChange={setAttritionPct}
+                onChange={withEngagement(setAttritionPct)}
                 compact={compact}
               />
               <SliderField
@@ -315,7 +321,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
                 min={CURRENT_SELF_SERVICE.min}
                 max={CURRENT_SELF_SERVICE.max}
                 step={CURRENT_SELF_SERVICE.step}
-                onChange={setCurrentSelfServicePct}
+                onChange={withEngagement(setCurrentSelfServicePct)}
                 compact={compact}
               />
               <SliderField
@@ -326,7 +332,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
                 min={TARGET_SELF_SERVICE.min}
                 max={TARGET_SELF_SERVICE.max}
                 step={TARGET_SELF_SERVICE.step}
-                onChange={setTargetSelfServicePct}
+                onChange={withEngagement(setTargetSelfServicePct)}
                 compact={compact}
               />
             </div>
@@ -387,6 +393,7 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/systems/support-ticket-deflection/intake"
+                onClick={() => trackCalculatorCtaClicked({ calculator: 'leaky_bucket', cta: 'intake' })}
                 className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} group inline-flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-medium text-black transition-all hover:bg-primary/90`}
               >
                 Start Your Forensic Audit
@@ -394,6 +401,9 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
               </Link>
               <a
                 href={emailBreakdownHref}
+                onClick={() =>
+                  trackCalculatorCtaClicked({ calculator: 'leaky_bucket', cta: 'email_breakdown' })
+                }
                 className={`${compact ? 'px-4 py-2.5' : 'px-6 py-3'} inline-flex items-center justify-center gap-2 rounded-md border border-border text-sm font-medium text-foreground transition hover:border-primary/45 hover:text-primary`}
               >
                 <Mail className="h-4 w-4" />
