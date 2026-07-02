@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID, trackPageView } from '@/lib/analytics';
+import { stripSupportTaxShareParams } from '@/lib/support-tax-share-state';
 
 export function GoogleAnalytics() {
   const pathname = usePathname();
@@ -13,7 +14,10 @@ export function GoogleAnalytics() {
       return '';
     }
 
-    const query = searchParams.toString();
+    // Calculator share-state params are UI state, not navigation: stripping
+    // them keeps slider movement from registering page views while utm_*
+    // params stay in the tracked path.
+    const query = stripSupportTaxShareParams(pathname, searchParams.toString());
     return query ? `${pathname}?${query}` : pathname;
   }, [pathname, searchParams]);
 

@@ -58,11 +58,35 @@ export function parseSupportTaxShareState(params: QueryParamsLike): SupportTaxSh
 }
 
 export function buildSupportTaxShareQuery(state: SupportTaxShareState): string {
-  const params = new URLSearchParams();
+  return mergeSupportTaxShareQuery('', state);
+}
+
+// Writes the calculator-owned keys into an existing query string without
+// touching foreign params (utm_*, experiment ids, ...), so attributed traffic
+// keeps its campaign params when the calculator mirrors state into the URL.
+// Default-valued keys are removed so the bare URL stays canonical.
+export function mergeSupportTaxShareQuery(
+  currentSearch: string,
+  state: SupportTaxShareState,
+): string {
+  const params = new URLSearchParams(currentSearch);
   for (const key of Object.keys(PARAM_KEYS) as Array<keyof SupportTaxShareState>) {
     const range = SUPPORT_TAX_INPUTS[key];
     const value = clampToStep(state[key], range);
     if (value !== range.default) params.set(PARAM_KEYS[key], String(value));
+    else params.delete(PARAM_KEYS[key]);
   }
+  return params.toString();
+}
+
+export const SUPPORT_TAX_ROUTE = '/systems/support-ticket-deflection/support-tax';
+
+// Share-state params are calculator UI state, not navigation: page-view
+// tracking strips them (on this route only) so slider movement never counts
+// as traffic, while utm_*/campaign params stay in the tracked path.
+export function stripSupportTaxShareParams(pathname: string, query: string): string {
+  if (pathname !== SUPPORT_TAX_ROUTE || !query) return query;
+  const params = new URLSearchParams(query);
+  for (const key of Object.values(PARAM_KEYS)) params.delete(key);
   return params.toString();
 }

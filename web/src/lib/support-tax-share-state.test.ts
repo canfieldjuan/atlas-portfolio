@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildSupportTaxShareQuery,
+  mergeSupportTaxShareQuery,
   parseSupportTaxShareState,
+  stripSupportTaxShareParams,
   SUPPORT_TAX_INPUTS,
+  SUPPORT_TAX_ROUTE,
 } from '@/lib/support-tax-share-state';
 
 const DEFAULT_STATE = {
@@ -78,5 +81,47 @@ describe('buildSupportTaxShareQuery', () => {
   it('round-trips defaults through an empty query', () => {
     const query = buildSupportTaxShareQuery(DEFAULT_STATE);
     expect(parseSupportTaxShareState(new URLSearchParams(query))).toEqual(DEFAULT_STATE);
+  });
+});
+
+describe('mergeSupportTaxShareQuery', () => {
+  it('preserves foreign params such as utm attribution', () => {
+    const merged = mergeSupportTaxShareQuery('utm_source=reddit&utm_campaign=supporttax', {
+      ...DEFAULT_STATE,
+      monthlyTickets: 3000,
+    });
+    expect(merged).toBe('utm_source=reddit&utm_campaign=supporttax&v=3000');
+  });
+
+  it('removes calculator keys that return to defaults without touching others', () => {
+    const merged = mergeSupportTaxShareQuery('utm_source=reddit&v=3000&r=55', DEFAULT_STATE);
+    expect(merged).toBe('utm_source=reddit');
+  });
+
+  it('overwrites stale calculator values in place', () => {
+    const merged = mergeSupportTaxShareQuery('v=8000&utm_source=reddit', {
+      ...DEFAULT_STATE,
+      monthlyTickets: 3000,
+    });
+    expect(new URLSearchParams(merged).get('v')).toBe('3000');
+    expect(new URLSearchParams(merged).get('utm_source')).toBe('reddit');
+  });
+});
+
+describe('stripSupportTaxShareParams', () => {
+  it('drops the calculator keys on the support-tax route only', () => {
+    expect(stripSupportTaxShareParams(SUPPORT_TAX_ROUTE, 'v=3000&utm_source=reddit&r=55')).toBe(
+      'utm_source=reddit',
+    );
+  });
+
+  it('leaves other routes untouched', () => {
+    expect(stripSupportTaxShareParams('/audit', 'v=3000&utm_source=reddit')).toBe(
+      'v=3000&utm_source=reddit',
+    );
+  });
+
+  it('passes empty queries through', () => {
+    expect(stripSupportTaxShareParams(SUPPORT_TAX_ROUTE, '')).toBe('');
   });
 });

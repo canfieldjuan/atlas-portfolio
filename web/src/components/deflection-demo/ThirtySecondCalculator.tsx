@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 import {
-  buildSupportTaxShareQuery,
+  mergeSupportTaxShareQuery,
   parseSupportTaxShareState,
   SUPPORT_TAX_INPUTS,
 } from '@/lib/support-tax-share-state';
@@ -137,17 +137,23 @@ export function ThirtySecondCalculator() {
 
   // Mirror slider state into the URL so a configured result can be shared;
   // native replaceState is the documented shallow-update path (no navigation).
+  // Merging preserves foreign params (utm_* attribution) and the write is
+  // debounced so a slider drag issues one history update, not dozens
+  // (browsers rate-limit rapid replaceState calls).
   useEffect(() => {
-    const query = buildSupportTaxShareQuery({
-      monthlyTickets,
-      costPerTicket,
-      repeatPct,
-      touchMinutes,
-    });
-    const next = query
-      ? `${window.location.pathname}?${query}`
-      : window.location.pathname;
-    window.history.replaceState(null, '', next);
+    const timer = window.setTimeout(() => {
+      const query = mergeSupportTaxShareQuery(window.location.search, {
+        monthlyTickets,
+        costPerTicket,
+        repeatPct,
+        touchMinutes,
+      });
+      const next = query
+        ? `${window.location.pathname}?${query}`
+        : window.location.pathname;
+      window.history.replaceState(null, '', next);
+    }, 250);
+    return () => window.clearTimeout(timer);
   }, [monthlyTickets, costPerTicket, repeatPct, touchMinutes]);
 
   const { monthlyRepeatVolume, monthlyTax, annualTax, monthlyHours } = computeQuickSupportTax({

@@ -37,6 +37,7 @@ Slice phase: Product polish
 - `web/src/lib/support-tax-share-state.ts` — new input-range + URL-state lib.
 - `web/src/lib/support-tax-share-state.test.ts` — new round-trip/clamp suite.
 - `web/src/components/deflection-demo/ThirtySecondCalculator.tsx` — editable assumptions, formula line, URL state.
+- `web/src/components/GoogleAnalytics.tsx` — strip calculator share params from tracked page paths.
 - `web/src/app/systems/support-ticket-deflection/support-tax/page.tsx` — back-link removal, Suspense wrap.
 - `web/src/app/systems/support-ticket-deflection/support-tax/layout.tsx` — metadata description refresh.
 - `web/package.json` — enroll `test:support-tax-share-state`.
@@ -62,7 +63,14 @@ existing `useState` flow, converts to model units at the call site
 (`repeatShare: repeatPct / 100`, `touchHoursPerTicket: touchMinutes / 60` —
 `computeQuickSupportTax` already takes both as parameters), and mirrors state
 into the URL from a `useEffect` via `history.replaceState` — no navigation,
-no scroll, no re-render loop. The static "Industry-average assumptions"
+no scroll, no re-render loop. The URL write is debounced (250 ms) and goes
+through `mergeSupportTaxShareQuery`, which edits only the four
+calculator-owned keys in the existing query string — arriving `utm_*` /
+campaign params survive the mirror. Because the App Router syncs native
+history updates into `useSearchParams`, `GoogleAnalytics` would otherwise
+log a page view per slider commit; `stripSupportTaxShareParams` (route-scoped
+to this page) removes the share keys from the tracked path so slider
+movement never registers as traffic while attribution params stay tracked. The static "Industry-average assumptions"
 cards become a native `<details>` expander titled "Assumptions — think we're
 wrong? Change them" holding two more `SliderField`s, with the old defaults
 named as the industry averages in its copy. The formula line composes the
@@ -82,11 +90,18 @@ $9,000/mo -> $108,000/yr`.
 - Repeat-share and touch-time state lives in this component, not in Slice A's
   math module — the model already takes them as parameters; only the page
   owns their UI ranges.
+- Page-view tracking intentionally drops `v`/`c`/`r`/`t` on this route:
+  share-link arrivals still register as page views of the route itself, and
+  calculator-context analytics arrive as explicit events in the channel
+  plumbing slice. `GoogleAnalytics` imports the strip helper from the
+  share-state lib so the param keys have a single owner.
 - The H1 and intro copy still lead with "two numbers in" — the two primary
   inputs are unchanged; the assumptions are optional overrides in a collapsed
   section.
-- Estimated total lands just under the 400 LOC soft cap; the plan doc is ~115
-  of it.
+- Estimated total lands over the 400 LOC soft cap (~521); ~135 is this plan
+  doc and ~135 the test suite. The overage comes from review-driven
+  hardening (utm preservation, page-view strip) that belongs in the same
+  slice because it corrects behavior this slice introduced.
 
 ## Deferred
 
@@ -103,7 +118,7 @@ Parked hardening: none
 ## Verification
 
 - `npm --prefix web run test:support-tax-share-state` — round-trip, clamp,
-  default-omission cases pass.
+  default-omission, utm-preservation, and page-view strip cases pass.
 - `npm --prefix web run test:support-tax-math` — untouched math still pinned.
 - `npm --prefix web run test:deflection-public-reachability-smoke` — guarded
   CTA strings intact.
@@ -126,12 +141,13 @@ Parked hardening: none
 
 | File | Estimated LOC |
 | --- | ---: |
-| `web/src/lib/support-tax-share-state.ts` | ~75 |
-| `web/src/lib/support-tax-share-state.test.ts` | ~85 |
-| `web/src/components/deflection-demo/ThirtySecondCalculator.tsx` | ~95 |
+| `web/src/lib/support-tax-share-state.ts` | ~105 |
+| `web/src/lib/support-tax-share-state.test.ts` | ~135 |
+| `web/src/components/deflection-demo/ThirtySecondCalculator.tsx` | ~115 |
+| `web/src/components/GoogleAnalytics.tsx` | ~8 |
 | `web/src/app/systems/support-ticket-deflection/support-tax/page.tsx` | ~15 |
 | `web/src/app/systems/support-ticket-deflection/support-tax/layout.tsx` | ~4 |
 | `web/package.json` | ~1 |
 | `.github/workflows/pre_push_audit.yml` | ~3 |
-| `web/plans/PR-Support-Tax-Reddit-Lander.md` | ~115 |
-| Total | ~393 |
+| `web/plans/PR-Support-Tax-Reddit-Lander.md` | ~135 |
+| Total | ~521 |
