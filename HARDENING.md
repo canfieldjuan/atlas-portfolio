@@ -32,6 +32,24 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
+## 2026-07-02
+
+### SUPPORT-TAX-MATH-1 — Leaky-bucket context leak and self-service opportunity double-count agent time
+- File/location: `web/src/lib/support-tax-math.ts` (`computeLeakyBucketLeak`), rendered by `web/src/components/deflection-demo/SupportTaxCalculator.tsx`.
+- Description: The context-assembly leak prices 10 minutes of agent time on every repeat ticket, while the self-service opportunity prices the deflected share at the $11.66 assisted-contact delta. The $13.50 assisted-contact benchmark the delta derives from already includes agent handle time, so for the deflected share agent time is counted in both leaks and the "Annual visible leak" total overstates.
+- Why it matters: the total is the headline number on a live conversion page (`/systems/support-ticket-deflection/calculator`); overstated math is an easy objection for the exact audience the page targets.
+- Effort: M
+- Category: correctness
+- Found during: PR-Support-Tax-Math-Extraction (issue #480).
+
+### SUPPORT-TAX-MATH-2 — Three inconsistent repeat-ticket cost bases across calculator surfaces
+- File/location: `web/src/lib/support-tax-math.ts`, `web/src/lib/deflection-pricing.ts`, `web/src/components/landing/DeflectionSupportTaxProjection.tsx`.
+- Description: The quick calculators price repeat tickets at a user-entered $10-$30, `DeflectionSupportTaxProjection` uses the full $13.50 assisted-contact benchmark, and the leaky-bucket opportunity uses the $11.66 delta. Each is internally consistent, but outputs are not comparable across pages that a single visitor may see in one session.
+- Why it matters: a prospect who runs two calculators and gets differently-based numbers for "the same" cost loses trust in both; unifying the basis is a product/pricing decision that changes live headline numbers.
+- Effort: M
+- Category: correctness
+- Found during: PR-Support-Tax-Math-Extraction (issue #480).
+
 ## 2026-06-29
 
 ### DEFLECTION-SNAPSHOT-DEVSERVER-1 — Snapshot landing dev route fails on `node:crypto` import path

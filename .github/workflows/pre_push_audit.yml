@@ -180,5 +180,8 @@ jobs:
       - name: Deflection teaser rank-copy tests
         run: npm --prefix web run test:deflection-teaser-rank-copy
 
+      - name: Support tax math tests
+        run: npm --prefix web run test:support-tax-math
+
       - name: Local env loader tests
         run: npm --prefix web run test:local-env

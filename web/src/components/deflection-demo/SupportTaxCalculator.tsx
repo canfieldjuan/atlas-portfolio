@@ -3,13 +3,18 @@
 import { useId, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { DEFLECTION_ASSISTED_CONTACT_DELTA_USD } from '@/lib/deflection-pricing';
 import {
-  DEFLECTION_ASSISTED_CONTACT_DELTA_USD,
-} from '@/lib/deflection-pricing';
+  BURNOUT_TURNOVER_SHARE,
+  clampToStep,
+  computeLeakyBucketLeak,
+  CONTEXT_MINUTES_PER_REPEAT,
+  REPLACEMENT_COST,
+} from '@/lib/support-tax-math';
 
 // Leaky Bucket Calculator — estimates the annual cost of repeated support
 // questions from user inputs and explicit assumptions. This is not a forecast of
-// what the Resolution Audit will save.
+// what the Resolution Audit will save. Math lives in @/lib/support-tax-math.
 
 const TICKETS = { min: 100, max: 20000, step: 100, default: 3000 };
 const AGENTS = { min: 1, max: 100, step: 1, default: 10 };
@@ -19,12 +24,6 @@ const ATTRITION = { min: 0, max: 70, step: 1, default: 35 };
 const CURRENT_SELF_SERVICE = { min: 0, max: 50, step: 1, default: 14 };
 const TARGET_SELF_SERVICE = { min: 10, max: 75, step: 1, default: 40 };
 
-const ANNUAL_WORK_HOURS = 2080;
-const CONTEXT_MINUTES_PER_REPEAT = 10;
-const REPLACEMENT_COST = 46000;
-const BURNOUT_TURNOVER_SHARE = 0.7;
-
-const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const count = (n: number) => Math.round(n).toLocaleString();
 
@@ -56,7 +55,7 @@ function SliderField({
   const commit = (input: HTMLInputElement) => {
     const n = Number(input.value);
     if (input.value.trim() !== '' && Number.isFinite(n)) {
-      const nextValue = clamp(Math.round(n / step) * step, min, max);
+      const nextValue = clampToStep(n, { min, max, step });
       onChange(nextValue);
       input.value = String(nextValue);
     } else {
@@ -168,19 +167,24 @@ export function SupportTaxCalculator({ compact = false }: { compact?: boolean })
   const [currentSelfServicePct, setCurrentSelfServicePct] = useState(CURRENT_SELF_SERVICE.default);
   const [targetSelfServicePct, setTargetSelfServicePct] = useState(TARGET_SELF_SERVICE.default);
 
-  const monthlyRepeatTickets = monthlyTickets * (repeatPct / 100);
-  const hourlyRate = salary / ANNUAL_WORK_HOURS;
-  const monthlyContextHours = (monthlyRepeatTickets * CONTEXT_MINUTES_PER_REPEAT) / 60;
-  const annualContextLeak = monthlyContextHours * 12 * hourlyRate;
-
-  const agentsLostPerYear = agents * (attritionPct / 100);
-  const annualAttritionTax = agentsLostPerYear * REPLACEMENT_COST * BURNOUT_TURNOVER_SHARE;
-
-  const selfServiceDelta = Math.max(0, targetSelfServicePct - currentSelfServicePct) / 100;
-  const annualSelfServiceOpportunity =
-    monthlyRepeatTickets * 12 * selfServiceDelta * DEFLECTION_ASSISTED_CONTACT_DELTA_USD;
-
-  const totalVisibleLeak = annualContextLeak + annualAttritionTax + annualSelfServiceOpportunity;
+  const {
+    monthlyRepeatTickets,
+    monthlyContextHours,
+    annualContextLeak,
+    annualAttritionTax,
+    selfServiceDelta,
+    annualSelfServiceOpportunity,
+    totalVisibleLeak,
+  } = computeLeakyBucketLeak({
+    monthlyTickets,
+    agents,
+    salary,
+    repeatPct,
+    attritionPct,
+    currentSelfServicePct,
+    targetSelfServicePct,
+    assistedContactDeltaUsd: DEFLECTION_ASSISTED_CONTACT_DELTA_USD,
+  });
 
   return (
     <div className={`glass rounded-2xl border border-border ${compact ? 'p-4 sm:p-5' : 'p-5 sm:p-7'}`}>
