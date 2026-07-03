@@ -193,18 +193,34 @@ reviews by hand; a dedicated reviewer session is optional, not required per PR.
 
 ### 3c. Merge autonomy
 
-A PR that is **CI-green** with **no actionable review** is squash-merged and the
-next slice picked up, without a separate explicit sign-off. **No actionable
-review** means, per verdict level:
+Git -> CI -> review -> merge is asynchronous and ordered. Pushing is what starts
+the external CI/review state; do not reason ahead of state that has not landed.
 
-- **BLOCKER** — none open; must be fixed first.
-- **MAJOR** — fixed, or explicitly accepted by the operator and logged in
+**Handoff after push.** After opening or updating a PR, stop active reasoning.
+Do not poll CI or wait for review in-session. Report the PR URL and the local
+checks already run, then hand off to the review-watcher or operator for the next
+transition. Resume only when a verdict or observed check state is surfaced.
+
+Reconcile only against observed output: a real red check's logs or a delivered
+review thread. Never pre-fix expected failures, imagined CI output, or review
+comments that have not been posted.
+
+A PR is mergeable only when **green CI is observed** and the **human reviewer's
+verdict has landed**. The bot/Codex approval is necessary but not sufficient;
+the recorded rule is `PATTERNS.md` `[[pr-autonomy-rule]]`. With that timing guard
+satisfied, a PR with **no actionable review** is squash-merged and the next slice
+is picked up, without a separate explicit sign-off. **No actionable review**
+means, per verdict level:
+
+- **BLOCKER** - none open; must be fixed first.
+- **MAJOR** - fixed, or explicitly accepted by the operator and logged in
   `PATTERNS.md` (the §3 table's "discuss before deferring"). The agent does not
   defer a MAJOR on its own.
-- **bot P1/P2** — addressed, or accepted-and-logged in `PATTERNS.md`.
-- **NIT** — never blocks.
+- **bot P1/P2** - addressed, or accepted-and-logged in `PATTERNS.md`.
+- **NIT** - never blocks.
 
-Fixes go in as new commits (never force-push); squash-merge collapses them.
+The next slice starts only after the previous slice's PR is merged. Fixes go in
+as new commits (never force-push); squash-merge collapses them.
 
 ### 3e. Test adapter discipline
 
