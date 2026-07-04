@@ -228,6 +228,28 @@ means, per verdict level:
 The next slice starts only after the previous slice's PR is merged. Fixes go in
 as new commits (never force-push); squash-merge collapses them.
 
+### 3d. Runtime distinction: Codex vs Claude Code
+
+The rules above apply to every agent, but the wake/poll mechanics differ by
+runtime:
+
+- **Codex/API sessions** do not gain durable PR subscriptions from this repo.
+  They may use `scripts/pr_state.py` as the observed-state sensor, but wake-up,
+  low-compute timer checks, and "continue after merge" behavior require an
+  external runner, bridge, or operator prompt. Do not ask Codex to build an
+  in-repo poll loop unless the operator explicitly approves that infrastructure.
+- **Claude Code sessions** can use Claude Code's native PR/review/comment wake
+  behavior and scheduled self-checks for long-horizon coding. Claude Code still
+  obeys this contract: plan first, local gate before push, fix only observed
+  review/CI output, resolve fixed review threads, merge only after observed
+  green CI plus the human reviewer verdict, then continue to the next approved
+  slice.
+
+Do not collapse these runtimes into one instruction set. Codex needs explicit
+external orchestration; Claude Code guidance belongs in `CLAUDE.md` and should
+not invent extra watcher infrastructure just to do what Claude Code already
+does natively.
+
 ### 3e. Test adapter discipline
 
 1. **Use real test adapters when they exist.** Tests must exercise repo modules
