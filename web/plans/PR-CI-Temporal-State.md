@@ -63,7 +63,7 @@ Parked hardening: none
 
 ## Verification
 
-- `python scripts/test_pr_state.py` - passed, 11 tests.
+- `python scripts/test_pr_state.py` - passed, 13 tests.
 - `scripts/pr_state.sh --json` on the dirty worktree - passed, reported
   `LOCAL_DIRTY`.
 - `python scripts/audit_plan_doc.py web/plans/PR-CI-Temporal-State.md` - passed.
@@ -78,8 +78,12 @@ Parked hardening: none
 
 | Area | LOC |
 |---|---|
-| Plan doc | ~80 |
+| Plan doc | ~85 |
 | `AGENTS.md` note | ~10 |
-| State helper + wrapper | ~190 |
-| Tests | ~100 |
-| **Total** | ~380 |
+| State helper + wrapper | ~270 |
+| Tests | ~155 |
+| **Total** | ~520 |
+
+Over the 400-LOC soft cap because review-requested edge handling must ship with
+its regression coverage: legacy `StatusContext` states, duplicate stale rollup
+rows, and merged-PR fallback after `gh pr view` reports no open PR.

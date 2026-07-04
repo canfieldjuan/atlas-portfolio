@@ -10,7 +10,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pr_state import classify, is_no_pr_message, text  # noqa: E402
+from pr_state import classify, first_merged_pr, is_no_pr_message, text  # noqa: E402
 
 
 HEAD = "a" * 40
@@ -78,6 +78,34 @@ class PrStateTests(unittest.TestCase):
             self.state(payload=pr(statusCheckRollup=[{"context": "external/status", "state": "PENDING"}])),
             "PUSHED_CI_PENDING",
         )
+        self.assertEqual(
+            self.state(payload=pr(statusCheckRollup=[{"context": "external/status", "state": "EXPECTED"}])),
+            "PUSHED_CI_PENDING",
+        )
+
+    def test_duplicate_rollup_rows_prefer_current_non_failure(self) -> None:
+        self.assertEqual(
+            self.state(
+                payload=pr(
+                    statusCheckRollup=[
+                        {"context": "deploy/status", "state": "CANCELLED"},
+                        {"context": "deploy/status", "state": "SUCCESS"},
+                    ]
+                )
+            ),
+            "GREEN_MERGE_READY",
+        )
+        self.assertEqual(
+            self.state(
+                payload=pr(
+                    statusCheckRollup=[
+                        {"context": "deploy/status", "state": "FAILURE"},
+                        {"context": "deploy/status", "state": "EXPECTED"},
+                    ]
+                )
+            ),
+            "PUSHED_CI_PENDING",
+        )
 
     def test_pending_or_missing_checks_report_ci_pending(self) -> None:
         self.assertEqual(
@@ -115,6 +143,10 @@ class PrStateTests(unittest.TestCase):
     def test_only_specific_no_pr_message_is_treated_as_no_pr(self) -> None:
         self.assertTrue(is_no_pr_message("no pull requests found for branch"))
         self.assertFalse(is_no_pr_message("HTTP 404: Not Found"))
+
+    def test_first_merged_pr_extracts_only_merged_items(self) -> None:
+        self.assertIsNone(first_merged_pr([{"state": "CLOSED"}]))
+        self.assertEqual(first_merged_pr([{"state": "MERGED", "number": 487}]), {"state": "MERGED", "number": 487})
 
 
 if __name__ == "__main__":

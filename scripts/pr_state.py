@@ -16,7 +16,9 @@ from typing import Any, Sequence
 
 
 BLOCKING = {"ACTION_REQUIRED", "CANCELLED", "ERROR", "FAILURE", "STARTUP_FAILURE", "TIMED_OUT"}
+PENDING = {"EXPECTED", "PENDING"}
 PASSING = {"NEUTRAL", "SKIPPED", "SUCCESS"}
+CHECK_PRIORITY = {"failed": 1, "passed": 2, "pending": 3}
 
 
 def run(command: Sequence[str]) -> subprocess.CompletedProcess[str]:
@@ -57,32 +59,73 @@ def gh_pr() -> dict[str, Any] | None:
     return data
 
 
+def gh_merged_pr(branch: str) -> dict[str, Any] | None:
+    result = run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--state",
+            "merged",
+            "--head",
+            branch,
+            "--limit",
+            "1",
+            "--json",
+            "number,url,state,headRefOid,mergeStateStatus,reviewDecision,statusCheckRollup",
+        ]
+    )
+    if result.returncode:
+        fail((result.stderr or result.stdout).strip() or "gh pr list --state merged failed")
+    data = json.loads(result.stdout)
+    return first_merged_pr(data)
+
+
+def first_merged_pr(data: Any) -> dict[str, Any] | None:
+    if not isinstance(data, list):
+        fail("gh pr list returned non-list JSON")
+    for item in data:
+        if isinstance(item, dict) and str(item.get("state") or "").upper() == "MERGED":
+            return item
+    return None
+
+
 def is_no_pr_message(message: str) -> bool:
     return "no pull requests found" in message.lower()
 
 
+def row_verdict(raw: dict[str, Any]) -> tuple[str, str] | None:
+    name = str(raw.get("name") or raw.get("context") or "").strip()
+    status = str(raw.get("status") or "").strip().upper()
+    conclusion = str(raw.get("conclusion") or "").strip().upper()
+    state = str(raw.get("state") or "").strip().upper()
+    verdict = conclusion or state
+    if not name:
+        return None
+    if verdict in PENDING or (status != "COMPLETED" and not state):
+        return name, "pending"
+    if verdict in PASSING:
+        return name, "passed"
+    if verdict in BLOCKING:
+        return name, "failed"
+    return name, "failed"
+
+
 def checks(pr: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
-    failed: list[str] = []
-    pending: list[str] = []
-    passed: list[str] = []
+    by_name: dict[str, str] = {}
     for raw in pr.get("statusCheckRollup") or []:
         if not isinstance(raw, dict):
             continue
-        name = str(raw.get("name") or raw.get("context") or "").strip()
-        status = str(raw.get("status") or "").strip().upper()
-        conclusion = str(raw.get("conclusion") or "").strip().upper()
-        state = str(raw.get("state") or "").strip().upper()
-        verdict = conclusion or state
-        if not name:
+        verdict = row_verdict(raw)
+        if verdict is None:
             continue
-        if verdict in BLOCKING:
-            failed.append(name)
-        elif verdict == "PENDING" or (status != "COMPLETED" and not state):
-            pending.append(name)
-        elif verdict in PASSING:
-            passed.append(name)
-        else:
-            failed.append(name)
+        name, state = verdict
+        current = by_name.get(name)
+        if current is None or CHECK_PRIORITY[state] > CHECK_PRIORITY[current]:
+            by_name[name] = state
+    failed = sorted(name for name, state in by_name.items() if state == "failed")
+    pending = sorted(name for name, state in by_name.items() if state == "pending")
+    passed = sorted(name for name, state in by_name.items() if state == "passed")
     return failed, pending, passed
 
 
@@ -150,7 +193,11 @@ def classify(*, dirty: bool, local_head: str, pr: dict[str, Any] | None) -> dict
 def read_state() -> dict[str, Any]:
     dirty = bool(git_out(["status", "--porcelain"]))
     head = git_out(["rev-parse", "HEAD"])
-    return classify(dirty=dirty, local_head=head, pr=None if dirty else gh_pr())
+    branch = git_out(["branch", "--show-current"])
+    pr = None if dirty else gh_pr()
+    if not dirty and pr is None and branch:
+        pr = gh_merged_pr(branch)
+    return classify(dirty=dirty, local_head=head, pr=pr)
 
 
 def text(state: dict[str, Any]) -> str:
