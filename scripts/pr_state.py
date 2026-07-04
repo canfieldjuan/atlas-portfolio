@@ -15,7 +15,7 @@ import sys
 from typing import Any, Sequence
 
 
-BLOCKING = {"ACTION_REQUIRED", "CANCELLED", "FAILURE", "STARTUP_FAILURE", "TIMED_OUT"}
+BLOCKING = {"ACTION_REQUIRED", "CANCELLED", "ERROR", "FAILURE", "STARTUP_FAILURE", "TIMED_OUT"}
 PASSING = {"NEUTRAL", "SKIPPED", "SUCCESS"}
 
 
@@ -48,13 +48,17 @@ def gh_pr() -> dict[str, Any] | None:
     )
     if result.returncode:
         detail = (result.stderr or result.stdout).strip().lower()
-        if "no pull requests found" in detail or "not found" in detail:
+        if is_no_pr_message(detail):
             return None
         fail((result.stderr or result.stdout).strip() or "gh pr view failed")
     data = json.loads(result.stdout)
     if not isinstance(data, dict):
         fail("gh pr view returned non-object JSON")
     return data
+
+
+def is_no_pr_message(message: str) -> bool:
+    return "no pull requests found" in message.lower()
 
 
 def checks(pr: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
@@ -64,16 +68,18 @@ def checks(pr: dict[str, Any]) -> tuple[list[str], list[str], list[str]]:
     for raw in pr.get("statusCheckRollup") or []:
         if not isinstance(raw, dict):
             continue
-        name = str(raw.get("name") or "").strip()
+        name = str(raw.get("name") or raw.get("context") or "").strip()
         status = str(raw.get("status") or "").strip().upper()
         conclusion = str(raw.get("conclusion") or "").strip().upper()
+        state = str(raw.get("state") or "").strip().upper()
+        verdict = conclusion or state
         if not name:
             continue
-        if conclusion in BLOCKING:
+        if verdict in BLOCKING:
             failed.append(name)
-        elif status != "COMPLETED" or not conclusion:
+        elif verdict == "PENDING" or (status != "COMPLETED" and not state):
             pending.append(name)
-        elif conclusion in PASSING:
+        elif verdict in PASSING:
             passed.append(name)
         else:
             failed.append(name)
@@ -106,6 +112,8 @@ def classify(*, dirty: bool, local_head: str, pr: dict[str, Any] | None) -> dict
     pr_head = str(pr.get("headRefOid") or "")
     if pr_state == "MERGED":
         return result("MERGED", "pull request is merged", pr=pr, head=pr_head or local_head)
+    if pr_state == "CLOSED":
+        return result("REVIEW_PENDING", "pull request is closed and is not merge-ready", pr=pr, head=pr_head or local_head)
     if pr_head and pr_head != local_head:
         return result(
             "COMMITTED",

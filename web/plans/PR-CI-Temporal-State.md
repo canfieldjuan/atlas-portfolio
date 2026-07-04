@@ -63,7 +63,7 @@ Parked hardening: none
 
 ## Verification
 
-- `python scripts/test_pr_state.py` - passed, 8 tests.
+- `python scripts/test_pr_state.py` - passed, 11 tests.
 - `scripts/pr_state.sh --json` on the dirty worktree - passed, reported
   `LOCAL_DIRTY`.
 - `python scripts/audit_plan_doc.py web/plans/PR-CI-Temporal-State.md` - passed.

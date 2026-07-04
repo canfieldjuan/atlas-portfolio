@@ -10,7 +10,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pr_state import classify, text  # noqa: E402
+from pr_state import classify, is_no_pr_message, text  # noqa: E402
 
 
 HEAD = "a" * 40
@@ -49,6 +49,9 @@ class PrStateTests(unittest.TestCase):
     def test_merged_pr_reports_merged(self) -> None:
         self.assertEqual(self.state(payload=pr(state="MERGED")), "MERGED")
 
+    def test_closed_pr_is_not_merge_ready(self) -> None:
+        self.assertEqual(self.state(payload=pr(state="CLOSED")), "REVIEW_PENDING")
+
     def test_failed_or_unknown_conclusion_reports_ci_red(self) -> None:
         self.assertEqual(
             self.state(payload=pr(statusCheckRollup=[check("audit", "COMPLETED", "FAILURE")])),
@@ -57,6 +60,23 @@ class PrStateTests(unittest.TestCase):
         self.assertEqual(
             self.state(payload=pr(statusCheckRollup=[check("audit", "COMPLETED", "WEIRD")])),
             "CI_RED",
+        )
+
+    def test_status_context_rows_are_not_skipped(self) -> None:
+        self.assertEqual(
+            self.state(
+                payload=pr(
+                    statusCheckRollup=[
+                        check("check-run", "COMPLETED", "SUCCESS"),
+                        {"context": "external/status", "state": "FAILURE"},
+                    ]
+                )
+            ),
+            "CI_RED",
+        )
+        self.assertEqual(
+            self.state(payload=pr(statusCheckRollup=[{"context": "external/status", "state": "PENDING"}])),
+            "PUSHED_CI_PENDING",
         )
 
     def test_pending_or_missing_checks_report_ci_pending(self) -> None:
@@ -91,6 +111,10 @@ class PrStateTests(unittest.TestCase):
         self.assertIn("PR: #486", rendered)
         self.assertIn(URL, rendered)
         self.assertIn(HEAD, rendered)
+
+    def test_only_specific_no_pr_message_is_treated_as_no_pr(self) -> None:
+        self.assertTrue(is_no_pr_message("no pull requests found for branch"))
+        self.assertFalse(is_no_pr_message("HTTP 404: Not Found"))
 
 
 if __name__ == "__main__":
