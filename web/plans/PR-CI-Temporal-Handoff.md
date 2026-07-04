@@ -54,7 +54,8 @@ workflow contract:
 - Slice 2 of issue #485 can add the optional one-shot PR state reporter
   (`LOCAL_DIRTY / COMMITTED / PUSHED_CI_PENDING / CI_RED / REVIEW_PENDING /
   GREEN_MERGE_READY / MERGED`) if we want an observed-state helper later.
-- Parked hardening: none.
+
+Parked hardening: none
 
 ## Verification
 

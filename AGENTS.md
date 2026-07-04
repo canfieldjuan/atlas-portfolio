@@ -207,7 +207,7 @@ comments that have not been posted.
 
 A PR is mergeable only when **green CI is observed** and the **human reviewer's
 verdict has landed**. The bot/Codex approval is necessary but not sufficient;
-the recorded rule is `PATTERNS.md` `[[pr-autonomy-rule]]`. With that timing guard
+the recorded rule is PATTERNS.md [[pr-autonomy-rule]]. With that timing guard
 satisfied, a PR with **no actionable review** is squash-merged and the next slice
 is picked up, without a separate explicit sign-off. **No actionable review**
 means, per verdict level:
