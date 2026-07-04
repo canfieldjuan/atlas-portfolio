@@ -60,7 +60,7 @@ workflow contract:
 
 - `python scripts/audit_plan_doc.py web/plans/PR-CI-Temporal-Handoff.md` - passed.
 - `python scripts/audit_plan_doc_files_touched.py web/plans/PR-CI-Temporal-Handoff.md` - passed, 2 claimed files matched 2 actual files.
-- `python scripts/audit_plan_doc_diff_size.py web/plans/PR-CI-Temporal-Handoff.md` - passed, 107 actual LOC vs ~100 estimate.
+- `python scripts/audit_plan_doc_diff_size.py web/plans/PR-CI-Temporal-Handoff.md` - passed; the estimate remained within the allowed drift.
 - `bash scripts/local_pr_review.sh` - passed after `npm --prefix web ci` installed
   this fresh worktree's missing `web/node_modules`; final gate covered plan
   audits, cross-session drift, real-adapter audit, dead-code baseline,
