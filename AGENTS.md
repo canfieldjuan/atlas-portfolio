@@ -205,6 +205,12 @@ Reconcile only against observed output: a real red check's logs or a delivered
 review thread. Never pre-fix expected failures, imagined CI output, or review
 comments that have not been posted.
 
+For a resumed session that needs one observed PR state read, run
+`python scripts/pr_state.py` or `scripts/pr_state.sh`. It prints one ladder state
+(`LOCAL_DIRTY`, `COMMITTED`, `PUSHED_CI_PENDING`, `CI_RED`, `REVIEW_PENDING`,
+`GREEN_MERGE_READY`, or `MERGED`) and exits. It is not a poller, watcher, review
+adjudicator, or merge authority.
+
 A PR is mergeable only when **green CI is observed** and the **human reviewer's
 verdict has landed**. The bot/Codex approval is necessary but not sufficient;
 the recorded rule is PATTERNS.md [[pr-autonomy-rule]]. With that timing guard
