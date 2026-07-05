@@ -55,6 +55,21 @@ When a finding is real:
 - rerun the relevant local gate;
 - resolve the thread only after the fix is present on the PR.
 
+## Build For Reconstruction Review
+
+Portfolio PRs may be reviewed with `docs/PR_RECONSTRUCTION_PROTOCOL.md`: the
+reviewer reads the diff as ground truth, derives the correct fix from the
+problem, then compares both against the PR description.
+
+Before opening or updating a PR, do that pass yourself:
+
+- make the diff narrow enough that it explains itself;
+- make the PR body describe exactly what changed, not what you wish the slice
+  had finished;
+- split or explicitly name any behavior the description would otherwise hide;
+- if the correct fix needs more than this slice contains, record the bounded
+  deferral instead of pretending the gap is closed.
+
 ## Web-Specific Work
 
 For work under `web/`, also read `web/AGENTS.md`. It contains the Next.js version
