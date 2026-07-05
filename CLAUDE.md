@@ -55,18 +55,21 @@ When a finding is real:
 - rerun the relevant local gate;
 - resolve the thread only after the fix is present on the PR.
 
-## Build For Reconstruction Review
+## Code For Reconstruction Review
 
-Portfolio PRs may be reviewed with `docs/PR_RECONSTRUCTION_PROTOCOL.md`: the
-reviewer reads the diff as ground truth, derives the correct fix from the
-problem, then compares both against the PR description.
+Portfolio PRs may be reviewed by reconstructing the diff independently. Follow
+`docs/CODING_FOR_RECONSTRUCTION_REVIEW.md` while coding, not only after coding.
+The reviewer may read the diff as ground truth, derive the correct fix from the
+problem, then compare both against the PR description.
 
 Before opening or updating a PR, do that pass yourself:
 
 - make the diff narrow enough that it explains itself;
+- start from the correct-fix shape in the plan, then code to that shape;
 - make the PR body describe exactly what changed, not what you wish the slice
   had finished;
 - split or explicitly name any behavior the description would otherwise hide;
+- test the real behavior through real local adapters where they exist;
 - if the correct fix needs more than this slice contains, record the bounded
   deferral instead of pretending the gap is closed.
 

@@ -69,13 +69,14 @@ Write the full `web/plans/PR-<Slice-Name>.md` **before** any code change. If the
 plan changes mid-implementation, update the plan doc in the same commit — plan
 and code ship together.
 
-Build for independent reconstruction (`docs/PR_RECONSTRUCTION_PROTOCOL.md`).
-Before opening a PR, check the three-way match yourself: what the diff actually
-does, what a correct fix for the stated problem should do, and what the PR body
-claims. If the diff changes unmentioned behavior, either split it out or name it
-plainly in the plan/PR body. If the correct fix needs more than this slice does,
-name the bounded deferral. Do not inflate the description to make the diff look
-larger than it is.
+Code for independent reconstruction
+(`docs/CODING_FOR_RECONSTRUCTION_REVIEW.md`). Before opening a PR, check the
+three-way match yourself: what the diff actually does, what a correct fix for
+the stated problem should do, and what the PR body claims. If the diff changes
+unmentioned behavior, either split it out or name it plainly in the plan/PR
+body. If the correct fix needs more than this slice does, name the bounded
+deferral. Do not inflate the description to make the diff look larger than it
+is.
 
 ### 2b. Files touched is exact
 
@@ -176,8 +177,8 @@ When a separate reviewer session audits a PR (optional — prompt in
 ### 3a. Independent verification
 
 The reviewer reconstructs the PR independently from the diff before trusting
-prose (`docs/PR_RECONSTRUCTION_PROTOCOL.md`). Verification prose is not
-gate-checked (see `PATTERNS.md`), so review starts with the code:
+prose. Verification prose is not gate-checked (see `PATTERNS.md`), so review
+starts with the code:
 
 1. Read the diff alone and state what it actually does.
 2. Derive what a correct fix should touch/change from the problem alone.
