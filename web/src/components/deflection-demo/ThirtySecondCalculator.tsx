@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect, useId, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { Check, ChevronDown, Share2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { trackCalculatorEngaged } from '@/lib/analytics';
+import { trackCalculatorEngaged, trackCalculatorShared } from '@/lib/analytics';
+import { SITE_URL } from '@/lib/seo';
 import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 import {
+  buildSupportTaxShareQuery,
   mergeSupportTaxShareQuery,
   parseSupportTaxShareState,
   SUPPORT_TAX_INPUTS,
+  SUPPORT_TAX_ROUTE,
 } from '@/lib/support-tax-share-state';
 
 // The 30-Second Support Tax Calculator. A simpler, manager-facing cut of the
@@ -168,6 +171,43 @@ export function ThirtySecondCalculator() {
     touchHoursPerTicket: touchMinutes / 60,
   });
 
+  // Share the configured result. Build the link from live state (not the
+  // debounced address bar, which can be a drag stale) so it always matches
+  // what's on screen; default values are omitted, so a bare-defaults result
+  // shares the canonical URL.
+  const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const copyResetTimer = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (copyResetTimer.current !== null) window.clearTimeout(copyResetTimer.current);
+    },
+    [],
+  );
+
+  const handleShare = async () => {
+    const query = buildSupportTaxShareQuery({
+      monthlyTickets,
+      costPerTicket,
+      repeatPct,
+      touchMinutes,
+    });
+    const url = `${SITE_URL}${SUPPORT_TAX_ROUTE}${query ? `?${query}` : ''}`;
+    trackCalculatorShared({ calculator: 'thirty_second' });
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareUrl(null);
+      setCopied(true);
+      if (copyResetTimer.current !== null) window.clearTimeout(copyResetTimer.current);
+      copyResetTimer.current = window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked (permissions / insecure context): surface the link
+      // so the visitor can copy it by hand.
+      setShareUrl(url);
+    }
+  };
+
   return (
     <div className="glass rounded-2xl border border-border p-5 sm:p-7">
       <div className="mb-7 max-w-3xl">
@@ -270,6 +310,34 @@ export function ThirtySecondCalculator() {
               The math: {count(monthlyTickets)} tickets &times; {repeatPct}% repeat &times; $
               {costPerTicket} = {usd(monthlyTax)}/mo &rarr; {usd(annualTax)}/yr
             </p>
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Copy a link to these results"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/45 hover:text-primary"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  Share your results
+                </>
+              )}
+            </button>
+            {shareUrl && (
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                aria-label="Shareable results link"
+                onFocus={(event) => event.currentTarget.select()}
+                className="mt-2 w-full rounded-md border border-border bg-surface px-3 py-2 text-xs text-foreground/70 outline-none focus:border-primary/60"
+              />
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
