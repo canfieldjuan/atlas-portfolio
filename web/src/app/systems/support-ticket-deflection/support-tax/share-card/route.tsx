@@ -1,18 +1,30 @@
 import { ImageResponse } from 'next/og';
+import { computeQuickSupportTax } from '@/lib/support-tax-math';
+import { parseSupportTaxShareState } from '@/lib/support-tax-share-state';
 
-// Reddit-facing OG card for the 30-second support-tax calculator. The
-// headline number is the calculator's default-inputs annual total, pinned by
-// src/lib/support-tax-math.test.ts (computeQuickSupportTax at 1,500
-// tickets/mo x 40% repeat x $15 = $108,000/yr) — if the model changes, that
-// suite fails first and this copy is updated in the same slice.
+// Personalized Reddit/social card for shared support-tax links. Reads the
+// calculator's share-state query (?v=&c=&r=&t=), clamps it via
+// parseSupportTaxShareState, and renders the sharer's annual repeat-ticket
+// cost. With no params the parse returns the calculator defaults
+// (1,500 tickets/mo x 40% repeat x $15 = $108,000/yr), reproducing the static
+// card this route replaced. The annual number is pinned by
+// src/lib/support-tax-math.test.ts.
 
 export const runtime = 'edge';
-export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
-export const alt =
-  'What your repeat tickets cost, in 30 seconds — $108K a year at 1,500 tickets a month. Every assumption editable.';
 
-export default async function OpenGraphImage() {
+const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
+const count = (n: number) => Math.round(n).toLocaleString();
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const state = parseSupportTaxShareState(searchParams);
+  const { annualTax } = computeQuickSupportTax({
+    monthlyTickets: state.monthlyTickets,
+    costPerTicket: state.costPerTicket,
+    repeatShare: state.repeatPct / 100,
+    touchHoursPerTicket: state.touchMinutes / 60,
+  });
+
   return new ImageResponse(
     (
       <div
@@ -71,7 +83,7 @@ export default async function OpenGraphImage() {
               marginBottom: 24,
             }}
           >
-            $108,000 / year
+            {usd(annualTax)} / year
           </div>
           <div
             style={{
@@ -81,8 +93,8 @@ export default async function OpenGraphImage() {
               color: '#a1a1aa',
             }}
           >
-            At 1,500 tickets a month with 40% repeats. The formula is on the page and every
-            assumption is a slider — think we are wrong? Change them.
+            At {count(state.monthlyTickets)} tickets a month with {state.repeatPct}% repeats. The
+            formula is on the page and every assumption is a slider — think we are wrong? Change them.
           </div>
         </div>
 
@@ -102,6 +114,6 @@ export default async function OpenGraphImage() {
         </div>
       </div>
     ),
-    { ...size },
+    { width: 1200, height: 630 },
   );
 }
