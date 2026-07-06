@@ -32,7 +32,15 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
-## 2026-07-02
+## 2026-07-06
+
+### SUPPORT-TAX-SEO-FRAMING-1 — SEO/help-center-wording framing still lives in other calculator surfaces
+- File/location: `web/src/components/deflection-demo/SupportTaxMiniCalculator.tsx` ("Why is this happening?" card) and `web/src/components/deflection-demo/SupportTaxCalculator.tsx` ("What to do with this number" card).
+- Description: The Reddit lander's `ThirtySecondCalculator` card was rewritten from the narrow "your FAQ doesn't use the words customers reach for" SEO angle to the Resolution Audit's core purpose. The mini calculator (landing-page teaser) and the leaky-bucket calculator (LinkedIn lander) still carry the older SEO/help-center-wording framing.
+- Why it matters: positioning consistency — the product is a source-backed action queue across owner lanes, not only an FAQ-wording fixer; leaving mixed framing across surfaces dilutes that. Left parked because those surfaces intentionally keep their CTAs and were not in the requested scope (Reddit page only).
+- Effort: S
+- Category: polish
+- Found during: PR-Support-Tax-Card-Product-Truth.
 
 ### SUPPORT-TAX-OG-PERSONALIZED-1 — Personalized per-share-link OG cards for the calculator landers
 - File/location: `web/src/app/systems/support-ticket-deflection/support-tax/opengraph-image.tsx` (and the calculator route's sibling).
