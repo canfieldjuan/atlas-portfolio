@@ -338,6 +338,15 @@ export function ThirtySecondCalculator() {
                 className="mt-2 w-full rounded-md border border-border bg-surface px-3 py-2 text-xs text-foreground/70 outline-none focus:border-primary/60"
               />
             )}
+            {/* The button's aria-label stays fixed to its function; the transient
+                copy result is announced here so screen readers hear it. */}
+            <span role="status" aria-live="polite" className="sr-only">
+              {copied
+                ? 'Results link copied to clipboard.'
+                : shareUrl
+                  ? 'Copying was blocked. Copy the link shown below.'
+                  : ''}
+            </span>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
