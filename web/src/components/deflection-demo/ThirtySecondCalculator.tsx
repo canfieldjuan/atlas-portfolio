@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useId, useState } from 'react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { trackCalculatorCtaClicked, trackCalculatorEngaged } from '@/lib/analytics';
+import { trackCalculatorEngaged } from '@/lib/analytics';
 import { clampToStep, computeQuickSupportTax } from '@/lib/support-tax-math';
 import {
   mergeSupportTaxShareQuery,
@@ -297,22 +296,16 @@ export function ThirtySecondCalculator() {
           </div>
 
           <div className="rounded-xl border border-border bg-surface p-5">
-            <h3 className="text-sm font-semibold text-foreground">Why is this happening?</h3>
+            <h3 className="text-sm font-semibold text-foreground">Resolved is not the same as fixed.</h3>
             <p className="mt-2 text-sm leading-relaxed text-foreground/62">
-              Your help center speaks your product&apos;s language, but your customers speak their own. Your
-              team loses hours re-answering questions because the FAQ doesn&apos;t use the words customers
-              reach for when they get stuck.
+              Repeat tickets cost you in agent time, tooling and AI-session spend, ticket overages, and
+              customer frustration &mdash; but a closed or resolved ticket doesn&apos;t prove the root cause
+              was fixed. The Resolution Audit reads your ticket export into a ranked, source-backed action
+              queue: which questions keep coming back, the estimated cost exposure behind each, review-ready
+              answers where your tickets already hold the evidence, the gaps where no proven answer exists
+              yet, and the repeats that belong with product, billing, policy, or onboarding for review
+              rather than another support reply.
             </p>
-            <Link
-              href="/systems/support-ticket-deflection/intake"
-              onClick={() =>
-                trackCalculatorCtaClicked({ calculator: 'thirty_second', cta: 'intake' })
-              }
-              className="group mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark"
-            >
-              Start Your Forensic Audit
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
             <p className="mt-3 text-xs leading-relaxed text-foreground/45">
               Deterministic parsing of your own ticket export. No AI guesswork, and you won&apos;t wait days
               for it.
