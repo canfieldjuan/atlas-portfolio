@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildSupportTaxShareCardUrl,
   buildSupportTaxShareQuery,
   mergeSupportTaxShareQuery,
   parseSupportTaxShareState,
@@ -105,6 +106,27 @@ describe('mergeSupportTaxShareQuery', () => {
     });
     expect(new URLSearchParams(merged).get('v')).toBe('3000');
     expect(new URLSearchParams(merged).get('utm_source')).toBe('reddit');
+  });
+});
+
+describe('buildSupportTaxShareCardUrl', () => {
+  it('returns the bare share-card path at defaults', () => {
+    expect(buildSupportTaxShareCardUrl(new URLSearchParams())).toBe(
+      `${SUPPORT_TAX_ROUTE}/share-card`,
+    );
+  });
+
+  it('echoes non-default params as a canonical query', () => {
+    expect(buildSupportTaxShareCardUrl(new URLSearchParams('v=3000&r=55'))).toBe(
+      `${SUPPORT_TAX_ROUTE}/share-card?v=3000&r=55`,
+    );
+  });
+
+  it('clamps crafted params to numeric canonical, dropping non-numeric ones', () => {
+    const url = buildSupportTaxShareCardUrl(new URLSearchParams('v=<script>&c=999&r=NaN'));
+    // v and r are non-finite -> defaults (omitted); c=999 -> clamped to max 30.
+    expect(url).toBe(`${SUPPORT_TAX_ROUTE}/share-card?c=30`);
+    expect(url).not.toContain('<script>');
   });
 });
 
