@@ -229,3 +229,10 @@ export function trackCalculatorCtaClicked({
     traffic_source: currentTrafficSource(),
   });
 }
+
+export function trackCalculatorShared({ calculator }: { calculator: CalculatorId }) {
+  trackEvent('calculator_shared', {
+    calculator: safeDimension(calculator, 'unknown'),
+    traffic_source: currentTrafficSource(),
+  });
+}

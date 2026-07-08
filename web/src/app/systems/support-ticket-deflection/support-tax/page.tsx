@@ -1,5 +1,41 @@
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { ThirtySecondCalculator } from '@/components/deflection-demo/ThirtySecondCalculator';
+import { generatePageMetadata, SITE_URL } from '@/lib/seo';
+import { buildSupportTaxShareCardUrl } from '@/lib/support-tax-share-state';
+
+const SUPPORT_TAX_METADATA = {
+  title: 'Support Tax Calculator: the cost of repeat support tickets',
+  description:
+    'A 30-second estimate of the monthly cost and agent hours your team spends re-answering repeat Tier-1 support questions. Every assumption is visible and adjustable, and results are shareable by link.',
+  path: '/systems/support-ticket-deflection/support-tax',
+  keywords: [
+    'support tax calculator',
+    'cost of repeat support tickets',
+    'support agent time calculator',
+    'tier-1 ticket cost',
+    'support cost estimate',
+  ],
+};
+
+// Personalize the OG/Twitter card per shared link: a `?v=&c=&r=&t=` link
+// unfurls with the sharer's numbers instead of the default card. searchParams
+// is only available on page segments, so this cannot live on the layout.
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}): Promise<Metadata> {
+  const resolved = await searchParams;
+  const params = new URLSearchParams();
+  for (const key of ['v', 'c', 'r', 't'] as const) {
+    const value = resolved[key];
+    if (typeof value === 'string') params.set(key, value);
+    else if (Array.isArray(value) && typeof value[0] === 'string') params.set(key, value[0]);
+  }
+  const ogImage = `${SITE_URL}${buildSupportTaxShareCardUrl(params)}`;
+  return generatePageMetadata({ ...SUPPORT_TAX_METADATA, ogImage });
+}
 
 export default function SupportTaxCalculatorPage() {
   return (
