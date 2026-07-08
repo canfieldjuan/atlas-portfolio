@@ -21,12 +21,16 @@ Slice phase: Workflow/process
    self-contained deconstruct-from-diff review protocol: diff as ground truth, cite
    `file:line`, BLOCKER/MAJOR/NIT/LGTM verdicts, files-touched match, and
    web-specific hunts (metadata/noindex, stale values after renames, routes).
-2. No code or tests; the connector reads the section at review time.
+2. Refresh the generated deflection demo example after the ATLAS contract source
+   drifted ahead of this branch; this is generated fixture output only.
+3. No behavior code or tests; the connector reads the section at review time.
 
 ### Files touched
 
 - `web/plans/PR-Review-Guidelines.md` — this plan doc (new)
 - `AGENTS.md` — add the `## Review guidelines` section
+- `web/src/lib/deflection-demo-example.ts` — generated contract fixture refresh
+  required by the pre-push audit
 
 ## Mechanism
 
@@ -43,6 +47,9 @@ Next.js / landing-page repo (metadata/noindex, stale-value grep, routes).
   rather than a full rule matrix.
 - Placed in the root `AGENTS.md` (the PR/workflow file), not `web/AGENTS.md` (the
   Next.js build note), so it governs review across the whole repo.
+- The deflection demo fixture refresh is included because CI rejected the stale
+  generated output against the current ATLAS contract source; no handwritten demo
+  or product behavior changed.
 
 ## Deferred
 
@@ -52,13 +59,18 @@ Parked hardening: none.
 
 ## Verification
 
-- `bash scripts/local_pr_review.sh` — plan-doc shape, files-touched, diff-size, cross-session-drift, and whitespace checks all PASS. The eslint + `next build` checks did not run cleanly in the isolated review worktree (Turbopack cannot resolve packages through a symlinked `node_modules`); this change is docs-only (`AGENTS.md` + this plan doc) and touches no build/lint input, so CI runs the real build/lint on the PR.
+- `npm --prefix web run generate:deflection-contracts` — refreshed the generated
+  deflection demo example from the current ATLAS contract source.
+- `bash scripts/local_pr_review.sh origin/main` — passed after the generated
+  fixture refresh, including plan audits, real-adapter audit, dead-code baseline,
+  deflection landing smoke tests, ESLint, Next build, and `git diff --check`.
 - Manual: `AGENTS.md` renders without Markdown errors.
 
 ## Estimated diff size
 
 | File | LOC |
 |---|---:|
-| `web/plans/PR-Review-Guidelines.md` | ~62 |
-| `AGENTS.md` | ~24 |
-| Total | ~86 |
+| `web/plans/PR-Review-Guidelines.md` | ~76 |
+| `AGENTS.md` | ~23 |
+| `web/src/lib/deflection-demo-example.ts` | ~2 |
+| Total | ~101 |
