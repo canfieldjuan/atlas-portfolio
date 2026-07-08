@@ -91,7 +91,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.5.0",
     "framer-motion": "^12.42.0",
-    "lucide-react": "^1.22.0",
+    "lucide-react": "^1.23.0",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
