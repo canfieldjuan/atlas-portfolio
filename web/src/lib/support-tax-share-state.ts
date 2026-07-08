@@ -81,6 +81,17 @@ export function mergeSupportTaxShareQuery(
 
 export const SUPPORT_TAX_ROUTE = '/systems/support-ticket-deflection/support-tax';
 
+// Route-relative URL for the personalized OG card (child edge route handler).
+// Normalizes the incoming params through the same parse/build pipeline as the
+// page, so a crafted query is clamped to a numeric canonical before it is
+// echoed into the og:image meta tag, and the tag URL and the rendered image
+// parse to identical numbers. Kept route-relative (no SITE_URL import) so the
+// edge handler that imports this module stays dependency-light.
+export function buildSupportTaxShareCardUrl(params: QueryParamsLike): string {
+  const query = buildSupportTaxShareQuery(parseSupportTaxShareState(params));
+  return `${SUPPORT_TAX_ROUTE}/share-card${query ? `?${query}` : ''}`;
+}
+
 // Share-state params are calculator UI state, not navigation: page-view
 // tracking strips them (on this route only) so slider movement never counts
 // as traffic, while utm_*/campaign params stay in the tracked path.
