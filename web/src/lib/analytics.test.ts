@@ -191,6 +191,30 @@ describe('deflection analytics path redaction', () => {
     expect(event?.[2]?.traffic_source).toBe('reddit');
   });
 
+  it('fires a share event with calculator and traffic-source dimensions', async () => {
+    const analytics = await importAnalytics();
+    const calls: GtagCall[] = [];
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'https://portfolio.example.com',
+        pathname: '/systems/support-ticket-deflection/support-tax',
+        search: '?src=reddit&v=3000',
+      },
+      gtag: (...args: GtagCall) => calls.push(args),
+    });
+
+    analytics.trackCalculatorShared({ calculator: 'thirty_second' });
+
+    const event = calls.at(-1);
+    expect(event?.[0]).toBe('event');
+    expect(event?.[1]).toBe('calculator_shared');
+    expect(event?.[2]?.calculator).toBe('thirty_second');
+    expect(event?.[2]?.traffic_source).toBe('reddit');
+    // v (share state) is stripped from the tracked path; src (attribution) stays.
+    expect(event?.[2]?.page_path).toBe('/systems/support-ticket-deflection/support-tax?src=reddit');
+    expect(JSON.stringify(event)).not.toContain('v=3000');
+  });
+
   it('still tracks engagement when sessionStorage is unavailable', async () => {
     const analytics = await importAnalytics();
     const calls: GtagCall[] = [];
