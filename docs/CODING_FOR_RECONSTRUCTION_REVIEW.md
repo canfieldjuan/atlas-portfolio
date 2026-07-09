@@ -27,8 +27,10 @@ tell the same truth.
 
 5. **Test the behavior, not the story.** Add the happy path and the edge case
    that would expose the bug or contract drift. Use real local adapters when
-   they exist; mock only external boundaries such as network, time, storage, or
-   third-party APIs.
+   they exist; mock only true external boundaries such as third-party network
+   calls, system time, environment variables, or vendor APIs. Do not replace a
+   repo-provided storage, database, parser, or service adapter with a fake just
+   because the fake is easier to assert against.
 
 6. **Make the PR description a receipt.** The PR body describes exactly what the
    diff does and what the verification proves. Do not claim a full fix when the
@@ -59,4 +61,3 @@ Does the PR body claim exactly that, no more and no less?
 Gaps:
 What is incomplete, intentionally deferred, or out of scope?
 ```
-

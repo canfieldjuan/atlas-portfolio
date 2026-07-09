@@ -93,13 +93,13 @@ plan changes mid-implementation, update the plan doc in the same commit — plan
 and code ship together.
 
 Code for independent reconstruction
-(`docs/CODING_FOR_RECONSTRUCTION_REVIEW.md`). Before opening a PR, check the
-three-way match yourself: what the diff actually does, what a correct fix for
-the stated problem should do, and what the PR body claims. If the diff changes
-unmentioned behavior, either split it out or name it plainly in the plan/PR
-body. If the correct fix needs more than this slice does, name the bounded
-deferral. Do not inflate the description to make the diff look larger than it
-is.
+(`docs/CODING_FOR_RECONSTRUCTION_REVIEW.md`). Before opening or updating a PR,
+check the three-way match yourself: what the diff actually does, what a correct
+fix for the stated problem should do, and what the PR body claims. If the diff
+changes unmentioned behavior, either split it out or name it plainly in the
+plan/PR body. If the correct fix needs more than this slice does, name the
+bounded deferral. Do not inflate the description to make the diff look larger
+than it is.
 
 ### 2b. Files touched is exact
 
