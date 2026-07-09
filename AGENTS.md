@@ -11,6 +11,29 @@ sessions.
 
 ---
 
+## Review guidelines
+
+Automated reviewers — including the GitHub Codex connector, which reads this
+section — treat the code and diff as ground truth; the PR description and commit
+messages are unverified claims.
+
+- Reconstruct the diff independently: state what each change actually does, change
+  by change, in your own words. Do not read intent from the description. Report gaps
+  between what the diff does, what a correct fix should do, and what the description
+  claims.
+- Cite `file:line` for every finding. Classify each as **BLOCKER / MAJOR / NIT /
+  LGTM**; blockers must cite `file:line`. Lead with the blockers.
+- Check the plan's `### Files touched` against the actual diff — they must match.
+- Hunt: correctness on the primary path, security (secrets, injection, auth on any
+  gated route), data/config drift (after a rename, grep for the old value — no stale
+  instance may remain), frontend behavior and metadata (routes, noindex/robots,
+  canonical, copy strings), accessibility, resource/perf.
+- Only BLOCKER (broken correctness/security, dead link, wrong price/route shipped)
+  and MAJOR (breaks a primary or plausible path, silent failure) block. NITs are
+  non-blocking, and "LGTM — no BLOCKER/MAJOR" is a valid, complete result.
+
+---
+
 ## 1. PR shape
 
 Every non-trivial change ships as a single PR with these artifacts.

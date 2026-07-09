@@ -32,14 +32,23 @@ PR discipline itself biting); this logs **deferred product/code risk** from a sl
 
 ## Parked Items
 
-## 2026-07-02
+## 2026-07-06
 
-### SUPPORT-TAX-OG-PERSONALIZED-1 — Personalized per-share-link OG cards for the calculator landers
+### SUPPORT-TAX-SEO-FRAMING-1 — SEO/help-center-wording framing still lives in other calculator surfaces
+- File/location: `web/src/components/deflection-demo/SupportTaxMiniCalculator.tsx` ("Why is this happening?" card) and `web/src/components/deflection-demo/SupportTaxCalculator.tsx` ("What to do with this number" card).
+- Description: The Reddit lander's `ThirtySecondCalculator` card was rewritten from the narrow "your FAQ doesn't use the words customers reach for" SEO angle to the Resolution Audit's core purpose. The mini calculator (landing-page teaser) and the leaky-bucket calculator (LinkedIn lander) still carry the older SEO/help-center-wording framing.
+- Why it matters: positioning consistency — the product is a source-backed action queue across owner lanes, not only an FAQ-wording fixer; leaving mixed framing across surfaces dilutes that. Left parked because those surfaces intentionally keep their CTAs and were not in the requested scope (Reddit page only).
+- Effort: S
+- Category: polish
+- Found during: PR-Support-Tax-Card-Product-Truth.
+
+### SUPPORT-TAX-OG-PERSONALIZED-1 — RESOLVED — Personalized per-share-link OG cards for the calculator landers
 - File/location: `web/src/app/systems/support-ticket-deflection/support-tax/opengraph-image.tsx` (and the calculator route's sibling).
 - Description: The `opengraph-image.tsx` file convention receives route params only, never `searchParams`, so shared calculator links (`?v=&c=&r=&t=`) unfurl with the static default-numbers card rather than the sharer's configured result. A personalized card needs a `route.tsx` ImageResponse handler plus `generateMetadata` reading the Promise-typed `searchParams`.
 - Why it matters: a Reddit commenter pasting "here's mine: $14k/mo" gets a card that says $108K/yr defaults — the unfurl contradicts the comment, weakening exactly the share loop the lander is built for.
 - Effort: M
 - Category: polish
+- Resolved: PR-Support-Tax-Personalized-OG-Card replaced the static `opengraph-image.tsx` on the support-tax route with a `share-card/route.tsx` edge ImageResponse handler that reads the share-state query, and a page-level `generateMetadata({ searchParams })` pointing `openGraph`/`twitter` images at it. Scope was the support-tax (Reddit) route only; the leaky-bucket route keeps its static per-route card.
 - Found during: PR-Calculator-Channel-Plumbing (issue #480).
 
 ### SUPPORT-TAX-MATH-1 — Leaky-bucket context leak and self-service opportunity double-count agent time

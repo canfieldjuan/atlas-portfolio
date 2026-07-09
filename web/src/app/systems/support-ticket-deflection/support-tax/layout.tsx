@@ -1,20 +1,9 @@
-import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
+import { generateBreadcrumbJsonLd } from "@/lib/seo";
 import { jsonLdScriptPayload } from "@/lib/json-ld";
 
-export const metadata = generatePageMetadata({
-  title: "Support Tax Calculator: the cost of repeat support tickets",
-  description:
-    "A 30-second estimate of the monthly cost and agent hours your team spends re-answering repeat Tier-1 support questions. Every assumption is visible and adjustable, and results are shareable by link.",
-  path: "/systems/support-ticket-deflection/support-tax",
-  keywords: [
-    "support tax calculator",
-    "cost of repeat support tickets",
-    "support agent time calculator",
-    "tier-1 ticket cost",
-    "support cost estimate",
-  ],
-});
-
+// Page metadata (incl. the personalized OG/Twitter card) is owned by
+// generateMetadata in page.tsx, which needs searchParams — unavailable to
+// layouts. This layout only injects the breadcrumb JSON-LD.
 const breadcrumbJsonLd = generateBreadcrumbJsonLd([
   { name: "Home", path: "/" },
   { name: "Systems", path: "/systems" },
