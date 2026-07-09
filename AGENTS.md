@@ -92,6 +92,15 @@ Write the full `web/plans/PR-<Slice-Name>.md` **before** any code change. If the
 plan changes mid-implementation, update the plan doc in the same commit — plan
 and code ship together.
 
+Code for independent reconstruction
+(`docs/CODING_FOR_RECONSTRUCTION_REVIEW.md`). Before opening or updating a PR,
+check the three-way match yourself: what the diff actually does, what a correct
+fix for the stated problem should do, and what the PR body claims. If the diff
+changes unmentioned behavior, either split it out or name it plainly in the
+plan/PR body. If the correct fix needs more than this slice does, name the
+bounded deferral. Do not inflate the description to make the diff look larger
+than it is.
+
 ### 2b. Files touched is exact
 
 The `### Files touched` list must equal the PR's diff exactly — no missing, no
@@ -190,10 +199,22 @@ When a separate reviewer session audits a PR (optional — prompt in
 
 ### 3a. Independent verification
 
-The reviewer reproduces, rather than trusting prose — Verification prose is not
-gate-checked (see `PATTERNS.md`):
+The reviewer reconstructs the PR independently from the diff before trusting
+prose. Verification prose is not gate-checked (see `PATTERNS.md`), so review
+starts with the code:
+
+1. Read the diff alone and state what it actually does.
+2. Derive what a correct fix should touch/change from the problem alone.
+3. Compare both against the PR description and report every gap: diff does not
+   match description, diff does not match correct fix, or diff changes things
+   the description never mentions.
+4. Cite `file:line` or another checkable artifact for every confirmed claim and
+   sort findings into confirmed, contradicted, or could-not-determine.
 
 ```
+**Reconstruction gaps:**
+- <None, or file:line — confirmed/contradicted/could-not-determine — gap>
+
 **Verification (independent):**
 1. <claim from PR / plan> — verified via <command>
 2. <invariant from Mechanism> — confirmed at <file:line>
@@ -250,6 +271,28 @@ means, per verdict level:
 
 The next slice starts only after the previous slice's PR is merged. Fixes go in
 as new commits (never force-push); squash-merge collapses them.
+
+### 3d. Runtime distinction: Codex vs Claude Code
+
+The rules above apply to every agent, but the wake/poll mechanics differ by
+runtime:
+
+- **Codex/API sessions** do not gain durable PR subscriptions from this repo.
+  They may use `scripts/pr_state.py` as the observed-state sensor, but wake-up,
+  low-compute timer checks, and "continue after merge" behavior require an
+  external runner, bridge, or operator prompt. Do not ask Codex to build an
+  in-repo poll loop unless the operator explicitly approves that infrastructure.
+- **Claude Code sessions** can use Claude Code's native PR/review/comment wake
+  behavior and scheduled self-checks for long-horizon coding. Claude Code still
+  obeys this contract: plan first, local gate before push, fix only observed
+  review/CI output, resolve fixed review threads, merge only after observed
+  green CI plus the human reviewer verdict, then continue to the next approved
+  slice.
+
+Do not collapse these runtimes into one instruction set. Codex needs explicit
+external orchestration; Claude Code guidance belongs in `CLAUDE.md` and should
+not invent extra watcher infrastructure just to do what Claude Code already
+does natively.
 
 ### 3e. Test adapter discipline
 
