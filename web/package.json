@@ -105,7 +105,7 @@
     "eslint-config-next": "16.2.10",
     "knip": "^6.16.1",
     "tailwindcss": "^4",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^4.1.10"
   },
   "overrides": {
