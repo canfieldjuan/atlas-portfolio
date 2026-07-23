@@ -1,5 +1,6 @@
 import { DeflectionSnapshotLandingPage } from '@/components/landing/DeflectionSnapshotLandingPage';
-import { generatePageMetadata } from '@/lib/seo';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
+import { generateBreadcrumbJsonLd, generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
   title: 'The Resolution Audit: Find Support Ticket Cost Exposure',
@@ -17,6 +18,21 @@ export const metadata = generatePageMetadata({
   ],
 });
 
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Systems', path: '/systems' },
+  { name: 'Support Ticket Deflection', path: '/systems/support-ticket-deflection' },
+  { name: 'Resolution Audit Snapshot', path: '/systems/support-ticket-deflection/snapshot' },
+]);
+
 export default function SupportTicketDeflectionSnapshotPage() {
-  return <DeflectionSnapshotLandingPage />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
+      />
+      <DeflectionSnapshotLandingPage />
+    </>
+  );
 }

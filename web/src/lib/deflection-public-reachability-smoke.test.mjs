@@ -316,7 +316,7 @@ describe('deflection public reachability smoke guard', () => {
     );
     expect(partnerClientSource).toContain('free Deflection Snapshot');
     expect(partnerClientSource).toContain('What do I get in the full Deflection Report?');
-    expect(partnerClientSource).toContain('structuredData: generateFaqJsonLd(');
+    expect(partnerClientSource).toContain('structuredData: undefined');
     expect(partnerClientSource).toContain('items: partnerFaqItems');
     expect(intakeRouteSource).toContain("'/systems/support-ticket-deflection/partner'");
   });

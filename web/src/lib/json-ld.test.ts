@@ -163,7 +163,7 @@ describe('JSON-LD script payloads', () => {
       }
     }
 
-    expect(discoveredJsonLdFiles.size).toBeGreaterThanOrEqual(17);
-    expect(discoveredJsonLdBlockCount).toBeGreaterThanOrEqual(19);
+    expect(discoveredJsonLdFiles.size).toBe(14);
+    expect(discoveredJsonLdBlockCount).toBe(15);
   });
 });

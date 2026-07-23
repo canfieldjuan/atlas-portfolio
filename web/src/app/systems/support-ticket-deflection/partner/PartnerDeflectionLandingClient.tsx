@@ -9,7 +9,6 @@ import {
   DEFLECTION_PARTNER_PRICE_VARIANT,
   DEFLECTION_PRICE_UNAVAILABLE_LABEL,
 } from '@/lib/deflection-pricing';
-import { generateFaqJsonLd } from '@/lib/seo';
 import { landingPageConfigV2, makeProblemAgitation, makeProblemCost } from '../landingConfig-v2';
 import { pricingFaqs, pricingTiers } from '../landingConfig';
 
@@ -148,9 +147,7 @@ export function PartnerDeflectionLandingClient({
   };
   const partnerConfig = {
     ...landingPageConfigV2,
-    structuredData: generateFaqJsonLd(
-      partnerFaqItems.map((faq) => ({ question: faq.q, answer: faq.a })),
-    ),
+    structuredData: undefined,
     hero: partnerHero,
     finalCta: partnerFinalCta,
     problemAgitation: makeProblemAgitation(),

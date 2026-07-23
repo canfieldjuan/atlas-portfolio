@@ -19,11 +19,13 @@ import {
   DEFLECTION_ASSISTED_CONTACT_DELTA_LABEL,
   DEFLECTION_SELF_SERVICE_BENCHMARK_LABEL,
 } from '@/lib/deflection-pricing';
-import { generateFaqJsonLd } from '@/lib/seo';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
 
-const faqJsonLd = generateFaqJsonLd(
-  pricingFaqs.map((faq) => ({ question: faq.q, answer: faq.a })),
-);
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Systems', path: '/systems' },
+  { name: 'Support Ticket Deflection', path: '/systems/support-ticket-deflection' },
+]);
 const SNAPSHOT_HREF = '/systems/support-ticket-deflection/snapshot';
 
 function CopyBlock({ children }: { children: ReactNode }) {
@@ -213,7 +215,7 @@ export function makeProblemCost(): DeflectionLandingPageConfig['problemCost'] {
 }
 
 export const landingPageConfigV2: DeflectionLandingPageConfig = {
-  structuredData: faqJsonLd,
+  structuredData: breadcrumbJsonLd,
   hero: {
     eyebrow: 'SUPPORT TICKET DEFLECTION',
     eyebrowIcon: <Workflow className="h-3 w-3" />,

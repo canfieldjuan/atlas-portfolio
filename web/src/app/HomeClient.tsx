@@ -111,7 +111,7 @@ export default function HomeClient() {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[1.1] max-w-4xl">
-              Turn the workflows your team already runs into<br />
+              Turn the workflows your team already runs into<br />{' '}
               <span className="gradient-text">AI systems they can trust.</span>
             </h1>
 

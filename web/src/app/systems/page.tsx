@@ -13,6 +13,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { type AuditProjectInterest, buildAuditHref } from '@/lib/audit-routing';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Systems', path: '/systems' },
+]);
 
 type SystemEntry = {
   icon: React.ReactNode;
@@ -170,8 +177,13 @@ const fitNotes = [
 
 export default function SystemsPage() {
   return (
-    <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
-      <div className="max-w-6xl mx-auto">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
+      />
+      <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -375,7 +387,8 @@ export default function SystemsPage() {
             These are not self-serve SaaS products. They are production-ready starting points for custom AI implementation, scoped through Phase 1 and delivered with your data, integrations, and operator controls.
           </p>
         </motion.div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
