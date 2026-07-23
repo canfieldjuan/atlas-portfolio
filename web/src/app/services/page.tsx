@@ -4,52 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, FileText, HelpCircle, Map, Radar, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
-import { generateFaqJsonLd } from '@/lib/seo';
-import { jsonLdScriptPayload } from '@/lib/json-ld';
 import { RelatedGuides } from '@/components/RelatedGuides';
-
-const faqJsonLd = generateFaqJsonLd([
-  {
-    question: "How much does an AI solutions architect cost?",
-    answer: "Phase 1 Roadmap is a flat fee of $4,500 and includes discovery, system audit, working proof of concept, and a fixed-price Phase 2 proposal. Phase 2 custom implementation typically ranges from $8,000 to $50,000+ depending on complexity.",
-  },
-  {
-    question: "What if my AI automation project is small?",
-    answer: "The two-phase model scales down just as well. A simple alert pipeline or automation workflow still starts with a Roadmap — it just results in a smaller, faster Phase 2.",
-  },
-  {
-    question: "Do you offer custom AI development services or just consulting?",
-    answer: "Both. Phase 1 is the consulting and architecture roadmap: discovery, audit, proof of concept, and fixed-scope blueprint. Phase 2 is the custom AI development and implementation work, priced before build begins.",
-  },
-  {
-    question: "What is the difference between AI automation consulting and custom AI development?",
-    answer: "AI automation consulting defines the workflow, architecture, data requirements, risk boundaries, and proof of concept. Custom AI development is the implementation work that follows once the system is scoped and priced.",
-  },
-  {
-    question: "What happens after the AI systems roadmap?",
-    answer: "You receive the blueprint, proof of concept, risk notes, integration map, and fixed-price Phase 2 proposal. You can build with me, build internally, pause, or choose a simpler tool.",
-  },
-  {
-    question: "Do you work as an AI automation consultant for startups and remote teams?",
-    answer: "Yes, when there is a clear workflow owner, real data, and an implementation path. The work can fit startups, founder-led teams, and remote US or international teams that need AI workflow automation tied to operations.",
-  },
-  {
-    question: "Do you already have prebuilt AI systems?",
-    answer: "Yes. The Competitive / Vendor Intelligence Platform and AI Content Ops Station both have reusable architecture already built. Phase 1 customizes the data sources, workflows, approvals, and integrations around the buyer's business before implementation.",
-  },
-  {
-    question: "Do AI consultants bill hourly?",
-    answer: "Not this one. Every engagement is flat-fee or fixed-price. Phase 1 is $4,500 flat. Phase 2 is a fixed price agreed before any work begins. No hourly billing, no surprise invoices.",
-  },
-  {
-    question: "How is data security handled during an AI consulting engagement?",
-    answer: "The deployment model is scoped to the buyer's operational and security requirements. Cloud, local, and hybrid patterns can be evaluated per project. Client data is not repurposed by me for model training, and any third-party processing or retention constraints should be defined during architecture and security review.",
-  },
-  {
-    question: "Who owns the code and deliverables from an AI consulting project?",
-    answer: "You do. All code, documentation, architecture, and data artifacts are yours. No vendor lock-in, no proprietary dependencies.",
-  },
-]);
 
 const fitSummary = {
   bestFor: [
@@ -154,10 +109,6 @@ const productizedSystems = [
 export default function ServicesPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
-      />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
       <div className="max-w-5xl mx-auto">
 

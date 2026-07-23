@@ -16,6 +16,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Systems', path: '/systems' },
+  { name: 'AI Content Ops', path: '/systems/ai-content-ops' },
+]);
 
 // Content Ops hub — product gallery layout.
 // Hero is tight; offers drive the page; coming-soon stubs signal roadmap.
@@ -128,8 +136,13 @@ const auditHref = buildAuditHref({
 
 export default function AiContentOpsHubPage() {
   return (
-    <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
-      <div className="max-w-6xl mx-auto">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
+      />
+      <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
 
         {/* ── Hero ── */}
         <motion.div
@@ -336,7 +349,8 @@ export default function AiContentOpsHubPage() {
           </Link>
         </motion.div>
 
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

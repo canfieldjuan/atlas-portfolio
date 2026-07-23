@@ -1,11 +1,23 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Clock, Tag } from 'lucide-react';
 import { resourceArticles } from '@/lib/resources';
+import { jsonLdScriptPayload } from '@/lib/json-ld';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Resources', path: '/resources' },
+]);
 
 export default function ResourcesPage() {
   return (
-    <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
-      <div className="max-w-6xl mx-auto">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
+      />
+      <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
         <div className="max-w-3xl mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-wide mb-6">
             <BookOpen className="w-3 h-3" />
@@ -65,7 +77,8 @@ export default function ResourcesPage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

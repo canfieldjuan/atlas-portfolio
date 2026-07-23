@@ -17,8 +17,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
-import { generateFaqJsonLd } from '@/lib/seo';
-import { jsonLdScriptPayload } from '@/lib/json-ld';
 
 const monthlyScope = [
   {
@@ -134,10 +132,6 @@ const ongoingFaqs: { q: string; a: string }[] = [
   },
 ];
 
-const faqJsonLd = generateFaqJsonLd(
-  ongoingFaqs.map((faq) => ({ question: faq.q, answer: faq.a })),
-);
-
 const ctaHref = buildAuditHref({
   interest: 'content-generation',
   source: 'ai-content-ops-ongoing-support',
@@ -147,10 +141,6 @@ const ctaHref = buildAuditHref({
 export default function OngoingSupportPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
-      />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
 

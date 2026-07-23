@@ -1,5 +1,4 @@
-import { generateBreadcrumbJsonLd, generatePageMetadata } from "@/lib/seo";
-import { jsonLdScriptPayload } from "@/lib/json-ld";
+import { generatePageMetadata } from "@/lib/seo";
 import { ShieldCheck } from "lucide-react";
 
 export const metadata = generatePageMetadata({
@@ -36,19 +35,9 @@ export const metadata = generatePageMetadata({
   ],
 });
 
-const breadcrumbJsonLd = generateBreadcrumbJsonLd([
-  { name: "Home", path: "/" },
-  { name: "Systems", path: "/systems" },
-  { name: "Support Ticket Deflection", path: "/systems/support-ticket-deflection" },
-]);
-
 export default function SupportTicketDeflectionLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}
-      />
       <div className="border-b border-primary/10 bg-primary/[0.045] px-4 py-2 text-center">
         <p className="inline-flex max-w-full items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-primary sm:text-xs">
           <ShieldCheck className="h-3.5 w-3.5 shrink-0" />

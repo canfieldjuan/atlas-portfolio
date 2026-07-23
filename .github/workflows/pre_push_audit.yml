@@ -90,7 +90,7 @@ jobs:
       - name: Admin intake login rate-limit tests
         run: npm --prefix web run test:admin-intake-login-rate-limit
 
-      - name: JSON-LD escaping tests
+      - name: SEO integrity and JSON-LD tests
         run: npm --prefix web run test:json-ld-escaping
 
       - name: Structured runtime logging tests

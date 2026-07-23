@@ -9,33 +9,10 @@ import {
   Map,
   ShieldCheck,
 } from 'lucide-react';
-import { generateBreadcrumbJsonLd, generateFaqJsonLd } from '@/lib/seo';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
 import { jsonLdScriptPayload } from '@/lib/json-ld';
 import { buildAuditHref } from '@/lib/audit-routing';
 import { RelatedGuides } from '@/components/RelatedGuides';
-
-const faqJsonLd = generateFaqJsonLd([
-  {
-    question: 'What does an AI automation consultant do?',
-    answer:
-      'An AI automation consultant maps an existing workflow, identifies where AI can safely reduce manual work, defines data and integration requirements, proves the riskiest part, and scopes the implementation before build work begins.',
-  },
-  {
-    question: 'Do I need custom AI development or a SaaS tool?',
-    answer:
-      'Use SaaS when the workflow is generic and your team can adapt to the tool. Custom AI development makes more sense when the value depends on your data, approval rules, integrations, or internal process.',
-  },
-  {
-    question: 'How much does AI automation consulting cost?',
-    answer:
-      'The Phase 1 Roadmap is $4,500 flat and includes discovery, audit, proof of concept, technical blueprint, and a fixed-price Phase 2 implementation proposal.',
-  },
-  {
-    question: 'Can an AI workflow keep humans in control?',
-    answer:
-      'Yes. The safest automation work defines the human review points, approval states, failure handling, and audit trail before the system is implemented.',
-  },
-]);
 
 const breadcrumbJsonLd = generateBreadcrumbJsonLd([
   { name: 'Home', path: '/' },
@@ -133,10 +110,6 @@ const faqs = [
 export default function AiAutomationConsultantPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbJsonLd) }}

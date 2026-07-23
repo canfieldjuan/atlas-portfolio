@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { buildAuditHref } from '@/lib/audit-routing';
-import { generateFaqJsonLd } from '@/lib/seo';
-import { jsonLdScriptPayload } from '@/lib/json-ld';
 
 const gatewayHref = buildAuditHref({
   interest: 'llm-gateway',
@@ -209,10 +207,6 @@ const faqs = [
   },
 ];
 
-const faqJsonLd = generateFaqJsonLd(
-  faqs.map((faq) => ({ question: faq.q, answer: faq.a })),
-);
-
 function GatewayDiagram() {
   const stages = [
     'Your app',
@@ -261,10 +255,6 @@ function GatewayDiagram() {
 export default function AtlasLlmGatewayPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
-      />
       <main className="min-h-screen pt-32 pb-20 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">

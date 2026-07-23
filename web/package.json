@@ -52,7 +52,7 @@
     "test:admin-access-ledger": "vitest run src/lib/admin-access-log.test.ts",
     "test:admin-intake-named-accounts": "vitest run src/lib/admin-intake-auth.test.ts",
     "test:admin-intake-login-rate-limit": "vitest run src/lib/admin-intake-rate-limit.test.ts",
-    "test:json-ld-escaping": "vitest run src/lib/json-ld.test.ts",
+    "test:json-ld-escaping": "vitest run src/lib/json-ld.test.ts src/lib/seo-integrity.test.ts",
     "test:structured-runtime-logging": "vitest run src/lib/structured-runtime-log.test.ts",
     "test:deflection-checkout": "vitest run src/lib/deflection-checkout.test.ts",
     "test:deflection-checkout-env": "vitest run src/lib/deflection-checkout-env.test.ts",

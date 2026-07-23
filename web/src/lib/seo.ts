@@ -243,33 +243,6 @@ export const rootJsonLd = {
   ],
 };
 
-/**
- * Generate FAQPage JSON-LD schema for AEO.
- *
- * Usage:
- * ```ts
- * const faqSchema = generateFaqJsonLd([
- *   { question: "How much?", answer: "$4,500 for Phase 1." },
- * ]);
- * ```
- */
-export function generateFaqJsonLd(
-  faqs: { question: string; answer: string }[]
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer,
-      },
-    })),
-  };
-}
-
 export function generateArticleJsonLd({
   title,
   description,
